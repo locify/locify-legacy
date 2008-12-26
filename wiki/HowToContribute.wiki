@@ -1,0 +1,17 @@
+#summary Guide how to contribute into Locify source code
+#labels Featured
+
+= Please Contribute! =
+We would like to encourage all fans of Locify to contribute to our project. Did you find some bug? You can fix it. Did you find some your phone specific behaviour? Test it and repair it. Miss some feature? You can implement it. We will be notified about your contribution, we will contact you and most likely add your changes into project's main repository and next release of Locify client.
+
+= Anonymous checkouts =
+You can checkout our source code anonymously. You can play around with the code, build some versions for your use. But when you think your changes can be helpful for others as well, please commit your changes as registered user.
+
+= Commits as registered user =
+If you think you changes can be helpful for others as well, commit via SVN to our Google Code repository (in Source section).
+
+But please follow this rules:
+  * to the *trunk/* commit only bug fixes
+  * if you have developed any new feature, create a new branch in *braches/*
+
+We will revise your changes and merge them with our main repository.
