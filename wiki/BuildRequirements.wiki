@@ -1,0 +1,20 @@
+#summary What you need to build your own version of Locify
+#labels Phase-Implementation,howto
+
+= Software you need =
+
+  * Latest Sun Java JDK
+  * Latest [http://www.j2mepolish.org J2ME Polish] - Locify uses this framework for building GUI etc.
+  * Latest Netbeans IDE - this is not required, but everything is prepared for Netbeans and you will avoid many problems. However, it's possible to build Locify just with command line.
+  * Sun Wireless Toolkit - provides emulator for testing midlets, it is a part of Netbeans IDE
+
+
+= Firt build howto =
+
+  # Download and install required software
+  # Checkout latest trunk/ source code
+  # Open Locify project in Netbeans
+  # Edit build.xml
+  # Change path to the J2ME Polish installation
+  # Copy a file "custom-devices.xml" and "custom-css-attributes.xml" from ".polishSettings" to the J2ME Polish installation directory
+  # Click on Build in Netbeans
