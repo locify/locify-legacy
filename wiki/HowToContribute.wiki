@@ -8,10 +8,14 @@ We would like to encourage all fans of Locify to contribute to our project. Did 
 You can checkout our source code anonymously. You can play around with the code, build some versions for your use. But when you think your changes can be helpful for others as well, please commit your changes as registered user.
 
 = Commits as registered user =
-If you think you changes can be helpful for others as well, commit via SVN to our Google Code repository (in Source section).
+If you think you changes can be helpful for others as well, commit via SVN to our repository (in Source section). You need to have an Google Account. Contact us on support@locify.com. We will add you to Locify open-source developers and then you will be able to commit.
 
 But please follow this rules:
-  * to the *trunk/* commit only bug fixes
-  * if you have developed any new feature, create a new branch in *braches/*
+  * DO NOT commit into *trunk/* or *tags/* directory - we need to maintain "official" version of source code here. Commits to the trunk or tags will be reverted.
+  * commit your changes into *branches/* directory. For each significant feature/bug fix create your own branch and commit there as you like.
+  * comment a lot - inside a source code and also please comment commits extensively
 
-We will revise your changes and merge them with our main repository.
+We will revise your commits and merge them with the trunk.
+
+= Contributing using patches =
+If you don't have Google Account, don't want to be registered developer, don't like SVN or for any other reason, you can contribute also using patches. Send us a standard patch file to support@locify.com. We will revise it and possibly use it. Rule about lot of comments apply as well.
