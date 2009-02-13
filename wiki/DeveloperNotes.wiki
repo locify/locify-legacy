@@ -16,3 +16,11 @@ There is lot of code in Locify and it can be confusing. See packages for better 
  * _com.locify.client.net_ contains functionality about connecting to the network, sending and receiving data. There are also parsers for XHTML and Locify specific pages.
  * _com.locify.client.route_ contains functionality about route recording.
  * _com.locify.client.utils_ contains functionality used all over application.
+
+= About build.xml =
+build.xml file controlling build process. To avoid errors in build process you should know the basics. build.xml can build for various devices. It's all controlled by few directives in the <target name="j2mepolish-init" depends="init"> section:
+ * when you turn *release* to true, Locify will build for various devices and without logging support. When it's turn off, Locify will build just for generic device and with extensive logging support. There is also Simulator GPS available. MIDlet will name Locify-nightly and will not interfere with stable Locify. This option is good for debugging
+ * when you turn *absolute-urls* to true, absolute JAR URLs in the JAD file will be used. This is good in OTA installation. But when you want to install via PC Suite for example, it's good to leave relative JAR URL.
+
+= About signing =
+We sign Locify with Thawte Code Signing certificate. However this certificate is not free and we have to pay for it. If you have created an application based on Locify, you have to buy your own certificate. If your application is still named Locify and has just some modification, contact us and we will think about something. Best way is to contribute into project itself - we will sign the whole application during release.
