@@ -10,9 +10,9 @@
 	/>
     <target name="j2mepolish-init" depends="init">
         <!-- turn this true to build all release versions of Locify, it turned off stage generic version is generated -->
-        <property name="release" value="true" />
+        <property name="release" value="false" />
         <!-- turn this true to build versions with absolute URLs -->
-        <property name="absolute-urls" value="true" />
+        <property name="absolute-urls" value="false" />
         <!-- test is launched in netbeans when i click to run, when i click to build is false -->
         <property name="test" value="false" />
     </target>
@@ -81,10 +81,6 @@
                     <root dir="resources/nightly" unless="release" />
                 </resources>
               <obfuscator name="ProGuard" unless="polish.Vendor == BlackBerry"/>
-                <sign
-	key="locify"
-	keystore="locify.ks"
-	password="l2o0c0i8!" />
                 <jad>
                     <attribute name="Nokia-MIDlet-Category" value="Application" />
                     <attribute name="MIDlet-Name" value="Locify-nightly" unless="release"/>
