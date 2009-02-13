@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocifyPorter", "LocifyPorter\LocifyPorter.csproj", "{B1F094BE-440C-4070-988D-A7D05C8D4BFB}"
+EndProject
+Project("{B900F1C2-3D47-4FEC-85B3-04AAF18C3634}") = "Install", "Install\Install.vddproj", "{94911944-5D6C-4C6F-B3D9-233A39F655BD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1F094BE-440C-4070-988D-A7D05C8D4BFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1F094BE-440C-4070-988D-A7D05C8D4BFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1F094BE-440C-4070-988D-A7D05C8D4BFB}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{B1F094BE-440C-4070-988D-A7D05C8D4BFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1F094BE-440C-4070-988D-A7D05C8D4BFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1F094BE-440C-4070-988D-A7D05C8D4BFB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{94911944-5D6C-4C6F-B3D9-233A39F655BD}.Debug|Any CPU.ActiveCfg = Debug
+		{94911944-5D6C-4C6F-B3D9-233A39F655BD}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
