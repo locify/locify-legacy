@@ -1,0 +1,272 @@
+# Locify translation file for language: Polish Made by Adrian 'fck' Kot
+
+#General words
+Locify=Locify
+Warning=Uwaga
+Info=Info
+Error=Błąd
+Main_screen=Główny ekran
+Name=Nazwa
+Latitude=Szerokość
+Longitude=Długość
+Distance=Dystans
+Title=Tytuł
+Description=Opis
+Speed=Prędkość
+Heading=Kurs
+Altitude=Wysokość
+Accuracy=Dokładność
+Always=Zawsze
+Never=Nigdy
+Ask_every_time=Zawsze pytaj
+Degree=\u00B0
+
+#Main Menu
+Set_location=Set Location
+Gps=GPS
+Saved_location=Zapisane lokalizacje
+Address=Adres
+Coordinates=Koordynaty
+Last_known=Ostatnio znane
+Service=Usługa
+Shortcut=Skrót
+More_info=Więcej info
+Update_service=Aktualizuj usługę
+Rename=Zmień nazwę
+Move=Przenieś
+Delete=Skasuj
+Tools=Narzędzia
+Navigation=Nawigacja
+Maps=Mapy
+Files=Pliki
+Add=Dodaj
+Service_from_list=Usługa z listy
+Service_by_link=Usługa z linku
+Shortcut=Skrót
+More=Więcej
+Login=Zaloguj
+Logout=Wyloguj
+Sync=Sync
+Settings=Ustawienia
+Check_version=Sprawdź wersję
+Help=Pomoc
+Logger=Logger
+Exit=Wyjście
+
+#Commands
+Stop=Stop
+Back=Wróć
+Select=Wybierz
+Edit=Edytuj
+Delete_all=Skasuj wszystko
+Register=Zarejestruj
+Save=Zapisz
+Yes=Tak
+No=Nie
+Send=Wyślij
+Navigate=Nawiguj
+View=Widok
+Cancel=Anuluj
+OK=OK
+Show_on_map=Pokaż na mapie
+
+#Loading
+Loading=Ładowanie
+Directory_for_Locify_files=Folder plików Locify
+Root_directory=Root
+Possible_directories=Możliwe foldery
+Welcome_to_Locify=Witaj w Locify!
+Welcome_text=Hej, witaj w Locify.\n\nZanim zaczniesz, upewnij się że masz nadane uprawnienia do plików Locify! Inaczej oczekuj wielu kłopotliwych zapytań o uprawnienia.\n\nWięcej na http://www.locify.com/help/installation\n\nJesteś gotowy?
+Loading_filesystem=Ładuję pliki systemowe
+Loading_cookies=Ładuję ciasteczka
+Loading_settings=Ładuję ustawienia
+Loading_service_settings=Ładuję ustawienia serwisowe
+Loading_deleted=Ładuję skasowane dane
+Loading_services=Ładuję usługi
+Loading_mainscreen=Ładuję ekran główny
+Loading_locator=Ładuję locator
+Continue=Kontynuuj
+Choose_language=Wybierz język
+English=Angielski
+Czech=Czeski
+Slovenian=Słoweński
+Polish=Polski
+
+#Location providers
+JSR179LocationProvider=Wbudowany GPS
+SimulatorLocationProvider=Symulator Gps
+NoGpsLocationProvider=Brak GPS
+BTNMEALocationProvider=Bluetooth Gps
+TCPNMEALocationProvider=PDA Porter
+COMNMEALocationProvider=SonyEricsson HGE-100
+
+#GPS Connection
+Connection_progress=Połączenie w toku
+Select_GPS_device=Wybierz urządzenie GPS
+Bluetooth_off=Twój bluetooth jest wyłączony!
+Unable_to_search_service=Nie można odszukać urządzenia bluetooth
+Already_connected=Twój telefon jest już podłączony do innego urządzenia bluetooth lub Twój moduł GPS jest podłączony do innego telefonu.
+Connected=Połączono
+No_bt_in_range=Brak urządzeń bluetooth w zasięgu
+Unknown_bt_device=Nieznane urządzenie bluetooth
+Connecting_to_device=Łączę z urządzeniem
+Bluetooth_searching=Szukanie najbliższych urządzeń bluetooth
+Connection_failed_or_off=Błąd połączenia. Urządzenie jest poza zasięgiem lub zdublowane.
+Connection_failed=Błąd połączenia
+Connecting=Łączenie
+Connecting_to_last_device=Łączenie do ostatniego urządzenia
+HGE-100_not_connected=An accessories Sony-Ericsson HGE-100 is not connected to your phone.
+
+#Service Management
+Really_add_service=Chcesz dodać tę usługę?
+Service_added=Dodano usługę
+Service_description=Opis usługi
+Service_url=URL usługi
+Confirmation=Potwierdzenie
+New_name=NNowa nazwa
+Add_shortcut=Dodaj skrót
+Add_service=Dodaj usługę
+
+#Login & Register
+Save_password=Zapamiętaj hasło
+If_not_registered=Jeśli nie jesteś zarejestrowany
+Please_register=Zarejestruj się
+Email=E-mail
+Repeat_password=Powtórz hasło
+Passwords_dont_match=Podane hasła nie są identyczne
+Login_name=Login
+Password=Hasło
+Credentials_to=Credentials to
+
+#Synchronization
+Sync_in_progress=Synchronizuję...
+Sending_sync_data=Wysyłam dane do serwera...
+Receiving_sync_data=Odbieram dane z serwera...
+Sync_complete=Synchronizacja zakończona
+
+#Settings
+Location=Pozycja
+Interface=Interfejs
+Other=Inne
+Preffered_gps=Prefferowany GPS
+Autodetect=Autowykrywanie
+Connect_gps=Połącz z GPS
+Always_ask_for_location=Zawsze pytaj o pozycję
+When_location_needed=Kiedy potrzebna pozycja
+On_application_start=Przy uruchamianiu programu
+Close_app_on_external_browser=Zamknij prog. w zewn. przeglądarce
+Coordinates_format=Format współrzędnych
+Decimal_degrees=Stopnie dziesiętne
+Degrees_and_minutes=Stopnie i minuty
+Degrees_minutes_seconds=DD MM SS
+Autologin=Loguj automatycznie
+On=Włącz
+Off=Wyłącz
+Language=Język
+Changed_language_after_restart=Nowy język zostanie w pełnio załadowany po restarcie Locify.
+
+#Check version
+Download_latest=Ściągnij najnowszą wersję
+Current_version_info=Wersja:
+Latest_version_info=Latest version info
+
+#Form options
+Refresh_gps=Odśwież GPS
+Another_location=Inna pozycja
+
+#Location Context
+Enter_own_coordinates=Wpisz swoje współrzędne
+Enter_address=Wpisz adres
+Select_saved_location=Wybierz zapisaną lokalizację
+
+
+#External browser
+External_browser_launch=Otwieranie zewnętrznej przeglądarki
+External_closing_information=W niektórych telefonach zewnętrzną przeglądarkę można włączyć tylko po wyłączeniu programu. Chcesz zamknąć Locify?
+
+#Filesystem
+Waypoint_saved=Dodano waypoint.
+Waypoint_received=Otrzymano waypoint
+Sort_by_distance=Sortuj wg odległości
+Sort_by_name=Sortuj alfabetycznie
+To_landmarks=Dodaj punkt mapy
+Waypoint_added_to_landmarks=Waypoint dodany do punktów mapy. Możesz go używać w programach typu Nokia Maps.
+
+#Navigation
+Navi-more=Bliżej
+Navi-less=Dalej
+Navi-distance=Dystans
+Navi-speed=Prędkość
+Navi-lat=Szerokość
+Navi-lon=Długość
+Navi-altitude=Wys.
+Navi-accuracy=Dokł.
+Navi-course=Kurs
+Navi-north=N
+Navi-east=E
+Navi-south=S
+Navi-west=W
+
+#Map screen
+Change_map=Zmień mapę
+Zoom_in=Przybliż (3)
+Zoom_out=Oddal (1)
+My_location=Moja pozycja (0)
+
+#J2ME Polish texts
+polish.command.ok=OK
+polish.command.cancel=Anuluj
+polish.command.select=Wybierz
+polish.command.mark=Zaznacz
+polish.command.unmark=Odznacz
+polish.command.options=Opcje
+polish.command.delete=Usuń
+polish.command.clear=Wyczyść
+polish.command.hide=Ukryj
+polish.title.input=Wpisz
+polish.command.entersymbol=Dodaj symbol
+polish.command.followlink=Idź
+polish.command.submit=Wyślij
+
+#Help texts
+About=O Locify
+About_text=Copyright (c) 2007, Locify Ltd. All Rights Reserved\n\nSearch for more at: http://www.locify.com\n\nThis is freeware.
+What_is_locify_for=Do czego służy Locify?
+What_is_locify_for_text=Locify is a mobile and web application for location-enabled web services. The main content of Locify is services. Services specify functionality and are provided via open API. This means that you can write your own service which requires some location-oriented data and you don't have to solve mobile application programming problems.\n\nSome examples of possible Locify usage: Find nearest KFC restaurants, Find my friends nearby, Tag this place and send it with description to web, Show my position on on-line map, Navigate me to selected geocache, Show nearby Flickr photos in external browser etc.
+How_to_add_service=How to add a service?
+How_to_add_service_text=You can add a service from the list of verified services on our server. There is a quick link on the main screen or you can use 'Options->Actions->Add->Add service'.\n\nIf a service is not listed in the Locify service list, you can add it manually with the URL. You can do that at 'Options->Actions->Add->Add Manually'.\n\nYou can also add a service to your account via the web at http://www.locify.com. After you synchronize, the service will appear in your mobile phone.\n\nAfter finding the service you want to add, some info about it will be shown. After confirmation, the service is installed and accessible from main screen.
+How_to_connect_gps=How to connect GPS?
+How_to_connect_gps_text=You can connect the program to a GPS device in multiple ways. By selecting 'Bluetooth GPS' you can connect to a nearby Bluetooth GPS module. Make sure the device is on and Bluetooth is on.\n\nBy selecting 'Internal GPS' you can connect using Location API. This API is used for connecting with internal GPS in some phones like Nokia N95.\n\nUse 'PDA Porter' to connect GPS on PDA's. Read more at http://www.locify.com/help/windows-mobile If you have an external GPS Device like Garmin, 'Without GPS' is the mode for you. You will have to enter coordinates manually, but you can still use Locify.
+What_is_login_for=What is login for?
+What_is_login_for_text=If you select 'Options->Actions->Login', you can log in to your Locify account. After login you can synchronize all the data in your phone with the Locify server. Some services can also use your Locify login for their authentication.
+What_is_synchronized=What is synchronized?
+What_is_synchronized_text=Everything. All data is synchronized, so you can switch phones and after synchronization you will see the Locify client the same as before. You can also manage your services on the web and these changes will be visible on your phone after synchronization.
+How_to_manage_services=How to manage items on main screen?
+How_to_manage_services_text=You have various options in managing items. You can add new services, shortcuts, delete them, move their position on the main screen etc. Everything is done by selecting Service in the main screen and then 'Options->Actions->Manage Item'.
+Where_is_service_settings=Where are service settings?
+Where_is_service_settings_text=Every service can have its own settings. You can customize the service via these settings. Settings are available at 'Options->Actions->Manage Item->Settings'. The settings option will be shown only if there are any settings.
+How_can_i_save_my_location=How can I save my location?
+How_can_i_save_my_location_text=You need a service Locations to do that. Install service and select first item in menu - Save locally. Now you can save current or manually entered locations. If you want to send your offline locations to Locify server, just synchronize.
+How_can_i_navigate_to_own_coordinates=How can I navigate to own coordinates?
+How_can_i_navigate_to_own_coordinates_text=Navigation is mostly used when you receive waypoint from some service. Howewer you can navigate to manually entered coordinates as well. Start service Locations, select Save Locally and create waypoint with your manually entered coordinates. Then go to 'Options->Tools->Filesystem', select your saved location and click Navigate.
+
+#Error screen
+Error_occured=Wystąpił błąd
+Error_occured_description=Wystąpił nieoczekiwany błąd. Proszę wysłać raport na support@locify.com lub http://groups.google.com/group/locify - spróbujemy to naprawić.
+Description=Opis
+Place=Miejsce
+Data=Dane
+Detail=Szczegóły
+Error_detail=Błąd szczegółów
+Error_saved=Raport błędu został zapisany do plików Locify.
+Log_saved=Pełny log został zapisany do plików Locify.
+
+#Errors
+Wrong_latitude=Zły format szerokości
+Wrong_longitude=Zły format długości
+Access_denied_to_selected_directory=Dostęp do folderu zabroniony
+Not_valid_Locify_XHTML=Strona nie jest prawidłową stroną Locify XHTML
+Connection_problem=Błąd połączenia
+Connection_problem_description=Wystąpił problem z Twoim połączeniem. Nie ma w tej chwili sygnału GPRS/3G/WiFi lub Twoje połączenie internetoe jest źle skonfigurowane.
+Try_again=Spróbuj ponownie
+Invalid_address=Wpisany adres wygląda na niepoprawny, spróbuj ponownie.
