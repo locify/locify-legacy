@@ -1,0 +1,18 @@
+#summary Various notes about developing Locify source code
+#labels Phase-Implementation
+
+= Basic concept =
+
+Locify is written in Java ME, CLDC 1.1, MIDP 2.0. We use also JSR 75, JSR 179, JSR 82. GUI and many other features are done with the help of [http://www.j2mepolish.org J2ME Polish]. There are also lot of functions from independent developers and from other projects. 
+
+Locify internally is based on internal URLs. Classes and components communicate via these URLs. It has a great advantage - then webpages can use this URLs in the same way! So for example when user clicks a menu item, some internal URLs is generated. All URLs (internal with locify:// or external with http://) are then handled by class *com.locify.client.gui.manager.InternalURLManager*. This is very important file, where are defined actions for each internal URL. Then appropriate action is triggered.
+
+= How to orientate in the code =
+There is lot of code in Locify and it can be confusing. See packages for better orientation:
+ * _com.locify.client.data_ contains functionality about data saving, loading and synchronization
+ * _com.locify.client.gui_ contains user interface. Subpackages _manager_ contains managers, _polish_ contains GUI extensions to J2ME Polish, _screen.internal_ contains static screens and _screen.service_ contains dynamic screens for services
+ * _com.locify.client.locator_ contains functionality about obtaining user's location
+ * _com.locify.client.maps_ contains functionality about downloading and rendering maps
+ * _com.locify.client.net_ contains functionality about connecting to the network, sending and receiving data. There are also parsers for XHTML and Locify specific pages.
+ * _com.locify.client.route_ contains functionality about route recording.
+ * _com.locify.client.utils_ contains functionality used all over application.
