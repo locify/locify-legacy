@@ -1,0 +1,9 @@
+C:\Users\me2d09\Documents\Visual Studio 2008\Projects\LocifyPorter\LocifyPorter\bin\Debug\LocifyPorter.exe
+C:\Users\me2d09\Documents\Visual Studio 2008\Projects\LocifyPorter\LocifyPorter\bin\Debug\LocifyPorter.pdb
+C:\Users\me2d09\Documents\Visual Studio 2008\Projects\LocifyPorter\LocifyPorter\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\me2d09\Documents\Visual Studio 2008\Projects\LocifyPorter\LocifyPorter\obj\Debug\LocifyPorter.Properties.Resources.resources
+C:\Users\me2d09\Documents\Visual Studio 2008\Projects\LocifyPorter\LocifyPorter\obj\Debug\LocifyPorter.csproj.GenerateResource.Cache
+C:\Users\me2d09\Documents\Visual Studio 2008\Projects\LocifyPorter\LocifyPorter\obj\Debug\LocifyPorter.exe
+C:\Users\me2d09\Documents\Visual Studio 2008\Projects\LocifyPorter\LocifyPorter\obj\Debug\LocifyPorter.pdb
+C:\Users\me2d09\Documents\Visual Studio 2008\Projects\LocifyPorter\LocifyPorter\obj\Debug\LocifyPorter.Form1.resources
+C:\Users\me2d09\Documents\Visual Studio 2008\Projects\LocifyPorter\LocifyPorter\obj\Debug\LocifyPorter.help.resources
