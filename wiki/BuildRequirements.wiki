@@ -14,7 +14,7 @@
   # Download and install required software
   # Checkout latest trunk/ source code
   # Open Locify project in Netbeans
-  # Edit build.xml
+  # Copy ".polishSettings/build.xml" to project root and edit this file:
   # Change path to the J2ME Polish installation
   # Copy a file "custom-devices.xml" and "custom-css-attributes.xml" from ".polishSettings" to the J2ME Polish installation directory
   # Click on Build in Netbeans
