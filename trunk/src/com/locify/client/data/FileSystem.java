@@ -14,10 +14,8 @@
 package com.locify.client.data;
 
 import com.locify.client.utils.Capabilities;
-import com.locify.client.utils.Logger;
 import de.enough.polish.io.Serializer;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import javax.microedition.io.Connector;
@@ -161,7 +159,6 @@ public class FileSystem {
      */
     public synchronized boolean createDefaultRoot() {
         try {
-
             //defining of locify folders for various phones
             //#if release
 //#             String locifyFolder = "Locify/";
@@ -330,9 +327,9 @@ public class FileSystem {
     }
 
     /**
-     * Check if file exists
-     * @param fileName file name including folders
-     * @return if file exists
+     * Renames files
+     * @param oldFile
+     * @param newName
      */
     public synchronized void renameFile(String oldFile, String newName) {
         try {
@@ -362,7 +359,6 @@ public class FileSystem {
     /**
      * Reads binary data from file
      * @param fileName file name
-     * @param useRoot
      * @return binary data
      */
     public synchronized byte[] loadBytes(String fileName) {

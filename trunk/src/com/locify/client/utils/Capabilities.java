@@ -44,7 +44,7 @@ public class Capabilities {
             return false;
         }
         //few devices does not have bluetooth api and freezes when Class.forName is used
-        if (System.getProperty("microedition.platform").indexOf("W350i") != -1)
+        if (System.getProperty("microedition.platform")!=null && System.getProperty("microedition.platform").indexOf("W350i") != -1)
         {
             return false;
         }
@@ -57,7 +57,7 @@ public class Capabilities {
     }
 
     public static boolean isNokia() {
-        if (System.getProperty("microedition.platform").indexOf("Nokia") == -1) {
+        if (System.getProperty("microedition.platform")!=null && System.getProperty("microedition.platform").indexOf("Nokia") == -1) {
             return false;
         } else {
             return true;
@@ -65,7 +65,7 @@ public class Capabilities {
     }
 
     public static boolean isSonyEricsson() {
-        if (System.getProperty("microedition.platform").indexOf("SonyEricsson") == -1) {
+        if (System.getProperty("microedition.platform")!=null && System.getProperty("microedition.platform").indexOf("SonyEricsson") == -1) {
             return false;
         } else {
             return true;

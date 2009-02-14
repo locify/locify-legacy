@@ -55,7 +55,7 @@ public class ErrorScreen implements CommandListener, ItemCommandListener {
      * @param errorData optional data
      */
     public void view(Exception exception, String errorPlace, String errorData) {
-        Logger.error(exception.toString());
+        Logger.error(exception.toString()+" place: "+errorPlace+", data: "+errorData);
         exception.printStackTrace();
         if (firstError == false) {
             this.exception = exception;
