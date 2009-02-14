@@ -17,6 +17,7 @@ import com.locify.client.data.CacheData;
 import com.locify.client.data.CookieData;
 import com.locify.client.data.IconData;
 import com.locify.client.data.ServicesData;
+import com.locify.client.data.AudioData;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -43,6 +44,7 @@ public class Http implements Runnable {
     public String url = ""; //aktualni url
     private Thread thread;
     private boolean imageDownload = false;
+    private boolean audioDownload = false;
     private boolean httpBasic;
     private String basicResponse;
 
@@ -153,8 +155,19 @@ public class Http implements Runnable {
                             Logger.log("Image download failed");
                         }
                         imageDownload = false;
+                        audioDownload = false;
                         return;
-
+                    } else if (audioDownload) {
+                        ContentHandler.setPragmaNoCache(true);
+                        Logger.log("Audio received");
+                        if (responseCode == HttpConnection.HTTP_OK) {
+                            AudioData.save(url, byteArr);
+                        } else {
+                            Logger.log("Audio download failed");
+                        }
+                        imageDownload = false;
+                        audioDownload = false;
+                        return;
                     } else {
                         response = UTF8.decode(byteArr, 0, byteArr.length);
                         if (response.length() == 0) {
@@ -259,6 +272,12 @@ public class Http implements Runnable {
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("Content-type")) {
                 if (httpConnection.getHeaderField(j).equalsIgnoreCase("image/png")) {
                     imageDownload = true;
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ex) {
+                    }
+                } else if (httpConnection.getHeaderField(j).equalsIgnoreCase("audio/x-wav")) {
+                    audioDownload = true;
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException ex) {

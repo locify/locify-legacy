@@ -28,6 +28,7 @@ package com.locify.client.net;
 import com.locify.client.gui.screen.service.HtmlSelect;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
+import com.locify.client.data.AudioData;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -111,8 +112,12 @@ public class XHTMLTagHandler
     /** table data tag */
     public static final String TAG_TD = "td";
     public static final String TAG_LABEL = "label";
+    /* Locify specific tags */
     public static final String TAG_LOCIFY_ELEMENT = "locify:element";
     public static final String TAG_LOCIFY_WHERE = "locify:where";
+    public static final String TAG_LOCIFY_VIBRATE = "locify:vibrate";
+    public static final String TAG_LOCIFY_BLINK = "locify:blink";
+    public static final String TAG_EMBED = "embed";
     /** type attribute */
     public static final String INPUT_TYPE = "type";
     /** name attribute */
@@ -229,6 +234,9 @@ public class XHTMLTagHandler
         parent.addTagHandler(TAG_LABEL, this);
         parent.addTagHandler(TAG_LOCIFY_ELEMENT, this);
         parent.addTagHandler(TAG_LOCIFY_WHERE, this);
+        parent.addTagHandler(TAG_LOCIFY_VIBRATE, this);
+        parent.addTagHandler(TAG_LOCIFY_BLINK, this);
+        parent.addTagHandler(TAG_EMBED, this);
     }
 
     /* (non-Javadoc)
@@ -623,6 +631,38 @@ public class XHTMLTagHandler
                     this.browser.addContextItem();
                 }
                 return true;
+            } else if (TAG_LOCIFY_VIBRATE.equals(
+                    tagName)) {
+                if (opening) {
+                    int duration = 500;
+                    if (attributeMap.get("duration") != null) {
+                        duration = Integer.parseInt((String) attributeMap.get("duration"));
+                    }
+                    R.getMidlet().getDisplay().vibrate(duration);
+                }
+                return true;
+            } else if (TAG_LOCIFY_BLINK.equals(
+                    tagName)) {
+                if (opening) {
+                    int duration = 500;
+                    if (attributeMap.get("duration") != null) {
+                        duration = Integer.parseInt((String) attributeMap.get("duration"));
+                    }
+                    R.getMidlet().getDisplay().flashBacklight(duration);
+                }
+                return true;
+            } else if (TAG_EMBED.equals(
+                    tagName)) {
+                if (opening) {
+                    if (attributeMap.get("src") != null) {
+                        String file = (String) attributeMap.get("src");
+                        if (file.endsWith("wav"))
+                        {
+                            AudioData.play(makeAbsoluteURL(file));
+                        }
+                    }
+                }
+                return true;
             }
             return false;
         } catch (Exception e) {
@@ -891,8 +931,7 @@ public class XHTMLTagHandler
         return R.getHttp().url.substring(0, lastSlash + 1) + url;
     }
 
-    public void addCommands(String a, String b, String c, Item i)
-    {
-        super.addCommands(a,b,c,i);
+    public void addCommands(String a, String b, String c, Item i) {
+        super.addCommands(a, b, c, i);
     }
 }

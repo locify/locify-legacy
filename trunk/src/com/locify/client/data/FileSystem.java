@@ -49,6 +49,7 @@ public class FileSystem {
     public static final String SETTINGS_FOLDER = "settings/";
     public static final String ICONS_FOLDER = SETTINGS_FOLDER + "icons/";
     public static final String CACHE_FOLDER = SETTINGS_FOLDER + "cache/";
+    public static final String AUDIO_FOLDER = SETTINGS_FOLDER + "audio/";
     public static final String FILES_FOLDER = "files/";
     public static final String LOG_FOLDER = "log/";
     public static final String MAP_FOLDER = "maps/";
