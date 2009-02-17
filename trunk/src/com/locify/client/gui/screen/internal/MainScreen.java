@@ -805,8 +805,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                             R.getURL().call("locify://checkVersion");
                             break;
                         case 3:
-                            R.getPimScreen().view();
-                            //R.getURL().call("locify://help");
+                            R.getURL().call("locify://help");
                             break;
                         case 4:
                             R.getURL().call("locify://logger");

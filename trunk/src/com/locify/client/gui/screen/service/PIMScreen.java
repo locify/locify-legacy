@@ -17,10 +17,13 @@ import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
-import de.enough.polish.ui.FilteredList;
+import de.enough.polish.ui.Choice;
+import de.enough.polish.ui.ChoiceGroup;
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.Item;
 import de.enough.polish.ui.ItemCommandListener;
+import de.enough.polish.ui.List;
+import de.enough.polish.ui.ListItem;
 import de.enough.polish.ui.StringItem;
 import de.enough.polish.ui.TextField;
 import de.enough.polish.util.Locale;
@@ -42,12 +45,21 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
     private PIM pim;
     private ContactList contactList;
 
+    public static final int FILTER_ALL = 0;
+    public static final int FILTER_EMAIL = 1;
+    public static final int FILTER_TEL = 2;
+
     private boolean initialized;
+    private boolean supportEmail;
+    private boolean supportTel;
 
     private Form frmSearch;
-    private Form frmViewAll;
+    private List lstViewAll;
 
-    // components
+    private TextField actualTF;
+
+    // components in test frame
+    private ChoiceGroup cg;
     private TextField txtField;
     private StringItem btnOK;
 
@@ -117,7 +129,10 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
         initialized = false;
         try {
             pim = PIM.getInstance();
-            contactList = (ContactList) pim.openPIMList(PIM.CONTACT_LIST, PIM.READ_ONLY);
+            contactList = (ContactList) pim.openPIMList(PIM.CONTACT_LIST, PIM.READ_WRITE);
+            seed();
+            supportEmail = contactList.isSupportedField(Contact.EMAIL);
+            supportTel = contactList.isSupportedField(Contact.TEL);
             initialized = true;
         } catch (PIMException ex) {
             ex.printStackTrace();
@@ -125,7 +140,7 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
 
     }
 
-    public void view() {
+    public void viewTestScreen() {
         try {
             frmSearch = new Form("Contact list");
             frmSearch.setCommandListener(this);
@@ -136,9 +151,16 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
                 btnOK = new StringItem("", Locale.get("OK"), StringItem.BUTTON);
                 btnOK.setDefaultCommand(Commands.cmdSelect);
                 btnOK.setItemCommandListener(this);
-                
+
+                cg = new ChoiceGroup("Filter", Choice.EXCLUSIVE);
+                cg.append("All", null);
+                cg.append("Email", null);
+                cg.append("Phone", null);
+                cg.setSelectedIndex(0, true);
+
                 frmSearch.append("Write first letters!!!", null);
                 frmSearch.append(txtField);
+                frmSearch.append(cg);
                 frmSearch.append(btnOK);
             } else {
                 frmSearch.append("Not supported!!!", null);
@@ -150,45 +172,70 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
         }
     }
 
-    private void viewFiltered(String filterName) {
-//        firstLetter = new String(UTF8.encode(firstLetter));
-//System.out.println("\n'" + firstLetter + "'");
+    private void viewFiltered(TextField textField, int filter) {
+        actualTF = textField;
+        String filterName = actualTF.getString();
         try {
-            frmViewAll = new Form("Filtered contacts");
-            frmViewAll.setCommandListener(this);
-            frmViewAll.addCommand(Commands.cmdBack);
-            
+            lstViewAll = new List("Filtered contacts", List.IMPLICIT);
+            lstViewAll.setCommandListener(this);
+            lstViewAll.addCommand(Commands.cmdBack);
 
             if (initialized && Capabilities.hasPIMSupport()) {
-                if (filterName.length() > 0) {
-                    Contact contact = contactList.createContact();
+                Enumeration items;
+                Contact contact;
+                
+                if (filterName != null && filterName.length() > 0) {
+                    contact = contactList.createContact();
                     String[] name = new String[contactList.stringArraySize(Contact.NAME)];
                     name[Contact.NAME_FAMILY] = filterName;
+                    name[Contact.NAME_GIVEN] = filterName;
                     contact.addStringArray(Contact.NAME,Contact.ATTR_NONE , name);
 
-                    Enumeration items = contactList.items(contact);
-                    while(items.hasMoreElements()) {
-                        contact = (Contact) items.nextElement();
-                        String[] nameValues = contact.getStringArray(Contact.NAME, 0);
-                        String firstName = nameValues[Contact.NAME_GIVEN];
-                        String lastName = nameValues[Contact.NAME_FAMILY];
-                        frmViewAll.append(lastName + ", " + firstName, null);
-                    }
+                    items = contactList.items(contact);
                 } else {
-                    Enumeration items = contactList.items();
-                    while(items.hasMoreElements()) {
-                        Contact contact = (Contact) items.nextElement();
-                        String[] nameValues = contact.getStringArray(Contact.NAME, 0);
-                        String firstName = nameValues[Contact.NAME_GIVEN];
-                        String lastName = nameValues[Contact.NAME_FAMILY];
-                        Logger.log(lastName + ", " + firstName);
+                    items = contactList.items();
+                }
+
+                String[] nameValues;
+                String firstName;
+                String lastName;
+                String email;
+                String tel;
+                while(items.hasMoreElements()) {
+                    try {
+                        contact = (Contact) items.nextElement();
+                        nameValues = contact.getStringArray(Contact.NAME, 0);
+                        firstName = nameValues[Contact.NAME_GIVEN];
+                        lastName = nameValues[Contact.NAME_FAMILY];
+
+                        try {
+                            email = supportEmail ? contact.getString(Contact.EMAIL, 0) : "";
+                        } catch (Exception e) {
+                            email = "";
+                        }
+                        try {
+                            tel = supportEmail ? contact.getString(Contact.TEL, 0) : "";
+                        } catch (Exception e) {
+                            tel = "";
+                        }
+
+                        Logger.log(lastName + "," + firstName + "," + email + "," + tel);
+
+                        if (filter == FILTER_ALL) {
+                            lstViewAll.append(lastName + ", " + firstName + "\n   " + email + ", " + tel, null);
+                        } else if (filter == FILTER_EMAIL && !email.equals("")) {
+                            lstViewAll.append(lastName + ", " + firstName + "\n   " + email, null);
+                        } else if (filter == FILTER_TEL && !tel.equals("")) {
+                            lstViewAll.append(lastName + ", " + firstName + "\n   " + tel, null);
+                        }
+                    } catch (Exception e) {
+                        Logger.log("PIMScreen.viewFiltered() (while): " + e.toString());
                     }
-                    frmViewAll.append("Please write letter!!!", null);
                 }
             }
-            R.getMidlet().switchDisplayable(null, frmViewAll);
+            R.getMidlet().switchDisplayable(null, lstViewAll);
         } catch (Exception ex) {
-            Logger.log("PIMScreen.view(): " + ex.toString());
+            Logger.log("PIMScreen.viewFiltered(): " + ex.toString());
         }
     }
 
@@ -197,7 +244,7 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
     }
 
     private void addContact(ContactList list, String firstName, String lastName,
-            String street, String city, String country, String postalcode) throws PIMException {
+            String street, String city, String country, String postalcode, String email, String phoneNum) throws PIMException {
 
         Contact contact = list.createContact();
         String[] name = new String[list.stringArraySize(Contact.NAME)];
@@ -210,15 +257,17 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
         addr[Contact.ADDR_COUNTRY] = country;
         addr[Contact.ADDR_POSTALCODE] = street;
         contact.addStringArray(Contact.ADDR, Contact.ATTR_NONE, addr);
+        contact.addString(Contact.EMAIL, Contact.ATTR_NONE, email);
+        contact.addString(Contact.TEL, Contact.ATTR_MOBILE, phoneNum);
         contact.commit();
     }
 
-//    private void seed() throws PIMException {
-//        addContact(contactList, "Jack", "Goldburg", "2345 High Park Ave", "Orlando", "USA", "32817");
-//        addContact(contactList, "Mary", "Johnson", "777 Lucky Road", "London", "UK", "SW10 0XE");
-//        addContact(contactList, "Johnathan", "Knudsen", "234 Sunny Java Street", "Sausalito", "USA", "94965");
-//        addContact(contactList, "Sing", "Li", "168 Technology Drive", "Edmonton", "Canada", "T6G 2E1");
-//    }
+    private void seed() throws PIMException {
+        addContact(contactList, "Jack", "Goldburg", "2345 High Park Ave", "Orlando", "USA", "32817", "jack.gold@centrum.cz", "+420 776 133013");
+        addContact(contactList, "Mary", "Johnson", "777 Lucky Road", "London", "UK", "SW10 0XE", "jack.gold@centrum.cz", "");
+        addContact(contactList, "Johnathan", "Knudsen", "234 Sunny Java Street", "Sausalito", "USA", "94965", "", "+420 776 133013");
+        addContact(contactList, "Sing", "Li", "168 Technology Drive", "Edmonton", "Canada", "T6G 2E1", "", "");
+    }
 
 
 //    /** handle key events on map screen
@@ -245,12 +294,17 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
     public void commandAction(Command c, Displayable d) {
         if (c == Commands.cmdBack) {
             R.getBack().goBack();
+        } else if (d == lstViewAll && c == List.SELECT_COMMAND) {
+            String text = lstViewAll.getString(lstViewAll.getSelectedIndex());
+            text = text.substring(text.lastIndexOf(',')).trim();
+            actualTF.setText(text);
+            R.getBack().goBack();
         }
     }
     
     public void commandAction(Command arg0, Item item) {
         if (item.equals(btnOK)) {
-            viewFiltered(txtField.getText());
+            viewFiltered(txtField, cg.getSelectedIndex());
         }
     }
 }
