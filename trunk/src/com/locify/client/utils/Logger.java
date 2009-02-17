@@ -29,8 +29,8 @@ public class Logger {
     private static String fileName;
 
     private static void log(String message, int severity, boolean breaking) {
-        //if (fileName == null)
-        //   fileName = "debug_" + System.currentTimeMillis() + ".txt";
+        if (fileName == null)
+           fileName = "debug_" + System.currentTimeMillis() + ".txt";
 
         //TODO: test severity;
         if (breaking) {
@@ -45,7 +45,7 @@ public class Logger {
             System.err.print(message);
         }
 
-      // R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message+"\n");
+       R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message+"\n");
     }
 
     public static void log(String message) {

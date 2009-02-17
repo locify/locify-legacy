@@ -792,7 +792,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                             R.getURL().call("locify://settings");
                             break;
                         case 1:
-                            if (CookieData.getValue("session", R.getHttp().DEFAULT_URL).equals("")) { //ignore warning!
+                            if (CookieData.getValue("session", Http.DEFAULT_URL).equals("")) { //ignore warning!
                                 if (R.getSettings().getAutoLogin() == SettingsData.ON && !R.getSettings().getName().equals("")) {
                                     R.getBack().dontSave();
                                 }
@@ -805,7 +805,8 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                             R.getURL().call("locify://checkVersion");
                             break;
                         case 3:
-                            R.getURL().call("locify://help");
+                            R.getPimScreen().view();
+                            //R.getURL().call("locify://help");
                             break;
                         case 4:
                             R.getURL().call("locify://logger");

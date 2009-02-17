@@ -27,6 +27,19 @@ public class Capabilities {
         }
     }
 
+    public static boolean hasPIMSupport() {
+        String version = "";
+        version = System.getProperty("microedition.pim.version");
+        if (version != null) {
+            if (!version.equals("1.0"))
+                return false;
+                //throw new IOException("Package is not version 1.0.");
+        } else
+            return false;
+            //throw new IOException("PIM optional package is not available.");
+        return true;
+    }
+
     public static boolean hasLandmarks() {
         if (isWindowsMobile()) {
             return false;

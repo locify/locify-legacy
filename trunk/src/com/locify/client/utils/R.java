@@ -50,6 +50,7 @@ import com.locify.client.gui.screen.internal.UpdateScreen;
 import com.locify.client.gui.screen.service.AuthenticationScreens;
 import com.locify.client.gui.screen.service.GeoFileBrowser;
 import com.locify.client.gui.screen.service.ListScreen;
+import com.locify.client.gui.screen.service.PIMScreen;
 import com.locify.client.gui.screen.service.UploadProgressScreen;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.maps.mapItem.MapItemManager;
@@ -107,6 +108,7 @@ public class R {
     private static FileBrowser fileBrowser;
     private static UploadProgressScreen progress;
     private static SatelliteScreen satelliteScreen;
+    private static PIMScreen pimScreen;
 
     public R(Midlet ref) {
         midlet = ref;
@@ -426,5 +428,12 @@ public class R {
             satelliteScreen = new SatelliteScreen();
         }
         return satelliteScreen;
+    }
+
+    public static PIMScreen getPimScreen() {
+        if (pimScreen == null) {
+            pimScreen = new PIMScreen();
+        }
+        return pimScreen;
     }
 }
