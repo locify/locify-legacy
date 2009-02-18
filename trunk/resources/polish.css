@@ -366,8 +366,12 @@ p {
     //#endif
 }
 
-.contactsTextField extends textfield{
+.contactsTextField extends textfield {
     margin:5;
+}
+
+.contactsTextFieldFocused extends .contactsTextField {
+    border:focusedInputBorder;
 }
 
 .fileUploadText {

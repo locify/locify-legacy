@@ -118,8 +118,7 @@ public class XHTMLTagHandler
     public static final String TAG_LOCIFY_WHERE = "locify:where";
     public static final String TAG_LOCIFY_VIBRATE = "locify:vibrate";
     public static final String TAG_LOCIFY_BLINK = "locify:blink";
-    public static final String TAG_LOCIFY_CONTACT_TEL = "locify:contactTel";
-    public static final String TAG_LOCIFY_CONTACT_EMAIL = "locify:contactEmail";
+    public static final String TAG_LOCIFY_CONTACT = "locify:contact";
     
     public static final String TAG_EMBED = "embed";
     /** type attribute */
@@ -240,8 +239,7 @@ public class XHTMLTagHandler
         parent.addTagHandler(TAG_LOCIFY_WHERE, this);
         parent.addTagHandler(TAG_LOCIFY_VIBRATE, this);
         parent.addTagHandler(TAG_LOCIFY_BLINK, this);
-        parent.addTagHandler(TAG_LOCIFY_CONTACT_TEL, this);
-        parent.addTagHandler(TAG_LOCIFY_CONTACT_EMAIL, this);
+        parent.addTagHandler(TAG_LOCIFY_CONTACT, this);
         parent.addTagHandler(TAG_EMBED, this);
     }
 
@@ -654,13 +652,18 @@ public class XHTMLTagHandler
                     R.getMidlet().getDisplay().flashBacklight(duration);
                 }
                 return true;
-            } else if (TAG_LOCIFY_CONTACT_TEL.equalsIgnoreCase(tagName)) {
-                if (opening)
-                    this.browser.addContactTelItem();
-                return true;
-            } else if (TAG_LOCIFY_CONTACT_EMAIL.equalsIgnoreCase(tagName)) {
-                if (opening)
-                    this.browser.addContactEmailItem();
+            // <locify:contact name="telefon" type="tel" />
+            } else if (TAG_LOCIFY_CONTACT.equalsIgnoreCase(tagName)) {
+                if (opening) {
+                    String type = (String) attributeMap.get("type");
+                    if (type.equals("tel")) {
+                        this.currentForm.addLocifyPIM((String) attributeMap.get("name"), "tel");
+                        this.browser.addContactTelItem();
+                    } else if (type.equals("email")) {
+                        this.currentForm.addLocifyPIM((String) attributeMap.get("name"), "email");
+                        this.browser.addContactEmailItem();
+                    }
+                }
                 return true;
             } else if (TAG_EMBED.equals(tagName)) {
                 if (opening) {
@@ -717,11 +720,11 @@ public class XHTMLTagHandler
             }
         } else if (command == Commands.cmdContactTel) { // text a type
             R.getContext().setBackScreen("locify://htmlBrowser");
-            R.getURL().call("locify://contactsScreen?text=" + browser.contactTelText.getText() +
+            R.getURL().call("locify://contactsScreen?text=" + browser.getContactTel() +
                     "&type=" + ContactsScreen.FILTER_TEL);
         } else if (command == Commands.cmdContactEmail) {
             R.getContext().setBackScreen("locify://htmlBrowser");
-            R.getURL().call("locify://contactsScreen?text=" + browser.contactEmailText.getText() +
+            R.getURL().call("locify://contactsScreen?text=" + browser.getContactEmail() +
                     "&type=" + ContactsScreen.FILTER_EMAIL);
         }
 
@@ -805,6 +808,7 @@ public class XHTMLTagHandler
             Enumeration enumeration = elements.keys();
             while (enumeration.hasMoreElements()) {
                 String name = (String) enumeration.nextElement();
+System.out.println("\nElement: " + name);
                 String value = Variables.replace((String) elements.get(name), true);
 
                 //replace friendly coordianates to decimal format

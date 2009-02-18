@@ -26,6 +26,7 @@
 package com.locify.client.gui.screen.service;
 
 import com.locify.client.net.XHTMLTagHandler;
+import com.locify.client.utils.R;
 import de.enough.polish.browser.html.FormListener;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -45,12 +46,14 @@ public class HtmlForm {
     private final ArrayList formItems = new ArrayList();
     private Hashtable hiddenElements;
     private Hashtable locifyElements;
+    private Hashtable locifyPIM;
 
     public HtmlForm(String name, String actionUrl, String method) {
         this.formName = name;
         this.actionUrl = actionUrl;
         this.method = method.toUpperCase();
         this.locifyElements = new Hashtable();
+        this.locifyPIM = new Hashtable();
     }
 
     public String getAction() {
@@ -106,6 +109,15 @@ public class HtmlForm {
 
     public String getLocifyElementValue(String name) {
         return (String) this.locifyElements.get(name);
+    }
+
+    /**
+     * Add elements of pim that have to be seend by POST metod
+     * @param name name of emlemet
+     * @param type 'tel' if phone number, 'email' if email
+     */
+    public void addLocifyPIM(String name, String type) {
+        this.locifyPIM.put(name, type);
     }
 
     /**
@@ -172,6 +184,21 @@ public class HtmlForm {
             elements.put(name, value);
 
         }
+
+        Enumeration enu = this.locifyPIM.keys();
+        while (enu.hasMoreElements()) {
+            String name = (String) enu.nextElement();
+            String type = (String) locifyPIM.get(name);
+
+            if ("tel".equals(type)) {
+                elements.put(name, R.getHTMLScreen().getHtmlBrowser().getContactTel());
+                continue;
+            } else if ("email".equals(type)) {
+                elements.put(name, R.getHTMLScreen().getHtmlBrowser().getContactEmail());
+                continue;
+            }
+        }
+
         return elements;
     }
 }

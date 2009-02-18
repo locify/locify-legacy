@@ -129,7 +129,7 @@ public class ContactsScreen implements CommandListener, ItemCommandListener {
         try {
             if (Capabilities.hasPIMSupport()) {
                 pim = PIM.getInstance();
-                contactList = (ContactList) pim.openPIMList(PIM.CONTACT_LIST, PIM.READ_WRITE);
+                contactList = (ContactList) pim.openPIMList(PIM.CONTACT_LIST, PIM.READ_ONLY);
                 supportEmail = contactList.isSupportedField(Contact.EMAIL);
                 supportTel = contactList.isSupportedField(Contact.TEL);
                 initialized = true;
@@ -248,35 +248,35 @@ public class ContactsScreen implements CommandListener, ItemCommandListener {
         }
     }
 
-    public void viewContact(Contact contact) {
-        //R.getMidlet().switchDisplayable(null, frmOther);
-    }
+//    public void viewContact(Contact contact) {
+//        //R.getMidlet().switchDisplayable(null, frmOther);
+//    }
 
-    private void addContact(ContactList list, String firstName, String lastName,
-            String street, String city, String country, String postalcode, String email, String phoneNum) throws PIMException {
-
-        Contact contact = list.createContact();
-        String[] name = new String[list.stringArraySize(Contact.NAME)];
-        name[Contact.NAME_GIVEN] = firstName;
-        name[Contact.NAME_FAMILY] = lastName;
-        contact.addStringArray(Contact.NAME, Contact.ATTR_NONE, name);
-        String[] addr = new String[list.stringArraySize(Contact.ADDR)];
-        addr[Contact.ADDR_STREET] = street;
-        addr[Contact.ADDR_LOCALITY] = city;
-        addr[Contact.ADDR_COUNTRY] = country;
-        addr[Contact.ADDR_POSTALCODE] = street;
-        contact.addStringArray(Contact.ADDR, Contact.ATTR_NONE, addr);
-        contact.addString(Contact.EMAIL, Contact.ATTR_NONE, email);
-        contact.addString(Contact.TEL, Contact.ATTR_MOBILE, phoneNum);
-        contact.commit();
-    }
-
-    private void seed() throws PIMException {
-        addContact(contactList, "Jack", "Goldburg", "2345 High Park Ave", "Orlando", "USA", "32817", "jack.gold@centrum.cz", "+420 776 133013");
-        addContact(contactList, "Mary", "Johnson", "777 Lucky Road", "London", "UK", "SW10 0XE", "jack.gold@centrum.cz", "");
-        addContact(contactList, "Johnathan", "Knudsen", "234 Sunny Java Street", "Sausalito", "USA", "94965", "", "+420 776 133013");
-        addContact(contactList, "Sing", "Li", "168 Technology Drive", "Edmonton", "Canada", "T6G 2E1", "", "");
-    }
+//    private void addContact(ContactList list, String firstName, String lastName,
+//            String street, String city, String country, String postalcode, String email, String phoneNum) throws PIMException {
+//
+//        Contact contact = list.createContact();
+//        String[] name = new String[list.stringArraySize(Contact.NAME)];
+//        name[Contact.NAME_GIVEN] = firstName;
+//        name[Contact.NAME_FAMILY] = lastName;
+//        contact.addStringArray(Contact.NAME, Contact.ATTR_NONE, name);
+//        String[] addr = new String[list.stringArraySize(Contact.ADDR)];
+//        addr[Contact.ADDR_STREET] = street;
+//        addr[Contact.ADDR_LOCALITY] = city;
+//        addr[Contact.ADDR_COUNTRY] = country;
+//        addr[Contact.ADDR_POSTALCODE] = street;
+//        contact.addStringArray(Contact.ADDR, Contact.ATTR_NONE, addr);
+//        contact.addString(Contact.EMAIL, Contact.ATTR_NONE, email);
+//        contact.addString(Contact.TEL, Contact.ATTR_MOBILE, phoneNum);
+//        contact.commit();
+//    }
+//
+//    private void seed() throws PIMException {
+//        addContact(contactList, "Jack", "Goldburg", "2345 High Park Ave", "Orlando", "USA", "32817", "jack.gold@centrum.cz", "+420 776 133013");
+//        addContact(contactList, "Mary", "Johnson", "777 Lucky Road", "London", "UK", "SW10 0XE", "jack.gold@centrum.cz", "");
+//        addContact(contactList, "Johnathan", "Knudsen", "234 Sunny Java Street", "Sausalito", "USA", "94965", "", "+420 776 133013");
+//        addContact(contactList, "Sing", "Li", "168 Technology Drive", "Edmonton", "Canada", "T6G 2E1", "", "");
+//    }
 
 
 //    /** handle key events on map screen

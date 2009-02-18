@@ -37,8 +37,8 @@ public class XHTMLBrowser extends HtmlBrowser {
     private ImageItem contextImage;
     private StringItem contextText;
     private StringItem fileText;
-    protected TextField contactTelText;
-    protected TextField contactEmailText;
+    private TextField contactTelText;
+    private TextField contactEmailText;
 
     public XHTMLBrowser() {
         //#style browser
@@ -272,6 +272,14 @@ public class XHTMLBrowser extends HtmlBrowser {
 
     public XHTMLTagHandler getTagHandler() {
         return tagHandler;
+    }
+
+    public String getContactTel() {
+        return contactTelText.getText();
+    }
+
+    public String getContactEmail() {
+        return contactEmailText.getText();
     }
 
 }

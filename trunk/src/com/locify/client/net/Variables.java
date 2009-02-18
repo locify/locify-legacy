@@ -40,12 +40,6 @@ public class Variables {
                 if (text == null)
                     return null;
             }
-            if (text.indexOf("$contactTel") >= 0) {
-                text = R.getHTMLScreen().getHtmlBrowser().contactTelText.getText();
-            }
-            if (text.indexOf("$contactEmail") >= 0) {
-                text = R.getHTMLScreen().getHtmlBrowser().contactEmailText.getText();
-            }
             if (text.indexOf("$settings[") >= 0) {
                 text = ServiceSettingsData.replaceVariables(text);
             }
