@@ -40,16 +40,14 @@ public class MapItemManager {
         this.items = new HashMap();
         this.itemsState = new HashMap();
         this.itemsTemp = new HashMap();
-        this.fixedItemNames = new ArrayList();
-
-        //default settings
-        itemsState.put(Locale.get("Scale"), String.valueOf(true));
-        fixedItemNames.add(Locale.get("Scale"));
-        //itemsState.put(Locale.get("Touch"), String.valueOf(true));
-        
+        this.fixedItemNames = new ArrayList();        
     }
 
     public void init() {
+        //default settings
+        itemsState.put(Locale.get("Scale"), String.valueOf(true));
+        fixedItemNames.add(Locale.get("Scale"));
+
         Object[] names = itemsState.keys();
         for (int i = 0; i < names.length; i++) {
             if (items.containsKey(names[i]))
@@ -77,6 +75,18 @@ public class MapItemManager {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Removes all elements excluding scale
+     */
+    public void removeAll()
+    {
+        items.clear();
+        itemsState.clear();
+        itemsTemp.clear();
+        fixedItemNames.clear();
+        init();
     }
     
     private boolean addItemFixed(String itemName, MapItem item) {

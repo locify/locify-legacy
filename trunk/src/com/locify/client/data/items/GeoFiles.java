@@ -11,7 +11,6 @@
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
-
 package com.locify.client.data.items;
 
 import com.locify.client.data.FileSystem;
@@ -43,20 +42,17 @@ public abstract class GeoFiles {
     public static final int TYPE_WAYPOINT = 1;
     public static final int TYPE_WAYPOINTS_CLOUD = 2;
     public static final int TYPE_ROUTE = 3;
+    public static final int TYPE_NETWORKLINK = 4;
     public static final int TYPE_CORRUPT = 10;
-    
     private static final int ROUTE_TYPE_FILE = 1;
     private static final int ROUTE_TYPE_STRING = 2;
     private static final int WAYPOINT_CLOUD_TYPE_FILE = 3;
     private static final int WAYPOINT_CLOUD_TYPE_STRING = 4;
     private final static String linSe = "\n";
-    
-    
-    
+
     /***************************************************/
     /*                 SAVE FUNCTIONS                  */
     /***************************************************/
-    
     /**
      * Saves object from sync
      * @param kml kml content
@@ -75,7 +71,7 @@ public abstract class GeoFiles {
             R.getErrorScreen().view(e, "GeoFile.save()", kml);
         }
     }
-    
+
     /**
      * Save temp route into selected file
      * @param routeName name of route
@@ -101,8 +97,8 @@ public abstract class GeoFiles {
         }
 
         R.getFileSystem().renameFile(FileSystem.RUNNING_TEMP_ROUTE, fileName);
-    }  
-    
+    }
+
     /**
      * Creates KML file and writes it in filesystem
      * @param latitude latitude in degrees
@@ -141,7 +137,7 @@ public abstract class GeoFiles {
             } else if (type == TYPE_ROUTE) {
                 data = loadRouteString(kml);
             }
-            
+
             if (data != null) {
                 R.getFileSystem().saveString(FileSystem.FILES_FOLDER + GeoFiles.fileName(data.getName()), kml);
                 //view alert
@@ -154,12 +150,9 @@ public abstract class GeoFiles {
         }
     }
 
-    
-    
     /***************************************************/
     /*                 LOAD FUNCTIONS                  */
     /***************************************************/
-    
     public static Route loadRouteFile(String filename, boolean onlyInfo) {
         try {
             return (Route) parseRouteOrCloud(filename, onlyInfo, ROUTE_TYPE_FILE);
@@ -168,7 +161,7 @@ public abstract class GeoFiles {
             return null;
         }
     }
-    
+
     public static Route loadRouteString(String data) {
         try {
             return (Route) parseRouteOrCloud(data, false, ROUTE_TYPE_STRING);
@@ -177,7 +170,7 @@ public abstract class GeoFiles {
             return null;
         }
     }
-    
+
     /**
      * Loads KML waypoint from file and parses it to waypoint object
      * @param fileName file name of KML
@@ -192,7 +185,7 @@ public abstract class GeoFiles {
             return null;
         }
     }
-    
+
     public static Waypoint loadWaypointString(String data) {
         return parseWaypoint(data);
     }
@@ -205,7 +198,7 @@ public abstract class GeoFiles {
             return null;
         }
     }
-    
+
     public static WaypointsCloud loadWaypointsCloudString(String kml) {
         try {
             return (WaypointsCloud) parseRouteOrCloud(kml, false, WAYPOINT_CLOUD_TYPE_STRING);
@@ -215,14 +208,17 @@ public abstract class GeoFiles {
         }
     }
 
-    
-    
-    
-    
+    public static NetworkLink loadNetworkLinkString(String kml) {
+        return parseNetworkLink(kml);
+    }
+
+    public static NetworkLink loadNetworkLinkFile(String file) {
+        return parseNetworkLink(R.getFileSystem().loadString(file));
+    }
+
     /****************************************************/
     /*                 PARSE FUNCTIONS                  */
     /****************************************************/
-    
     /**
      * Parser kml file to route object
      * @param kml kml data
@@ -235,9 +231,9 @@ public abstract class GeoFiles {
         InputStream is = null;
         ByteArrayInputStream stream = null;
         InputStreamReader reader = null;
-        
+
         XmlPullParser parser;
-        
+
         try {
             String trash;
             String name = "";
@@ -246,7 +242,7 @@ public abstract class GeoFiles {
             parser = new KXmlParser();
             int event;
             String tagName;
-            
+
             if (dataType == ROUTE_TYPE_FILE || dataType == ROUTE_TYPE_STRING) {
                 route = new Route();
                 route.pointCount = 0;
@@ -254,12 +250,13 @@ public abstract class GeoFiles {
             } else if (dataType == WAYPOINT_CLOUD_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
                 cloud = new WaypointsCloud();
             }
-            
+
             if (dataType == ROUTE_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_FILE) {
                 fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileOrData);
-                if (!fileConnection.exists())
+                if (!fileConnection.exists()) {
                     return null;
-            
+                }
+
                 is = fileConnection.openInputStream();
                 parser.setInput(is, "utf-8");
             } else if (dataType == ROUTE_TYPE_STRING || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
@@ -272,7 +269,7 @@ public abstract class GeoFiles {
                 event = parser.nextToken();
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
-                    
+
                     if (tagName.equalsIgnoreCase("name")) {
                         name = parser.nextText();
                     } else if (tagName.equalsIgnoreCase("description")) {
@@ -331,19 +328,21 @@ public abstract class GeoFiles {
                                     while (token.hasMoreTokens()) {
                                         data = token.nextToken();
 
-                                        if (token.hasMoreTokens())
+                                        if (token.hasMoreTokens()) {
                                             route.points.addElement(new Location4D(
                                                     Double.parseDouble((String) token.nextToken()),
                                                     Double.parseDouble((String) data),
                                                     Float.parseFloat(token.nextToken())));
+                                        }
 
                                         if (onlyInfo) {
                                             route.latitude = ((Location4D) route.points.elementAt(0)).getLatitude();
                                             route.longitude = ((Location4D) route.points.elementAt(0)).getLongitude();
-                                            if (!name.equals(""))
+                                            if (!name.equals("")) {
                                                 route.name = name;
-                                            else
+                                            } else {
                                                 route.name = fileOrData;
+                                            }
                                             return route;
                                         }
                                     }
@@ -363,7 +362,7 @@ public abstract class GeoFiles {
                             if (event == XmlPullParser.START_TAG) {
                                 tagName = parser.getName();
 //System.out.println("tagName: " + tagName);
-                                 if (tagName.equalsIgnoreCase("name")) {
+                                if (tagName.equalsIgnoreCase("name")) {
 //System.out.println(parser.isEmptyElementTag());
 
                                     way.name = parser.nextText();
@@ -424,7 +423,7 @@ public abstract class GeoFiles {
             }
         }
     }
-    
+
     /**
      * Parser kml file to waypoint object
      * @param kml kml data
@@ -434,14 +433,14 @@ public abstract class GeoFiles {
         ByteArrayInputStream bais = null;
         try {
             Waypoint point = new Waypoint(0.0, 0.0, "", "");
-            
+
             bais = new ByteArrayInputStream(UTF8.encode(kml));
             bais.reset();
             XmlPullParser parser = new KXmlParser();
             parser.setInput(bais, "utf-8");
             int event;
             String tagName;
-            
+
             while (true) {
                 event = parser.nextToken();
                 if (event == XmlPullParser.START_TAG) {
@@ -471,14 +470,62 @@ public abstract class GeoFiles {
             }
         }
     }
-    
-    
-    
-    
+
+    /**
+     * Parses kml file to networklink object
+     * @param kml kml data
+     * @return networklink object
+     */
+    private static NetworkLink parseNetworkLink(String kml) {
+        ByteArrayInputStream bais = null;
+        try {
+            String name = "";
+            String description = "";
+            int refreshInterval = 10;
+            String link = "";
+            String viewFormat = "";
+
+            bais = new ByteArrayInputStream(UTF8.encode(kml));
+            bais.reset();
+            XmlPullParser parser = new KXmlParser();
+            parser.setInput(bais, "utf-8");
+            int event;
+            String tagName;
+
+            while (true) {
+                event = parser.nextToken();
+                if (event == XmlPullParser.START_TAG) {
+                    tagName = parser.getName();
+                    if (tagName.equalsIgnoreCase("name")) {
+                        name = parser.nextText();
+                    } else if (tagName.equalsIgnoreCase("description")) {
+                        description = parser.nextText();
+                    } else if (tagName.equalsIgnoreCase("href")) {
+                        link = parser.nextText();
+                    } else if (tagName.equalsIgnoreCase("refreshInterval")) {
+                        refreshInterval = Integer.parseInt(parser.nextText());
+                    } else if (tagName.equalsIgnoreCase("viewFormat")) {
+                        viewFormat = parser.nextText();
+                    }
+                } else if (event == XmlPullParser.END_DOCUMENT) {
+                    break;
+                }
+            }
+            return new NetworkLink(name, description, refreshInterval, link, viewFormat);
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "GeoFiles.parseNetworkLink()", kml);
+            return null;
+        } finally {
+            try {
+                bais.close();
+            } catch (IOException ex) {
+            }
+        }
+    }
+
     /****************************************************/
     /*                 OTHER FUNCTIONS                  */
     /****************************************************/
-    
     /**
      * Converts name to waypoint file name. It's camelcased name with _suffix if this file already exist
      * @param name name
@@ -491,11 +538,9 @@ public abstract class GeoFiles {
             }
             //remove unwanted chars
             StringBuffer buffer = new StringBuffer();
-            for (int i=0;i<name.length();i++)
-            {
+            for (int i = 0; i < name.length(); i++) {
                 char ch = name.charAt(i);
-                if (Character.isDigit(ch) || Character.isLowerCase(ch) || Character.isUpperCase(ch))
-                {
+                if (Character.isDigit(ch) || Character.isLowerCase(ch) || Character.isUpperCase(ch)) {
                     buffer.append(ch);
                 }
             }
@@ -524,7 +569,7 @@ public abstract class GeoFiles {
             return "";
         }
     }
-    
+
     /**
      * Returns all waypoints as sync data xml
      * @return sync data
@@ -540,18 +585,19 @@ public abstract class GeoFiles {
 
                     String type = "";
                     int fileType = getDataTypeFile(fileName);
-                    if (fileType == TYPE_WAYPOINT)
+                    if (fileType == TYPE_WAYPOINT) {
                         type = "waypoint";
-                    else if (fileType == TYPE_ROUTE)
+                    } else if (fileType == TYPE_ROUTE) {
                         type = "route";
-                    else if (fileType == TYPE_WAYPOINTS_CLOUD)
+                    } else if (fileType == TYPE_WAYPOINTS_CLOUD) {
                         type = "waypointCloud";
-                    else
+                    } else {
                         continue;
-                    
+                    }
+
                     syncData += "<file>\n";
                     syncData += "<id>locify://filesystem/" + fileName + "</id>\n";
-                    syncData += "<type>"+type+"</type>\n";
+                    syncData += "<type>" + type + "</type>\n";
                     syncData += "<action>allSync</action>\n";
                     syncData += "<ts>" + R.getFileSystem().getTimestamp(FileSystem.FILES_FOLDER + fileName) + "</ts>\n";
                     syncData += "<content>\n";
@@ -566,7 +612,7 @@ public abstract class GeoFiles {
             return "";
         }
     }
-    
+
     public static int getDataTypeString(String data) {
         if (data.length() == 0) {
             return TYPE_CORRUPT;
@@ -576,41 +622,47 @@ public abstract class GeoFiles {
                 data.indexOf("<LineString>") != -1 || data.indexOf("<linestring>") != -1) {
             return TYPE_ROUTE;
         }
-        
+
         if (data.indexOf("<Folder>") != -1 || data.indexOf("<folder>") != -1) {
             return TYPE_WAYPOINTS_CLOUD;
+        }
+        if (data.indexOf("<NetworkLink>") != -1 || data.indexOf("<networklink>") != -1) {
+            return TYPE_NETWORKLINK;
         }
 
         return TYPE_WAYPOINT;
     }
-    
+
     public static int getDataTypeFile(String fileName) {
         FileConnection fileConnection = null;
-        InputStream is = null;        
+        InputStream is = null;
         XmlPullParser parser;
-        
+
         try {
             parser = new KXmlParser();
             int event;
             String tagName;
-            
+
             fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
-            if (!fileConnection.exists())
+            if (!fileConnection.exists()) {
                 return TYPE_CORRUPT;
-            
+            }
+
             is = fileConnection.openInputStream();
             parser.setInput(is, "utf-8");
-       
+
             while (true) {
                 event = parser.nextToken();
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
                     //System.out.println("Start-tag: " + parser.getName()) ;
-                    
+
                     if (tagName.equalsIgnoreCase("LineString")) {
                         return TYPE_ROUTE;
                     } else if (tagName.equalsIgnoreCase("Folder")) {
                         return TYPE_WAYPOINTS_CLOUD;
+                    } else if (tagName.equalsIgnoreCase("NetworkLink")) {
+                        return TYPE_NETWORKLINK;
                     }
                 } else if (event == XmlPullParser.END_DOCUMENT) {
                     break;
@@ -623,10 +675,12 @@ public abstract class GeoFiles {
             return TYPE_CORRUPT;
         } finally {
             try {
-                if (fileConnection != null)
+                if (fileConnection != null) {
                     fileConnection.close();
-                if (is != null)
+                }
+                if (is != null) {
                     is.close();
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

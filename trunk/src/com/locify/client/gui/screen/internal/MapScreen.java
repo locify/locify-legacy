@@ -18,6 +18,7 @@ import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
+import com.locify.client.data.items.NetworkLink;
 import com.locify.client.data.items.WaypointsCloud;
 import com.locify.client.locator.*;
 import com.locify.client.maps.*;
@@ -80,6 +81,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     int pointerX, pointerY;
     /** manager for objects to show on screen */
     private MapItemManager mapItemManager;
+    /** downloader for network link */
+    private NetworkLinkDownloader networkLinkDownloader;
     /* path to image tiles */
     public static final String IMAGE_EMPTY_TILE = "/map_tile_64x64.png";
     public static final String IMAGE_ICON_PLUS = "/map_icon_plus.png";
@@ -118,6 +121,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private Point2D.Int touchZoomOutButtonCenter;
     /** radius of touch buttons */
     private int touchZoomButtonRadius;
+    /** should all the files show on map directly? */
+    private boolean nowDirectly;
 
     //public static long drawTestTime;
     
@@ -175,6 +180,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 UiAccess.addSubCommand(R.getContext().commands[i], Commands.cmdAnotherLocation, this);
             }
         }
+
+        nowDirectly = false;
     //setFileProvider(R.getSettings().getFileMapProviders().getDefaultProvider());
     }
 
@@ -214,7 +221,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void view(double lat, double lon, String name, String desc) {
         Vector waypoints = new Vector();
         waypoints.addElement(new Waypoint(lat, lon, name, desc));
-        objectsAddToShow(name, new PointMapItem(waypoints));
+        mapItemManager.addItem(name, new PointMapItem(waypoints));
         centerMap(new Location4D(lat, lon, 0f), false);
         view();
     }
@@ -241,17 +248,19 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             Waypoint waypoint = (Waypoint) data;
             Vector waypoints = new Vector();
             waypoints.addElement(waypoint);
-            objectsAddToShow(waypoint.getName(), new PointMapItem(waypoints));
+            mapItemManager.addItem(waypoint.getName(), new PointMapItem(waypoints));
             Location4D loc = new Location4D(waypoint.getLatitude(), waypoint.getLongitude(), 0);
             //zooming map to point and actual location pair - by destil
             map.calculateZoomFrom(new Location4D[]{loc,R.getLocator().getLastLocation()});
-            objectsDeinitialize();
+            mapItemManager.disableInitializeState();
             centerMap(loc, false);
         } else if (data instanceof WaypointsCloud) {
+            System.out.println("viewing waypoints cloud");
             WaypointsCloud cloud = (WaypointsCloud) data;
             if (cloud.getWaypointsCount() != 0) {
                 PointMapItem mapItem = new PointMapItem(cloud.getWaypointsCloudPoints());
-                objectsAddToShow(cloud.getName(), mapItem);
+                mapItemManager.removeAll();
+                mapItemManager.addItem(cloud.getName(), mapItem);
                 centerMap(mapItem.getItemCenter(), false);
                 objectZoomTo(mapItem);
             }
@@ -259,11 +268,19 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             Route route = (Route) data;
             if (route.getWaypointCount() != 0) {
                 RouteMapItem mapItem = new RouteMapItem(route);
-                objectsAddToShow(route.getName(), mapItem);
+                mapItemManager.addItem(route.getName(), mapItem);
                 centerMap(mapItem.getItemCenter(), false);
                 objectZoomTo(mapItem);
             }
         }
+        view();
+    }
+
+    public void view(NetworkLink link)
+    {
+        System.out.println("view network link on map");
+        networkLinkDownloader = new NetworkLinkDownloader(link);
+        nowDirectly = true;
         view();
     }
 
@@ -286,7 +303,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         this.centerToActualLocation = centerToActualLocation;
         map.setLocationCenter(lastCenterPoint);
 
-        objectsDeinitialize();
+        mapItemManager.disableInitializeState();
     }
 
     public MapLayer getActualMapLayer() {
@@ -766,7 +783,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         } else {
             this.centerToActualLocation = false;
             map.panUp();
-            objectsPan(0, 1 * map.getPanSpeed());
+            mapItemManager.panItem(0, 1 * map.getPanSpeed());
             selectNearestWaypointsAtCenter();
         }
     }
@@ -782,7 +799,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         } else {
             this.centerToActualLocation = false;
             map.panDown();
-            objectsPan(0, -1 * map.getPanSpeed());
+            mapItemManager.panItem(0, -1 * map.getPanSpeed());
             selectNearestWaypointsAtCenter();
         }
     }
@@ -799,7 +816,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         } else {
             this.centerToActualLocation = false;
             map.panLeft();
-            objectsPan(1 * map.getPanSpeed(), 0);
+            mapItemManager.panItem(1 * map.getPanSpeed(), 0);
             selectNearestWaypointsAtCenter();
         }
     }
@@ -816,7 +833,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         } else {
             this.centerToActualLocation = false;
             map.panRight();
-            objectsPan(-1 * map.getPanSpeed(), 0);
+            mapItemManager.panItem(-1 * map.getPanSpeed(), 0);
             selectNearestWaypointsAtCenter();
 
         }
@@ -825,34 +842,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public boolean isOffLineMapEnable() {
         return map instanceof FileMapLayer;
     }
-    
-//    private class PaintThread extends Thread {
-//
-//        private Graphics g;
-//        private boolean running = false;
-//
-//        public PaintThread(Graphics g) {
-//            this.g = g;
-//            this.start();
-//        }
-//
-//        public void run() {
-//            try {
-//            running = true;
-//            if (g.getClipHeight() > 40) {
-//                g.setClip(0, R.getTopBar().height, g.getClipWidth(), getAvailableHeight());
-//                drawMap(g);
-//            } else {
-//                TOP_MARGIN = g.getClipHeight(); //nastavi dle pokusi o vyhresleni v TopBarBackground
-//            }
-//            running = false;
-//            } catch (Exception e) {
-//                R.getErrorScreen().view(e, "PaintThread.run()", null);
-//            }
-//        }
-//    }
-
-    
+        
     /************************************************/
     /*           STYLUS SUPPORT SECTION             */
     /************************************************/
@@ -871,7 +861,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     } else {
                         map.pan(pointerX - x, pointerY - y);
                         this.centerToActualLocation = false;
-                        objectsPan(x - pointerX, y - pointerY);
+                        mapItemManager.panItem(x - pointerX, y - pointerY);
                         //selectNearestWaypoints(x, y, map.getPanSpeed() * 2 / 3, false);
                     }
                     pointerX = x;
@@ -889,6 +879,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
     /**
      * Called when the pointer is pressed.
+     * @param x
+     * @param y
      */
     public void pointerPressed(int x, int y) {
         if (isMenuOpened()) {
@@ -948,24 +940,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void objectZoomTo(MapItem item) {
         if (item != null) {
             map.calculateZoomFrom(item.getBoundingLocations());
-            objectsDeinitialize();
+            mapItemManager.disableInitializeState();
         }
-    }
-
-    public void objectsAddToShow(String itemName, MapItem item) {
-        try {
-            mapItemManager.addItem(itemName, item);
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapScreen.objectsAddToShow()", itemName);
-        }
-    }
-
-    public void objectsPan(int x, int y) {
-        mapItemManager.panItem(x, y);
-    }
-
-    public void objectsDeinitialize() {
-        mapItemManager.disableInitializeState();
     }
 
     public void showActualRoute(RouteVariables routeVariables) {
@@ -1213,7 +1189,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 zoomProcess = false;
                 map.pan(pxMoveX - getWidth() / 2, pxMoveY - getHeight() / 2);
                 map.setZoomLevel(map.getActualZoomLevel() + zoomTotalValue);
-                objectsDeinitialize();
+                mapItemManager.disableInitializeState();
                 selectNearestWaypointsAtCenter();
                 repaint();
             } catch (Exception e) {
@@ -1285,4 +1261,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
         }
     }
+
+    public boolean isNowDirectly() {
+        return nowDirectly;
+    }
+    
 }

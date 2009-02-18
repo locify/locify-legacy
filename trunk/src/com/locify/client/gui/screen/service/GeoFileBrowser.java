@@ -16,6 +16,7 @@ package com.locify.client.gui.screen.service;
 import com.locify.client.data.LandmarksExport;
 import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
+import com.locify.client.data.items.NetworkLink;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.WaypointsCloud;
@@ -40,6 +41,7 @@ public class GeoFileBrowser implements CommandListener {
     private Waypoint waypoint;
     private WaypointsCloud cloud;
     private Route route;
+    private NetworkLink networkLink;
     private int dataType;
     private String kmlData;
     private String fileName;
@@ -81,6 +83,10 @@ public class GeoFileBrowser implements CommandListener {
         } else if (type == GeoFiles.TYPE_ROUTE) {
             route = GeoFiles.loadRouteString(kml);
             dataType = GeoFiles.TYPE_ROUTE;
+        } else if (type == GeoFiles.TYPE_NETWORKLINK)
+        {
+            networkLink = GeoFiles.loadNetworkLinkString(kml);
+            dataType = GeoFiles.TYPE_NETWORKLINK;
         }
         inService = true;
         this.kmlData = kml;
@@ -101,6 +107,9 @@ public class GeoFileBrowser implements CommandListener {
         } else if (type == GeoFiles.TYPE_ROUTE) {
             route = GeoFiles.loadRouteFile(fileName, false);
             dataType = GeoFiles.TYPE_ROUTE;
+        } else if (type == GeoFiles.TYPE_NETWORKLINK) {
+            networkLink = GeoFiles.loadNetworkLinkFile(fileName);
+            dataType = GeoFiles.TYPE_NETWORKLINK;
         }
         this.fileName = fileName;
         inService = false;
@@ -119,6 +128,15 @@ public class GeoFileBrowser implements CommandListener {
                 data = cloud;
             } else if (dataType == GeoFiles.TYPE_ROUTE) {
                 data = route;
+            } else if (dataType == GeoFiles.TYPE_NETWORKLINK) {
+                R.getMapScreen().view(networkLink);
+                return;
+            }
+
+            if (R.getMapScreen().isNowDirectly())
+            {
+                R.getMapScreen().view(data);
+                return;
             }
 
             form = new Form(data.getName());

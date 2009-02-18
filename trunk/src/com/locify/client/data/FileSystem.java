@@ -517,6 +517,8 @@ public class FileSystem {
     public static String hashFileName(String fileName) {
         fileName = Sha1.encode(fileName);
         fileName = Utils.replaceString(fileName, "/", "");
+        fileName = Utils.replaceString(fileName, "=", "");
+        fileName = Utils.replaceString(fileName, "+", "");
         return fileName;
     }
 
