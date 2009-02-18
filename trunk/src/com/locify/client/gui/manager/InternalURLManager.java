@@ -272,6 +272,9 @@ public class InternalURLManager {
                 }
             } else if (url.equals("locify://htmlBrowser")) {
                 R.getHTMLScreen().view();
+            } else if (url.startsWith("locify://contactsScreen")) {
+                R.getContactsScreen().viewFiltered((String) parameters.get("text"),
+                        Integer.parseInt((String) parameters.get("type")));
             } else if (url.startsWith("locify://internal/")) {
                 //opens page in internal browser
                 url = Utils.replaceString(url, "locify://internal/", "");

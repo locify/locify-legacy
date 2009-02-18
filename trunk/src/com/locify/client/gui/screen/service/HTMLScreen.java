@@ -265,6 +265,16 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         R.getURL().call("locify://htmlBrowser");
     }
 
+    public void updateContactTelInfo(String tel) {
+        htmlBrowser.updateContactTelItem(tel);
+        R.getURL().call("locify://htmlBrowser");
+    }
+
+    public void updateContactEmailInfo(String email) {
+        htmlBrowser.updateContactEmailItem(email);
+        R.getURL().call("locify://htmlBrowser");
+    }
+
     public XHTMLBrowser getHtmlBrowser() {
         return htmlBrowser;
     }

@@ -61,20 +61,21 @@ public class MapItemManager {
     }    
 
     /**
-     * Add item to manager, if item of same name exist, don't overwrite it !!!
+     * Add item to manager, if item of same name exist, overwrite it !!!
      * @param itemName name of item
      * @param item MapItem to show
      * @return true if added, falsee if same name already exist
      */
     public boolean addItem(String itemName, MapItem item) {
         //System.out.println("\n add1 - " + printItems());
-        if (!itemsState.containsKey(itemName)) {
-            items.put(itemName, item);
-            itemsState.put(itemName, String.valueOf(true));
-            //System.out.println("\n add2 - " + printItems());
-            return true;
+        if (itemsState.containsKey(itemName)) {
+            removeItem(itemName);
         }
-        return false;
+
+        items.put(itemName, item);
+        itemsState.put(itemName, String.valueOf(true));
+        //System.out.println("\n add2 - " + printItems());
+        return true;
     }
 
     /**

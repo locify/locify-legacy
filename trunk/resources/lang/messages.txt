@@ -167,6 +167,7 @@ Save_password=Save password
 If_not_registered=If you are not registered 
 Please_register=please register
 Email=E-mail
+Tel=Phone number
 Repeat_password=Repeat password
 Passwords_dont_match=Passwords don't match
 Password=Password

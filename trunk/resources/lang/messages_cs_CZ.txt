@@ -167,6 +167,7 @@ Save_password=Uložit heslo
 If_not_registered=Pokud nejste zaregistrován 
 Please_register=registrujte se prosím
 Email=E-mail
+Tel=Tel. číslo
 Repeat_password=Opakovat heslo
 Passwords_dont_match=Hesla se neshodují
 Password=Heslo

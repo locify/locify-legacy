@@ -22,6 +22,7 @@ import de.enough.polish.browser.html.HtmlBrowser;
 import de.enough.polish.ui.Container;
 import de.enough.polish.ui.ImageItem;
 import de.enough.polish.ui.StringItem;
+import de.enough.polish.ui.TextField;
 import de.enough.polish.util.Locale;
 import de.enough.polish.util.StringTokenizer;
 import de.enough.polish.util.TextUtil;
@@ -36,6 +37,8 @@ public class XHTMLBrowser extends HtmlBrowser {
     private ImageItem contextImage;
     private StringItem contextText;
     private StringItem fileText;
+    protected TextField contactTelText;
+    protected TextField contactEmailText;
 
     public XHTMLBrowser() {
         //#style browser
@@ -91,48 +94,6 @@ public class XHTMLBrowser extends HtmlBrowser {
         }
     }
 
-    /**
-     * Updates <locify:where />
-     */
-    public void updateContextItem() {
-        try {
-            if (contextImage != null && contextText != null) {
-                if (R.getContext().isTemporary()) {
-                    contextImage.setImage(IconData.get("locify://icons/where.png"));
-                    contextText.setText(Locale.get("Temporary_location"));
-                } else {
-                    switch (R.getContext().getSource()) {
-                        case LocationContext.GPS:
-                            contextImage.setImage(IconData.get("locify://icons/gps.png"));
-                            if (R.getLocator().hasFix()) {
-                                contextText.setText(Locale.get("Valid_gps_position"));
-                            } else {
-                                contextText.setText(Locale.get("Waiting_for_gps"));
-                            }
-                            break;
-                        case LocationContext.SAVED_LOCATION:
-                            contextImage.setImage(IconData.get("locify://icons/savedLocation.png"));
-                            contextText.setText(R.getContext().getSourceData());
-                            break;
-                        case LocationContext.ADDRESS:
-                            contextImage.setImage(IconData.get("locify://icons/address.png"));
-                            contextText.setText(R.getContext().getSourceData());
-                            break;
-                        case LocationContext.COORDINATES:
-                            contextImage.setImage(IconData.get("locify://icons/coordinates.png"));
-                            contextText.setText(R.getContext().getSourceData());
-                            break;
-                        case LocationContext.LAST_KNOWN:
-                            contextImage.setImage(IconData.get("locify://icons/lastKnown.png"));
-                            contextText.setText(R.getContext().getSourceData());
-                            break;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "XHTMLBrowser.updateContextItem", null);
-        }
-    }
 
     /**
      * Adds custom locify item - locify:where
@@ -184,10 +145,52 @@ public class XHTMLBrowser extends HtmlBrowser {
     }
 
     /**
+     * Updates <locify:where />
+     */
+    public void updateContextItem() {
+        try {
+            if (contextImage != null && contextText != null) {
+                if (R.getContext().isTemporary()) {
+                    contextImage.setImage(IconData.get("locify://icons/where.png"));
+                    contextText.setText(Locale.get("Temporary_location"));
+                } else {
+                    switch (R.getContext().getSource()) {
+                        case LocationContext.GPS:
+                            contextImage.setImage(IconData.get("locify://icons/gps.png"));
+                            if (R.getLocator().hasFix()) {
+                                contextText.setText(Locale.get("Valid_gps_position"));
+                            } else {
+                                contextText.setText(Locale.get("Waiting_for_gps"));
+                            }
+                            break;
+                        case LocationContext.SAVED_LOCATION:
+                            contextImage.setImage(IconData.get("locify://icons/savedLocation.png"));
+                            contextText.setText(R.getContext().getSourceData());
+                            break;
+                        case LocationContext.ADDRESS:
+                            contextImage.setImage(IconData.get("locify://icons/address.png"));
+                            contextText.setText(R.getContext().getSourceData());
+                            break;
+                        case LocationContext.COORDINATES:
+                            contextImage.setImage(IconData.get("locify://icons/coordinates.png"));
+                            contextText.setText(R.getContext().getSourceData());
+                            break;
+                        case LocationContext.LAST_KNOWN:
+                            contextImage.setImage(IconData.get("locify://icons/lastKnown.png"));
+                            contextText.setText(R.getContext().getSourceData());
+                            break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "XHTMLBrowser.updateContextItem", null);
+        }
+    }
+
+    /**
      * Adds file browser item <input type="file" />
      */
-    public void addFileItem()
-    {
+    public void addFileItem() {
         //#style contextLabel
         add(new StringItem(this.tagHandler.labelText, null));
         fileText = new StringItem(null, Locale.get("No_file_selected"));
@@ -207,9 +210,64 @@ public class XHTMLBrowser extends HtmlBrowser {
      * Updates <input type="file" /> file name
      * @param fileName file name
      */
-    public void updateFileItem(String fileName)
-    {
+    public void updateFileItem(String fileName) {
         fileText.setText(fileName);
+    }
+
+    /**
+     * Add contact item tag: <input type="contactTel" />
+     */
+    public void addContactTelItem() {
+        //#style contextLabel
+        add(new StringItem(Locale.get("Tel") + ":", null));
+        contactTelText = new TextField("", "", 50, TextField.ANY);
+
+        //#style contextContainer
+        Container container = new Container(false);
+        //#style contactsTextField
+        container.add(contactTelText);
+        StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
+        btnBrowse.setDefaultCommand(Commands.cmdContactTel);
+        btnBrowse.setItemCommandListener(tagHandler);
+        //#style contextButton
+        container.add(btnBrowse);
+        add(container);
+    }
+
+    /**
+     * Update contact item
+     * @param data data to be written
+     */
+    public void updateContactTelItem(String data) {
+        contactTelText.setText(data);
+    }
+
+    /**
+     * Add contact item tag: <input type="contactEmail" />
+     */
+    public void addContactEmailItem() {
+        //#style contextLabel
+        add(new StringItem(Locale.get("Email") + ":", null));
+        contactEmailText = new TextField("", "", 50, TextField.ANY);
+
+        //#style contextContainer
+        Container container = new Container(false);
+        //#style contactsTextField
+        container.add(contactEmailText);
+        StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
+        btnBrowse.setDefaultCommand(Commands.cmdContactEmail);
+        btnBrowse.setItemCommandListener(tagHandler);
+        //#style contextButton
+        container.add(btnBrowse);
+        add(container);
+    }
+
+    /**
+     * Update contact item
+     * @param data data to be written
+     */
+    public void updateContactEmailItem(String data) {
+        contactEmailText.setText(data);
     }
 
     public XHTMLTagHandler getTagHandler() {

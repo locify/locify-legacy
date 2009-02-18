@@ -29,6 +29,7 @@ import com.locify.client.gui.screen.service.HtmlSelect;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
 import com.locify.client.data.AudioData;
+import com.locify.client.gui.screen.service.ContactsScreen;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -117,6 +118,9 @@ public class XHTMLTagHandler
     public static final String TAG_LOCIFY_WHERE = "locify:where";
     public static final String TAG_LOCIFY_VIBRATE = "locify:vibrate";
     public static final String TAG_LOCIFY_BLINK = "locify:blink";
+    public static final String TAG_LOCIFY_CONTACT_TEL = "locify:contactTel";
+    public static final String TAG_LOCIFY_CONTACT_EMAIL = "locify:contactEmail";
+    
     public static final String TAG_EMBED = "embed";
     /** type attribute */
     public static final String INPUT_TYPE = "type";
@@ -236,6 +240,8 @@ public class XHTMLTagHandler
         parent.addTagHandler(TAG_LOCIFY_WHERE, this);
         parent.addTagHandler(TAG_LOCIFY_VIBRATE, this);
         parent.addTagHandler(TAG_LOCIFY_BLINK, this);
+        parent.addTagHandler(TAG_LOCIFY_CONTACT_TEL, this);
+        parent.addTagHandler(TAG_LOCIFY_CONTACT_EMAIL, this);
         parent.addTagHandler(TAG_EMBED, this);
     }
 
@@ -625,14 +631,12 @@ public class XHTMLTagHandler
             } else if (TAG_LOCIFY_ELEMENT.equals(tagName)) {
                 this.currentForm.addLocifyElement((String) attributeMap.get("name"), (String) attributeMap.get("value"));
                 return true;
-            } else if (TAG_LOCIFY_WHERE.equals(
-                    tagName)) {
+            } else if (TAG_LOCIFY_WHERE.equals(tagName)) {
                 if (opening) {
                     this.browser.addContextItem();
                 }
                 return true;
-            } else if (TAG_LOCIFY_VIBRATE.equals(
-                    tagName)) {
+            } else if (TAG_LOCIFY_VIBRATE.equals(tagName)) {
                 if (opening) {
                     int duration = 500;
                     if (attributeMap.get("duration") != null) {
@@ -641,8 +645,7 @@ public class XHTMLTagHandler
                     R.getMidlet().getDisplay().vibrate(duration);
                 }
                 return true;
-            } else if (TAG_LOCIFY_BLINK.equals(
-                    tagName)) {
+            } else if (TAG_LOCIFY_BLINK.equals(tagName)) {
                 if (opening) {
                     int duration = 500;
                     if (attributeMap.get("duration") != null) {
@@ -651,8 +654,15 @@ public class XHTMLTagHandler
                     R.getMidlet().getDisplay().flashBacklight(duration);
                 }
                 return true;
-            } else if (TAG_EMBED.equals(
-                    tagName)) {
+            } else if (TAG_LOCIFY_CONTACT_TEL.equalsIgnoreCase(tagName)) {
+                if (opening)
+                    this.browser.addContactTelItem();
+                return true;
+            } else if (TAG_LOCIFY_CONTACT_EMAIL.equalsIgnoreCase(tagName)) {
+                if (opening)
+                    this.browser.addContactEmailItem();
+                return true;
+            } else if (TAG_EMBED.equals(tagName)) {
                 if (opening) {
                     if (attributeMap.get("src") != null) {
                         String file = (String) attributeMap.get("src");
@@ -705,6 +715,14 @@ public class XHTMLTagHandler
             } else {
                 R.getURL().call("locify://filebrowser?type=" + fileType);
             }
+        } else if (command == Commands.cmdContactTel) { // text a type
+            R.getContext().setBackScreen("locify://htmlBrowser");
+            R.getURL().call("locify://contactsScreen?text=" + browser.contactTelText.getText() +
+                    "&type=" + ContactsScreen.FILTER_TEL);
+        } else if (command == Commands.cmdContactEmail) {
+            R.getContext().setBackScreen("locify://htmlBrowser");
+            R.getURL().call("locify://contactsScreen?text=" + browser.contactEmailText.getText() +
+                    "&type=" + ContactsScreen.FILTER_EMAIL);
         }
 
         return false;
@@ -791,8 +809,7 @@ public class XHTMLTagHandler
 
                 //replace friendly coordianates to decimal format
                 Item[] items = form.getItems();
-                for (int i = 0; i <
-                        items.length; i++) {
+                for (int i = 0; i < items.length; i++) {
                     Item item = items[i];
                     if (item instanceof TextField) {
                         String originalValue = (String) item.getAttribute("value");

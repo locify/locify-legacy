@@ -23,7 +23,6 @@ import de.enough.polish.ui.Form;
 import de.enough.polish.ui.Item;
 import de.enough.polish.ui.ItemCommandListener;
 import de.enough.polish.ui.List;
-import de.enough.polish.ui.ListItem;
 import de.enough.polish.ui.StringItem;
 import de.enough.polish.ui.TextField;
 import de.enough.polish.util.Locale;
@@ -40,7 +39,7 @@ import javax.microedition.pim.PIMException;
  *
  * @author menion
  */
-public class PIMScreen implements CommandListener, ItemCommandListener {
+public class ContactsScreen implements CommandListener, ItemCommandListener {
 
     private PIM pim;
     private ContactList contactList;
@@ -49,21 +48,21 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
     public static final int FILTER_EMAIL = 1;
     public static final int FILTER_TEL = 2;
 
-    private boolean initialized;
+    public static boolean initialized;
     private boolean supportEmail;
     private boolean supportTel;
 
-    private Form frmSearch;
-    private List lstViewAll;
+    private List lstView;
 
-    private TextField actualTF;
-
+    private int actualFilter;
+    
     // components in test frame
+    private Form frmSearch;
     private ChoiceGroup cg;
     private TextField txtField;
     private StringItem btnOK;
 
-    public PIMScreen() {
+    public ContactsScreen() {
     }
 
 //    public void load() {
@@ -128,12 +127,13 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
     public void load() {
         initialized = false;
         try {
-            pim = PIM.getInstance();
-            contactList = (ContactList) pim.openPIMList(PIM.CONTACT_LIST, PIM.READ_WRITE);
-            seed();
-            supportEmail = contactList.isSupportedField(Contact.EMAIL);
-            supportTel = contactList.isSupportedField(Contact.TEL);
-            initialized = true;
+            if (Capabilities.hasPIMSupport()) {
+                pim = PIM.getInstance();
+                contactList = (ContactList) pim.openPIMList(PIM.CONTACT_LIST, PIM.READ_WRITE);
+                supportEmail = contactList.isSupportedField(Contact.EMAIL);
+                supportTel = contactList.isSupportedField(Contact.TEL);
+                initialized = true;
+            }
         } catch (PIMException ex) {
             ex.printStackTrace();
         }
@@ -146,7 +146,7 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
             frmSearch.setCommandListener(this);
             frmSearch.addCommand(Commands.cmdBack);
 
-            if (initialized && Capabilities.hasPIMSupport()) {
+            if (initialized) {
                 txtField = new TextField("Name", "", 25, TextField.ANY);
                 btnOK = new StringItem("", Locale.get("OK"), StringItem.BUTTON);
                 btnOK.setDefaultCommand(Commands.cmdSelect);
@@ -172,15 +172,14 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
         }
     }
 
-    private void viewFiltered(TextField textField, int filter) {
-        actualTF = textField;
-        String filterName = actualTF.getString();
+    public void viewFiltered(String filterName, int filter) {
+        this.actualFilter = filter;
         try {
-            lstViewAll = new List("Filtered contacts", List.IMPLICIT);
-            lstViewAll.setCommandListener(this);
-            lstViewAll.addCommand(Commands.cmdBack);
+            lstView = new List("Filtered contacts", List.IMPLICIT);
+            lstView.setCommandListener(this);
+            lstView.addCommand(Commands.cmdBack);
 
-            if (initialized && Capabilities.hasPIMSupport()) {
+            if (initialized) {
                 Enumeration items;
                 Contact contact;
                 
@@ -201,6 +200,16 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
                 String lastName;
                 String email;
                 String tel;
+                if (!items.hasMoreElements()) {
+                    if (actualFilter == FILTER_ALL) {
+                        lstView.append("No contacts founded", null);
+                    } else if (actualFilter == FILTER_EMAIL) {
+                        lstView.append("No contacts with EMAIL founded", null);
+                    } else if (actualFilter == FILTER_TEL) {
+                        lstView.append("No contacts with PHONE NUMBER founded", null);
+                    }
+                }
+
                 while(items.hasMoreElements()) {
                     try {
                         contact = (Contact) items.nextElement();
@@ -214,26 +223,26 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
                             email = "";
                         }
                         try {
-                            tel = supportEmail ? contact.getString(Contact.TEL, 0) : "";
+                            tel = supportTel ? contact.getString(Contact.TEL, 0) : "";
                         } catch (Exception e) {
                             tel = "";
                         }
 
                         Logger.log(lastName + "," + firstName + "," + email + "," + tel);
 
-                        if (filter == FILTER_ALL) {
-                            lstViewAll.append(lastName + ", " + firstName + "\n   " + email + ", " + tel, null);
-                        } else if (filter == FILTER_EMAIL && !email.equals("")) {
-                            lstViewAll.append(lastName + ", " + firstName + "\n   " + email, null);
-                        } else if (filter == FILTER_TEL && !tel.equals("")) {
-                            lstViewAll.append(lastName + ", " + firstName + "\n   " + tel, null);
+                        if (actualFilter == FILTER_ALL) {
+                            lstView.append(lastName + ", " + firstName + "\n   " + email + ", " + tel, null);
+                        } else if (actualFilter == FILTER_EMAIL && !email.equals("")) {
+                            lstView.append(lastName + ", " + firstName + ",\n   " + email, null);
+                        } else if (actualFilter == FILTER_TEL && !tel.equals("")) {
+                            lstView.append(lastName + ", " + firstName + ",\n   " + tel, null);
                         }
                     } catch (Exception e) {
                         Logger.log("PIMScreen.viewFiltered() (while): " + e.toString());
                     }
                 }
             }
-            R.getMidlet().switchDisplayable(null, lstViewAll);
+            R.getMidlet().switchDisplayable(null, lstView);
         } catch (Exception ex) {
             Logger.log("PIMScreen.viewFiltered(): " + ex.toString());
         }
@@ -294,17 +303,19 @@ public class PIMScreen implements CommandListener, ItemCommandListener {
     public void commandAction(Command c, Displayable d) {
         if (c == Commands.cmdBack) {
             R.getBack().goBack();
-        } else if (d == lstViewAll && c == List.SELECT_COMMAND) {
-            String text = lstViewAll.getString(lstViewAll.getSelectedIndex());
-            text = text.substring(text.lastIndexOf(',')).trim();
-            actualTF.setText(text);
-            R.getBack().goBack();
+        } else if (d == lstView && c == List.SELECT_COMMAND) {
+            String text = lstView.getString(lstView.getSelectedIndex());
+            text = text.substring(text.lastIndexOf(',') + 1).trim();
+            if (actualFilter == FILTER_TEL)
+                R.getHTMLScreen().updateContactTelInfo(text);
+            else if (actualFilter == FILTER_EMAIL)
+                R.getHTMLScreen().updateContactEmailInfo(text);
         }
     }
     
     public void commandAction(Command arg0, Item item) {
         if (item.equals(btnOK)) {
-            viewFiltered(txtField, cg.getSelectedIndex());
+            viewFiltered(txtField.getText(), cg.getSelectedIndex());
         }
     }
 }

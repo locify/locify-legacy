@@ -80,7 +80,7 @@ public class Midlet extends MIDlet {
                     DeletedData.load();
                     ServicesData.load();
                     ServiceSettingsData.load();
-                    R.getPimScreen().load();
+                    R.getContactsScreen().load();
                     R.getRouteScreen().loadUnfinishedRoute();
                     R.getMainScreen().load();
                     R.destroyLoading();

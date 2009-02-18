@@ -25,6 +25,8 @@ public class Commands {
     public static Command cmdHome = new Command(Locale.get("Home"), Command.SCREEN, 50);
     public static Command cmdBack = new Command(Locale.get("Back"), Command.BACK, 3);
     public static Command cmdSelect = new Command(Locale.get("Select"), Command.ITEM, 0);
+    public static Command cmdContactTel = new Command(Locale.get("Tel"), Command.ITEM, 0);
+    public static Command cmdContactEmail = new Command(Locale.get("Email"), Command.ITEM, 0);
     public static Command cmdOK = new Command(Locale.get("OK"), Command.BACK, 3);
     public static Command cmdSend = new Command(Locale.get("Send"), Command.SCREEN, 1);
     public static Command cmdView = new Command(Locale.get("View"), Command.SCREEN, 2);
