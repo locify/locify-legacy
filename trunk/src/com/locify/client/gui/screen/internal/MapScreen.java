@@ -123,6 +123,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private int touchZoomButtonRadius;
     /** should all the files show on map directly? */
     private boolean nowDirectly;
+    /** is firstly centere after now directly? */
+    private boolean firstCenterAfterND;
 
     //public static long drawTestTime;
     
@@ -182,6 +184,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
 
         nowDirectly = false;
+        firstCenterAfterND = false;
     //setFileProvider(R.getSettings().getFileMapProviders().getDefaultProvider());
     }
 
@@ -280,8 +283,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void view(NetworkLink link) {
         System.out.println("view network link on map");
         networkLinkDownloader = new NetworkLinkDownloader(link);
-        nowDirectly = true;
         view();
+        nowDirectly = true;
     }
 
     private void setFileMapProviders() {
@@ -299,7 +302,11 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void centerMap(Location4D newCenter, boolean centerToActualLocation) {
-        if (!nowDirectly) {
+//System.out.println(firstCenterAfterND + " " + (lastCenterPoint == null) + " " + nowDirectly);
+        if (!firstCenterAfterND || lastCenterPoint == null || !nowDirectly) {
+//System.out.println("Centering");
+            if (nowDirectly)
+                firstCenterAfterND = true;
             this.lastCenterPoint = newCenter;
             this.centerToActualLocation = centerToActualLocation;
             map.setLocationCenter(lastCenterPoint);
@@ -940,12 +947,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /*           MAP ITEM SECTION             */
     /******************************************/
     public void objectZoomTo(MapItem item) {
-        if (!nowDirectly) {
+//        if (!nowDirectly) {
             if (item != null) {
                 map.calculateZoomFrom(item.getBoundingLocations());
                 mapItemManager.disableInitializeState();
             }
-        }
+//        }
     }
 
     public void showActualRoute(RouteVariables routeVariables) {
