@@ -133,8 +133,7 @@ public class GeoFileBrowser implements CommandListener {
                 return;
             }
 
-            if (R.getMapScreen().isNowDirectly())
-            {
+            if (R.getMapScreen().isNowDirectly()) {
                 R.getMapScreen().view(data);
                 return;
             }

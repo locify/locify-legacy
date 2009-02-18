@@ -206,6 +206,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
             R.getMidlet().switchDisplayable(null, this);
             selectNearestWaypointsAtCenter();
+            repaint();
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.view()", null);
         }
@@ -276,8 +277,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         view();
     }
 
-    public void view(NetworkLink link)
-    {
+    public void view(NetworkLink link) {
         System.out.println("view network link on map");
         networkLinkDownloader = new NetworkLinkDownloader(link);
         nowDirectly = true;
@@ -299,11 +299,13 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void centerMap(Location4D newCenter, boolean centerToActualLocation) {
-        this.lastCenterPoint = newCenter;
-        this.centerToActualLocation = centerToActualLocation;
-        map.setLocationCenter(lastCenterPoint);
+        if (!nowDirectly) {
+            this.lastCenterPoint = newCenter;
+            this.centerToActualLocation = centerToActualLocation;
+            map.setLocationCenter(lastCenterPoint);
 
-        mapItemManager.disableInitializeState();
+            mapItemManager.disableInitializeState();
+        }
     }
 
     public MapLayer getActualMapLayer() {
@@ -938,9 +940,11 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /*           MAP ITEM SECTION             */
     /******************************************/
     public void objectZoomTo(MapItem item) {
-        if (item != null) {
-            map.calculateZoomFrom(item.getBoundingLocations());
-            mapItemManager.disableInitializeState();
+        if (!nowDirectly) {
+            if (item != null) {
+                map.calculateZoomFrom(item.getBoundingLocations());
+                mapItemManager.disableInitializeState();
+            }
         }
     }
 
