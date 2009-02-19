@@ -39,16 +39,26 @@ import org.xmlpull.v1.XmlPullParser;
  */
 public abstract class GeoFiles {
 
+    private final static String linSe = "\n";
+
     public static final int TYPE_WAYPOINT = 1;
     public static final int TYPE_WAYPOINTS_CLOUD = 2;
     public static final int TYPE_ROUTE = 3;
     public static final int TYPE_NETWORKLINK = 4;
     public static final int TYPE_CORRUPT = 10;
+
     private static final int ROUTE_TYPE_FILE = 1;
     private static final int ROUTE_TYPE_STRING = 2;
     private static final int WAYPOINT_CLOUD_TYPE_FILE = 3;
     private static final int WAYPOINT_CLOUD_TYPE_STRING = 4;
-    private final static String linSe = "\n";
+
+    private static final int STATE_NONE = 0;
+    private static final int STATE_DOCUMENT = 1;
+    private static final int STATE_FOLDER = 2;
+    private static final int STATE_PLACEMARK = 3;
+
+    private static int sActual;
+    private static int sBefore;
 
     /***************************************************/
     /*                 SAVE FUNCTIONS                  */
@@ -219,6 +229,181 @@ public abstract class GeoFiles {
     /****************************************************/
     /*                 PARSE FUNCTIONS                  */
     /****************************************************/
+
+    public static MultiData parseKMLFile(String fileName) {
+        try {
+            FileConnection fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
+            if (!fileConnection.exists()) {
+                return null;
+            }
+            return parseKMLString(R.getFileSystem().loadString(FileSystem.FILES_FOLDER + fileName));
+        } catch (IOException ex) {
+            return null;
+        }
+    }
+    
+    public static MultiData parseKMLString(String data) {
+        MultiData multiData = new MultiData();
+        GeoData actualGeoData = null;
+        
+        ByteArrayInputStream stream = null;
+        InputStreamReader reader = null;
+
+        XmlPullParser parser;
+        try {
+            stream = new ByteArrayInputStream(UTF8.encode(data));
+            reader = new InputStreamReader(stream);
+            parser = new KXmlParser();
+            parser.setInput(reader);
+
+            String name = "";
+            String description = "";
+
+            Waypoint waypoint = null;
+            
+            int event;
+            String tagName;
+
+            sBefore = STATE_NONE;
+            sActual = STATE_NONE;
+
+            while (true) {
+                event = parser.nextToken();
+                if (event == XmlPullParser.START_TAG) {
+                    tagName = parser.getName();
+                    if (tagName.equalsIgnoreCase("document")) {
+                        setState(STATE_DOCUMENT);
+                    } else if (tagName.equalsIgnoreCase("name")) {
+                        if (sActual == STATE_DOCUMENT) {
+                            multiData.name = parser.nextText();
+                            name = "";
+                        } else {
+                            name = parser.nextText();
+                        }
+                    } else if (tagName.equalsIgnoreCase("description")) {
+                        if (sActual == STATE_DOCUMENT) {
+                            multiData.description = parser.nextText();
+                            description = "";
+                        } else {
+                            description = parser.nextText();
+                        }
+                    /* it will be only cloud and containts only placemark tags */
+                    } else if (tagName.equalsIgnoreCase("folder")) {
+                        setState(STATE_FOLDER);
+                        actualGeoData = new WaypointsCloud("");
+                    } else if (tagName.equalsIgnoreCase("placemark")) {
+                        setState(STATE_PLACEMARK);
+                    } else if (tagName.equalsIgnoreCase("point")) {
+                        /* sActual is always placemark but sBefore may be FOLDER
+                         * (waypoint_cloud) or DOCUMENT (waypoint) */
+                        if (sActual == STATE_PLACEMARK) {
+                            waypoint = new Waypoint(0.0, 0.0, "", "");
+                            while (true) {
+                                event = parser.nextToken();
+                                if (event == XmlPullParser.START_TAG) {
+                                    tagName = parser.getName();
+                                    if (tagName.equalsIgnoreCase("coordinates")) {
+                                        String coordinates = parser.nextText();
+                                        String[] parts = StringTokenizer.getArray(coordinates, ",");
+                                        waypoint.longitude = Double.parseDouble(parts[0]);
+                                        waypoint.latitude = Double.parseDouble(parts[1]);
+                                    }
+                                } else if (event == XmlPullParser.END_TAG) {
+                                    tagName = parser.getName();
+                                    if (tagName.equalsIgnoreCase("placemark")) {
+                                        waypoint.name = name;
+                                        waypoint.description = description;
+
+                                        if (sBefore == STATE_FOLDER) {
+                                            ((WaypointsCloud) actualGeoData).addWaypoint(waypoint);
+                                        } else if (sBefore == STATE_DOCUMENT) {
+                                            multiData.addGeoData(waypoint);
+                                        } else {
+                                            Logger.log("GeoFiles.parseKML(" + data + ") - POINT error1!!!");
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            Logger.log("GeoFiles.parseKML(" + data + ") - POINT error2!!!");
+                        }
+                    } else if (tagName.equalsIgnoreCase("linestring")) {
+                        if (sActual == STATE_PLACEMARK) {
+                            Route route = new Route();
+                            while (true) {
+                                event = parser.nextToken();
+                                if (event == XmlPullParser.START_TAG) {
+                                    tagName = parser.getName();
+                                    if (tagName.equalsIgnoreCase("coordinates")) {
+                                        if (route.points.size() != 0) {
+                                            route.separating.addElement(new Integer(route.points.size()));
+                                        }
+                                        String coordinates = parser.nextText();
+                                        coordinates = coordinates.replace(',', ' ');
+                                        coordinates = coordinates.replace('\n', ' ');
+                                        coordinates = coordinates.replace('\t', ' ');
+
+                                        String coo = "";
+                                        de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(coordinates, ' ');
+                                        while (token.hasMoreTokens()) {
+                                            coo = token.nextToken();
+
+                                            if (token.hasMoreTokens()) {
+                                                route.points.addElement(new Location4D(
+                                                        Double.parseDouble((String) token.nextToken()),
+                                                        Double.parseDouble((String) coo),
+                                                        Float.parseFloat(token.nextToken())));
+                                            }
+                                        }
+                                    }
+                                } else if (event == XmlPullParser.END_TAG) {
+                                    tagName = parser.getName();
+                                    if (tagName.equalsIgnoreCase("placemark")) {
+                                        route.name = name;
+                                        route.description = description;
+                                        multiData.addGeoData(route);
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            Logger.log("GeoFiles.parseKML(" + data + ") - LINESTRING error!!!");
+                        }
+                    } else if (event == XmlPullParser.END_DOCUMENT) {
+                        break;
+                    }
+                } else if (event == XmlPullParser.END_TAG) {
+                    tagName = parser.getName();
+                    if (tagName.equalsIgnoreCase("folder")) {
+                        setState(STATE_DOCUMENT);
+                        multiData.addGeoData(actualGeoData);
+                    }
+                }
+            }
+
+            multiData.finalizeData();
+            return multiData;
+        } catch (Exception e) {
+            //R.getErrorScreen().view(e, "GeoFiles.parseRouteOrCloud()", fileOrData);
+            Logger.debug("Parsing: wrongFile or data: " + data + "\n" + e.getMessage());
+            return null;
+        } finally {
+            try {
+                if (stream != null)
+                    stream.close();
+                if (reader != null)
+                    reader.close();
+            } catch (IOException ex) {
+            }
+        }
+    }
+
+    private static void setState(int state) {
+        sBefore = sActual;
+        sActual = state;
+    }
+
     /**
      * Parser kml file to route object
      * @param kml kml data
@@ -637,6 +822,7 @@ public abstract class GeoFiles {
         FileConnection fileConnection = null;
         InputStream is = null;
         XmlPullParser parser;
+        int actualType = TYPE_CORRUPT;
 
         try {
             parser = new KXmlParser();

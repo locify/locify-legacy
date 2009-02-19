@@ -226,11 +226,15 @@ public class XHTMLBrowser extends HtmlBrowser {
         Container container = new Container(false);
         //#style contactsTextField
         container.add(contactTelText);
-        StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
-        btnBrowse.setDefaultCommand(Commands.cmdContactTel);
-        btnBrowse.setItemCommandListener(tagHandler);
+
+        //#if polish.Vendor != WM
+//#         StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
+//#         btnBrowse.setDefaultCommand(Commands.cmdContactTel);
+//#         btnBrowse.setItemCommandListener(tagHandler);
         //#style contextButton
-        container.add(btnBrowse);
+//#         container.add(btnBrowse);
+        //#endif
+
         add(container);
     }
 
@@ -254,11 +258,15 @@ public class XHTMLBrowser extends HtmlBrowser {
         Container container = new Container(false);
         //#style contactsTextField
         container.add(contactEmailText);
-        StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
-        btnBrowse.setDefaultCommand(Commands.cmdContactEmail);
-        btnBrowse.setItemCommandListener(tagHandler);
+
+        //#if polish.Vendor != WM
+//#         StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
+//#         btnBrowse.setDefaultCommand(Commands.cmdContactEmail);
+//#         btnBrowse.setItemCommandListener(tagHandler);
         //#style contextButton
-        container.add(btnBrowse);
+//#         container.add(btnBrowse);
+        //#endif
+
         add(container);
     }
 

@@ -361,6 +361,11 @@ Waiting_for_data_p1=Čekám na korektní data
 Waiting_for_data_p2=nebo váš GPS přijímač
 Waiting_for_data_p3=nepodporuje satelitní náhled.
 
+#Contacts screen
+Contacts_screen=Kontakty
+Contacts_error_1=Žádné kontakty nenalezeny
+Contacts_error_2=Žádné kontakty s e-mailem nenalezeny
+Contacts_error_3=Žádné kontakty s tel. číslem nenalezeny
 
 Center_waypoint=Centrum
 Navigate_to_first_point=Naviguj na první bod

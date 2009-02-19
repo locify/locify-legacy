@@ -284,6 +284,8 @@ polish.command.followlink=Go
 polish.command.submit=Submit
 
 #Help texts
+About=About aplication
+About_text=
 What_is_locify_for=What is Locify for?
 What_is_locify_for_text=Locify is a mobile application containing many location services, for free and available for most phones. It also contains useful features like maps, navigation, place and route recording.
 How_to_add_service=How to add a service?
@@ -358,6 +360,12 @@ Satellites=Satellites
 Waiting_for_data_p1=Waiting for data
 Waiting_for_data_p2=or your GPS doesn't
 Waiting_for_data_p3=support Satellite overview.
+
+#Contacts screen
+Contacts_screen=Contacts
+Contacts_error_1=No contacts founded
+Contacts_error_2=No contacts with EMAIL founded
+Contacts_error_3=No contacts with PHONE NUMBER founded
 
 Center_waypoint=Center waypoint
 Navigate_to_first_point=Navigate to first point

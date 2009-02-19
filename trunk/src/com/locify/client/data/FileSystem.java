@@ -617,12 +617,15 @@ public class FileSystem {
                             os = fileConnection.openOutputStream(bytePos);
                         }
 
-                        //os.write(dataToWrite);
-                        OutputStreamWriter osw = new OutputStreamWriter(os);
-                        String text = new String(dataToWrite);
-                        osw.write(text);
-                        osw.close();
-                        os.close();
+                        if (bytePos == -1)
+                            os.write(dataToWrite);
+                        else {
+                            OutputStreamWriter osw = new OutputStreamWriter(os);
+                            String text = new String(dataToWrite);
+                            osw.write(text);
+                            osw.close();
+                            os.close();
+                        }
                     }
 
                     fileConnection.close();

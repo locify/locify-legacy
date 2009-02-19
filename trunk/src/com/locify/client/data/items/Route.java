@@ -112,4 +112,44 @@ public class Route extends GeoData {
     public boolean isRouteOnlyInfo() {
         return routeOnlyInfo;
     }
+
+    public void processDescription() {
+        if (description != null && description.length() > 0) {
+            String trash;
+            de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(description, "\n");
+            while (token.hasMoreTokens()) {
+                trash = token.nextToken().trim();
+                if (trash.startsWith("Route length:")) {
+                    try {
+                        routeDist = Double.parseDouble(
+                                trash.substring("Route length:".length()));
+                    } catch (Exception e) {
+                        routeDist = 0;
+                    }
+
+                } else if (trash.startsWith("Route travel time:")) {
+                    try {
+                        routeTime = Long.parseLong(
+                                trash.substring("Route travel time:".length()));
+                    } catch (Exception e) {
+                        routeTime = 0;
+                    }
+
+                } else if (trash.startsWith("Route points:")) {
+                    try {
+                        pointCount = Integer.parseInt(
+                                trash.substring("Route points:".length()));
+                    } catch (Exception e) {
+                        pointCount = 0;
+                    }
+                }
+            }
+        }
+
+        if (points.size() > 0) {
+            pointCount = Math.max(pointCount, points.size());
+            latitude = ((Location4D) points.elementAt(0)).getLatitude();
+            longitude = ((Location4D) points.elementAt(0)).getLongitude();
+        }
+    }
 }

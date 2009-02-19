@@ -23,6 +23,7 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
+import com.locify.client.utils.Capabilities;
 
 /**
  * Controls main MIDlet lifecycle
@@ -80,7 +81,8 @@ public class Midlet extends MIDlet {
                     DeletedData.load();
                     ServicesData.load();
                     ServiceSettingsData.load();
-                    R.getContactsScreen().load();
+                    if (!Capabilities.isWindowsMobile())
+                        R.getContactsScreen().load();
                     R.getRouteScreen().loadUnfinishedRoute();
                     R.getMainScreen().load();
                     R.destroyLoading();
