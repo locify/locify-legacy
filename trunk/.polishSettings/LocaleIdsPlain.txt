@@ -358,6 +358,7 @@ Sync_complete=143
 Sync_in_progress=144
 Synchronize=145
 TCPNMEALocationProvider=146
+Tel=465
 Temporary=413
 Temporary_location=412
 This_folder_does_not_contain_more_folders=336

@@ -368,6 +368,7 @@ p {
 
 .contactsTextField extends textfield {
     margin:5;
+    focused-style:contactsTextFieldFocused;
 }
 
 .contactsTextFieldFocused extends .contactsTextField {

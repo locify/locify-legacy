@@ -220,7 +220,7 @@ public class XHTMLBrowser extends HtmlBrowser {
     public void addContactTelItem() {
         //#style contextLabel
         add(new StringItem(Locale.get("Tel") + ":", null));
-        contactTelText = new TextField("", "", 50, TextField.ANY);
+        contactTelText = new TextField("", "", 50, TextField.PHONENUMBER);
 
         //#style contextContainer
         Container container = new Container(false);
@@ -248,7 +248,7 @@ public class XHTMLBrowser extends HtmlBrowser {
     public void addContactEmailItem() {
         //#style contextLabel
         add(new StringItem(Locale.get("Email") + ":", null));
-        contactEmailText = new TextField("", "", 50, TextField.ANY);
+        contactEmailText = new TextField("", "", 50, TextField.EMAILADDR);
 
         //#style contextContainer
         Container container = new Container(false);
