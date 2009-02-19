@@ -73,7 +73,7 @@ public class Midlet extends MIDlet {
                 R.getFirstRun().loadLanguage();
                 if (R.getFirstRun().permissionsTest()) {
                     R.getFirstRun().loadRoot();
-                    
+
                     R.getLoading().view();
                     CookieData.load();
                     R.getSettings().load();

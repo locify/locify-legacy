@@ -17,16 +17,23 @@ package com.locify.client.data.items;
  * Represents KML network link in the memory and provides the repeat call feature
  * @author Destil
  */
-public class NetworkLink {
-    private String name;
-    private String description;
-    private int refreshInterval;
-    private String link;
-    private String viewFormat;
+public class NetworkLink extends GeoData {
+    protected int refreshInterval;
+    protected String link;
+    protected String viewFormat;
+
+    public NetworkLink() {
+        super();
+        this.refreshInterval = 0;
+        this.link = "";
+        this.viewFormat = "";
+    }
 
     public NetworkLink(String name, String description, int refreshInterval, String link, String viewFormat) {
+        super();
         this.name = name;
         this.description = description;
+
         this.refreshInterval = refreshInterval;
         this.link = link;
         this.viewFormat = viewFormat;

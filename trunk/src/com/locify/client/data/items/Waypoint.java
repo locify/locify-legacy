@@ -38,4 +38,8 @@ public class Waypoint extends GeoData {
         }
         return location;
     }
+
+    public String toString() {
+        return super.toString();
+    }
 }

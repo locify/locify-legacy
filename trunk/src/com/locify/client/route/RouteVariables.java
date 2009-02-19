@@ -15,6 +15,8 @@ package com.locify.client.route;
 
 import com.locify.client.data.FileSystem;
 import com.locify.client.locator.Location4D;
+import com.locify.client.utils.GpsUtils;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StringTokenizer;
 import java.util.Stack;
@@ -26,7 +28,11 @@ import java.util.Vector;
  */
 public class RouteVariables {
 
-    private final static String linSe = "\n";
+    private static final String linSe = "\n";
+
+    public static final String DESC_LENGTH = "Route length:";
+    public static final String DESC_TRAVEL_TIME = "Route travel time:";
+    public static final String DESC_POINTS = "Route points:";
 
     /** this number determinate which x-th location4d
      * have to be saved as actual location4d track */
@@ -213,9 +219,9 @@ public class RouteVariables {
                 "      </LineString>" + linSe +
                 "    </MultiGeometry>" + linSe +
                 "    <description>" + linSe +
-                "      Route length: " + routeDist + linSe +
-                "      Route travel time: " + routeTime + linSe +
-                "      Route points: " + pointsCount + linSe +
+                "      " + DESC_LENGTH + " " + GpsUtils.formatDouble(routeDist, 0) + linSe +
+                "      " + DESC_TRAVEL_TIME + " " + GpsUtils.formatDouble(routeTime / 1000, 0) + linSe +
+                "      " + DESC_POINTS + " " + pointsCount + linSe +
                 description + linSe +
                 "    </description>" + linSe +
                 "  </Placemark>" + linSe +
@@ -238,7 +244,6 @@ public class RouteVariables {
         data += (startTime + ";" + routeTime + ";" + pauseStart + ";" + pauseTimeReduction + ";" +
                 routeDist + ";" + speedMax + ";" + speedActual + ";" + speedAverage + "\n");
         data += (locationActual.getLatitude() + ";" + locationActual.getLongitude() + ";" + locationActual.getAltitude() + ";" + locationActual.getTime() + ";" +
-//                locationBefore.getLatitude() + ";" + locationBefore.getLongitude() + ";" + locationBefore.getAltitude() + ";" + locationBefore.getTime() + ";" +
                 locationLastSaved.getLatitude() + ";" + locationLastSaved.getLongitude() + ";" + locationLastSaved.getAltitude() + ";" + locationLastSaved.getTime() + "\n");
         data += (numOfNewlocation + ";" + hdop + ";" + vdop + ";" + paused + ";" + newData + ";" + pointsCount + ";" + state + "\n");
 
@@ -264,68 +269,68 @@ public class RouteVariables {
     }
 
     public RouteVariables loadRouteVariables() {
-        String data = R.getFileSystem().loadString(FileSystem.RUNNING_ROUTE_VARIABLES);
-        Vector lines = StringTokenizer.getVector(data, "\n");
-        if (lines.size() < 4)
-            return null;
-        else {
-            Vector token = StringTokenizer.getVector(String.valueOf(lines.elementAt(0)), ";");
-            startTime = Long.parseLong(String.valueOf(token.elementAt(0)));
-            routeTime = Long.parseLong(String.valueOf(token.elementAt(1)));
-            pauseStart = Long.parseLong(String.valueOf(token.elementAt(2)));
-            pauseTimeReduction = Long.parseLong(String.valueOf(token.elementAt(3)));
-            routeDist = Double.parseDouble(String.valueOf(token.elementAt(4)));
-            speedMax = Double.parseDouble(String.valueOf(token.elementAt(5)));
-            speedActual = Double.parseDouble(String.valueOf(token.elementAt(6)));
-            speedAverage = Double.parseDouble(String.valueOf(token.elementAt(7)));
+        try {
+            String data = R.getFileSystem().loadString(FileSystem.RUNNING_ROUTE_VARIABLES);
+            Vector lines = StringTokenizer.getVector(data, "\n");
+            if (lines.size() < 4)
+                return null;
+            else {
+                Vector token = StringTokenizer.getVector(String.valueOf(lines.elementAt(0)), ";");
+                startTime = Long.parseLong(String.valueOf(token.elementAt(0)));
+                routeTime = Long.parseLong(String.valueOf(token.elementAt(1)));
+                pauseStart = Long.parseLong(String.valueOf(token.elementAt(2)));
+                pauseTimeReduction = Long.parseLong(String.valueOf(token.elementAt(3)));
+                routeDist = Double.parseDouble(String.valueOf(token.elementAt(4)));
+                speedMax = Double.parseDouble(String.valueOf(token.elementAt(5)));
+                speedActual = Double.parseDouble(String.valueOf(token.elementAt(6)));
+                speedAverage = Double.parseDouble(String.valueOf(token.elementAt(7)));
 
-            token = StringTokenizer.getVector(String.valueOf(lines.elementAt(1)), ";");
-            locationActual = new Location4D(
-                    Double.parseDouble(String.valueOf(token.elementAt(0))),
-                    Double.parseDouble(String.valueOf(token.elementAt(1))),
-                    Float.parseFloat(String.valueOf(token.elementAt(2))),
-                    Long.parseLong(String.valueOf(token.elementAt(3))));
-//            locationBefore = new Location4D(
-//                    Double.parseDouble(String.valueOf(token.elementAt(4))),
-//                    Double.parseDouble(String.valueOf(token.elementAt(5))),
-//                    Float.parseFloat(String.valueOf(token.elementAt(6))),
-//                    Long.parseLong(String.valueOf(token.elementAt(7))));
+                token = StringTokenizer.getVector(String.valueOf(lines.elementAt(1)), ";");
+                locationActual = new Location4D(
+                        Double.parseDouble(String.valueOf(token.elementAt(0))),
+                        Double.parseDouble(String.valueOf(token.elementAt(1))),
+                        Float.parseFloat(String.valueOf(token.elementAt(2))),
+                        Long.parseLong(String.valueOf(token.elementAt(3))));
 
-            locationLastSaved = new Location4D(
-                    Double.parseDouble(String.valueOf(token.elementAt(4))),
-                    Double.parseDouble(String.valueOf(token.elementAt(5))),
-                    Float.parseFloat(String.valueOf(token.elementAt(6))),
-                    Long.parseLong(String.valueOf(token.elementAt(7))));
+                locationLastSaved = new Location4D(
+                        Double.parseDouble(String.valueOf(token.elementAt(4))),
+                        Double.parseDouble(String.valueOf(token.elementAt(5))),
+                        Float.parseFloat(String.valueOf(token.elementAt(6))),
+                        Long.parseLong(String.valueOf(token.elementAt(7))));
 
-            token = StringTokenizer.getVector(String.valueOf(lines.elementAt(2)), ";");
-            numOfNewlocation = Integer.parseInt(String.valueOf(token.elementAt(0)));
-            hdop = Float.parseFloat(String.valueOf(token.elementAt(1)));
-            vdop = Float.parseFloat(String.valueOf(token.elementAt(2)));
-            paused = (String.valueOf(token.elementAt(3)).equals("true"));
-            newData = (String.valueOf(token.elementAt(4)).equals("true"));
-            pointsCount = Integer.parseInt(String.valueOf(token.elementAt(5)));
-            state = Integer.parseInt(String.valueOf(token.elementAt(6)));
+                token = StringTokenizer.getVector(String.valueOf(lines.elementAt(2)), ";");
+                numOfNewlocation = Integer.parseInt(String.valueOf(token.elementAt(0)));
+                hdop = Float.parseFloat(String.valueOf(token.elementAt(1)));
+                vdop = Float.parseFloat(String.valueOf(token.elementAt(2)));
+                paused = (String.valueOf(token.elementAt(3)).equals("true"));
+                newData = (String.valueOf(token.elementAt(4)).equals("true"));
+                pointsCount = Integer.parseInt(String.valueOf(token.elementAt(5)));
+                state = Integer.parseInt(String.valueOf(token.elementAt(6)));
 
-            token = StringTokenizer.getVector(String.valueOf(lines.elementAt(3)), ";");
-            for (int i = 0; i < token.size(); i = i + 4) {
-                routePoints.push(new Location4D(
-                    Double.parseDouble(String.valueOf(token.elementAt(i))),
-                    Double.parseDouble(String.valueOf(token.elementAt(i + 1))),
-                    Float.parseFloat(String.valueOf(token.elementAt(i + 2))),
-                    Long.parseLong(String.valueOf(token.elementAt(i + 3)))
-                        ));
-            }
-
-            if (lines.size() > 4 && String.valueOf(lines.elementAt(4)).length() > 0) {
-                token = StringTokenizer.getVector(String.valueOf(lines.elementAt(4)), ";");
-                for (int i = 0; i < token.size(); i++) {
-                    routeDistances.push(new Double(
-                            Double.parseDouble(String.valueOf(token.elementAt(i)))
+                token = StringTokenizer.getVector(String.valueOf(lines.elementAt(3)), ";");
+                for (int i = 0; i < token.size(); i = i + 4) {
+                    routePoints.push(new Location4D(
+                        Double.parseDouble(String.valueOf(token.elementAt(i))),
+                        Double.parseDouble(String.valueOf(token.elementAt(i + 1))),
+                        Float.parseFloat(String.valueOf(token.elementAt(i + 2))),
+                        Long.parseLong(String.valueOf(token.elementAt(i + 3)))
                             ));
                 }
+
+                if (lines.size() > 4 && String.valueOf(lines.elementAt(4)).length() > 0) {
+                    token = StringTokenizer.getVector(String.valueOf(lines.elementAt(4)), ";");
+                    for (int i = 0; i < token.size(); i++) {
+                        routeDistances.push(new Double(
+                                Double.parseDouble(String.valueOf(token.elementAt(i)))
+                                ));
+                    }
+                }
             }
+            return this;
+        } catch (Exception ex) {
+            Logger.log("RouteVariables.loadRouteVariables()");
+            return null;
         }
-        return this;
     }
 
 }

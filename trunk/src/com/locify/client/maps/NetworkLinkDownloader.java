@@ -27,28 +27,27 @@ public class NetworkLinkDownloader implements Runnable {
     private Thread thread;
 
     public NetworkLinkDownloader(NetworkLink link) {
-        System.out.println("creating downloder");
+        //System.out.println("creating downloder");
         this.link = link;
         thread = new Thread(this);
         thread.start();
     }
 
-    public void stop()
-    {
+    public void stop() {
         stop = true;
         thread = null;
     }
 
     public void run() {
         try {
-            System.out.println("thread start");
+            //System.out.println("thread start");
             while (!stop) {
-                System.out.println("downloading");
+                //System.out.println("downloading");
                 R.getHttp().start(link.getLink());
-                System.out.println("sleep:"+(link.getRefreshInterval() * 1000));
-                thread.sleep(link.getRefreshInterval() * 1000);
+                //System.out.println("sleep:" + (link.getRefreshInterval() * 1000));
+                Thread.sleep(link.getRefreshInterval() * 1000);
             }
-            System.out.println("stopping");
+            //System.out.println("stopping");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "NetworkLinkDownloader.run", null);
         }

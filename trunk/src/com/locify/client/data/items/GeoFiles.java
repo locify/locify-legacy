@@ -45,12 +45,8 @@ public abstract class GeoFiles {
     public static final int TYPE_WAYPOINTS_CLOUD = 2;
     public static final int TYPE_ROUTE = 3;
     public static final int TYPE_NETWORKLINK = 4;
+    public static final int TYPE_MULTI = 9;
     public static final int TYPE_CORRUPT = 10;
-
-    private static final int ROUTE_TYPE_FILE = 1;
-    private static final int ROUTE_TYPE_STRING = 2;
-    private static final int WAYPOINT_CLOUD_TYPE_FILE = 3;
-    private static final int WAYPOINT_CLOUD_TYPE_STRING = 4;
 
     private static final int STATE_NONE = 0;
     private static final int STATE_DOCUMENT = 1;
@@ -139,17 +135,10 @@ public abstract class GeoFiles {
     public static void saveGeoFileData(String kml) {
         try {
             int type = getDataTypeString(kml);
-            GeoData data = null;
-            if (type == TYPE_WAYPOINT) {
-                data = loadWaypointString(kml);
-            } else if (type == TYPE_WAYPOINTS_CLOUD) {
-                data = loadWaypointsCloudString(kml);
-            } else if (type == TYPE_ROUTE) {
-                data = loadRouteString(kml);
-            }
+            String name = parseKMLString(kml, true).getName();
 
-            if (data != null) {
-                R.getFileSystem().saveString(FileSystem.FILES_FOLDER + GeoFiles.fileName(data.getName()), kml);
+            if (name != null && name.length() > 0) {
+                R.getFileSystem().saveString(FileSystem.FILES_FOLDER + GeoFiles.fileName(name), kml);
                 //view alert
                 if (!Sync.isRunning()) {
                     R.getCustomAlert().quickView(Locale.get("Waypoint_saved"), "info", "locify://geoFileBrowser");
@@ -163,87 +152,87 @@ public abstract class GeoFiles {
     /***************************************************/
     /*                 LOAD FUNCTIONS                  */
     /***************************************************/
-    public static Route loadRouteFile(String filename, boolean onlyInfo) {
-        try {
-            return (Route) parseRouteOrCloud(filename, onlyInfo, ROUTE_TYPE_FILE);
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "GeoFiles.loadRoute()", filename);
-            return null;
-        }
-    }
-
-    public static Route loadRouteString(String data) {
-        try {
-            return (Route) parseRouteOrCloud(data, false, ROUTE_TYPE_STRING);
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "GeoFiles.loadRoute()", data);
-            return null;
-        }
-    }
-
-    /**
-     * Loads KML waypoint from file and parses it to waypoint object
-     * @param fileName file name of KML
-     * @return object with waypoint properties
-     */
-    public static Waypoint loadWaypointFile(String fileName) {
-        try {
-            String kml = R.getFileSystem().loadString(FileSystem.FILES_FOLDER + fileName);
-            return parseWaypoint(kml);
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "GeoFiles.loadWaypointFile", fileName);
-            return null;
-        }
-    }
-
-    public static Waypoint loadWaypointString(String data) {
-        return parseWaypoint(data);
-    }
-
-    public static WaypointsCloud loadWaypointsCloudFile(String filename) {
-        try {
-            return (WaypointsCloud) parseRouteOrCloud(filename, false, WAYPOINT_CLOUD_TYPE_FILE);
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "GeoFiles.loadWaypointsCloudFile()", filename);
-            return null;
-        }
-    }
-
-    public static WaypointsCloud loadWaypointsCloudString(String kml) {
-        try {
-            return (WaypointsCloud) parseRouteOrCloud(kml, false, WAYPOINT_CLOUD_TYPE_STRING);
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "GeoFiles.loadWaypointsCloudString()", kml);
-            return null;
-        }
-    }
-
-    public static NetworkLink loadNetworkLinkString(String kml) {
-        return parseNetworkLink(kml);
-    }
-
-    public static NetworkLink loadNetworkLinkFile(String file) {
-        return parseNetworkLink(R.getFileSystem().loadString(file));
-    }
+//    public static Route loadRouteFile(String filename, boolean onlyInfo) {
+//        try {
+//            return (Route) parseRouteOrCloud(filename, onlyInfo, ROUTE_TYPE_FILE);
+//        } catch (Exception e) {
+//            R.getErrorScreen().view(e, "GeoFiles.loadRoute()", filename);
+//            return null;
+//        }
+//    }
+//
+//    public static Route loadRouteString(String data) {
+//        try {
+//            return (Route) parseRouteOrCloud(data, false, ROUTE_TYPE_STRING);
+//        } catch (Exception e) {
+//            R.getErrorScreen().view(e, "GeoFiles.loadRoute()", data);
+//            return null;
+//        }
+//    }
+//
+//    /**
+//     * Loads KML waypoint from file and parses it to waypoint object
+//     * @param fileName file name of KML
+//     * @return object with waypoint properties
+//     */
+//    public static Waypoint loadWaypointFile(String fileName) {
+//        try {
+//            String kml = R.getFileSystem().loadString(FileSystem.FILES_FOLDER + fileName);
+//            return parseWaypoint(kml);
+//        } catch (Exception e) {
+//            R.getErrorScreen().view(e, "GeoFiles.loadWaypointFile", fileName);
+//            return null;
+//        }
+//    }
+//
+//    public static Waypoint loadWaypointString(String data) {
+//        return parseWaypoint(data);
+//    }
+//
+//    public static WaypointsCloud loadWaypointsCloudFile(String filename) {
+//        try {
+//            return (WaypointsCloud) parseRouteOrCloud(filename, false, WAYPOINT_CLOUD_TYPE_FILE);
+//        } catch (Exception e) {
+//            R.getErrorScreen().view(e, "GeoFiles.loadWaypointsCloudFile()", filename);
+//            return null;
+//        }
+//    }
+//
+//    public static WaypointsCloud loadWaypointsCloudString(String kml) {
+//        try {
+//            return (WaypointsCloud) parseRouteOrCloud(kml, false, WAYPOINT_CLOUD_TYPE_STRING);
+//        } catch (Exception e) {
+//            R.getErrorScreen().view(e, "GeoFiles.loadWaypointsCloudString()", kml);
+//            return null;
+//        }
+//    }
+//
+//    public static NetworkLink loadNetworkLinkString(String kml) {
+//        return parseNetworkLink(kml);
+//    }
+//
+//    public static NetworkLink loadNetworkLinkFile(String file) {
+//        return parseNetworkLink(R.getFileSystem().loadString(file));
+//    }
 
     /****************************************************/
     /*                 PARSE FUNCTIONS                  */
     /****************************************************/
 
-    public static MultiData parseKMLFile(String fileName) {
+    public static MultiGeoData parseKMLFile(String fileName, boolean firstNameOnly) {
         try {
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
             if (!fileConnection.exists()) {
                 return null;
             }
-            return parseKMLString(R.getFileSystem().loadString(FileSystem.FILES_FOLDER + fileName));
+            return parseKMLString(R.getFileSystem().loadString(FileSystem.FILES_FOLDER + fileName), firstNameOnly);
         } catch (IOException ex) {
             return null;
         }
     }
     
-    public static MultiData parseKMLString(String data) {
-        MultiData multiData = new MultiData();
+    public static MultiGeoData parseKMLString(String data, boolean firstNameOnly) {
+        MultiGeoData multiData = new MultiGeoData();
         GeoData actualGeoData = null;
         
         ByteArrayInputStream stream = null;
@@ -274,6 +263,11 @@ public abstract class GeoFiles {
                     if (tagName.equalsIgnoreCase("document")) {
                         setState(STATE_DOCUMENT);
                     } else if (tagName.equalsIgnoreCase("name")) {
+                        if (firstNameOnly) {
+                            multiData.name = parser.nextText();
+                            return multiData;
+                        }
+
                         if (sActual == STATE_DOCUMENT) {
                             multiData.name = parser.nextText();
                             name = "";
@@ -313,13 +307,13 @@ public abstract class GeoFiles {
                                     if (tagName.equalsIgnoreCase("placemark")) {
                                         waypoint.name = name;
                                         waypoint.description = description;
-
-                                        if (sBefore == STATE_FOLDER) {
+                                        if (sBefore == STATE_FOLDER || sBefore == STATE_PLACEMARK) {
                                             ((WaypointsCloud) actualGeoData).addWaypoint(waypoint);
-                                        } else if (sBefore == STATE_DOCUMENT) {
+                                        } else if (sBefore == STATE_DOCUMENT || sBefore == STATE_NONE) {
                                             multiData.addGeoData(waypoint);
                                         } else {
                                             Logger.log("GeoFiles.parseKML(" + data + ") - POINT error1!!!");
+                                            return null;
                                         }
                                         break;
                                     }
@@ -327,10 +321,15 @@ public abstract class GeoFiles {
                             }
                         } else {
                             Logger.log("GeoFiles.parseKML(" + data + ") - POINT error2!!!");
+                            return null;
                         }
                     } else if (tagName.equalsIgnoreCase("linestring")) {
                         if (sActual == STATE_PLACEMARK) {
-                            Route route = new Route();
+                            if (actualGeoData == null || !(actualGeoData instanceof Route))
+                                actualGeoData = new Route();
+
+                            Route route = (Route) actualGeoData;
+
                             while (true) {
                                 event = parser.nextToken();
                                 if (event == XmlPullParser.START_TAG) {
@@ -359,26 +358,56 @@ public abstract class GeoFiles {
                                     }
                                 } else if (event == XmlPullParser.END_TAG) {
                                     tagName = parser.getName();
-                                    if (tagName.equalsIgnoreCase("placemark")) {
-                                        route.name = name;
-                                        route.description = description;
-                                        multiData.addGeoData(route);
+                                    if (tagName.equalsIgnoreCase("linestring")) {
                                         break;
                                     }
                                 }
                             }
                         } else {
                             Logger.log("GeoFiles.parseKML(" + data + ") - LINESTRING error!!!");
+                            return null;
                         }
-                    } else if (event == XmlPullParser.END_DOCUMENT) {
-                        break;
+                    } else if (tagName.equalsIgnoreCase("networklink")) {
+                        NetworkLink nl = new NetworkLink();
+                        while (true) {
+                            event = parser.nextToken();
+                            if (event == XmlPullParser.START_TAG) {
+                                tagName = parser.getName();
+                                if (tagName.equalsIgnoreCase("name")) {
+                                    nl.name = parser.nextText();
+                                } else if (tagName.equalsIgnoreCase("description")) {
+                                    nl.description = parser.nextText();
+                                } else if (tagName.equalsIgnoreCase("href")) {
+                                    nl.link = parser.nextText();
+                                } else if (tagName.equalsIgnoreCase("refreshInterval")) {
+                                    nl.refreshInterval = Integer.parseInt(parser.nextText());
+                                } else if (tagName.equalsIgnoreCase("viewFormat")) {
+                                    nl.viewFormat = parser.nextText();
+                                }
+                            } else if (event == XmlPullParser.END_TAG) {
+                                tagName = parser.getName();
+                                if (tagName.equalsIgnoreCase("networklink")) {
+                                    multiData.addGeoData(nl);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 } else if (event == XmlPullParser.END_TAG) {
                     tagName = parser.getName();
                     if (tagName.equalsIgnoreCase("folder")) {
                         setState(STATE_DOCUMENT);
                         multiData.addGeoData(actualGeoData);
+                    } else if (tagName.equalsIgnoreCase("placemark")) {
+                        if (actualGeoData instanceof Route) {
+                            actualGeoData.name = name;
+                            actualGeoData.description = description;
+                            ((Route) actualGeoData).routeOnlyInfo = firstNameOnly;
+                            multiData.addGeoData(actualGeoData);
+                        }
                     }
+                } else if (event == XmlPullParser.END_DOCUMENT) {
+                        break;
                 }
             }
 
@@ -409,304 +438,304 @@ public abstract class GeoFiles {
      * @param kml kml data
      * @return routeData object
      */
-    private static GeoData parseRouteOrCloud(String fileOrData, boolean onlyInfo, int dataType) {
-//System.out.println("\nhe " + System.currentTimeMillis());
-//System.out.println("Parse fileOrData: " + fileOrData + "  and dataType: " + dataType);
-        FileConnection fileConnection = null;
-        InputStream is = null;
-        ByteArrayInputStream stream = null;
-        InputStreamReader reader = null;
-
-        XmlPullParser parser;
-
-        try {
-            String trash;
-            String name = "";
-            Route route = null;
-            WaypointsCloud cloud = null;
-            parser = new KXmlParser();
-            int event;
-            String tagName;
-
-            if (dataType == ROUTE_TYPE_FILE || dataType == ROUTE_TYPE_STRING) {
-                route = new Route();
-                route.pointCount = 0;
-                route.routeOnlyInfo = onlyInfo;
-            } else if (dataType == WAYPOINT_CLOUD_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
-                cloud = new WaypointsCloud();
-            }
-
-            if (dataType == ROUTE_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_FILE) {
-                fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileOrData);
-                if (!fileConnection.exists()) {
-                    return null;
-                }
-
-                is = fileConnection.openInputStream();
-                parser.setInput(is, "utf-8");
-            } else if (dataType == ROUTE_TYPE_STRING || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
-                stream = new ByteArrayInputStream(UTF8.encode(fileOrData));
-                reader = new InputStreamReader(stream);
-                parser.setInput(reader);
-            }
-
-            while (true) {
-                event = parser.nextToken();
-                if (event == XmlPullParser.START_TAG) {
-                    tagName = parser.getName();
-
-                    if (tagName.equalsIgnoreCase("name")) {
-                        name = parser.nextText();
-                    } else if (tagName.equalsIgnoreCase("description")) {
-                        trash = parser.nextText();
-
-                        if (dataType == ROUTE_TYPE_FILE || dataType == ROUTE_TYPE_STRING) {
-                            de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(trash, "\n");
-                            while (token.hasMoreTokens()) {
-                                trash = token.nextToken();
-                                if (trash.startsWith("      Route length: ")) {
-                                    try {
-                                        route.routeDist = Double.parseDouble(
-                                                trash.substring("      Route length: ".length()));
-                                    } catch (Exception e) {
-                                        route.routeDist = 0;
-                                    }
-
-                                } else if (trash.startsWith("      Route travel time: ")) {
-                                    try {
-                                        route.routeTime = Long.parseLong(
-                                                trash.substring("      Route travel time: ".length()));
-                                    } catch (Exception e) {
-                                        route.routeTime = 0;
-                                    }
-
-                                } else if (trash.startsWith("      Route points: ")) {
-                                    try {
-                                        route.pointCount = Integer.parseInt(
-                                                trash.substring("      Route points: ".length()));
-                                    } catch (Exception e) {
-                                        route.pointCount = 0;
-                                    }
-                                }
-                            }
-                            route.description = trash;
-                        } else if (dataType == WAYPOINT_CLOUD_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
-                            cloud.description = trash;
-                        }
-                    } else if (tagName.equalsIgnoreCase("lineString") &&
-                            (dataType == ROUTE_TYPE_FILE || dataType == ROUTE_TYPE_STRING)) {
-                        while (true) {
-                            event = parser.nextToken();
-                            if (event == XmlPullParser.START_TAG) {
-                                tagName = parser.getName();
-                                if (tagName.equalsIgnoreCase("coordinates")) {
-                                    if (route.points.size() != 0) {
-                                        route.separating.addElement(new Integer(route.points.size()));
-                                    }
-                                    String coordinates = parser.nextText();
-                                    coordinates = coordinates.replace(',', ' ');
-                                    coordinates = coordinates.replace('\n', ' ');
-                                    coordinates = coordinates.replace('\t', ' ');
-
-                                    String data = "";
-                                    de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(coordinates, ' ');
-                                    while (token.hasMoreTokens()) {
-                                        data = token.nextToken();
-
-                                        if (token.hasMoreTokens()) {
-                                            route.points.addElement(new Location4D(
-                                                    Double.parseDouble((String) token.nextToken()),
-                                                    Double.parseDouble((String) data),
-                                                    Float.parseFloat(token.nextToken())));
-                                        }
-
-                                        if (onlyInfo) {
-                                            route.latitude = ((Location4D) route.points.elementAt(0)).getLatitude();
-                                            route.longitude = ((Location4D) route.points.elementAt(0)).getLongitude();
-                                            if (!name.equals("")) {
-                                                route.name = name;
-                                            } else {
-                                                route.name = fileOrData;
-                                            }
-                                            return route;
-                                        }
-                                    }
-                                }
-                            } else if (event == XmlPullParser.END_TAG) {
-                                tagName = parser.getName();
-                                if (tagName.equalsIgnoreCase("lineString")) {
-                                    break;
-                                }
-                            }
-                        }
-                    } else if (tagName.equalsIgnoreCase("folder") &&
-                            (dataType == WAYPOINT_CLOUD_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_STRING)) {
-                        Waypoint way = new Waypoint(0.0, 0.0, "", "");
-                        while (true) {
-                            event = parser.nextToken();
-                            if (event == XmlPullParser.START_TAG) {
-                                tagName = parser.getName();
-//System.out.println("tagName: " + tagName);
-                                if (tagName.equalsIgnoreCase("name")) {
-//System.out.println(parser.isEmptyElementTag());
-
-                                    way.name = parser.nextText();
-//System.out.println(way.name);
-                                } else if (tagName.equalsIgnoreCase("description")) {
-//System.out.println(parser.isEmptyElementTag());
-                                    way.description = parser.nextText();
-//System.out.println(way.description);
-                                } else if (tagName.equalsIgnoreCase("coordinates")) {
-                                    String coordinates = parser.nextText();
-                                    String[] parts = StringTokenizer.getArray(coordinates, ",");
-                                    way.longitude = Double.parseDouble(parts[0]);
-                                    way.latitude = Double.parseDouble(parts[1]);
-                                }
-                            } else if (event == XmlPullParser.END_TAG) {
-                                tagName = parser.getName();
-//System.out.println("tagName end: " + tagName);
-                                if (tagName.equalsIgnoreCase("folder")) {
-                                    break;
-                                } else if (tagName.equalsIgnoreCase("placemark")) {
-                                    cloud.addWaypoint(way);
-                                    way = new Waypoint(0.0, 0.0, "", "");
-                                }
-                            }
-                        }
-                    }
-                } else if (event == XmlPullParser.END_DOCUMENT) {
-//System.out.println(name + " end");
-                    break;
-                }
-            }
-
-            if (dataType == ROUTE_TYPE_FILE || dataType == ROUTE_TYPE_STRING) {
-                route.pointCount = Math.max(route.pointCount, route.points.size());
-                route.latitude = ((Location4D) route.points.elementAt(0)).getLatitude();
-                route.longitude = ((Location4D) route.points.elementAt(0)).getLongitude();
-                route.name = name;
-                return route;
-            } else if (dataType == WAYPOINT_CLOUD_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
-                cloud.name = name;
-                return cloud;
-            }
-            return null;
-        } catch (Exception e) {
-            //R.getErrorScreen().view(e, "GeoFiles.parseRouteOrCloud()", fileOrData);
-            Logger.debug("Parsing: wrongFile or data: " + fileOrData + "\n" + e.getMessage());
-            return null;
-        } finally {
-            try {
-                if (dataType == ROUTE_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_FILE) {
-                    is.close();
-                    fileConnection.close();
-                } else if (dataType == ROUTE_TYPE_STRING || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
-                    stream.close();
-                    reader.close();
-                }
-            } catch (IOException ex) {
-            }
-        }
-    }
-
-    /**
-     * Parser kml file to waypoint object
-     * @param kml kml data
-     * @return waypoint object
-     */
-    private static Waypoint parseWaypoint(String kml) {
-        ByteArrayInputStream bais = null;
-        try {
-            Waypoint point = new Waypoint(0.0, 0.0, "", "");
-
-            bais = new ByteArrayInputStream(UTF8.encode(kml));
-            bais.reset();
-            XmlPullParser parser = new KXmlParser();
-            parser.setInput(bais, "utf-8");
-            int event;
-            String tagName;
-
-            while (true) {
-                event = parser.nextToken();
-                if (event == XmlPullParser.START_TAG) {
-                    tagName = parser.getName();
-                    if (tagName.equalsIgnoreCase("name")) {
-                        point.name = parser.nextText();
-                    } else if (tagName.equalsIgnoreCase("description")) {
-                        point.description = parser.nextText();
-                    } else if (tagName.equalsIgnoreCase("coordinates")) {
-                        String coordinates = parser.nextText();
-                        String[] parts = StringTokenizer.getArray(coordinates, ",");
-                        point.longitude = Double.parseDouble(parts[0]);
-                        point.latitude = Double.parseDouble(parts[1]);
-                    }
-                } else if (event == XmlPullParser.END_DOCUMENT) {
-                    break;
-                }
-            }
-            return point;
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "GeoFiles.parseWaypoint()", kml);
-            return null;
-        } finally {
-            try {
-                bais.close();
-            } catch (IOException ex) {
-            }
-        }
-    }
-
-    /**
-     * Parses kml file to networklink object
-     * @param kml kml data
-     * @return networklink object
-     */
-    private static NetworkLink parseNetworkLink(String kml) {
-        ByteArrayInputStream bais = null;
-        try {
-            String name = "";
-            String description = "";
-            int refreshInterval = 10;
-            String link = "";
-            String viewFormat = "";
-
-            bais = new ByteArrayInputStream(UTF8.encode(kml));
-            bais.reset();
-            XmlPullParser parser = new KXmlParser();
-            parser.setInput(bais, "utf-8");
-            int event;
-            String tagName;
-
-            while (true) {
-                event = parser.nextToken();
-                if (event == XmlPullParser.START_TAG) {
-                    tagName = parser.getName();
-                    if (tagName.equalsIgnoreCase("name")) {
-                        name = parser.nextText();
-                    } else if (tagName.equalsIgnoreCase("description")) {
-                        description = parser.nextText();
-                    } else if (tagName.equalsIgnoreCase("href")) {
-                        link = parser.nextText();
-                    } else if (tagName.equalsIgnoreCase("refreshInterval")) {
-                        refreshInterval = Integer.parseInt(parser.nextText());
-                    } else if (tagName.equalsIgnoreCase("viewFormat")) {
-                        viewFormat = parser.nextText();
-                    }
-                } else if (event == XmlPullParser.END_DOCUMENT) {
-                    break;
-                }
-            }
-            return new NetworkLink(name, description, refreshInterval, link, viewFormat);
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "GeoFiles.parseNetworkLink()", kml);
-            return null;
-        } finally {
-            try {
-                bais.close();
-            } catch (IOException ex) {
-            }
-        }
-    }
+//    private static GeoData parseRouteOrCloud(String fileOrData, boolean onlyInfo, int dataType) {
+////System.out.println("\nhe " + System.currentTimeMillis());
+////System.out.println("Parse fileOrData: " + fileOrData + "  and dataType: " + dataType);
+//        FileConnection fileConnection = null;
+//        InputStream is = null;
+//        ByteArrayInputStream stream = null;
+//        InputStreamReader reader = null;
+//
+//        XmlPullParser parser;
+//
+//        try {
+//            String trash;
+//            String name = "";
+//            Route route = null;
+//            WaypointsCloud cloud = null;
+//            parser = new KXmlParser();
+//            int event;
+//            String tagName;
+//
+//            if (dataType == ROUTE_TYPE_FILE || dataType == ROUTE_TYPE_STRING) {
+//                route = new Route();
+//                route.pointCount = 0;
+//                route.routeOnlyInfo = onlyInfo;
+//            } else if (dataType == WAYPOINT_CLOUD_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
+//                cloud = new WaypointsCloud();
+//            }
+//
+//            if (dataType == ROUTE_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_FILE) {
+//                fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileOrData);
+//                if (!fileConnection.exists()) {
+//                    return null;
+//                }
+//
+//                is = fileConnection.openInputStream();
+//                parser.setInput(is, "utf-8");
+//            } else if (dataType == ROUTE_TYPE_STRING || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
+//                stream = new ByteArrayInputStream(UTF8.encode(fileOrData));
+//                reader = new InputStreamReader(stream);
+//                parser.setInput(reader);
+//            }
+//
+//            while (true) {
+//                event = parser.nextToken();
+//                if (event == XmlPullParser.START_TAG) {
+//                    tagName = parser.getName();
+//
+//                    if (tagName.equalsIgnoreCase("name")) {
+//                        name = parser.nextText();
+//                    } else if (tagName.equalsIgnoreCase("description")) {
+//                        trash = parser.nextText();
+//
+//                        if (dataType == ROUTE_TYPE_FILE || dataType == ROUTE_TYPE_STRING) {
+//                            de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(trash, "\n");
+//                            while (token.hasMoreTokens()) {
+//                                trash = token.nextToken();
+//                                if (trash.startsWith("      Route length: ")) {
+//                                    try {
+//                                        route.routeDist = Double.parseDouble(
+//                                                trash.substring("      Route length: ".length()));
+//                                    } catch (Exception e) {
+//                                        route.routeDist = 0;
+//                                    }
+//
+//                                } else if (trash.startsWith("      Route travel time: ")) {
+//                                    try {
+//                                        route.routeTime = Long.parseLong(
+//                                                trash.substring("      Route travel time: ".length()));
+//                                    } catch (Exception e) {
+//                                        route.routeTime = 0;
+//                                    }
+//
+//                                } else if (trash.startsWith("      Route points: ")) {
+//                                    try {
+//                                        route.pointCount = Integer.parseInt(
+//                                                trash.substring("      Route points: ".length()));
+//                                    } catch (Exception e) {
+//                                        route.pointCount = 0;
+//                                    }
+//                                }
+//                            }
+//                            route.description = trash;
+//                        } else if (dataType == WAYPOINT_CLOUD_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
+//                            cloud.description = trash;
+//                        }
+//                    } else if (tagName.equalsIgnoreCase("lineString") &&
+//                            (dataType == ROUTE_TYPE_FILE || dataType == ROUTE_TYPE_STRING)) {
+//                        while (true) {
+//                            event = parser.nextToken();
+//                            if (event == XmlPullParser.START_TAG) {
+//                                tagName = parser.getName();
+//                                if (tagName.equalsIgnoreCase("coordinates")) {
+//                                    if (route.points.size() != 0) {
+//                                        route.separating.addElement(new Integer(route.points.size()));
+//                                    }
+//                                    String coordinates = parser.nextText();
+//                                    coordinates = coordinates.replace(',', ' ');
+//                                    coordinates = coordinates.replace('\n', ' ');
+//                                    coordinates = coordinates.replace('\t', ' ');
+//
+//                                    String data = "";
+//                                    de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(coordinates, ' ');
+//                                    while (token.hasMoreTokens()) {
+//                                        data = token.nextToken();
+//
+//                                        if (token.hasMoreTokens()) {
+//                                            route.points.addElement(new Location4D(
+//                                                    Double.parseDouble((String) token.nextToken()),
+//                                                    Double.parseDouble((String) data),
+//                                                    Float.parseFloat(token.nextToken())));
+//                                        }
+//
+//                                        if (onlyInfo) {
+//                                            route.latitude = ((Location4D) route.points.elementAt(0)).getLatitude();
+//                                            route.longitude = ((Location4D) route.points.elementAt(0)).getLongitude();
+//                                            if (!name.equals("")) {
+//                                                route.name = name;
+//                                            } else {
+//                                                route.name = fileOrData;
+//                                            }
+//                                            return route;
+//                                        }
+//                                    }
+//                                }
+//                            } else if (event == XmlPullParser.END_TAG) {
+//                                tagName = parser.getName();
+//                                if (tagName.equalsIgnoreCase("lineString")) {
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                    } else if (tagName.equalsIgnoreCase("folder") &&
+//                            (dataType == WAYPOINT_CLOUD_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_STRING)) {
+//                        Waypoint way = new Waypoint(0.0, 0.0, "", "");
+//                        while (true) {
+//                            event = parser.nextToken();
+//                            if (event == XmlPullParser.START_TAG) {
+//                                tagName = parser.getName();
+////System.out.println("tagName: " + tagName);
+//                                if (tagName.equalsIgnoreCase("name")) {
+////System.out.println(parser.isEmptyElementTag());
+//
+//                                    way.name = parser.nextText();
+////System.out.println(way.name);
+//                                } else if (tagName.equalsIgnoreCase("description")) {
+////System.out.println(parser.isEmptyElementTag());
+//                                    way.description = parser.nextText();
+////System.out.println(way.description);
+//                                } else if (tagName.equalsIgnoreCase("coordinates")) {
+//                                    String coordinates = parser.nextText();
+//                                    String[] parts = StringTokenizer.getArray(coordinates, ",");
+//                                    way.longitude = Double.parseDouble(parts[0]);
+//                                    way.latitude = Double.parseDouble(parts[1]);
+//                                }
+//                            } else if (event == XmlPullParser.END_TAG) {
+//                                tagName = parser.getName();
+////System.out.println("tagName end: " + tagName);
+//                                if (tagName.equalsIgnoreCase("folder")) {
+//                                    break;
+//                                } else if (tagName.equalsIgnoreCase("placemark")) {
+//                                    cloud.addWaypoint(way);
+//                                    way = new Waypoint(0.0, 0.0, "", "");
+//                                }
+//                            }
+//                        }
+//                    }
+//                } else if (event == XmlPullParser.END_DOCUMENT) {
+////System.out.println(name + " end");
+//                    break;
+//                }
+//            }
+//
+//            if (dataType == ROUTE_TYPE_FILE || dataType == ROUTE_TYPE_STRING) {
+//                route.pointCount = Math.max(route.pointCount, route.points.size());
+//                route.latitude = ((Location4D) route.points.elementAt(0)).getLatitude();
+//                route.longitude = ((Location4D) route.points.elementAt(0)).getLongitude();
+//                route.name = name;
+//                return route;
+//            } else if (dataType == WAYPOINT_CLOUD_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
+//                cloud.name = name;
+//                return cloud;
+//            }
+//            return null;
+//        } catch (Exception e) {
+//            //R.getErrorScreen().view(e, "GeoFiles.parseRouteOrCloud()", fileOrData);
+//            Logger.debug("Parsing: wrongFile or data: " + fileOrData + "\n" + e.getMessage());
+//            return null;
+//        } finally {
+//            try {
+//                if (dataType == ROUTE_TYPE_FILE || dataType == WAYPOINT_CLOUD_TYPE_FILE) {
+//                    is.close();
+//                    fileConnection.close();
+//                } else if (dataType == ROUTE_TYPE_STRING || dataType == WAYPOINT_CLOUD_TYPE_STRING) {
+//                    stream.close();
+//                    reader.close();
+//                }
+//            } catch (IOException ex) {
+//            }
+//        }
+//    }
+//
+//    /**
+//     * Parser kml file to waypoint object
+//     * @param kml kml data
+//     * @return waypoint object
+//     */
+//    private static Waypoint parseWaypoint(String kml) {
+//        ByteArrayInputStream bais = null;
+//        try {
+//            Waypoint point = new Waypoint(0.0, 0.0, "", "");
+//
+//            bais = new ByteArrayInputStream(UTF8.encode(kml));
+//            bais.reset();
+//            XmlPullParser parser = new KXmlParser();
+//            parser.setInput(bais, "utf-8");
+//            int event;
+//            String tagName;
+//
+//            while (true) {
+//                event = parser.nextToken();
+//                if (event == XmlPullParser.START_TAG) {
+//                    tagName = parser.getName();
+//                    if (tagName.equalsIgnoreCase("name")) {
+//                        point.name = parser.nextText();
+//                    } else if (tagName.equalsIgnoreCase("description")) {
+//                        point.description = parser.nextText();
+//                    } else if (tagName.equalsIgnoreCase("coordinates")) {
+//                        String coordinates = parser.nextText();
+//                        String[] parts = StringTokenizer.getArray(coordinates, ",");
+//                        point.longitude = Double.parseDouble(parts[0]);
+//                        point.latitude = Double.parseDouble(parts[1]);
+//                    }
+//                } else if (event == XmlPullParser.END_DOCUMENT) {
+//                    break;
+//                }
+//            }
+//            return point;
+//        } catch (Exception e) {
+//            R.getErrorScreen().view(e, "GeoFiles.parseWaypoint()", kml);
+//            return null;
+//        } finally {
+//            try {
+//                bais.close();
+//            } catch (IOException ex) {
+//            }
+//        }
+//    }
+//
+//    /**
+//     * Parses kml file to networklink object
+//     * @param kml kml data
+//     * @return networklink object
+//     */
+//    private static NetworkLink parseNetworkLink(String kml) {
+//        ByteArrayInputStream bais = null;
+//        try {
+//            String name = "";
+//            String description = "";
+//            int refreshInterval = 10;
+//            String link = "";
+//            String viewFormat = "";
+//
+//            bais = new ByteArrayInputStream(UTF8.encode(kml));
+//            bais.reset();
+//            XmlPullParser parser = new KXmlParser();
+//            parser.setInput(bais, "utf-8");
+//            int event;
+//            String tagName;
+//
+//            while (true) {
+//                event = parser.nextToken();
+//                if (event == XmlPullParser.START_TAG) {
+//                    tagName = parser.getName();
+//                    if (tagName.equalsIgnoreCase("name")) {
+//                        name = parser.nextText();
+//                    } else if (tagName.equalsIgnoreCase("description")) {
+//                        description = parser.nextText();
+//                    } else if (tagName.equalsIgnoreCase("href")) {
+//                        link = parser.nextText();
+//                    } else if (tagName.equalsIgnoreCase("refreshInterval")) {
+//                        refreshInterval = Integer.parseInt(parser.nextText());
+//                    } else if (tagName.equalsIgnoreCase("viewFormat")) {
+//                        viewFormat = parser.nextText();
+//                    }
+//                } else if (event == XmlPullParser.END_DOCUMENT) {
+//                    break;
+//                }
+//            }
+//            return new NetworkLink(name, description, refreshInterval, link, viewFormat);
+//        } catch (Exception e) {
+//            R.getErrorScreen().view(e, "GeoFiles.parseNetworkLink()", kml);
+//            return null;
+//        } finally {
+//            try {
+//                bais.close();
+//            } catch (IOException ex) {
+//            }
+//        }
+//    }
 
     /****************************************************/
     /*                 OTHER FUNCTIONS                  */
@@ -750,7 +779,7 @@ public abstract class GeoFiles {
             fileName += ".kml";
             return fileName;
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "WaypointData.fileName", name);
+            R.getErrorScreen().view(e, "GeoFiles.fileName()", name);
             return "";
         }
     }
@@ -793,7 +822,7 @@ public abstract class GeoFiles {
             }
             return syncData;
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "WaypointData.syncData", null);
+            R.getErrorScreen().view(e, "GeoFiles.syncData()", null);
             return "";
         }
     }
@@ -804,14 +833,15 @@ public abstract class GeoFiles {
         }
 
         if (data.indexOf("<LineString>") != -1 || data.indexOf("<linestring>") != -1 ||
-                data.indexOf("<LineString>") != -1 || data.indexOf("<linestring>") != -1) {
+                data.indexOf("<lineString>") != -1 || data.indexOf("<Linestring>") != -1) {
             return TYPE_ROUTE;
         }
 
         if (data.indexOf("<Folder>") != -1 || data.indexOf("<folder>") != -1) {
             return TYPE_WAYPOINTS_CLOUD;
         }
-        if (data.indexOf("<NetworkLink>") != -1 || data.indexOf("<networklink>") != -1) {
+        if (data.indexOf("<NetworkLink>") != -1 || data.indexOf("<networklink>") != -1 ||
+                data.indexOf("<networkLink>") != -1 || data.indexOf("<Networklink>") != -1) {
             return TYPE_NETWORKLINK;
         }
 
@@ -823,6 +853,7 @@ public abstract class GeoFiles {
         InputStream is = null;
         XmlPullParser parser;
         int actualType = TYPE_CORRUPT;
+        boolean containPlacemark = false;
 
         try {
             parser = new KXmlParser();
@@ -841,23 +872,37 @@ public abstract class GeoFiles {
                 event = parser.nextToken();
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
-                    //System.out.println("Start-tag: " + parser.getName()) ;
-
-                    if (tagName.equalsIgnoreCase("LineString")) {
-                        return TYPE_ROUTE;
-                    } else if (tagName.equalsIgnoreCase("Folder")) {
-                        return TYPE_WAYPOINTS_CLOUD;
-                    } else if (tagName.equalsIgnoreCase("NetworkLink")) {
+                    if (tagName.equalsIgnoreCase("linestring")) {
+                        if (actualType == TYPE_CORRUPT || actualType == TYPE_ROUTE)
+                            actualType = TYPE_ROUTE;
+                        else
+                            return TYPE_MULTI;
+                    } else if (tagName.equalsIgnoreCase("folder")) {
+                        if (actualType == TYPE_CORRUPT)
+                            actualType = TYPE_WAYPOINTS_CLOUD;
+                        else
+                            return TYPE_MULTI;
+                    } else if (tagName.equalsIgnoreCase("networklink")) {
                         return TYPE_NETWORKLINK;
+                    } else if (tagName.equalsIgnoreCase("placemark")) {
+                        containPlacemark = true;
                     }
                 } else if (event == XmlPullParser.END_DOCUMENT) {
                     break;
                 }
             }
-            return TYPE_WAYPOINT;
+
+            if (actualType == TYPE_CORRUPT) {
+                if (containPlacemark)
+                    return TYPE_WAYPOINT;
+                else
+                    return TYPE_CORRUPT;
+            } else {
+                return actualType;
+            }
         } catch (Exception e) {
             //R.getErrorScreen().view(e, "RouteData.isRoute", null);
-            Logger.debug("Wrong file (RouteData.isRoute): " + fileName);
+            Logger.debug("GeoFiles.getDataTypeFile() - wrong file: " + fileName);
             return TYPE_CORRUPT;
         } finally {
             try {
@@ -881,7 +926,7 @@ public abstract class GeoFiles {
                 return true;
             }
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "RouteData.isUnfinishedRoute", null);
+            R.getErrorScreen().view(e, "GeoFiles.isUnfinishedRoute", null);
             return false;
         }
     }

@@ -45,7 +45,7 @@ public class Logger {
             System.err.print(message);
         }
 
-       R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message+"\n");
+       R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message + "\n");
     }
 
     public static void log(String message) {

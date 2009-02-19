@@ -323,6 +323,7 @@ Connection_problem_description=Nastal problém s vaším připojením k Internet
 Image_too_big=Příliš velký obr.
 Try_again=Zkus znovu
 Invalid_address=Tato adresa je chybná. Zkuste adresu zadat jinak.
+Wrong_file=Soubor je poškozen, opravte ho případně odešlete na support@locify.com k analýze.
 
 #Route screen
 Route_screen=Záznam tras
@@ -367,6 +368,7 @@ Contacts_error_1=Žádné kontakty nenalezeny
 Contacts_error_2=Žádné kontakty s e-mailem nenalezeny
 Contacts_error_3=Žádné kontakty s tel. číslem nenalezeny
 
+Object_count=Počet objektů
 Center_waypoint=Centrum
 Navigate_to_first_point=Naviguj na první bod
 Navigate_to_last_point=Naviguj na poslední bod

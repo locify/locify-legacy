@@ -323,6 +323,7 @@ Connection_problem_description=There is a problem with your internet connection.
 Image_too_big=Image too big
 Try_again=Try again
 Invalid_address=Your address appears to be invalid. Try different input.
+Wrong_file=File is damaged, repair it or send to support@locify.com to analyse.
 
 #Route screen
 Route_screen=Record route
@@ -367,6 +368,7 @@ Contacts_error_1=No contacts founded
 Contacts_error_2=No contacts with EMAIL founded
 Contacts_error_3=No contacts with PHONE NUMBER founded
 
+Object_count=Object count
 Center_waypoint=Center waypoint
 Navigate_to_first_point=Navigate to first point
 Navigate_to_last_point=Navigate to last point

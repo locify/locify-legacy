@@ -16,6 +16,7 @@ package com.locify.client.gui.screen.service;
 import com.locify.client.data.LandmarksExport;
 import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
+import com.locify.client.data.items.MultiGeoData;
 import com.locify.client.data.items.NetworkLink;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
@@ -42,6 +43,8 @@ public class GeoFileBrowser implements CommandListener {
     private WaypointsCloud cloud;
     private Route route;
     private NetworkLink networkLink;
+    private MultiGeoData multiData;
+    
     private int dataType;
     private String kmlData;
     private String fileName;
@@ -74,22 +77,13 @@ public class GeoFileBrowser implements CommandListener {
      */
     public void setKml(String kml) {
         int type = GeoFiles.getDataTypeString(kml);
-        if (type == GeoFiles.TYPE_WAYPOINT) {
-            waypoint = GeoFiles.loadWaypointString(kml);
-            dataType = GeoFiles.TYPE_WAYPOINT;
-        } else if (type == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-            cloud = GeoFiles.loadWaypointsCloudString(kml);
-            dataType = GeoFiles.TYPE_WAYPOINTS_CLOUD;
-        } else if (type == GeoFiles.TYPE_ROUTE) {
-            route = GeoFiles.loadRouteString(kml);
-            dataType = GeoFiles.TYPE_ROUTE;
-        } else if (type == GeoFiles.TYPE_NETWORKLINK)
-        {
-            networkLink = GeoFiles.loadNetworkLinkString(kml);
-            dataType = GeoFiles.TYPE_NETWORKLINK;
-        }
-        inService = true;
-        this.kmlData = kml;
+        multiData = GeoFiles.parseKMLString(kml, false);
+        if (multiData != null && multiData.getDataSize() > 0) {
+            manageData(type);
+            kmlData = kml;
+            inService = true;
+        } else
+            multiData = null;
     }
 
     /**
@@ -98,110 +92,138 @@ public class GeoFileBrowser implements CommandListener {
      */
     public void view(String fileName) {
         int type = GeoFiles.getDataTypeFile(fileName);
-        if (type == GeoFiles.TYPE_WAYPOINT) {
-            waypoint = GeoFiles.loadWaypointFile(fileName);
-            dataType = GeoFiles.TYPE_WAYPOINT;
-        } else if (type == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-            cloud = GeoFiles.loadWaypointsCloudFile(fileName);
-            dataType = GeoFiles.TYPE_WAYPOINTS_CLOUD;
-        } else if (type == GeoFiles.TYPE_ROUTE) {
-            route = GeoFiles.loadRouteFile(fileName, false);
-            dataType = GeoFiles.TYPE_ROUTE;
-        } else if (type == GeoFiles.TYPE_NETWORKLINK) {
-            networkLink = GeoFiles.loadNetworkLinkFile(fileName);
-            dataType = GeoFiles.TYPE_NETWORKLINK;
-        }
-        this.fileName = fileName;
-        inService = false;
+        multiData = GeoFiles.parseKMLFile(fileName, false);
+        if (multiData != null && multiData.getDataSize() > 0) {
+            manageData(type);
+            this.fileName = fileName;
+            inService = false;
+        } else
+            multiData = null;
         view();
     }
+    
+    private void manageData(int type) {
+        if (multiData != null) {
+            if (type == GeoFiles.TYPE_WAYPOINT) {
+                waypoint = (Waypoint) multiData.getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
+                dataType = GeoFiles.TYPE_WAYPOINT;
+            } else if (type == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
+                cloud = (WaypointsCloud) multiData.getGeoData(GeoFiles.TYPE_WAYPOINTS_CLOUD, 0);
+                dataType = GeoFiles.TYPE_WAYPOINTS_CLOUD;
+            } else if (type == GeoFiles.TYPE_ROUTE) {
+                route =  (Route) multiData.getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                dataType = GeoFiles.TYPE_ROUTE;
+            } else if (type == GeoFiles.TYPE_NETWORKLINK) {
+                networkLink = (NetworkLink) multiData.getGeoData(GeoFiles.TYPE_NETWORKLINK, 0);
+                dataType = GeoFiles.TYPE_NETWORKLINK;
+            } else if (type == GeoFiles.TYPE_MULTI) {
+                dataType = GeoFiles.TYPE_MULTI;
+            }
+        }
+    }
+
 
     /**
      * Show user this what to do with received geoFile
      */
     public void view() {
         try {
-            GeoData data = null;
-            if (dataType == GeoFiles.TYPE_WAYPOINT) {
-                data = waypoint;
-            } else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-                data = cloud;
-            } else if (dataType == GeoFiles.TYPE_ROUTE) {
-                data = route;
-            } else if (dataType == GeoFiles.TYPE_NETWORKLINK) {
-                R.getMapScreen().view(networkLink);
-                return;
-            }
-
-            if (R.getMapScreen().isNowDirectly()) {
-                R.getMapScreen().view(data);
-                return;
-            }
-
-            form = new Form(data.getName());
-            if (dataType == GeoFiles.TYPE_WAYPOINT) {
-                form.append(new StringItem(Locale.get("Latitude"), GpsUtils.formatLatitude(waypoint.getLatitude(), R.getSettings().getCoordsFormat())));
-                form.append(new StringItem(Locale.get("Longitude"), GpsUtils.formatLongitude(waypoint.getLongitude(), R.getSettings().getCoordsFormat())));
-            }
-            if (dataType == GeoFiles.TYPE_ROUTE) {
-                form.append(new StringItem(Locale.get("Route_length") + " ", GpsUtils.formatDistance(route.getRouteDist())));
-                form.append(new StringItem(Locale.get("Travel_time") + " ", GpsUtils.formatTime(route.getRouteTime())));
-                form.append(new StringItem(Locale.get("Waypoints_count") + " ", route.getWaypointCount() + ""));
-
-                if (route.getFirstWaypoint() != null) {
-                    form.append(new StringItem("\n  " + Locale.get("First_waypoint"), ""));
-                    form.append(new StringItem(Locale.get("Latitude"), GpsUtils.formatLatitude(route.getFirstWaypoint().getLatitude(), R.getSettings().getCoordsFormat())));
-                    form.append(new StringItem(Locale.get("Longitude"), GpsUtils.formatLongitude(route.getFirstWaypoint().getLongitude(), R.getSettings().getCoordsFormat())));
+            if (multiData != null) {
+                GeoData data = null;
+                if (dataType == GeoFiles.TYPE_WAYPOINT) {
+                    data = waypoint;
+                } else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
+                    data = cloud;
+                } else if (dataType == GeoFiles.TYPE_ROUTE) {
+                    data = route;
+                } else if (dataType == GeoFiles.TYPE_NETWORKLINK) {
+                    R.getMapScreen().view(networkLink);
+                    return;
                 }
-            } else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-                form.append(new StringItem(Locale.get("Waypoints_count") + " ", cloud.getWaypointsCount() + ""));
 
-                form.append(new StringItem("\n  " + Locale.get("Center_waypoint"), ""));
-                form.append(new StringItem(Locale.get("Latitude"), GpsUtils.formatLatitude(cloud.getCenterLocation().getLatitude(), R.getSettings().getCoordsFormat())));
-                form.append(new StringItem(Locale.get("Longitude"), GpsUtils.formatLongitude(cloud.getCenterLocation().getLongitude(), R.getSettings().getCoordsFormat())));
-            }
+                if (R.getMapScreen().isNowDirectly()) {
+                    if (dataType == GeoFiles.TYPE_MULTI)
+                        R.getMapScreen().view(multiData);
+                    else
+                        R.getMapScreen().view(data);
+                    return;
+                }
 
-            if (data.getDescription().length() > 0) {
-                form.append(new StringItem("\n  " + Locale.get("Description"), ""));
-                form.append(new StringItem("", data.getDescription()));
+                if (dataType == GeoFiles.TYPE_MULTI) {
+                    form = new Form(multiData.getName());
+                } else {
+                    form = new Form(data.getName());
+                }
+
+                if (dataType == GeoFiles.TYPE_WAYPOINT) {
+                    form.append(new StringItem(Locale.get("Latitude"), GpsUtils.formatLatitude(waypoint.getLatitude(), R.getSettings().getCoordsFormat())));
+                    form.append(new StringItem(Locale.get("Longitude"), GpsUtils.formatLongitude(waypoint.getLongitude(), R.getSettings().getCoordsFormat())));
+                }
+                if (dataType == GeoFiles.TYPE_ROUTE) {
+                    form.append(new StringItem(Locale.get("Route_length") + " ", GpsUtils.formatDistance(route.getRouteDist())));
+                    form.append(new StringItem(Locale.get("Travel_time") + " ", GpsUtils.formatTime(route.getRouteTime())));
+                    form.append(new StringItem(Locale.get("Waypoints_count") + " ", route.getWaypointCount() + ""));
+
+                    if (route.getFirstWaypoint() != null) {
+                        form.append(new StringItem("\n  " + Locale.get("First_waypoint"), ""));
+                        form.append(new StringItem(Locale.get("Latitude"), GpsUtils.formatLatitude(route.getFirstWaypoint().getLatitude(), R.getSettings().getCoordsFormat())));
+                        form.append(new StringItem(Locale.get("Longitude"), GpsUtils.formatLongitude(route.getFirstWaypoint().getLongitude(), R.getSettings().getCoordsFormat())));
+                    }
+                } else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
+                    form.append(new StringItem(Locale.get("Waypoints_count") + " ", cloud.getWaypointsCount() + ""));
+
+                    form.append(new StringItem("\n  " + Locale.get("Center_waypoint"), ""));
+                    form.append(new StringItem(Locale.get("Latitude"), GpsUtils.formatLatitude(cloud.getCenterLocation().getLatitude(), R.getSettings().getCoordsFormat())));
+                    form.append(new StringItem(Locale.get("Longitude"), GpsUtils.formatLongitude(cloud.getCenterLocation().getLongitude(), R.getSettings().getCoordsFormat())));
+                } else if (dataType == GeoFiles.TYPE_MULTI) {
+                    form.append(new StringItem(Locale.get("Object_count") + " ", " " + multiData.getDataSize()));
+                }
+
+                if (dataType != GeoFiles.TYPE_MULTI && data.getDescription().length() > 0) {
+                    form.append(new StringItem("\n  " + Locale.get("Description"), ""));
+                    form.append(new StringItem("", data.getDescription()));
+                }
+
+                if (inService) {
+                    //#style imgSaved
+                    form.addCommand(Commands.cmdSave);
+                }
+
+                if (dataType == GeoFiles.TYPE_WAYPOINT) {
+                    //#style imgNavigate
+                    form.addCommand(Commands.cmdNavigate);
+                } else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
+                    //#style imgNavigate
+                    form.addCommand(Commands.cmdNavigate);
+                    form.addSubCommand(cmdNavigateToNearest, Commands.cmdNavigate);
+                } else if (dataType == GeoFiles.TYPE_ROUTE) {
+                    if (route.getFirstWaypoint() != null) {
+                        //#style imgNavigate
+                        form.addCommand(Commands.cmdNavigate);
+                        form.addSubCommand(cmdNavigateToFirst, Commands.cmdNavigate);
+                        if (route.getWaypointCount() > 1) {
+                            form.addSubCommand(cmdNavigateToLast, Commands.cmdNavigate);
+                            form.addSubCommand(cmdNavigateAlong, Commands.cmdNavigate);
+                        }
+                    }
+                }
+                //#style imgMap
+                form.addCommand(cmdMap);
+                if (Capabilities.hasJSR179() && Capabilities.hasLandmarks()) {
+                    if (dataType == GeoFiles.TYPE_WAYPOINT) {
+                        form.addCommand(cmdExport);
+                    } else if (dataType == GeoFiles.TYPE_ROUTE) {
+                        form.addCommand(cmdExport);
+                        form.addSubCommand(cmdExportFirst, cmdExport);
+                        form.addSubCommand(cmdExportLast, cmdExport);
+                    }
+                }
+            } else {
+                form = new Form(Locale.get("Error_occured"));
+                form.append(new StringItem(Locale.get("Wrong_file"), ""));
             }
 
             form.addCommand(Commands.cmdBack);
-            if (inService) {
-                //#style imgSaved
-                form.addCommand(Commands.cmdSave);
-            }
-
-            if (dataType == GeoFiles.TYPE_WAYPOINT) {
-                //#style imgNavigate
-                form.addCommand(Commands.cmdNavigate);
-            } else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-                //#style imgNavigate
-                form.addCommand(Commands.cmdNavigate);
-                form.addSubCommand(cmdNavigateToNearest, Commands.cmdNavigate);
-            } else if (dataType == GeoFiles.TYPE_ROUTE) {
-                if (route.getFirstWaypoint() != null) {
-                    //#style imgNavigate
-                    form.addCommand(Commands.cmdNavigate);
-                    form.addSubCommand(cmdNavigateToFirst, Commands.cmdNavigate);
-                    if (route.getWaypointCount() > 1) {
-                        form.addSubCommand(cmdNavigateToLast, Commands.cmdNavigate);
-                        form.addSubCommand(cmdNavigateAlong, Commands.cmdNavigate);
-                    }
-                }
-            }
-            //#style imgMap
-            form.addCommand(cmdMap);
-            if (Capabilities.hasJSR179() && Capabilities.hasLandmarks()) {
-                if (dataType == GeoFiles.TYPE_WAYPOINT) {
-                    form.addCommand(cmdExport);
-                } else if (dataType == GeoFiles.TYPE_ROUTE) {
-                    form.addCommand(cmdExport);
-                    form.addSubCommand(cmdExportFirst, cmdExport);
-                    form.addSubCommand(cmdExportLast, cmdExport);
-                }
-            }
-
             //#style imgHome
             form.addCommand(Commands.cmdHome);
             form.setCommandListener(this);
@@ -216,12 +238,12 @@ public class GeoFileBrowser implements CommandListener {
             R.getBack().goBack();
         } else if (c == cmdNavigateToFirst || c == cmdNavigateToLast) {
             Waypoint way;
+            if (route.isRouteOnlyInfo()) {
+                route = (Route) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+            }
             if (c == cmdNavigateToFirst) {
                 way = route.getFirstWaypoint();
             } else {
-                if (route.isRouteOnlyInfo()) {
-                    route = GeoFiles.loadRouteFile(fileName, false);
-                }
                 way = route.getLastWaypoint();
             }
             if (way != null) {
@@ -238,12 +260,13 @@ public class GeoFileBrowser implements CommandListener {
                     "name=" + cloud.getName() + " - not yet function");
         } else if (c == cmdExportFirst || c == cmdExportLast) {
             Waypoint way;
+            if (route.isRouteOnlyInfo()) {
+                route = (Route) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+            }
+
             if (c == cmdExportFirst) {
                 way = route.getFirstWaypoint();
             } else {
-                if (route.isRouteOnlyInfo()) {
-                    route = GeoFiles.loadRouteFile(fileName, false);
-                }
                 way = route.getLastWaypoint();
             }
             LandmarksExport.export(way, "locify://geoFileBrowser");
@@ -265,9 +288,11 @@ public class GeoFileBrowser implements CommandListener {
                 R.getMapScreen().view(cloud);
             } else if (dataType == GeoFiles.TYPE_ROUTE) {
                 if (route.isRouteOnlyInfo()) {
-                    route = GeoFiles.loadRouteFile(fileName, false);
+                    route = (Route) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
                 }
                 R.getMapScreen().view(route);
+            } else if (dataType == GeoFiles.TYPE_MULTI) {
+                R.getMapScreen().view(multiData);
             }
         }
     }

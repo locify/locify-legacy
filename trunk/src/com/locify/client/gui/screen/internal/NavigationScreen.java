@@ -15,6 +15,7 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
+import com.locify.client.data.items.MultiGeoData;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.WaypointsCloud;
@@ -209,14 +210,18 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     }
 
     public void view(String fileName) {
-        int type = GeoFiles.getDataTypeFile(fileName);
-        if (type == GeoFiles.TYPE_WAYPOINT) {
-            view(GeoFiles.loadWaypointFile(fileName));
-        } else if (type == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-            view(GeoFiles.loadWaypointsCloudFile(fileName));
-        } else if (type == GeoFiles.TYPE_ROUTE) {
-            view(GeoFiles.loadRouteFile(fileName, false));
+        MultiGeoData mgd = GeoFiles.parseKMLFile(fileName, false);
+        for (int i = 0; i < mgd.getDataSize(); i++) {
+            view(mgd.getGeoData(i));
         }
+//        int type = GeoFiles.getDataTypeFile(fileName);
+//        if (type == GeoFiles.TYPE_WAYPOINT) {
+//            view(GeoFiles.loadWaypointFile(fileName));
+//        } else if (type == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
+//            view(GeoFiles.loadWaypointsCloudFile(fileName));
+//        } else if (type == GeoFiles.TYPE_ROUTE) {
+//            view(GeoFiles.loadRouteFile(fileName, false));
+//        }
     }
 
     /**

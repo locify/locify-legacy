@@ -39,7 +39,14 @@ public class WaypointsCloud extends GeoData {
         this();
         this.name = name;
     }
-    
+
+    public String toString() {
+        String data = super.toString();
+        for (int i = 0; i < waypoints.size(); i++) {
+            data += ("wpt: " + ((Waypoint) waypoints.elementAt(i)).toString() + "\n");
+        }
+        return data;
+    }
     /**
      * Get vector of Waypoints points
      * @return Waypoints points

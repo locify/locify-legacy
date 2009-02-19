@@ -16,6 +16,7 @@ package com.locify.client.gui.screen.internal;
 import com.locify.client.data.DeletedData;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.items.GeoFiles;
+import com.locify.client.data.items.MultiGeoData;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.WaypointsCloud;
@@ -60,7 +61,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
     private String target = "";
 
     public FileSystemScreen() {
-        comparingDistance = true;
+        comparingDistance = false;
         canCompareDistance = false;
         try {
             imgRouteSymbol = Image.createImage("/routeSymbol.png");
@@ -90,6 +91,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
             } else {
                 lstFiles = new List(Locale.get("Saved"), Choice.IMPLICIT);
             }
+
             Enumeration files = R.getFileSystem().listFiles(FileSystem.FILES_FOLDER, "*.kml");
             filesystemItems = new Vector();
             if (files != null) {
@@ -98,7 +100,6 @@ public class FileSystemScreen implements CommandListener, Comparator {
                     canCompareDistance = true;
                 } else {
                     canCompareDistance = false;
-                    comparingDistance = false;
                 }
 
                 //reading files
@@ -106,22 +107,13 @@ public class FileSystemScreen implements CommandListener, Comparator {
                     String filename = (String) files.nextElement();
                     if (filename.endsWith(".kml")) {
                         double distance = 0;
-
                         int type = GeoFiles.getDataTypeFile(filename);
                         if (type == GeoFiles.TYPE_ROUTE && (filter == null || "route".equals(filter))) {
-                            Route route = GeoFiles.loadRouteFile(filename, true);
-                            if (route != null) {
-                                if (comparingDistance) {
-                                    if (route.getFirstPoint() != null) {
-                                        distance = route.getFirstPoint().distanceTo(R.getLocator().getLastLocation());
-                                    }
-                                }
-                                filesystemItems.addElement(new FileSystemScreenItem(filename, route.getName(), distance, GeoFiles.TYPE_ROUTE));
-                            } else {
-                                filesystemItems.addElement(new FileSystemScreenItem(filename, filename, 9999999, GeoFiles.TYPE_CORRUPT));
-                            }
+                            String name = GeoFiles.parseKMLFile(filename, true).getName();
+                            filesystemItems.addElement(new FileSystemScreenItem(
+                                    filename, name, distance, GeoFiles.TYPE_ROUTE));
                         } else if (type == GeoFiles.TYPE_WAYPOINT && (filter == null || "place".equals(filter))) {
-                            Waypoint waypoint = GeoFiles.loadWaypointFile(filename);
+                            Waypoint waypoint = (Waypoint) GeoFiles.parseKMLFile(filename, false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
                             if (waypoint != null) {
                                 if (comparingDistance) {
                                     distance = waypoint.getLocation().distanceTo(R.getLocator().getLastLocation());
@@ -131,15 +123,13 @@ public class FileSystemScreen implements CommandListener, Comparator {
                                 filesystemItems.addElement(new FileSystemScreenItem(filename, filename, 9999999, GeoFiles.TYPE_CORRUPT));
                             }
                         } else if (type == GeoFiles.TYPE_WAYPOINTS_CLOUD && filter == null) {
-                            WaypointsCloud cloud = GeoFiles.loadWaypointsCloudFile(filename);
-                            if (cloud != null) {
-                                if (comparingDistance) {
-                                    distance = cloud.getCenterLocation().distanceTo(R.getLocator().getLastLocation());
-                                }
-                                filesystemItems.addElement(new FileSystemScreenItem(filename, cloud.getName(), distance, GeoFiles.TYPE_WAYPOINTS_CLOUD));
-                            } else {
-                                filesystemItems.addElement(new FileSystemScreenItem(filename, filename, 9999999, GeoFiles.TYPE_CORRUPT));
-                            }
+                            String name = GeoFiles.parseKMLFile(filename, true).getName();
+                            filesystemItems.addElement(new FileSystemScreenItem(
+                                    filename, name, distance, GeoFiles.TYPE_WAYPOINTS_CLOUD));
+                        } else if (type == GeoFiles.TYPE_MULTI && filter == null) {
+                            String name = GeoFiles.parseKMLFile(filename, true).getName();
+                            filesystemItems.addElement(new FileSystemScreenItem(
+                                    filename, name, 0, GeoFiles.TYPE_MULTI));
                         }
                     }
                     //comparing according to distance
@@ -165,6 +155,8 @@ public class FileSystemScreen implements CommandListener, Comparator {
                         actualImage = imgWaypointSymbol;
                     } else if (item.getType() == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
                         actualImage = imgWaypointCloudSymbol;
+                    } else if (item.getType() == GeoFiles.TYPE_MULTI) {
+                        actualImage = imgCorruptedFile;
                     } else if (item.getType() == GeoFiles.TYPE_CORRUPT) {
                         actualImage = imgCorruptedFile;
                     }
@@ -232,6 +224,8 @@ public class FileSystemScreen implements CommandListener, Comparator {
                 type = "route";
             } else if (fileType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
                 type = "waypointCloud";
+            } else if (fileType == GeoFiles.TYPE_MULTI) {
+                type = "multiData";
             } else if (fileType == GeoFiles.TYPE_CORRUPT) {
                 type = "corruptFile";
             }
@@ -274,15 +268,15 @@ public class FileSystemScreen implements CommandListener, Comparator {
                 Waypoint waypoint = null;
                 int fileType = GeoFiles.getDataTypeFile(fileName);
                 if (fileType == GeoFiles.TYPE_WAYPOINT) {
-                    waypoint = GeoFiles.loadWaypointFile(fileName);
+                    waypoint = (Waypoint) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
                 } else if (fileType == GeoFiles.TYPE_ROUTE) {
-                    Route route = GeoFiles.loadRouteFile(fileName, true);
+                    Route route = (Route) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
                     waypoint = new Waypoint(
                             route.getFirstPoint().getLatitude(),
                             route.getFirstPoint().getLongitude(),
                             "", "");
                 } else if (fileType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-                    WaypointsCloud cloud = GeoFiles.loadWaypointsCloudFile(fileName);
+                    WaypointsCloud cloud = (WaypointsCloud) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_WAYPOINTS_CLOUD, 0);
                     waypoint = new Waypoint(cloud.getCenterLocation().getLatitude(),
                             cloud.getCenterLocation().getLongitude(), "", "");
                 }
@@ -295,10 +289,9 @@ public class FileSystemScreen implements CommandListener, Comparator {
                 R.getURL().call("locify://navigation?file=" + fileName);
             } else if (target == null) {
                 R.getURL().call("locify://geoFileBrowser?file=" + fileName);
-            } else if ("upload".equals(target))
-            {
+            } else if ("upload".equals(target)) {
                 //input type file
-                R.getFileBrowser().selectFile(FileSystem.ROOT+FileSystem.FILES_FOLDER+fileName, fileName);
+                R.getFileBrowser().selectFile(FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName, fileName);
             }
         } else if (c == Commands.cmdDelete) {
             delete(lstFiles.getSelectedIndex());
@@ -317,7 +310,8 @@ public class FileSystemScreen implements CommandListener, Comparator {
             WaypointsCloud cloud = new WaypointsCloud("All waypoints");
             for (int i = 0; i < filesystemItems.size(); i++) {
                 FileSystemScreenItem item = (FileSystemScreenItem) filesystemItems.elementAt(i);
-                cloud.addWaypoint(GeoFiles.loadWaypointFile(item.getFileName()));
+                cloud.addWaypoint(
+                        (Waypoint) GeoFiles.parseKMLFile(item.getFileName(), false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0));
             }
             R.getMapScreen().view(cloud);
         }

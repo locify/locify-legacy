@@ -15,6 +15,7 @@
 package com.locify.client.data.items;
 
 import com.locify.client.locator.Location4D;
+import com.locify.client.route.RouteVariables;
 import java.util.Vector;
 
 /**
@@ -45,7 +46,10 @@ public class Route extends GeoData {
         routeTime = 0;
         pointCount = 0;
     }
-    
+
+    public String toString() {
+        return "Route: " + super.toString() + " points: " + points.size();
+    }
     /**
      * Get vector of Location4D points
      * @return Location4D points
@@ -117,31 +121,35 @@ public class Route extends GeoData {
         if (description != null && description.length() > 0) {
             String trash;
             de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(description, "\n");
+            description = "";
             while (token.hasMoreTokens()) {
                 trash = token.nextToken().trim();
-                if (trash.startsWith("Route length:")) {
+                if (trash.startsWith(RouteVariables.DESC_LENGTH)) {
                     try {
                         routeDist = Double.parseDouble(
-                                trash.substring("Route length:".length()));
+                                trash.substring(RouteVariables.DESC_LENGTH.length()).trim());
                     } catch (Exception e) {
                         routeDist = 0;
                     }
 
-                } else if (trash.startsWith("Route travel time:")) {
+                } else if (trash.startsWith(RouteVariables.DESC_TRAVEL_TIME)) {
                     try {
+                        System.out.println("Time: " + trash.substring(RouteVariables.DESC_TRAVEL_TIME.length()));
                         routeTime = Long.parseLong(
-                                trash.substring("Route travel time:".length()));
+                                trash.substring(RouteVariables.DESC_TRAVEL_TIME.length()).trim());
                     } catch (Exception e) {
                         routeTime = 0;
                     }
 
-                } else if (trash.startsWith("Route points:")) {
+                } else if (trash.startsWith(RouteVariables.DESC_POINTS)) {
                     try {
                         pointCount = Integer.parseInt(
-                                trash.substring("Route points:".length()));
+                                trash.substring(RouteVariables.DESC_POINTS.length()).trim());
                     } catch (Exception e) {
                         pointCount = 0;
                     }
+                } else {
+                    description += trash + "\n";
                 }
             }
         }

@@ -16,6 +16,7 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
+import com.locify.client.data.items.MultiGeoData;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.NetworkLink;
@@ -230,22 +231,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         view();
     }
 
-    /**
-     * Views file on the map
-     * @param fileName
-     */
-    public void view(String fileName) {
-        int type = GeoFiles.getDataTypeFile(fileName);
-        if (type == GeoFiles.TYPE_WAYPOINT) {
-            view(GeoFiles.loadWaypointFile(fileName));
-        } else if (type == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-            view(GeoFiles.loadWaypointsCloudFile(fileName));
-        } else if (type == GeoFiles.TYPE_ROUTE) {
-            view(GeoFiles.loadRouteFile(fileName, false));
-        }
-    }
-    
     public void view(GeoData data) {
+System.out.print("View: " + data.getName());
         if (data.getName().equals(""))
             return;
         if (data instanceof Waypoint) {
@@ -254,7 +241,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             waypoints.addElement(waypoint);
             mapItemManager.addItem(waypoint.getName(), new PointMapItem(waypoints));
             Location4D loc = new Location4D(waypoint.getLatitude(), waypoint.getLongitude(), 0);
-            //zooming map to point and actual location pair - by destil
+            //zooming map to point and actual location pair - by destil -- yeah yeah that's goood :)) by menion
             map.calculateZoomFrom(new Location4D[]{loc,R.getLocator().getLastLocation()});
             mapItemManager.disableInitializeState();
             centerMap(loc, false);
@@ -277,11 +264,27 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 objectZoomTo(mapItem);
             }
         }
+
         view();
     }
 
+    /**
+     * Views file on the map
+     * @param fileName
+     */
+    public void view(String fileName) {
+        MultiGeoData mgd = GeoFiles.parseKMLFile(fileName, false);
+        view(mgd);
+    }
+    
+    public void view(MultiGeoData data) {
+        for (int i = 0; i < data.getDataSize(); i++) {
+            view(data.getGeoData(i));
+        }
+    }
+    
     public void view(NetworkLink link) {
-        System.out.println("view network link on map");
+        System.out.println("View network link on map");
         networkLinkDownloader = new NetworkLinkDownloader(link);
         view();
         nowDirectly = true;
