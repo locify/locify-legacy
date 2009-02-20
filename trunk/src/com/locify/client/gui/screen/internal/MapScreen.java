@@ -195,8 +195,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void view() {
         try {
             mapItemManager.init();
-                //setFileMapProviders();
-                //setFileProvider(0);
+            //setFileMapProviders();
+            //setFileProvider(0);
 
             if (lastCenterPoint != null) {
                 if (map instanceof TileMapLayer) {
@@ -232,7 +232,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void view(GeoData data) {
-System.out.print("View: " + data.getName());
         if (data.getName().equals(""))
             return;
         if (data instanceof Waypoint) {
@@ -539,17 +538,12 @@ System.out.print("View: " + data.getName());
         if (mapFile.setProviderAndMode(provider)) {
             mapTile.destroyMap();
             map = mapFile;
-            //mapTile.stop();
             makeMapAction(MA_MY_LOCATION, null);
         } else {
             //this.setTitle(Locale.get("Maps") + " - " + mapFile.getProviderName() + " not ready!");
-//            if (this.isShown()) {
             R.getCustomAlert().quickView(
                     "  " + Locale.get("File_map_cannot_initialize") + " " + mapFile.getProviderName(),
                     Locale.get("Info"), "locify://refresh");
-//            } else {
-//                errorString = Locale.get("File_map_cannot_initialize") + " " + mapFile.getProviderName();
-//            }
         }
     }
 

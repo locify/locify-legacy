@@ -40,19 +40,16 @@ import org.xmlpull.v1.XmlPullParser;
 public abstract class GeoFiles {
 
     private final static String linSe = "\n";
-
     public static final int TYPE_WAYPOINT = 1;
     public static final int TYPE_WAYPOINTS_CLOUD = 2;
     public static final int TYPE_ROUTE = 3;
     public static final int TYPE_NETWORKLINK = 4;
     public static final int TYPE_MULTI = 9;
     public static final int TYPE_CORRUPT = 10;
-
     private static final int STATE_NONE = 0;
     private static final int STATE_DOCUMENT = 1;
     private static final int STATE_FOLDER = 2;
     private static final int STATE_PLACEMARK = 3;
-
     private static int sActual;
     private static int sBefore;
 
@@ -214,11 +211,9 @@ public abstract class GeoFiles {
 //    public static NetworkLink loadNetworkLinkFile(String file) {
 //        return parseNetworkLink(R.getFileSystem().loadString(file));
 //    }
-
     /****************************************************/
     /*                 PARSE FUNCTIONS                  */
     /****************************************************/
-
     public static MultiGeoData parseKMLFile(String fileName, boolean firstNameOnly) {
         try {
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
@@ -230,11 +225,11 @@ public abstract class GeoFiles {
             return null;
         }
     }
-    
+
     public static MultiGeoData parseKMLString(String data, boolean firstNameOnly) {
         MultiGeoData multiData = new MultiGeoData();
         GeoData actualGeoData = null;
-        
+
         ByteArrayInputStream stream = null;
         InputStreamReader reader = null;
 
@@ -249,7 +244,7 @@ public abstract class GeoFiles {
             String description = "";
 
             Waypoint waypoint = null;
-            
+
             int event;
             String tagName;
 
@@ -325,8 +320,9 @@ public abstract class GeoFiles {
                         }
                     } else if (tagName.equalsIgnoreCase("linestring")) {
                         if (sActual == STATE_PLACEMARK) {
-                            if (actualGeoData == null || !(actualGeoData instanceof Route))
+                            if (actualGeoData == null || !(actualGeoData instanceof Route)) {
                                 actualGeoData = new Route();
+                            }
 
                             Route route = (Route) actualGeoData;
 
@@ -407,7 +403,7 @@ public abstract class GeoFiles {
                         }
                     }
                 } else if (event == XmlPullParser.END_DOCUMENT) {
-                        break;
+                    break;
                 }
             }
 
@@ -419,10 +415,12 @@ public abstract class GeoFiles {
             return null;
         } finally {
             try {
-                if (stream != null)
+                if (stream != null) {
                     stream.close();
-                if (reader != null)
+                }
+                if (reader != null) {
                     reader.close();
+                }
             } catch (IOException ex) {
             }
         }
@@ -736,7 +734,6 @@ public abstract class GeoFiles {
 //            }
 //        }
 //    }
-
     /****************************************************/
     /*                 OTHER FUNCTIONS                  */
     /****************************************************/
@@ -828,24 +825,46 @@ public abstract class GeoFiles {
     }
 
     public static int getDataTypeString(String data) {
+        int actualType = TYPE_CORRUPT;
+        boolean containPlacemark = false;
+
         if (data.length() == 0) {
             return TYPE_CORRUPT;
         }
 
         if (data.indexOf("<LineString>") != -1 || data.indexOf("<linestring>") != -1 ||
                 data.indexOf("<lineString>") != -1 || data.indexOf("<Linestring>") != -1) {
-            return TYPE_ROUTE;
+            if (actualType == TYPE_CORRUPT || actualType == TYPE_ROUTE) {
+                actualType = TYPE_ROUTE;
+            } else {
+                return TYPE_MULTI;
+            }
         }
 
         if (data.indexOf("<Folder>") != -1 || data.indexOf("<folder>") != -1) {
-            return TYPE_WAYPOINTS_CLOUD;
+            if (actualType == TYPE_CORRUPT) {
+                actualType = TYPE_WAYPOINTS_CLOUD;
+            } else {
+                return TYPE_MULTI;
+            }
         }
         if (data.indexOf("<NetworkLink>") != -1 || data.indexOf("<networklink>") != -1 ||
                 data.indexOf("<networkLink>") != -1 || data.indexOf("<Networklink>") != -1) {
             return TYPE_NETWORKLINK;
         }
+        if (data.indexOf("placemark") != -1 || data.indexOf("Placemark") != -1) {
+            containPlacemark = true;
+        }
 
-        return TYPE_WAYPOINT;
+        if (actualType == TYPE_CORRUPT) {
+            if (containPlacemark) {
+                return TYPE_WAYPOINT;
+            } else {
+                return TYPE_CORRUPT;
+            }
+        } else {
+            return actualType;
+        }
     }
 
     public static int getDataTypeFile(String fileName) {
@@ -873,15 +892,17 @@ public abstract class GeoFiles {
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
                     if (tagName.equalsIgnoreCase("linestring")) {
-                        if (actualType == TYPE_CORRUPT || actualType == TYPE_ROUTE)
+                        if (actualType == TYPE_CORRUPT || actualType == TYPE_ROUTE) {
                             actualType = TYPE_ROUTE;
-                        else
+                        } else {
                             return TYPE_MULTI;
+                        }
                     } else if (tagName.equalsIgnoreCase("folder")) {
-                        if (actualType == TYPE_CORRUPT)
+                        if (actualType == TYPE_CORRUPT) {
                             actualType = TYPE_WAYPOINTS_CLOUD;
-                        else
+                        } else {
                             return TYPE_MULTI;
+                        }
                     } else if (tagName.equalsIgnoreCase("networklink")) {
                         return TYPE_NETWORKLINK;
                     } else if (tagName.equalsIgnoreCase("placemark")) {
@@ -893,10 +914,11 @@ public abstract class GeoFiles {
             }
 
             if (actualType == TYPE_CORRUPT) {
-                if (containPlacemark)
+                if (containPlacemark) {
                     return TYPE_WAYPOINT;
-                else
+                } else {
                     return TYPE_CORRUPT;
+                }
             } else {
                 return actualType;
             }

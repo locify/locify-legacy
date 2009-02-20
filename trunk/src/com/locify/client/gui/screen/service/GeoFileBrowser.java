@@ -77,6 +77,7 @@ public class GeoFileBrowser implements CommandListener {
      */
     public void setKml(String kml) {
         int type = GeoFiles.getDataTypeString(kml);
+System.out.println("Type: " + type);
         multiData = GeoFiles.parseKMLString(kml, false);
         if (multiData != null && multiData.getDataSize() > 0) {
             manageData(type);
