@@ -272,7 +272,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      * @param fileName
      */
     public void view(String fileName) {
-        MultiGeoData mgd = GeoFiles.parseKMLFile(fileName, false);
+        MultiGeoData mgd = GeoFiles.parseKmlFile(fileName, false);
         view(mgd);
     }
     

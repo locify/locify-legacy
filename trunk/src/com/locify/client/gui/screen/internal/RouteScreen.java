@@ -39,7 +39,7 @@ import javax.microedition.lcdui.Graphics;
  */
 public class RouteScreen extends Form implements CommandListener {
 
-    private RouteManager routeBack;
+    private RouteManager routeManager;
     private Thread thread;
     // index vybrané položky
     protected int selected = 0;
@@ -58,6 +58,7 @@ public class RouteScreen extends Form implements CommandListener {
     public static final int ITEM_VDOP = 9;
     public static final int ITEM_GRAPH_ALTITUDE_BY_DIST = 10;
     public static final int ITEM_GRAPH_ALTITUDE_BY_TIME = 11;
+
     private ScreenItem buttonStart,  buttonStop;
     // actual set items to display
     public static int[] displayItems;
@@ -74,6 +75,7 @@ public class RouteScreen extends Form implements CommandListener {
     private Command cmdActionReset;
     private Command cmdActionPause;
     private Command cmdActionResume;
+
     public static final int STYLE_SIMPLE = 0;
     public static final int STYLE_EXTENDED = 1;
     public static final int STYLE_GRAPHS = 2;
@@ -95,7 +97,7 @@ public class RouteScreen extends Form implements CommandListener {
 
     public RouteScreen() {
         super("");
-        routeBack = new RouteManager();
+        routeManager = new RouteManager();
     }
 
     /**
@@ -259,45 +261,48 @@ public class RouteScreen extends Form implements CommandListener {
     private void actualizeItems() {
         if (actualStyleScreen instanceof RouteStyleGraph) {
             graphItem = (GraphItem) items.get(ITEM_GRAPH_ALTITUDE_BY_DIST);
-            graphItem.refreshGraph(routeBack.getRouteVariables());
+            graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION *
+                    routeManager.getSpeedAverage());
+            graphItem.refreshGraph(routeManager.getRouteVariables());
 
             graphItem = (GraphItem) items.get(ITEM_GRAPH_ALTITUDE_BY_TIME);
-            graphItem.refreshGraph(routeBack.getRouteVariables());
+            graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION);
+            graphItem.refreshGraph(routeManager.getRouteVariables());
         } else {
             routeItem = (ScreenItem) items.get(ITEM_ROUTE_TIME);
-            routeItem.setTextValue(GpsUtils.formatTimeShort(routeBack.getRouteTime()));
+            routeItem.setTextValue(GpsUtils.formatTimeShort(routeManager.getRouteTime()));
             
-            if (routeBack.isNewData()) {
+            if (routeManager.isNewData()) {
                 routeItem = (ScreenItem) items.get(ITEM_HDOP);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeBack.getHdop(), 1));
+                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getHdop(), 1));
 
                 routeItem = (ScreenItem) items.get(ITEM_VDOP);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeBack.getVdop(), 1));
+                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getVdop(), 1));
 
                 routeItem = (ScreenItem) items.get(ITEM_LATITUDE);
                 routeItem.setTextValue(
-                        GpsUtils.formatLatitude(routeBack.getLatitude(), R.getSettings().getCoordsFormat()));
+                        GpsUtils.formatLatitude(routeManager.getLatitude(), R.getSettings().getCoordsFormat()));
 
                 routeItem = (ScreenItem) items.get(ITEM_LONGITUDE);
                 routeItem.setTextValue(
-                        GpsUtils.formatLongitude(routeBack.getLongitude(), R.getSettings().getCoordsFormat()));
+                        GpsUtils.formatLongitude(routeManager.getLongitude(), R.getSettings().getCoordsFormat()));
 
                 routeItem = (ScreenItem) items.get(ITEM_ALTITUDE);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeBack.getAltitude(), 0) + " m");
+                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getAltitude(), 0) + " m");
 
                 routeItem = (ScreenItem) items.get(ITEM_SPEED_ACTUAL);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeBack.getSpeed() * 3.6, 1) + " km/h");
+                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getSpeed() * 3.6, 1) + " km/h");
 
                 routeItem = (ScreenItem) items.get(ITEM_ROUTE_DIST);
-                routeItem.setTextValue(GpsUtils.formatDistance(routeBack.getRouteDist()));
+                routeItem.setTextValue(GpsUtils.formatDistance(routeManager.getRouteDist()));
 
                 routeItem = (ScreenItem) items.get(ITEM_SPEED_AVERAGE);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeBack.getSpeedAverage() * 3.6, 1) + " km/h");
+                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getSpeedAverage() * 3.6, 1) + " km/h");
 
                 routeItem = (ScreenItem) items.get(ITEM_SPEED_MAX);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeBack.getSpeedMax() * 3.6, 1) + " km/h");
+                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getSpeedMax() * 3.6, 1) + " km/h");
 
-                routeBack.setNewData(false);
+                routeManager.setNewData(false);
             }
         }
         repaint();
@@ -450,7 +455,7 @@ public class RouteScreen extends Form implements CommandListener {
     private void selectedAction() {
         if (selected > 0 && selected < items.size() && items.get(selected) instanceof ScreenItem) {
             if (((ScreenItem) items.get(selected)).equals(buttonStart)) {
-                if (routeBack.isRunning()) {
+                if (routeManager.isRunning()) {
                     routePause(false);
                 } else {
                     routeStart();
@@ -488,7 +493,7 @@ public class RouteScreen extends Form implements CommandListener {
     }
 
     private void routeStart() {
-        routeBack.routeStart();
+        routeManager.routeStart();
         // visibe buttons
         buttonStart.setTextLabel(Locale.get("Pause_route"));
         buttonStart.setActive(true);
@@ -508,7 +513,7 @@ public class RouteScreen extends Form implements CommandListener {
     }
 
     private void routePause(boolean save) {
-        routeBack.routePause(save);
+        routeManager.routePause(save);
         buttonStart.setTextLabel(Locale.get("Resume_route"));
         buttonStart.setActive(true);
         buttonStop.setActive(true);
@@ -522,7 +527,7 @@ public class RouteScreen extends Form implements CommandListener {
     }
 
     public void routeReset() {
-        routeBack.routeReset();
+        routeManager.routeReset();
         actualizeItems();
 
         //R.getMidlet().getDisplay().flashBacklight(1);
@@ -618,7 +623,7 @@ public class RouteScreen extends Form implements CommandListener {
 
     public void loadUnfinishedRoute() {
         try {
-            if (routeBack.loadUnfinishedRoute()) {
+            if (routeManager.loadUnfinishedRoute()) {
                 initializePaused = true;
                 TopBarBackground.setRouteStatus(RouteManager.ROUTE_STATE_PAUSED);
             }
@@ -629,13 +634,13 @@ public class RouteScreen extends Form implements CommandListener {
 
     public void saveUnfinishedRoute() {
         try {
-            if (routeBack != null) {
-                if (routeBack.getState() == RouteManager.ROUTE_STATE_RUNNING) {
+            if (routeManager != null) {
+                if (routeManager.getState() == RouteManager.ROUTE_STATE_RUNNING) {
                     routePause(false);
                 }
 
-                if (routeBack.getState() == RouteManager.ROUTE_STATE_PAUSED) {
-                    routeBack.saveUnfinishedRoute();
+                if (routeManager.getState() == RouteManager.ROUTE_STATE_PAUSED) {
+                    routeManager.saveUnfinishedRoute();
                 }
             }
         } catch (Exception e) {

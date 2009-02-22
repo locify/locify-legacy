@@ -17,6 +17,8 @@ import com.locify.client.data.CookieData;
 import com.locify.client.data.DeletedData;
 import com.locify.client.data.ServiceSettingsData;
 import com.locify.client.data.ServicesData;
+import com.locify.client.data.items.GeoFiles;
+import com.locify.client.gui.screen.internal.CameraScreen;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
@@ -104,6 +106,7 @@ public class Midlet extends MIDlet {
         } catch (InterruptedException ex) {
         }
         R.getRouteScreen().saveUnfinishedRoute();
+        GeoFiles.saveDataTypeDatabase();
         LocationProvider lp = R.getLocator().getLocationProvider();
         if (lp != null) {
             lp.stopProvider();

@@ -36,11 +36,11 @@ public class RouteVariables {
 
     /** this number determinate which x-th location4d
      * have to be saved as actual location4d track */
-    protected static final int SAVED_COUNT_LOCATION = 1;
+    public static final int SAVED_COUNT_LOCATION = 1;
     /** save route point every x metres */
-    protected static final double MIN_STEP_DISTANCE = 10;
+    public static final double MIN_STEP_DISTANCE = 10;
     /** number of points and distances holded in memory */
-    protected static final int MAX_PAD = 30;
+    public static final int MAX_PAD = 30;
 
     /** start time of route */
     protected long startTime;
@@ -203,20 +203,14 @@ public class RouteVariables {
         canSeparate = false;
     }
 
-    public void dataAddName(String routeName) {
-        dataToSave +=
-                "    <name>" + routeName + "</name>";
-    }
-
-    public void dataEnd(String description) {
+    public void dataEnd(String routeName, String description) {
         if (description == null || description.length() == 0)
             description = "";
         else
             description = "      " + description;
 
+        dataAddSpace();
         dataToSave +=
-                "        </coordinates>" + linSe +
-                "      </LineString>" + linSe +
                 "    </MultiGeometry>" + linSe +
                 "    <description>" + linSe +
                 "      " + DESC_LENGTH + " " + GpsUtils.formatDouble(routeDist, 0) + linSe +
@@ -226,11 +220,17 @@ public class RouteVariables {
                 "    </description>" + linSe +
                 "  </Placemark>" + linSe +
                 "</kml>";
+
+        dataFlush(false);
+
+        dataToSave = "    <name>" + routeName + "</name>";
+        dataFlush(true);
     }
 
-    public void dataFlush(boolean desc) {
+    public void dataFlush(boolean name) {
+//System.out.println("Data to write: " + dataToSave);
         if (!dataToSave.equals("")) {
-            if (desc) {
+            if (name) {
                 R.getFileSystem().saveStringToBytePos(FileSystem.RUNNING_TEMP_ROUTE, dataToSave, bytesToSkipAtBegin);
             } else {
                 R.getFileSystem().saveStringToEof(FileSystem.RUNNING_TEMP_ROUTE, dataToSave);

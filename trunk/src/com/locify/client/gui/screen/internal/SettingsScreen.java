@@ -13,6 +13,7 @@
  */
 package com.locify.client.gui.screen.internal;
 
+import com.locify.client.data.SettingsData;
 import com.locify.client.maps.TileMapLayer;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
@@ -84,6 +85,9 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         String[] names = R.getLocator().getProviderNames();
         for (int i = 0; i < names.length; i++) {
             cgPrefferedGps.append(names[i], null);
+        }
+        if (R.getSettings().getPrefferedGps() > names.length) {
+            R.getSettings().saveLocationSettings(SettingsData.AUTODETECT, R.getSettings().getCoordsFormat());
         }
         cgPrefferedGps.setSelectedIndex(R.getSettings().getPrefferedGps(), true);
         frmLocation.append(cgPrefferedGps);

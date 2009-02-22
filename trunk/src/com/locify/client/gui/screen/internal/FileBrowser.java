@@ -50,8 +50,7 @@ public class FileBrowser implements CommandListener {
         } else if (fileType.equals("image")) {
             String dir = System.getProperty("fileconn.dir.photos");
             //hack pro nokie
-            if (Capabilities.isNokia() && R.getFileSystem().exists("file:///E:/Images/"))
-            {
+            if (Capabilities.isNokia() && R.getFileSystem().exists("file:///E:/Images/")) {
                 dir = "file:///E:/Images/";
             }
             if (dir != null) {
@@ -76,7 +75,7 @@ public class FileBrowser implements CommandListener {
      * @param folder
      */
     public void view(String folder) {
-       // list = new List(Locale.get("Select_file"), List.IMPLICIT);
+        // list = new List(Locale.get("Select_file"), List.IMPLICIT);
         list = new List(folder, List.IMPLICIT);
         currentFolder = folder;
         Enumeration files = null;
@@ -105,7 +104,7 @@ public class FileBrowser implements CommandListener {
             if (selected.endsWith("/")) {
                 R.getURL().call("locify://filebrowser?folder=" + currentFolder + selected);
             } else {
-                selectFile(currentFolder+selected,selected);
+                selectFile(currentFolder + selected, selected);
             }
         } else if (c == Commands.cmdBack) {
             R.getBack().goBack();
@@ -124,8 +123,7 @@ public class FileBrowser implements CommandListener {
         return fileSelected;
     }
 
-    public void selectFile(String path, String name)
-    {
+    public void selectFile(String path, String name) {
         fileSelected = true;
         selectedFileName = name;
         selectedFilePath = path;

@@ -210,7 +210,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     }
 
     public void view(String fileName) {
-        MultiGeoData mgd = GeoFiles.parseKMLFile(fileName, false);
+        MultiGeoData mgd = GeoFiles.parseKmlFile(fileName, false);
         for (int i = 0; i < mgd.getDataSize(); i++) {
             view(mgd.getGeoData(i));
         }

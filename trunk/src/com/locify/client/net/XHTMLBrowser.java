@@ -15,6 +15,7 @@ package com.locify.client.net;
 
 import com.locify.client.data.IconData;
 import com.locify.client.locator.LocationContext;
+import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
@@ -227,14 +228,13 @@ public class XHTMLBrowser extends HtmlBrowser {
         //#style contactsTextField
         container.add(contactTelText);
 
-        //#if polish.Vendor != WM
-//#         StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
-//#         btnBrowse.setDefaultCommand(Commands.cmdContactTel);
-//#         btnBrowse.setItemCommandListener(tagHandler);
-        //#style contextButton
-//#         container.add(btnBrowse);
-        //#endif
-
+        if (!Capabilities.isWindowsMobile()) {
+            StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
+            btnBrowse.setDefaultCommand(Commands.cmdContactTel);
+            btnBrowse.setItemCommandListener(tagHandler);
+            //#style contextButton
+            container.add(btnBrowse);
+        }
         add(container);
     }
 
@@ -259,13 +259,13 @@ public class XHTMLBrowser extends HtmlBrowser {
         //#style contactsTextField
         container.add(contactEmailText);
 
-        //#if polish.Vendor != WM
-//#         StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
-//#         btnBrowse.setDefaultCommand(Commands.cmdContactEmail);
-//#         btnBrowse.setItemCommandListener(tagHandler);
-        //#style contextButton
-//#         container.add(btnBrowse);
-        //#endif
+        if (!Capabilities.isWindowsMobile()) {
+            StringItem btnBrowse = new StringItem("", Locale.get("Browse"), StringItem.BUTTON);
+            btnBrowse.setDefaultCommand(Commands.cmdContactEmail);
+            btnBrowse.setItemCommandListener(tagHandler);
+            //#style contextButton
+            container.add(btnBrowse);
+        }
 
         add(container);
     }

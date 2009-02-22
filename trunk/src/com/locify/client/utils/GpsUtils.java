@@ -198,6 +198,14 @@ public class GpsUtils {
         }
     }
 
+    public static long parseLong(String data) {
+        try {
+            return Long.parseLong(data);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
     public static String formatLatitude(double d, int coordsFormat) {
         if (coordsFormat == FORMAT_WGS84) {
             return formatLatitude(d, coordsFormat, 5);

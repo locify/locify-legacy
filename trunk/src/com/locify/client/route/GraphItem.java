@@ -15,6 +15,7 @@ package com.locify.client.route;
 
 import com.locify.client.locator.Location4D;
 import com.locify.client.utils.ColorsFonts;
+import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
@@ -124,6 +125,10 @@ public class GraphItem extends Item {
         }
     }
 
+    public void setMeasureX(double measureX) {
+        this.measureX = measureX;
+    }
+
     private void printGraph() {
         Image image = createEmptyImage();
         if (image != null) {
@@ -160,7 +165,8 @@ public class GraphItem extends Item {
             g.drawLine(g.getClipWidth() - border, g.getClipHeight() - transY, g.getClipWidth() - border, g.getClipHeight() - border);
 
             g.setFont(ColorsFonts.FONT_BOLD_MEDIUM);
-            g.drawString(measureX + unitX, (g.getClipWidth() - ColorsFonts.FONT_BOLD_MEDIUM.stringWidth(measureX + unitX)) / 2,
+            String text = GpsUtils.formatDouble(measureX, 0) + " " + unitX;
+            g.drawString(text, (g.getClipWidth() - ColorsFonts.FONT_BOLD_MEDIUM.stringWidth(text)) / 2,
                     g.getClipHeight() - 15, Graphics.TOP | Graphics.LEFT);
 
             Math.ceil(yMin);
@@ -176,7 +182,7 @@ public class GraphItem extends Item {
             g.setColor(ColorsFonts.GRAY);
             for (int i = (int) Math.ceil(yMin / det); i <= Math.floor(yMax / det); i++) {
                 int yValue = border + graphHeight - ((int) ((i * det - yMin) / (yMax - yMin) * graphHeight));
-                String text = i * det + unitY;
+                text = i * det + unitY;
                 g.drawLine(transX, yValue, g.getClipWidth() - border - ColorsFonts.FONT_BOLD_MEDIUM.stringWidth(text) - 5, yValue);
                 g.drawString(text, g.getClipWidth() - border, yValue - 7, Graphics.TOP | Graphics.RIGHT);
             }

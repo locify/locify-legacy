@@ -33,6 +33,7 @@ public class RouteManager implements LocationEventListener {
     public static final int ROUTE_STATE_RUNNING = 1;
     public static final int ROUTE_STATE_UNFINISHED_ROUTE = 2;
     public static final int ROUTE_STATE_PAUSED = 3;
+
     private Thread thread;
     private long sleepedTime = 0;
     private int routeSaveUnfinishedTester = 0;
@@ -59,7 +60,7 @@ public class RouteManager implements LocationEventListener {
 
                     actualizeRouteTime();
 
-                    if (sleepedTime > 1000) {
+                    if (sleepedTime > 1000 && isRunning()) {
                         if (R.getRouteScreen().isShown()) {
                             actualDate = Utils.getActualDate();
                         }

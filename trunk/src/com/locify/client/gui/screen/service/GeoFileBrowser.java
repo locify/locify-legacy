@@ -77,8 +77,7 @@ public class GeoFileBrowser implements CommandListener {
      */
     public void setKml(String kml) {
         int type = GeoFiles.getDataTypeString(kml);
-System.out.println("Type: " + type);
-        multiData = GeoFiles.parseKMLString(kml, false);
+        multiData = GeoFiles.parseKmlString(kml, false);
         if (multiData != null && multiData.getDataSize() > 0) {
             manageData(type);
             kmlData = kml;
@@ -93,7 +92,7 @@ System.out.println("Type: " + type);
      */
     public void view(String fileName) {
         int type = GeoFiles.getDataTypeFile(fileName);
-        multiData = GeoFiles.parseKMLFile(fileName, false);
+        multiData = GeoFiles.parseKmlFile(fileName, false);
         if (multiData != null && multiData.getDataSize() > 0) {
             manageData(type);
             this.fileName = fileName;
@@ -240,7 +239,7 @@ System.out.println("Type: " + type);
         } else if (c == cmdNavigateToFirst || c == cmdNavigateToLast) {
             Waypoint way;
             if (route.isRouteOnlyInfo()) {
-                route = (Route) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                route = (Route) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
             }
             if (c == cmdNavigateToFirst) {
                 way = route.getFirstWaypoint();
@@ -262,7 +261,7 @@ System.out.println("Type: " + type);
         } else if (c == cmdExportFirst || c == cmdExportLast) {
             Waypoint way;
             if (route.isRouteOnlyInfo()) {
-                route = (Route) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                route = (Route) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
             }
 
             if (c == cmdExportFirst) {
@@ -289,7 +288,7 @@ System.out.println("Type: " + type);
                 R.getMapScreen().view(cloud);
             } else if (dataType == GeoFiles.TYPE_ROUTE) {
                 if (route.isRouteOnlyInfo()) {
-                    route = (Route) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                    route = (Route) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
                 }
                 R.getMapScreen().view(route);
             } else if (dataType == GeoFiles.TYPE_MULTI) {

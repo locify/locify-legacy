@@ -16,7 +16,6 @@ package com.locify.client.gui.screen.internal;
 import com.locify.client.data.DeletedData;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.items.GeoFiles;
-import com.locify.client.data.items.MultiGeoData;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.WaypointsCloud;
@@ -57,6 +56,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
     private Image imgWaypointSymbol;
     private Image imgWaypointCloudSymbol;
     private Image imgCorruptedFile;
+    private Image imgMultiDataSymbol;
     private String filter = "";
     private String target = "";
 
@@ -68,6 +68,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
             imgWaypointSymbol = Image.createImage("/waypointSymbol.png");
             imgWaypointCloudSymbol = Image.createImage("/waypointCloudSymbol.png");
             imgCorruptedFile = Image.createImage("/corruptedFile.png");
+            imgMultiDataSymbol = Image.createImage("/multiSymbol.png");
         } catch (IOException ex) {
             R.getErrorScreen().view(ex, "FileSystemScreen.FileSystemScreen()", null);
         }
@@ -80,6 +81,8 @@ public class FileSystemScreen implements CommandListener, Comparator {
      */
     public void view(String filter, String target) {
         try {
+            GeoFiles.fileBrowserOpened = true;
+            
             this.filter = filter;
             this.target = target;
             if ("location".equals(target)) {
@@ -106,14 +109,14 @@ public class FileSystemScreen implements CommandListener, Comparator {
                 while (files.hasMoreElements()) {
                     String filename = (String) files.nextElement();
                     if (filename.endsWith(".kml")) {
-                        double distance = 0;
+                        double distance = 9999;
                         int type = GeoFiles.getDataTypeFile(filename);
                         if (type == GeoFiles.TYPE_ROUTE && (filter == null || "route".equals(filter))) {
-                            String name = GeoFiles.parseKMLFile(filename, true).getName();
+                            String name = GeoFiles.parseKmlFile(filename, true).getName();
                             filesystemItems.addElement(new FileSystemScreenItem(
                                     filename, name, distance, GeoFiles.TYPE_ROUTE));
                         } else if (type == GeoFiles.TYPE_WAYPOINT && (filter == null || "place".equals(filter))) {
-                            Waypoint waypoint = (Waypoint) GeoFiles.parseKMLFile(filename, false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
+                            Waypoint waypoint = (Waypoint) GeoFiles.parseKmlFile(filename, false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
                             if (waypoint != null) {
                                 if (comparingDistance) {
                                     distance = waypoint.getLocation().distanceTo(R.getLocator().getLastLocation());
@@ -123,11 +126,11 @@ public class FileSystemScreen implements CommandListener, Comparator {
                                 filesystemItems.addElement(new FileSystemScreenItem(filename, filename, 9999999, GeoFiles.TYPE_CORRUPT));
                             }
                         } else if (type == GeoFiles.TYPE_WAYPOINTS_CLOUD && filter == null) {
-                            String name = GeoFiles.parseKMLFile(filename, true).getName();
+                            String name = GeoFiles.parseKmlFile(filename, true).getName();
                             filesystemItems.addElement(new FileSystemScreenItem(
                                     filename, name, distance, GeoFiles.TYPE_WAYPOINTS_CLOUD));
                         } else if (type == GeoFiles.TYPE_MULTI && filter == null) {
-                            String name = GeoFiles.parseKMLFile(filename, true).getName();
+                            String name = GeoFiles.parseKmlFile(filename, true).getName();
                             filesystemItems.addElement(new FileSystemScreenItem(
                                     filename, name, 0, GeoFiles.TYPE_MULTI));
                         }
@@ -156,13 +159,16 @@ public class FileSystemScreen implements CommandListener, Comparator {
                     } else if (item.getType() == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
                         actualImage = imgWaypointCloudSymbol;
                     } else if (item.getType() == GeoFiles.TYPE_MULTI) {
-                        actualImage = imgCorruptedFile;
+                        actualImage = imgMultiDataSymbol;
                     } else if (item.getType() == GeoFiles.TYPE_CORRUPT) {
                         actualImage = imgCorruptedFile;
                     }
 
                     if (comparingDistance) {
-                        lstFiles.append(GpsUtils.formatDistance(item.getDistance()) + " " + item.getName(), actualImage);
+                        if (item.getDistance() != 9999)
+                            lstFiles.append(GpsUtils.formatDistance(item.getDistance()) + " " + item.getName(), actualImage);
+                        else
+                            lstFiles.append(" - " + item.getName(), actualImage);
                     } else {
                         lstFiles.append(item.getName(), actualImage);
                     }
@@ -268,15 +274,15 @@ public class FileSystemScreen implements CommandListener, Comparator {
                 Waypoint waypoint = null;
                 int fileType = GeoFiles.getDataTypeFile(fileName);
                 if (fileType == GeoFiles.TYPE_WAYPOINT) {
-                    waypoint = (Waypoint) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
+                    waypoint = (Waypoint) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
                 } else if (fileType == GeoFiles.TYPE_ROUTE) {
-                    Route route = (Route) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                    Route route = (Route) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
                     waypoint = new Waypoint(
                             route.getFirstPoint().getLatitude(),
                             route.getFirstPoint().getLongitude(),
                             "", "");
                 } else if (fileType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-                    WaypointsCloud cloud = (WaypointsCloud) GeoFiles.parseKMLFile(fileName, false).getGeoData(GeoFiles.TYPE_WAYPOINTS_CLOUD, 0);
+                    WaypointsCloud cloud = (WaypointsCloud) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_WAYPOINTS_CLOUD, 0);
                     waypoint = new Waypoint(cloud.getCenterLocation().getLatitude(),
                             cloud.getCenterLocation().getLongitude(), "", "");
                 }
@@ -311,7 +317,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
             for (int i = 0; i < filesystemItems.size(); i++) {
                 FileSystemScreenItem item = (FileSystemScreenItem) filesystemItems.elementAt(i);
                 cloud.addWaypoint(
-                        (Waypoint) GeoFiles.parseKMLFile(item.getFileName(), false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0));
+                        (Waypoint) GeoFiles.parseKmlFile(item.getFileName(), false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0));
             }
             R.getMapScreen().view(cloud);
         }
