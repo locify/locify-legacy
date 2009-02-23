@@ -30,6 +30,15 @@ public class Waypoint extends GeoData {
         this.name = name;
         this.description = description;
     }
+
+    public Waypoint(double latitude, double longitude, String name, String description, GeoFileStyle styleHightLight) {
+        super();
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = name;
+        this.description = description;
+        this.style = styleHightLight;
+    }
     
     /** returns Location4D instance of this wp */
     public Location4D getLocation(){

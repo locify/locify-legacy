@@ -15,6 +15,7 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.items.GeoData;
+import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.data.items.MultiGeoData;
 import com.locify.client.data.items.Route;
@@ -112,7 +113,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private int lastSelectedX,  lastSelectedY;
     /* temp item names */
     private String tempWaypointDescriptionItemName = "selectedItem";
-    private String tempMapNavDottedLineItem = "navigationItem";
+    private String tempMapNavigationItem = "navigationItem";
     private String tempRunningRouteName = "runningRoute";
     /** time of stylus press */
     private long stylusTought;
@@ -258,6 +259,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             Route route = (Route) data;
             if (route.getWaypointCount() != 0) {
                 RouteMapItem mapItem = new RouteMapItem(route);
+                mapItem.setStyles(route.getStyleNormal(), route.getStyleHighLight());
                 mapItemManager.addItem(route.getName(), mapItem);
                 centerMap(mapItem.getItemCenter(), false);
                 objectZoomTo(mapItem);
@@ -289,6 +291,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         nowDirectly = true;
     }
 
+    public boolean isNowDirectly() {
+        return nowDirectly;
+    }
+    
     private void setFileMapProviders() {
         this.removeCommand(cmdChangeMapFile);
 
@@ -405,20 +411,30 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             } catch (Exception e) {
                R.getErrorScreen().view(e, "MapScreen.drawMap()", "zoomProcess");
             }
-        } else {
-            try {
-                g.setColor(ColorsFonts.MAGENTA);
-                for (int i = 0; i < selectedMapItemWaypoints.size(); i++) {
+        }
+
+        try {
+            g.setColor(ColorsFonts.MAGENTA);
+            Waypoint wpt;
+            GeoFileStyle wptStyle;
+            for (int i = 0; i < selectedMapItemWaypoints.size(); i++) {
+                if (i != selectedMapItemIndex) {
+                    wpt = (Waypoint) selectedMapItemWaypoints.elementAt(i);
+                    wptStyle = wpt.getStyleHighLight();
                     Point2D.Int temp = map.getLocationCoord(
-                            new Location4D(
-                            ((Waypoint) selectedMapItemWaypoints.elementAt(i)).getLatitude(),
-                            ((Waypoint) selectedMapItemWaypoints.elementAt(i)).getLongitude(),
-                            0.0f));
-                    g.drawArc(temp.x - 3, temp.y - 3, 6, 6, 0, 360);
+                            new Location4D(wpt.getLatitude(), wpt.getLongitude(), 0.0f));
+                    if (wptStyle == null)
+                        g.drawArc(temp.x - 3, temp.y - 3, 6, 6, 0, 360);
+                    else {
+                        g.drawArc(temp.x - 3, temp.y - 3, 6, 6, 0, 360);
+                        g.drawImage(wptStyle.getIcon(),
+                                temp.x - wptStyle.getXMove(), temp.y - wptStyle.getYMove(),
+                                Graphics.BOTTOM | Graphics.LEFT);
+                    }
                 }
-            } catch (Exception e) {
-               R.getErrorScreen().view(e, "MapScreen.drawMap()", "selectedMapItemWaypoints");
             }
+        } catch (Exception e) {
+           R.getErrorScreen().view(e, "MapScreen.drawMap()", "selectedMapItemWaypoints");
         }
 
 //System.out.println((System.currentTimeMillis() - drawTestTime) + " step 06");
@@ -554,8 +570,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             //System.out.println("\nMapScreen.locationChanged() setCenter: " + location.toString())
             }
 
-            if (mapItemManager.existItemTemp(tempMapNavDottedLineItem)) {
-                ((DottedLineMapItem) mapItemManager.getItemTemp(tempMapNavDottedLineItem)).actualizeActualPosition(location);
+            if (mapItemManager.existItemTemp(tempMapNavigationItem)) {
+                ((MapNavigationItem) mapItemManager.getItemTemp(tempMapNavigationItem)).actualizeActualPosition(location);
             }
             repaint();
         } catch (Exception e) {
@@ -841,7 +857,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             map.panRight();
             mapItemManager.panItem(-1 * map.getPanSpeed(), 0);
             selectNearestWaypointsAtCenter();
-
         }
     }
 
@@ -1060,7 +1075,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 (tileSizeY - img.getHeight()) / 2,
                 Graphics.TOP | Graphics.LEFT);
 
-        // draw strring label on background
+        // draw string label on background
 //        img = Image.createImage(getLoadingImage().getWidth(), getLoadingImage().getHeight());
 //        gImg = img.getGraphics();
 //        gImg.setColor(Colors.WHITE);
@@ -1246,32 +1261,33 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         if (item != null) {
             switch (item.getSelectedType()) {
                 case DescriptionMapItem.BUTTON_NAVIGATE:
-                    mapItemManager.removeItemTemp(tempMapNavDottedLineItem);
+                    mapItemManager.removeItemTemp(tempMapNavigationItem);
+                    mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
                     R.getURL().call("locify://navigation" +
                             "?lat=" + item.getSelectedWaypoint().getLatitude() +
                             "&lon=" + item.getSelectedWaypoint().getLongitude() +
                             "&name=" + item.getSelectedWaypoint().getName());
                     break;
                 case DescriptionMapItem.BUTTON_NAVIGATE_ON_MAP:
-                    mapItemManager.addItemTemp(tempMapNavDottedLineItem,
-                            new DottedLineMapItem(
+                    mapItemManager.addItemTemp(tempMapNavigationItem,
+                            new MapNavigationItem(
                             new Waypoint(R.getLocator().getLastLocation().getLatitude(),
                             R.getLocator().getLastLocation().getLongitude(), " ", " "),
                             item.getSelectedWaypoint()));
+                    mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
+                    selectNearestWaypointsAtCenter();
                     repaint();
                     break;
                 case DescriptionMapItem.BUTTON_CLOSE:
-                    mapItemManager.removeItemTemp(tempMapNavDottedLineItem);
+                    mapItemManager.removeItemTemp(tempMapNavigationItem);
+                    mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
+                    selectedMapItemIndex = -1;
                     repaint();
                     break;
             }
-
-            mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
         }
     }
 
-    public boolean isNowDirectly() {
-        return nowDirectly;
-    }
+
     
 }

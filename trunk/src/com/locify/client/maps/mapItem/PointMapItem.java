@@ -13,6 +13,7 @@
  */
 package com.locify.client.maps.mapItem;
 
+import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.maps.geometry.Point2D;
 import java.util.Vector;
@@ -28,10 +29,13 @@ public class PointMapItem extends MapItem {
     private Vector waypoints;
     /** points for painting */
     private Point2D.Int[] items;
+    /** array of actualy selected points */
+    private String selectedPoints;
 
     public PointMapItem(Vector waypoints) {
         super();
         this.waypoints = waypoints;
+        this.selectedPoints = "";
         initialize();
     }
 
@@ -49,10 +53,23 @@ public class PointMapItem extends MapItem {
                 initialize();
             if (isInside() && actualState == STATE_WAITING && items != null) {
                 actualState = STATE_DRAWING;
+
+                GeoFileStyle style = null;
                 for (int i = 0; i < items.length; i++) {
-                    g.drawImage(displayedPointIcon,
-                            items[i].x, items[i].y,
-                            Graphics.BOTTOM | Graphics.LEFT);
+                    // draw points
+                    if (selectedPoints.indexOf("~" + i + "~") != -1)
+                        continue;
+                    
+                    style = ((Waypoint) waypoints.elementAt(i)).getStyleNormal();
+                    if (style == null) {
+                        g.drawImage(displayedPointIcon,
+                                items[i].x, items[i].y,
+                                Graphics.BOTTOM | Graphics.LEFT);
+                    } else {
+                        g.drawImage(style.getIcon(),
+                                items[i].x - style.getXMove(), items[i].y - style.getYMove(),
+                                Graphics.BOTTOM | Graphics.LEFT);
+                    }
                 }
             }
             actualState = STATE_WAITING;
@@ -61,10 +78,15 @@ public class PointMapItem extends MapItem {
 
     public void getWaypointsAtPosition(Vector data, int x, int y, int radius) {
 //System.out.println("x: " + x + " y: " + y + " x: " + items[0].x + " y: " + items[0].y);
-        for (int i = 0; i < items.length; i++) {
-            Point2D.Int item = items[i];
-            if (Math.sqrt((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radius)
-                data.addElement((Waypoint) waypoints.elementAt(i));
+        selectedPoints = "";
+        if (initialized) {
+            for (int i = 0; i < items.length; i++) {
+                Point2D.Int item = items[i];
+                if (Math.sqrt((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radius) {
+                    data.addElement((Waypoint) waypoints.elementAt(i));
+                    selectedPoints += ("~" + i + "~");
+                }
+            }
         }
     }
 

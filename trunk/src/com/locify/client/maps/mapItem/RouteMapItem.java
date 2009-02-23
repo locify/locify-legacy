@@ -13,6 +13,7 @@
  */
 package com.locify.client.maps.mapItem;
 
+import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.locator.Location4D;
@@ -23,7 +24,7 @@ import javax.microedition.lcdui.Graphics;
 
 /**
  * Route on map
- * @author MenKat
+ * @author Menion
  */
 public class RouteMapItem extends MapItem {
 
@@ -31,8 +32,13 @@ public class RouteMapItem extends MapItem {
     private Vector points;
     /** vector containing separatings value */
     private Vector separating;
+    /** array of actualy selected points */
+    private String selectedPoints;
     /** points for painting */
     private Point2D.Int[] items;
+    /** style of whole route */
+    private GeoFileStyle styleNormal;
+    private GeoFileStyle styleHightLight;
 
     /**
      * Constructor
@@ -41,6 +47,7 @@ public class RouteMapItem extends MapItem {
     public RouteMapItem(Vector points) {
         super();
         this.points = points;
+        this.selectedPoints = "";
         initialize();
     }
 
@@ -90,8 +97,18 @@ public class RouteMapItem extends MapItem {
 
                     g.drawLine(items[i - 1].x, items[i - 1].y, items[i].x, items[i].y);
 
-                    g.setColor(ColorsFonts.MAP_WP_COLOR);
-                    g.fillArc(items[i].x - 2, items[i].y - 2, 4, 4, 0, 360);
+                    // draw points
+                    if (selectedPoints.indexOf("~" + i + "~") != -1)
+                        continue;
+                    
+                    if (styleNormal != null) {
+                        g.drawImage(styleNormal.getIcon(),
+                                items[i].x - styleNormal.getXMove(), items[i].y - styleNormal.getYMove(),
+                                Graphics.BOTTOM | Graphics.LEFT);
+                    } else {
+                        g.setColor(ColorsFonts.MAP_WP_COLOR);
+                        g.fillArc(items[i].x - 2, items[i].y - 2, 4, 4, 0, 360);
+                    }
                 }
             }
             actualState = STATE_WAITING;
@@ -99,21 +116,32 @@ public class RouteMapItem extends MapItem {
     }
 
     public void getWaypointsAtPosition(Vector data, int x, int y, int radius) {
-        for (int i = 0; i < items.length; i++) {
-            Point2D.Int item = items[i];
-            if (Math.sqrt((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radius)
-                data.addElement(
-                        new Waypoint(
-                            ((Location4D) points.elementAt(i)).getLatitude(),
-                            ((Location4D) points.elementAt(i)).getLongitude(),
-                            "Route waypoint", "waypoint " + i)
-                        );
+        selectedPoints = "";
+        if (initialized) {
+            for (int i = 0; i < items.length; i++) {
+                Point2D.Int item = items[i];
+                if (Math.sqrt((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radius) {
+                    data.addElement(
+                            new Waypoint(
+                                ((Location4D) points.elementAt(i)).getLatitude(),
+                                ((Location4D) points.elementAt(i)).getLongitude(),
+                                "Route waypoint", "waypoint " + i, styleHightLight)
+                            );
+                    selectedPoints += ("~" + i + "~");
+                }
+            }
         }
     }
     
     public void setNewVectorData(Vector locations) {
         this.points = locations;
         initialize();
+    }
+
+
+    public void setStyles(GeoFileStyle styleNormal, GeoFileStyle styleHightLight) {
+        this.styleNormal = styleNormal;
+        this.styleHightLight = styleHightLight;
     }
 
     public boolean touchInside(int x, int y) {

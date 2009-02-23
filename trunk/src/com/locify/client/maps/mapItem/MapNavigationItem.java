@@ -25,7 +25,7 @@ import javax.microedition.lcdui.Graphics;
  * Dotted line from current location to navigation point
  * @author MenKat
  */
-public class DottedLineMapItem extends MapItem {
+public class MapNavigationItem extends MapItem {
 
     /** default waypoints data */
     private Vector waypoints;
@@ -34,7 +34,7 @@ public class DottedLineMapItem extends MapItem {
     /** space and dist of Half line in px */
 //    private int partSize = 10;
 
-    public DottedLineMapItem(Waypoint point1, Waypoint point2) {
+    public MapNavigationItem(Waypoint point1, Waypoint point2) {
         super();
         Vector data = new Vector();
         data.addElement(point1);

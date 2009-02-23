@@ -29,23 +29,22 @@ public class Logger {
     private static String fileName;
 
     private static void log(String message, int severity, boolean breaking) {
-        if (fileName == null)
-           fileName = "debug_" + System.currentTimeMillis() + ".txt";
-
         //TODO: test severity;
         if (breaking) {
             System.out.println();
         }
-        //#if !release
-        out = message + "\n" + out;
-        //#endif
         if (severity != SEVERITY_ERROR) {
             System.out.print(message);
         } else {
             System.err.print(message);
         }
 
-       R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message + "\n");
+        //#if !release
+        if (fileName == null)
+           fileName = "debug_" + System.currentTimeMillis() + ".txt";
+        out = message + "\n" + out;
+        R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message + "\n");
+        //#endif
     }
 
     public static void log(String message) {

@@ -50,6 +50,7 @@ public abstract class MapItem {
     private Location4D tempLoc4D;
     
     protected MapScreen mapScreen;
+
     /* images */
     protected static Image displayedPointIcon;
     protected static Image waypointDescriptionBackground;
@@ -211,7 +212,8 @@ public abstract class MapItem {
     }
     
     protected void panItems(Point2D.Int[] items, int moveX, int moveY) {
-        if (enabled && actualState == STATE_WAITING) {
+//        if (enabled && actualState == STATE_WAITING) {
+        if (enabled) {
             actualState = STATE_INITIALIZING;
             for (int i = 0; i < items.length; i++) {
                 items[i].setLocation(items[i].x + moveX, items[i].y + moveY);

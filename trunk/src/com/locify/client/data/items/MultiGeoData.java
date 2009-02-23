@@ -13,7 +13,10 @@
  */
 package com.locify.client.data.items;
 
+import com.locify.client.utils.Logger;
 import de.enough.polish.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 /**
  *
@@ -23,6 +26,8 @@ public class MultiGeoData {
 
     protected String name;
     protected String description;
+    protected Hashtable styles;
+    protected Hashtable stylesMap;
 
     private ArrayList geoData;
 
@@ -37,20 +42,54 @@ public class MultiGeoData {
     }
 
     public void finalizeData() {
-        GeoData data;
-        for (int i = 0; i < geoData.size(); i++) {
-            data = (GeoData) geoData.get(i);
-            if (geoData.get(i) instanceof Route)
-                ((Route) geoData.get(i)).processDescription();
-
-            if (data.name.equals("")) {
+        try {
+            GeoData data;
+            for (int i = 0; i < geoData.size(); i++) {
+                data = (GeoData) geoData.get(i);
                 if (data instanceof Route)
-                    data.name = name + "_R";
-                if (data instanceof Waypoint)
-                    data.name = name + "_W";
-                if (data instanceof WaypointsCloud)
-                    data.name = name + "_C";
+                    ((Route) geoData.get(i)).processDescription();
+
+                if (data.name.equals("")) {
+                    if (data instanceof Route)
+                        data.name = name + "_R";
+                    if (data instanceof Waypoint)
+                        data.name = name + "_W";
+                    if (data instanceof WaypointsCloud)
+                        data.name = name + "_C";
+                }
+
+                // first finalize GeoFileStyleMap
+                if (stylesMap != null) {
+                    Enumeration enu = stylesMap.elements();
+                    GeoFileStyleMap geoFileStyleMap;
+                    while (enu.hasMoreElements()) {
+                        geoFileStyleMap = (GeoFileStyleMap) enu.nextElement();
+                        geoFileStyleMap.styleNormal = getStyle(geoFileStyleMap.styleNormalUrl);
+                        geoFileStyleMap.styleHighLight = getStyle(geoFileStyleMap.styleHighLightUrl);
+                    }
+                }
+
+                // first finalize GeoFileStyleMap
+                if (styles != null) {
+                    Enumeration enu = styles.elements();
+                    GeoFileStyle geoFileStyle;
+                    while (enu.hasMoreElements()) {
+                        geoFileStyle = (GeoFileStyle) enu.nextElement();
+                        geoFileStyle.finalizeData();
+                    }
+                }
+
+                // add style to data object
+                if (data.styleName != null) {
+                    GeoFileStyleMap gfsm = getStyleMap(data.styleName);
+                    if (gfsm != null)
+                        data.styleMap = gfsm;
+                    else
+                        data.style = getStyle(data.styleName);
+                }
             }
+        } catch (Exception e) {
+            Logger.log("MultiGeoData.finalize()");
         }
     }
 
@@ -65,6 +104,28 @@ public class MultiGeoData {
         }
         data += " ... end of listing";
         return data;
+    }
+
+    public GeoFileStyle getStyle(String styleName) {
+        if (styleName != null && styleName.length() > 0) {
+            if (styles != null) {
+                Object style = styles.get(styleName);
+                if (style != null)
+                    return (GeoFileStyle) style;
+            }
+        }
+        return null;
+    }
+
+    public GeoFileStyleMap getStyleMap(String styleName) {
+        if (styleName != null && styleName.length() > 0) {
+            if (stylesMap != null) {
+                Object style = stylesMap.get(styleName);
+                if (style != null)
+                    return (GeoFileStyleMap) style;
+            }
+        }
+        return null;
     }
 
     /**
