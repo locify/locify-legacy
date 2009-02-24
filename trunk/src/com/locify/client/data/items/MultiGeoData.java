@@ -46,17 +46,6 @@ public class MultiGeoData {
             GeoData data;
             for (int i = 0; i < geoData.size(); i++) {
                 data = (GeoData) geoData.get(i);
-                if (data instanceof Route)
-                    ((Route) geoData.get(i)).processDescription();
-
-                if (data.name.equals("")) {
-                    if (data instanceof Route)
-                        data.name = name + "_R";
-                    if (data instanceof Waypoint)
-                        data.name = name + "_W";
-                    if (data instanceof WaypointsCloud)
-                        data.name = name + "_C";
-                }
 
                 // first finalize GeoFileStyleMap
                 if (stylesMap != null) {
@@ -82,10 +71,24 @@ public class MultiGeoData {
                 // add style to data object
                 if (data.styleName != null) {
                     GeoFileStyleMap gfsm = getStyleMap(data.styleName);
-                    if (gfsm != null)
-                        data.styleMap = gfsm;
-                    else
-                        data.style = getStyle(data.styleName);
+                    if (gfsm != null) {
+                        data.styleNormal = gfsm.styleNormal;
+                        data.styleHighlight = gfsm.styleHighLight;
+                    } else {
+                        data.styleNormal = getStyle(data.styleName);
+                    }
+                }
+
+                if (data instanceof Route)
+                    ((Route) geoData.get(i)).finalizeData();
+
+                if (data.name.equals("")) {
+                    if (data instanceof Route)
+                        data.name = name + "_R";
+                    if (data instanceof Waypoint)
+                        data.name = name + "_W";
+                    if (data instanceof WaypointsCloud)
+                        data.name = name + "_C";
                 }
             }
         } catch (Exception e) {

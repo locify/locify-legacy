@@ -68,7 +68,7 @@ public class MapNavigationItem extends MapItem {
         }
     }
 
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radius) {
+    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
     }
     
     public void actualizeActualPosition(Location4D location) {

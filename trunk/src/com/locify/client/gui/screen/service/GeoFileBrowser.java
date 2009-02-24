@@ -164,10 +164,10 @@ public class GeoFileBrowser implements CommandListener {
                     form.append(new StringItem(Locale.get("Travel_time") + " ", GpsUtils.formatTime(route.getRouteTime())));
                     form.append(new StringItem(Locale.get("Waypoints_count") + " ", route.getWaypointCount() + ""));
 
-                    if (route.getFirstWaypoint() != null) {
+                    if (route.getFirstPoint() != null) {
                         form.append(new StringItem("\n  " + Locale.get("First_waypoint"), ""));
-                        form.append(new StringItem(Locale.get("Latitude"), GpsUtils.formatLatitude(route.getFirstWaypoint().getLatitude(), R.getSettings().getCoordsFormat())));
-                        form.append(new StringItem(Locale.get("Longitude"), GpsUtils.formatLongitude(route.getFirstWaypoint().getLongitude(), R.getSettings().getCoordsFormat())));
+                        form.append(new StringItem(Locale.get("Latitude"), GpsUtils.formatLatitude(route.getFirstPoint().getLatitude(), R.getSettings().getCoordsFormat())));
+                        form.append(new StringItem(Locale.get("Longitude"), GpsUtils.formatLongitude(route.getFirstPoint().getLongitude(), R.getSettings().getCoordsFormat())));
                     }
                 } else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
                     form.append(new StringItem(Locale.get("Waypoints_count") + " ", cloud.getWaypointsCount() + ""));
@@ -197,7 +197,7 @@ public class GeoFileBrowser implements CommandListener {
                     form.addCommand(Commands.cmdNavigate);
                     form.addSubCommand(cmdNavigateToNearest, Commands.cmdNavigate);
                 } else if (dataType == GeoFiles.TYPE_ROUTE) {
-                    if (route.getFirstWaypoint() != null) {
+                    if (route.getFirstPoint() != null) {
                         //#style imgNavigate
                         form.addCommand(Commands.cmdNavigate);
                         form.addSubCommand(cmdNavigateToFirst, Commands.cmdNavigate);

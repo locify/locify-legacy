@@ -47,7 +47,8 @@ public class ColorsFonts {
     public static final int MAP_POINTER_COLOR = 0x000000;
     public static final int MAP_TRACK_COLOR = RED;
     public static final int MAP_TRACK_COLOR_SPACE = BLUE;
-    public static final int MAP_WP_COLOR = 0x0000ff;
+    public static final int MAP_WP_COLOR = BLUE;
+    public static final int MAP_WP_COLOR_HIGHLIGHT = GREEN_SHINY;
     
     public static int MAP_ACTUAL_LOCATION = RED;
 

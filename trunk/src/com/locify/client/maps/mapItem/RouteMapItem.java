@@ -46,7 +46,7 @@ public class RouteMapItem extends MapItem {
      */
     public RouteMapItem(Vector points) {
         super();
-        this.points = points;
+        setVectorLocation4D(points);
         this.selectedPoints = "";
         initialize();
     }
@@ -56,10 +56,8 @@ public class RouteMapItem extends MapItem {
      * @param route Route object
      */
     public RouteMapItem(Route route) {
-        super();
-        this.points = route.getPoints();
+        this(route.getPoints());
         this.separating = route.getSeparating();
-        initialize();
     }
 
     public void initialize() {
@@ -78,9 +76,7 @@ public class RouteMapItem extends MapItem {
             if (isInside() && actualState == STATE_WAITING && items != null) {
                 actualState = STATE_DRAWING;
                 boolean space;
-                g.setColor(ColorsFonts.MAP_WP_COLOR);
-                g.fillArc(items[0].x - 1, items[0].y - 1, 3, 3, 0, 360);
-                for (int i = 1; i < items.length; i++) {
+                for (int i = 0; i < items.length; i++) {
                     space = false;
                     if (separating != null) {
                         for (int j = 0; j < separating.size(); j++) {
@@ -90,17 +86,19 @@ public class RouteMapItem extends MapItem {
                         }
                     }
 
-                    if (space)
-                        g.setColor(ColorsFonts.MAP_TRACK_COLOR_SPACE);
-                    else
-                        g.setColor(ColorsFonts.MAP_TRACK_COLOR);
+                    if (i != 0) {
+                        if (space)
+                            g.setColor(ColorsFonts.MAP_TRACK_COLOR_SPACE);
+                        else
+                            g.setColor(ColorsFonts.MAP_TRACK_COLOR);
 
-                    g.drawLine(items[i - 1].x, items[i - 1].y, items[i].x, items[i].y);
+                        g.drawLine(items[i - 1].x, items[i - 1].y, items[i].x, items[i].y);
+                    }
 
                     // draw points
                     if (selectedPoints.indexOf("~" + i + "~") != -1)
                         continue;
-                    
+                        
                     if (styleNormal != null) {
                         g.drawImage(styleNormal.getIcon(),
                                 items[i].x - styleNormal.getXMove(), items[i].y - styleNormal.getYMove(),
@@ -115,31 +113,54 @@ public class RouteMapItem extends MapItem {
         }
     }
 
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radius) {
+    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
         selectedPoints = "";
         if (initialized) {
+            Waypoint tempWpt;
             for (int i = 0; i < items.length; i++) {
                 Point2D.Int item = items[i];
-                if (Math.sqrt((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radius) {
-                    data.addElement(
-                            new Waypoint(
+                if (((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radiusSquare) {
+                    tempWpt = new Waypoint(
                                 ((Location4D) points.elementAt(i)).getLatitude(),
                                 ((Location4D) points.elementAt(i)).getLongitude(),
-                                "Route waypoint", "waypoint " + i, styleHightLight)
-                            );
+                                "Route waypoint", "waypoint " + (i + 1), styleNormal, styleHightLight);
+                    tempWpt.state = Waypoint.STATE_HIGHLIGHT;
+                    data.addElement(tempWpt);
                     selectedPoints += ("~" + i + "~");
                 }
             }
         }
     }
-    
-    public void setNewVectorData(Vector locations) {
+
+    /**
+     * Set Array of Location4D object as point of this route.
+     * @param locations Vector of Location4D object.
+     */
+    public void setVectorLocation4D(Vector locations) {
         this.points = locations;
+        this.separating = null;
         initialize();
     }
 
+    /**
+     * Set Array of Location4D object as point of this route.
+     * @param locations Vector of Location4D object.
+     */
+    public void setVectorWaypoints(Vector waypoints) {
+        this.points = new Vector();
+        Location4D loc;
+        Waypoint way;
+        for (int i = 0; i < waypoints.size(); i++) {
+            way = (Waypoint) waypoints.elementAt(i);
+            loc = new Location4D(way.getLatitude(), way.getLongitude(), 0.0f);
+            points.addElement(loc);
+        }
+        this.separating = null;
+        initialize();
+    }
 
     public void setStyles(GeoFileStyle styleNormal, GeoFileStyle styleHightLight) {
+        //System.out.println("Set style: " + styleNormal.getName() + " " + styleHightLight.getName());
         this.styleNormal = styleNormal;
         this.styleHightLight = styleHightLight;
     }

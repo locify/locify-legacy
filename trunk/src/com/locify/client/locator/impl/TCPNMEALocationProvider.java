@@ -17,6 +17,7 @@ import com.locify.client.utils.R;
 import de.enough.polish.util.Locale;
 import java.io.IOException;
 import java.io.InputStream;
+import javax.microedition.io.CommConnection;
 import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.SocketConnection;
@@ -28,6 +29,7 @@ import javax.microedition.io.SocketConnection;
 public class TCPNMEALocationProvider extends NMEALocationProvider {
 
     public TCPNMEALocationProvider() {
+        //String ports = System.getProperty("microedition.commports");
         try {
             SocketConnection sc = null;
             try {
@@ -45,6 +47,12 @@ public class TCPNMEALocationProvider extends NMEALocationProvider {
                 setInputStream(is);
             }
 
+//            CommConnection commConn = (CommConnection) Connector.open("comm:" + "com4" + ";baudrate=4800");  //GeoExplorer VUGTK
+//            if (commConn != null) {
+//                setInputStream(commConn.openInputStream());
+//            } else {
+//                R.getCustomAlert().quickView("Problem with com port connecting", Locale.get("Warning"), "locify://back");
+//            }
         } catch (IOException e) {
             R.getErrorScreen().view(e, "TCPNMEALocationProvider.constructor", null);
         }

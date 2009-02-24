@@ -14,8 +14,6 @@
 
 package com.locify.client.data.items;
 
-import java.util.Hashtable;
-
 /**
  * Object for generalizing geo data - waypoint, route and waypoint cloud
  * @author MenKat
@@ -27,8 +25,8 @@ public abstract class GeoData {
     protected double latitude;
     protected double longitude;
     protected String styleName;
-    protected GeoFileStyle style;
-    protected GeoFileStyleMap styleMap;
+    protected GeoFileStyle styleNormal;
+    protected GeoFileStyle styleHighlight;
 
     public GeoData() {
         this.name = "";
@@ -36,8 +34,7 @@ public abstract class GeoData {
         this.latitude = 0.0;
         this.longitude = 0.0;
         this.styleName = null;
-        this.style = null;
-        this.styleMap = null;
+        this.styleNormal = null;
     }
     
     public String getName() {
@@ -57,19 +54,11 @@ public abstract class GeoData {
     }
 
     public GeoFileStyle getStyleNormal() {
-        if (styleMap == null)
-            return style;
-        else {
-            return styleMap.styleNormal;
-        }
+        return styleNormal;
     }
 
     public GeoFileStyle getStyleHighLight() {
-        if (styleMap == null)
-            return style;
-        else {
-            return styleMap.styleHighLight;
-        }
+        return styleHighlight;
     }
 
     public String toString() {

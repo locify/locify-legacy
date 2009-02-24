@@ -167,7 +167,7 @@ public class DescriptionMapItem extends MapItem {
         }
     }
 
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radius) {
+    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
     }
     
     public void selectPrev() {

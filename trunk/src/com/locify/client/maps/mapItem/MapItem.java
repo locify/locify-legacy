@@ -14,6 +14,8 @@
 
 package com.locify.client.maps.mapItem;
 
+import com.locify.client.data.IconData;
+import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.locator.Location4D;
@@ -36,37 +38,49 @@ public abstract class MapItem {
     protected static int STATE_INITIALIZING = 2;
     protected static int STATE_DRAWING = 2;
     protected int actualState;
+
+    // state values
+    public static final int PRIORITY_LOW = 1;
+    public static final int PRIORITY_MEDIUM = 2;
+    public static final int PRIORITY_HIGH = 3;
+    protected int priority;
+    
+    protected boolean fixed;
+    protected boolean enabled = true;
+    protected boolean initialized = false;
     
     /** screen viewport in pixels */
     protected RectangleViewPort screenViewPort;
-    
     /** item viewport in pixels */
     protected RectangleViewPort itemViewPort;
     protected Location4D positionTopLeft;
     protected Location4D positionBottomRight;
     
-    /* temp objects */
-    private Waypoint tempWpt;
-    private Location4D tempLoc4D;
-    
     protected MapScreen mapScreen;
 
     /* images */
-    protected static Image displayedPointIcon;
+    protected static GeoFileStyle stylePointIconNormal;
+    protected static GeoFileStyle stylePointIconHighlight;
     protected static Image waypointDescriptionBackground;
     protected static Image waypointDescription01;
     protected static Image waypointDescription02;
     protected static Image waypointDescription03;
-
-    protected boolean enabled = true;
-    protected boolean initialized = false;
     
     public MapItem() {
         mapScreen = R.getMapScreen();
         screenViewPort = new RectangleViewPort(0, 0, mapScreen.getWidth(), mapScreen.getHeight());
         try {
-            if (displayedPointIcon == null)
-                displayedPointIcon = Image.createImage("/map_point_orange_21x21.png");
+            if (stylePointIconNormal == null) {
+                stylePointIconNormal = new GeoFileStyle("StylePointNormal");
+                stylePointIconNormal.setIcon("locify://icons/map_point_orange_21x21.png");
+            }
+            if (stylePointIconHighlight == null) {
+                stylePointIconHighlight = new GeoFileStyle("StylePOintHighLight");
+                stylePointIconHighlight.setIcon(
+                        IconData.reScaleImage(stylePointIconNormal.getIcon(), 
+                        (int) (stylePointIconNormal.getIcon().getWidth() * 1.5),
+                        (int) (stylePointIconNormal.getIcon().getHeight() * 1.5)));
+            }
             if (waypointDescriptionBackground == null)
                 waypointDescriptionBackground = Image.createImage("/wpt_description_background.png");
             if (waypointDescription01 == null)
@@ -78,7 +92,10 @@ public abstract class MapItem {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
         actualState = STATE_WAITING;
+        priority = PRIORITY_MEDIUM;
+        fixed = false;
     }
     
     /**
@@ -107,7 +124,7 @@ public abstract class MapItem {
      * @param radius radius of tested area
      * @return selected waypoint or null if nothing
      */
-    public abstract void getWaypointsAtPosition(Vector data, int x, int y, int radius);
+    public abstract void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare);
    
     /**
      * Test if stylus touch inside this object
@@ -140,9 +157,10 @@ public abstract class MapItem {
     
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+        disableInitializeState();
     }
     
-    protected boolean initialized() {
+    protected boolean isInitialized() {
         return this.initialized;
     }
     
@@ -173,6 +191,8 @@ public abstract class MapItem {
                 double leftLon = Double.MAX_VALUE;
                 double rightLon =  Double.MIN_VALUE;
 
+                Waypoint tempWpt;
+                Location4D tempLoc4D;
                 for (int i = 0; i < items.length; i++) {
                     if (!location4D) {
                         tempWpt = (Waypoint) points.elementAt(i);                    
@@ -213,7 +233,7 @@ public abstract class MapItem {
     
     protected void panItems(Point2D.Int[] items, int moveX, int moveY) {
 //        if (enabled && actualState == STATE_WAITING) {
-        if (enabled) {
+        if (enabled && initialized) {
             actualState = STATE_INITIALIZING;
             for (int i = 0; i < items.length; i++) {
                 items[i].setLocation(items[i].x + moveX, items[i].y + moveY);

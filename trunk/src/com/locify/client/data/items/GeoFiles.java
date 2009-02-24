@@ -330,16 +330,18 @@ public abstract class GeoFiles {
                                             coordinates = coordinates.replace('\n', ' ');
                                             coordinates = coordinates.replace('\t', ' ');
 
-                                            String coo = "";
+                                            double lat = 0.0, lon = 0.0;
+                                            float alt = 0.0f;
                                             de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(coordinates, ' ');
                                             while (token.hasMoreTokens()) {
-                                                coo = token.nextToken();
-
+                                                lon = Double.parseDouble((String) token.nextToken());
                                                 if (token.hasMoreTokens()) {
-                                                    route.points.addElement(new Location4D(
-                                                            Double.parseDouble((String) token.nextToken()),
-                                                            Double.parseDouble((String) coo),
-                                                            Float.parseFloat(token.nextToken())));
+                                                    lat = Double.parseDouble((String) token.nextToken());
+                                                    if (token.hasMoreTokens()) {
+                                                        alt = Float.parseFloat((String) token.nextToken());
+
+                                                        route.points.addElement(new Location4D(lat, lon, alt));
+                                                    }
                                                 }
                                             }
                                         }
@@ -593,7 +595,7 @@ public abstract class GeoFiles {
             fileSize = R.getFileSystem().getFileSize(FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
             type = getDataTypeDatabase(fileName, fileSize);
 
-//System.out.println("TestFile: " + fileName + " type: " + type + " size: " + fileSize);
+System.out.println("TestFile: " + fileName + " type: " + type + " size: " + fileSize);
             if (type == 0) {
                 fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
                 if (!fileConnection.exists()) {

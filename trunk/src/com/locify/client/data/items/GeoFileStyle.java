@@ -32,12 +32,21 @@ public class GeoFileStyle {
 
     public GeoFileStyle(String name) {
         this.name = name;
+        this.scale = 1.0f;
+        this.hotSpotX = 0;
+        this.hotSpotXunits = "pixels";
+        this.hotSpotY = 0;
+        this.hotSpotYunits = "pixels";
     }
 
     public String getName() {
         return name;
     }
 
+    public void setIcon(Image icon) {
+        this.icon = icon;
+    }
+    
     public void setIcon(String url) {
         icon = IconData.get(url);
     }

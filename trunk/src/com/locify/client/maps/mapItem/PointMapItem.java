@@ -39,6 +39,17 @@ public class PointMapItem extends MapItem {
         initialize();
     }
 
+    public int getItemSize() {
+        return waypoints.size();
+    }
+
+    public Waypoint getWaypoint(int index) {
+        if (index < waypoints.size()) {
+            return (Waypoint) waypoints.elementAt(index);
+        }
+        return null;
+    }
+
     public void initialize() {
         items = initializePoints(waypoints);
     }
@@ -51,6 +62,7 @@ public class PointMapItem extends MapItem {
         if (enabled) {
             if (!initialized)
                 initialize();
+            
             if (isInside() && actualState == STATE_WAITING && items != null) {
                 actualState = STATE_DRAWING;
 
@@ -59,31 +71,32 @@ public class PointMapItem extends MapItem {
                     // draw points
                     if (selectedPoints.indexOf("~" + i + "~") != -1)
                         continue;
-                    
+
                     style = ((Waypoint) waypoints.elementAt(i)).getStyleNormal();
-                    if (style == null) {
-                        g.drawImage(displayedPointIcon,
-                                items[i].x, items[i].y,
-                                Graphics.BOTTOM | Graphics.LEFT);
-                    } else {
-                        g.drawImage(style.getIcon(),
-                                items[i].x - style.getXMove(), items[i].y - style.getYMove(),
-                                Graphics.BOTTOM | Graphics.LEFT);
-                    }
+                    if (style == null)
+                        style = stylePointIconNormal;
+
+                    g.drawImage(style.getIcon(),
+                            items[i].x - style.getXMove(), items[i].y - style.getYMove(),
+                            Graphics.BOTTOM | Graphics.LEFT);
                 }
             }
             actualState = STATE_WAITING;
         }
     }
 
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radius) {
-//System.out.println("x: " + x + " y: " + y + " x: " + items[0].x + " y: " + items[0].y);
+    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
         selectedPoints = "";
         if (initialized) {
+            Waypoint tempWpt;
             for (int i = 0; i < items.length; i++) {
                 Point2D.Int item = items[i];
-                if (Math.sqrt((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radius) {
-                    data.addElement((Waypoint) waypoints.elementAt(i));
+                if (((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radiusSquare) {
+                    tempWpt = (Waypoint) waypoints.elementAt(i);
+                    if (tempWpt.getStyleHighLight() == null)
+                        tempWpt.setStyleHighLight(stylePointIconHighlight);
+                    tempWpt.state = Waypoint.STATE_HIGHLIGHT;
+                    data.addElement(tempWpt);
                     selectedPoints += ("~" + i + "~");
                 }
             }

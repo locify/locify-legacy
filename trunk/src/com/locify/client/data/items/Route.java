@@ -23,7 +23,7 @@ import java.util.Vector;
  * @author MenKat
  */
 public class Route extends GeoData {
-    
+
     /** vector containing Loaction4D data */
     protected Vector points;
     /* vector of integers defines which point is at new line */
@@ -50,6 +50,7 @@ public class Route extends GeoData {
     public String toString() {
         return "Route: " + super.toString() + " points: " + points.size();
     }
+
     /**
      * Get vector of Location4D points
      * @return Location4D points
@@ -78,7 +79,7 @@ public class Route extends GeoData {
     public Location4D getFirstPoint() {
         return new Location4D(latitude, longitude, 0.0f);
     }
-    
+
     public Waypoint getFirstWaypoint() {
         return new Waypoint(latitude, longitude, "waypoint 01", "");
     }
@@ -90,7 +91,7 @@ public class Route extends GeoData {
             return null;
         }
     }
-    
+
     public Waypoint getLastWaypoint() {
         Location4D last = getLastPoint();
         if (last != null) {
@@ -112,12 +113,12 @@ public class Route extends GeoData {
     public int getWaypointCount() {
         return pointCount;
     }
-    
+
     public boolean isRouteOnlyInfo() {
         return routeOnlyInfo;
     }
 
-    public void processDescription() {
+    public void finalizeData() {
         if (description != null && description.length() > 0) {
             String trash;
             de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(description, "\n");

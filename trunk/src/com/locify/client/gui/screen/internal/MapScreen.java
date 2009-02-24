@@ -15,7 +15,6 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.items.GeoData;
-import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.data.items.MultiGeoData;
 import com.locify.client.data.items.Route;
@@ -227,7 +226,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void view(double lat, double lon, String name, String desc) {
         Vector waypoints = new Vector();
         waypoints.addElement(new Waypoint(lat, lon, name, desc));
-        mapItemManager.addItem(name, new PointMapItem(waypoints));
+        mapItemManager.addItem(name, new PointMapItem(waypoints), MapItem.PRIORITY_MEDIUM);
         centerMap(new Location4D(lat, lon, 0f), false);
         view();
     }
@@ -239,7 +238,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             Waypoint waypoint = (Waypoint) data;
             Vector waypoints = new Vector();
             waypoints.addElement(waypoint);
-            mapItemManager.addItem(waypoint.getName(), new PointMapItem(waypoints));
+            mapItemManager.addItem(waypoint.getName(), new PointMapItem(waypoints), MapItem.PRIORITY_MEDIUM);
             Location4D loc = new Location4D(waypoint.getLatitude(), waypoint.getLongitude(), 0);
             //zooming map to point and actual location pair - by destil -- yeah yeah that's goood :)) by menion
             map.calculateZoomFrom(new Location4D[]{loc,R.getLocator().getLastLocation()});
@@ -251,7 +250,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             if (cloud.getWaypointsCount() != 0) {
                 PointMapItem mapItem = new PointMapItem(cloud.getWaypointsCloudPoints());
                 mapItemManager.removeAll();
-                mapItemManager.addItem(cloud.getName(), mapItem);
+                mapItemManager.addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 centerMap(mapItem.getItemCenter(), false);
                 objectZoomTo(mapItem);
             }
@@ -260,7 +259,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             if (route.getWaypointCount() != 0) {
                 RouteMapItem mapItem = new RouteMapItem(route);
                 mapItem.setStyles(route.getStyleNormal(), route.getStyleHighLight());
-                mapItemManager.addItem(route.getName(), mapItem);
+                mapItemManager.addItem(route.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 centerMap(mapItem.getItemCenter(), false);
                 objectZoomTo(mapItem);
             }
@@ -356,12 +355,17 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      * Draws map background (tiles) and other screen components like zoom scale, location pointer etc.
      */
     private void drawMap(Graphics g) {
-        // by repaint +100 objects
 //System.out.println((System.currentTimeMillis() - drawTestTime) + " step 01");
         try {
             map.drawMap(g);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "map.drawMap()");
+        }
+
+        try {
+            mapItemManager.drawItems(g, MapItem.PRIORITY_HIGH);
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(PRIORITY_HIGH)");
         }
 
 //System.out.println((System.currentTimeMillis() - drawTestTime) + " step 02");
@@ -376,9 +380,23 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
 //System.out.println((System.currentTimeMillis() - drawTestTime) + " step 04");
         try {
-            mapItemManager.drawItems(g);
+            mapItemManager.drawItems(g, MapItem.PRIORITY_MEDIUM);
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems()");
+            R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(PRIORITY_MEDIUM)");
+        }
+
+        try {
+            Waypoint wpt;
+            for (int i = 0; i < selectedMapItemWaypoints.size(); i++) {
+                if (i != selectedMapItemIndex) {
+                    wpt = (Waypoint) selectedMapItemWaypoints.elementAt(i);
+                    Point2D.Int temp = map.getLocationCoord(
+                            new Location4D(wpt.getLatitude(), wpt.getLongitude(), 0.0f));
+                    wpt.paint(g, temp.x, temp.y);
+                }
+            }
+        } catch (Exception e) {
+           R.getErrorScreen().view(e, "MapScreen.drawMap()", "selectedMapItemWaypoints");
         }
 
 //System.out.println((System.currentTimeMillis() - drawTestTime) + " step 05");
@@ -413,30 +431,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
         }
 
-        try {
-            g.setColor(ColorsFonts.MAGENTA);
-            Waypoint wpt;
-            GeoFileStyle wptStyle;
-            for (int i = 0; i < selectedMapItemWaypoints.size(); i++) {
-                if (i != selectedMapItemIndex) {
-                    wpt = (Waypoint) selectedMapItemWaypoints.elementAt(i);
-                    wptStyle = wpt.getStyleHighLight();
-                    Point2D.Int temp = map.getLocationCoord(
-                            new Location4D(wpt.getLatitude(), wpt.getLongitude(), 0.0f));
-                    if (wptStyle == null)
-                        g.drawArc(temp.x - 3, temp.y - 3, 6, 6, 0, 360);
-                    else {
-                        g.drawArc(temp.x - 3, temp.y - 3, 6, 6, 0, 360);
-                        g.drawImage(wptStyle.getIcon(),
-                                temp.x - wptStyle.getXMove(), temp.y - wptStyle.getYMove(),
-                                Graphics.BOTTOM | Graphics.LEFT);
-                    }
-                }
-            }
-        } catch (Exception e) {
-           R.getErrorScreen().view(e, "MapScreen.drawMap()", "selectedMapItemWaypoints");
-        }
-
 //System.out.println((System.currentTimeMillis() - drawTestTime) + " step 06");
         try {
             if (MainScreen.hasPointerEvents) {
@@ -467,6 +461,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapZoomButtons");
+        }
+
+        try {
+            mapItemManager.drawItems(g, MapItem.PRIORITY_LOW);
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(PRIORITY_LOW)");
         }
     }
 
@@ -970,10 +970,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void showActualRoute(RouteVariables routeVariables) {
         if (routeVariables.getPointsCount() > 0) {
             if (!mapItemManager.existItemTemp(tempRunningRouteName)) {
-                mapItemManager.addItemTemp(tempRunningRouteName, new RouteMapItem(routeVariables.getRoutePoints()));
+                mapItemManager.addItemTemp(tempRunningRouteName, new RouteMapItem(routeVariables.getRoutePoints()), MapItem.PRIORITY_MEDIUM);
             } else {
                 RouteMapItem item = (RouteMapItem) mapItemManager.getItemTemp(tempRunningRouteName);
-                item.setNewVectorData(routeVariables.getRoutePoints());
+                item.setVectorLocation4D(routeVariables.getRoutePoints());
             }
         }
     }
@@ -1231,7 +1231,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private void selectNearestWaypoints(int x, int y, int radius, boolean deleteDescription) {
         lastSelectedX = x;
         lastSelectedY = y;
-        selectedMapItemWaypoints = mapItemManager.getWaypointsAtPosition(x, y, radius);
+        selectedMapItemWaypoints = mapItemManager.getWaypointsAtPosition(x, y, radius * radius);
         selectedMapItemIndex = -1;
         if (deleteDescription) {
             mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
@@ -1240,6 +1240,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
     private void selectNextFromSelected(boolean inverse) {
         if (selectedMapItemWaypoints.size() != 0) {
+            if (selectedMapItemIndex != -1)
+                ((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)).state = Waypoint.STATE_HIGHLIGHT;
             if (!inverse) {
                 selectedMapItemIndex++;
                 if (selectedMapItemIndex > selectedMapItemWaypoints.size() - 1) {
@@ -1251,8 +1253,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     selectedMapItemIndex = selectedMapItemWaypoints.size() - 1;
                 }
             }
+            ((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)).state = Waypoint.STATE_SELECTED;
             mapItemManager.addItemTemp(tempWaypointDescriptionItemName,
-                    new DescriptionMapItem((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)));
+                    new DescriptionMapItem((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)), MapItem.PRIORITY_LOW);
         }
     }
 
@@ -1273,7 +1276,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                             new MapNavigationItem(
                             new Waypoint(R.getLocator().getLastLocation().getLatitude(),
                             R.getLocator().getLastLocation().getLongitude(), " ", " "),
-                            item.getSelectedWaypoint()));
+                            item.getSelectedWaypoint()), MapItem.PRIORITY_MEDIUM);
                     mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
                     selectNearestWaypointsAtCenter();
                     repaint();

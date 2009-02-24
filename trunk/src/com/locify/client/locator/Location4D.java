@@ -25,9 +25,9 @@ import com.locify.client.utils.math.LMath;
  */
 public class Location4D {
 
-    public final static double R = 6378137; // radius of default sphere in meters
-    //private final static double RADIANSPERDEGREE = 0.017453293;
+    public final static double R = 6378137;
     public final static double RADIANSPERDEGREE = Math.PI / 180;
+    
     private double latitude;
     private double longitude;
     private float altitude;
@@ -46,7 +46,6 @@ public class Location4D {
 
     /** calculates distance between two positions in meters */
     public double distanceTo(Location4D to) {
-//System.out.println("Location4D - distanceTo() \n  from: " + toString() + "\n  to: " + to.toString());
         double lat1, lat2, lon1, lon2;
         lat1 = this.latitude;
         lon1 = this.longitude;
@@ -114,13 +113,6 @@ public class Location4D {
         return (GpsUtils.radToDeg(LMath.atan2(y, x)) + 360) % 360;
     }
 
-    //HACK. Tezky hack dle grafu na http://mtp.jpl.nasa.gov/notes/altitude/altitude.html
-/*    public float getGeodeticAltitude() {
-    double latrad = GpsUtils.degToRad(latitude - 20);
-    double sin = Math.sin(latrad);
-    double diff = 2 * sin * 350;
-    return new Float(altitude - diff).floatValue();
-    } */
     public float getAltitude() {
         return altitude;
     }

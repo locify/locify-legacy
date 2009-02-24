@@ -117,7 +117,7 @@ public class ScaleMapItem extends MapItem {
         }
     }
 
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radius) {
+    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
     }
 
     public boolean touchInside(int x, int y) {

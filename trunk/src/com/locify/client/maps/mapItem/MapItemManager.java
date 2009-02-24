@@ -14,10 +14,9 @@
 package com.locify.client.maps.mapItem;
 
 import com.locify.client.utils.R;
-import de.enough.polish.util.ArrayList;
-import de.enough.polish.util.HashMap;
-import de.enough.polish.util.Iterator;
 import de.enough.polish.util.Locale;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
@@ -28,219 +27,238 @@ import javax.microedition.lcdui.Graphics;
 public class MapItemManager {
 
     /** hashmap contains itemName and MapItems */
-    private HashMap items;
-    /** hashmap contains itemName and true if set to visible otherwise false (1, 0) */
-    private HashMap itemsState;
+    private Hashtable items;
     /** hashmap contains itemName and MapItem, always visible */
-    private HashMap itemsTemp;
-    /** number of fixed items */
-    private ArrayList fixedItemNames;
+    private Hashtable itemsTemp;
+
 
     public MapItemManager() {
-        this.items = new HashMap();
-        this.itemsState = new HashMap();
-        this.itemsTemp = new HashMap();
-        this.fixedItemNames = new ArrayList();        
+        this.items = new Hashtable();
+        this.itemsTemp = new Hashtable();
     }
 
     public void init() {
         //default settings
-        itemsState.put(Locale.get("Scale"), String.valueOf(true));
-        fixedItemNames.add(Locale.get("Scale"));
+        MapItem scale = new ScaleMapItem();
+        scale.priority = MapItem.PRIORITY_HIGH;
+        scale.setEnabled(R.getSettings().getShowScale());
+        addItemFixed(Locale.get("Scale"), scale);
 
-        Object[] names = itemsState.keys();
-        for (int i = 0; i < names.length; i++) {
-            if (items.containsKey(names[i]))
-                ((MapItem) items.get(names[i])).setEnabled(isEnabled((String) names[i]));
-        }
-
-        addItemFixed(Locale.get("Scale"), new ScaleMapItem());
-        ((MapItem) items.get(Locale.get("Scale"))).setEnabled(R.getSettings().getShowScale());
-        //addItemFixed(Locale.get("Touch"), new TouchScreenMapItem());
-        //((MapItem) items.get(Locale.get("Touch"))).setEnabled(R.getSettings().getShowScale());
+//        Object[] names = itemsState.keys();
+//        for (int i = 0; i < names.length; i++) {
+//            if (items.containsKey(names[i]))
+//                ((MapItem) items.get(names[i])).setEnabled(isEnabled((String) names[i]));
+//        }
     }    
 
+
     /**
-     * Add item to manager, if item of same name exist, overwrite it !!!
+     * Add item to manager as fixed. Fixed item cannot be overwritten, cannot be selected.
      * @param itemName name of item
      * @param item MapItem to show
      * @return true if added, falsee if same name already exist
      */
-    public boolean addItem(String itemName, MapItem item) {
-        //System.out.println("\n add1 - " + printItems());
-        if (itemsState.containsKey(itemName)) {
-            removeItem(itemName);
-        }
-
-        items.put(itemName, item);
-        itemsState.put(itemName, String.valueOf(true));
-        //System.out.println("\n add2 - " + printItems());
-        return true;
-    }
-
-    /**
-     * Removes all elements excluding scale
-     */
-    public void removeAll()
-    {
-        items.clear();
-        itemsState.clear();
-        itemsTemp.clear();
-        fixedItemNames.clear();
-        init();
-    }
-    
     private boolean addItemFixed(String itemName, MapItem item) {
         if (!items.containsKey(itemName)) {
+            item.fixed = true;
             items.put(itemName, item);
-            if (!isFixed(itemName))
-                fixedItemNames.add(itemName);
             return true;
         }
         return false;
     }
 
     private boolean isFixed(String name) {
-        for (int i = 0; i < fixedItemNames.size(); i++) {
-            if (fixedItemNames.get(i).equals(name))
-                return true;
-        }
-        return false;
+        MapItem item = (MapItem) items.get(name);
+        if (item == null)
+            return false;
+        else
+            return item.fixed;
     }
+    
     /**
-     * Add temp items do mapItemManager. Items are always visible and when new item 
-     * with same name comes, it automatically overwrite old one.
+     * Add item to manager, if item of same name exist, overwrite it !!!
      * @param itemName name of item
-     * @param item MapItem
+     * @param item MapItem to show
+     * @return true if added, falsee if same name already exist
      */
-    public void addItemTemp(String itemName, MapItem item) {
-        itemsTemp.put(itemName, item);
-    }
-    
-    public MapItem getItemTemp(String itemName) {
-        return (MapItem) itemsTemp.get(itemName);
-    }
-    
-    public void removeItemTemp(String itemName) {
-        itemsTemp.remove(itemName);
+    public void addItem(String itemName, MapItem item, int priority) {
+        item.priority = priority;
+        items.put(itemName, item);
     }
 
-    public boolean existItemTemp(String itemName) {
-        //return false;
-        return itemsTemp.containsKey(itemName);
-    }
-    
-    public void removeItem(String itemName) {
-        items.remove(itemName);
-        itemsState.remove(itemName);
+    public MapItem getItem(String itemName) {
+        return (MapItem) items.get(itemName);
     }
 
-    public int getItemCount() {
-        return itemsState.size();
+    public MapItem getItem(int index) {
+        if (index < items.size()) {
+            return (MapItem) items.get(getItemName(index));
+        } else
+            return null;
     }
 
     public String getItemName(int i) {
-        if (i < itemsState.size()) {
-            return (String) itemsState.keys()[i];
+        if (i < items.size()) {
+            Enumeration enu = items.keys();
+            int counter = 0;
+            while (enu.hasMoreElements()) {
+                if (counter == i)
+                    return (String) enu.nextElement();
+
+                enu.nextElement();
+                counter++;
+            }
+            return null;
         } else {
             return null;
         }
     }
 
-    public MapItem getMapItem(int index) {
-        if (index < itemsState.size()) {
-            return (MapItem) items.get(getItemName(index));
-        } else
-            return null;
+    public void removeItem(String itemName) {
+        items.remove(itemName);
+    }
+
+    public boolean existItem(String itemName) {
+        return items.containsKey(itemName);
+    }
+
+    public int getItemCount() {
+        return items.size();
     }
     
+    /**
+     * Add temp items do mapItemManager. Items are always visible and when new item
+     * with same name comes, it automatically overwrite old one.
+     * @param itemName name of item
+     * @param item MapItem
+     */
+    public void addItemTemp(String itemName, MapItem item, int priority) {
+        item.priority = priority;
+        itemsTemp.put(itemName, item);
+    }
+
+    public MapItem getItemTemp(String itemName) {
+        return (MapItem) itemsTemp.get(itemName);
+    }
+
+    public void removeItemTemp(String itemName) {
+        itemsTemp.remove(itemName);
+    }
+
+    public boolean existItemTemp(String itemName) {
+        return itemsTemp.containsKey(itemName);
+    }
+    
+    /**
+     * Removes all elements excluding scale
+     */
+    public void removeAll() {
+        items.clear();
+        itemsTemp.clear();
+        init();
+    }
+
     public void setEnabled(String itemName, boolean enabled) {
-        if (itemsState.containsKey(itemName))
-            itemsState.put(itemName, String.valueOf(enabled));
-        if (items.containsKey(itemName))
-            ((MapItem) items.get(itemName)).setEnabled(enabled);
-//        MapItem mapItem = (MapItem) items.get(itemName);
-//        if (mapItem != null) {
-//            mapItem.setEnabled(enabled);
-//        }
+        if (items.containsKey(itemName)) {
+            MapItem item = (MapItem) items.get(itemName);
+            item.setEnabled(enabled);
+        } else if (itemsTemp.contains(itemName)) {
+            MapItem item = (MapItem) itemsTemp.get(itemName);
+            item.setEnabled(enabled);
+        }
     }
 
     public boolean isEnabled(String itemName) {
-        return (String.valueOf(true).equals(itemsState.get(itemName)));
+        if (items.containsKey(itemName)) {
+            MapItem item = (MapItem) items.get(itemName);
+            return item.enabled;
+        } else if (itemsTemp.contains(itemName)) {
+            MapItem item = (MapItem) itemsTemp.get(itemName);
+            return item.enabled;
+        }
+        return false;
     }
+
+
     
-    
-    public void drawItems(Graphics g) {
-        Iterator iter = items.keysIterator();
-        while (iter.hasNext()) {
-            MapItem item = (MapItem) items.get(iter.next());
-            item.drawItem(g);
+    public void drawItems(Graphics g, int priority) {
+        Enumeration enu = items.keys();
+        MapItem item;
+        while (enu.hasMoreElements()) {
+            item = (MapItem) items.get(enu.nextElement());
+            if (item.priority == priority)
+                item.drawItem(g);
         }
         
-        iter = itemsTemp.keysIterator();
-        while (iter.hasNext()) {
-            MapItem item = (MapItem) itemsTemp.get(iter.next());
-            item.drawItem(g);
+        enu = itemsTemp.keys();
+        while (enu.hasMoreElements()) {
+            item = (MapItem) itemsTemp.get(enu.nextElement());
+            if (item.priority == priority)
+                item.drawItem(g);
         }
     }
-    
+
     public void disableInitializeState() {
-        Iterator iter = items.keysIterator();
-        while (iter.hasNext()) {
-            MapItem item = (MapItem) items.get(iter.next());
+        Enumeration enu = items.elements();
+        MapItem item;
+        while (enu.hasMoreElements()) {
+            item = (MapItem) enu.nextElement();
             item.disableInitializeState();
         }
-        
-        iter = itemsTemp.keysIterator();
-        while (iter.hasNext()) {
-            MapItem item = (MapItem) itemsTemp.get(iter.next());
+        enu = itemsTemp.elements();
+        while (enu.hasMoreElements()) {
+            item = (MapItem) enu.nextElement();
             item.disableInitializeState();
         }
     }
     
     public void panItem(int x, int y) {
-        Iterator iter = items.keysIterator();
-        while (iter.hasNext()) {
-            MapItem item = (MapItem) items.get(iter.next());
+        Enumeration enu = items.elements();
+        MapItem item;
+        while (enu.hasMoreElements()) {
+            item = (MapItem) enu.nextElement();
             item.panItem(x, y);
         }
-        
-        iter = itemsTemp.keysIterator();
-        while (iter.hasNext()) {
-            MapItem item = (MapItem) itemsTemp.get(iter.next());
+        enu = itemsTemp.elements();
+        while (enu.hasMoreElements()) {
+            item = (MapItem) enu.nextElement();
             item.panItem(x, y);
         }
     }
     
     public String printItems() {
-        String data = "";
-        
-        for (int i = 0; i < itemsState.size(); i++) {
-            data += i + ". - " + getItemName(i) + "\n";
-        }
-        return data;
+//        String data = "";
+//
+//        for (int i = 0; i < itemsState.size(); i++) {
+//            data += i + ". - " + getItemName(i) + "\n";
+//        }
+//        return data;
+        return "";
     }
     
-    public Vector getWaypointsAtPosition(int x, int y, int radius) {
+    public Vector getWaypointsAtPosition(int x, int y, int radiusSquare) {
         Vector wayPoints = new Vector();
-        
-        for (int i = 0; i < itemsState.size(); i++) {
-            if (!isFixed(getItemName(i))) {
-//System.out.println("check near waypoints: " + getItemName(i));
-                MapItem item = (MapItem) items.get(getItemName(i));
-                item.getWaypointsAtPosition(wayPoints, x, y, radius);
+        Enumeration enu = items.keys();
+        MapItem item;
+        String name;
+
+        while (enu.hasMoreElements()) {
+            name = (String) enu.nextElement();
+            if (!isFixed(name)) {
+                item = (MapItem) items.get(name);
+                item.getWaypointsAtPosition(wayPoints, x, y, radiusSquare);
             }
         }
         return wayPoints;
     }
 
-    public MapItem touchAtPosition(int x, int y) {
-        for (int i = 0; i < itemsState.size(); i++) {
-            MapItem item = (MapItem) items.get(getItemName(i));
-            if (item.touchInside(x, y))
-                return item;
-        }
-        return null;
-    }
+//    public MapItem touchAtPosition(int x, int y) {
+//        for (int i = 0; i < itemsState.size(); i++) {
+//            MapItem item = (MapItem) items.get(getItemName(i));
+//            if (item.touchInside(x, y))
+//                return item;
+//        }
+//        return null;
+//    }
 
 }
