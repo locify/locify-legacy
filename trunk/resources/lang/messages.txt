@@ -246,6 +246,10 @@ No_file_selected=No file selected
 Select_file=Select file
 Uploading=Uploading...
 Upload_complete=Upload complete. Waiting for response...
+Route=Route
+Waypoint=Waypoint
+Waypoint_cloud=Waypoint cloud
+Points=point(s)
 
 #Save place
 Save_place=Save place

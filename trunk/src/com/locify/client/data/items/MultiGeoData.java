@@ -14,7 +14,10 @@
 package com.locify.client.data.items;
 
 import com.locify.client.utils.Logger;
+import de.enough.polish.ui.Form;
+import de.enough.polish.ui.StringItem;
 import de.enough.polish.util.ArrayList;
+import de.enough.polish.util.Locale;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -185,6 +188,26 @@ public class MultiGeoData {
         return geoData.size();
     }
 
+    public void addItemLabels(Form form) {
+        GeoData item;
+        for (int i = 0; i < geoData.size(); i++) {
+            item = (GeoData) geoData.get(i);
+            if (item instanceof Route) {
+                Route route = (Route) item;
+                form.append(new StringItem(Locale.get("Route") + ": " + route.getName(),
+                        "  (" + route.pointCount + " " + Locale.get("Points") + ")"));
+            } else if (item instanceof Waypoint) {
+                Waypoint wpt = (Waypoint) item;
+                form.append(new StringItem(Locale.get("Waypoint") + ": " + wpt.getName(),
+                        "  "));
+            } else if (item instanceof WaypointsCloud) {
+                WaypointsCloud wptCloud = (WaypointsCloud) item;
+                form.append(new StringItem(Locale.get("Waypoint_cloud") + ": " + wptCloud.getName(),
+                        "  (" + wptCloud.getWaypointsCount() + " " + Locale.get("Points") + ")"));
+            }
+        }
+    }
+    
     /**
      * Return GeoData from object.
      * @param index Index of object in internal array.

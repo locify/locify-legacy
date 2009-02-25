@@ -88,4 +88,8 @@ public class WaypointsCloud extends GeoData {
     public int getWaypointsCount() {
         return waypoints.size();
     }
+
+    public Waypoint getWaypoint(int index) {
+        return (Waypoint) waypoints.elementAt(index);
+    }
 }

@@ -246,6 +246,10 @@ No_file_selected=Soubor nezvolen
 Select_file=Vyberte soubor
 Uploading=Nahrávám...
 Upload_complete=Nahrávání dokončeno. Čekám na odpověď...
+Route=Trasa
+Waypoint=Bod
+Waypoint_cloud=Mračno bodů
+Points=bod(ů)
 
 #Save place
 Save_place=Uložit místo
