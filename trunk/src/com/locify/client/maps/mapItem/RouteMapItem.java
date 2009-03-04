@@ -99,7 +99,7 @@ public class RouteMapItem extends MapItem {
                     if (selectedPoints.indexOf("~" + i + "~") != -1)
                         continue;
                         
-                    if (styleNormal != null) {
+                    if (styleNormal != null && styleNormal.getIcon() != null) {
                         g.drawImage(styleNormal.getIcon(),
                                 items[i].x - styleNormal.getXMove(), items[i].y - styleNormal.getYMove(),
                                 Graphics.BOTTOM | Graphics.LEFT);

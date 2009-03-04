@@ -30,6 +30,7 @@ import com.locify.client.utils.Logger;
 import java.util.Date;
 import java.util.Hashtable;
 
+
 /**
  * Class is responsible for separating LocationProviders into separate thread and managing them.
  * @author Jiri Stepan
@@ -76,6 +77,7 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
             stop = true;
         }
     }
+    
     private WaitForLocator waitThread = null;
     private LocationProvider locationProvider;
     private Vector providers; //all providers according to capabilities
@@ -87,6 +89,8 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
     private String requestAction;
     private boolean providerSelected = false; //indikuje zda byl vybec nejaky provider vybran
     private boolean providerStopped = false;
+
+    private boolean satScreenActive = false;
 
     public LocatorModel() {
         this.listeners = new Vector();
@@ -139,6 +143,15 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
         }
         return icons;
     }
+
+    public void setSatScreenActive(boolean active) {
+        satScreenActive = active;
+    }
+
+    public boolean isSatScreenActive() {
+        return satScreenActive;
+    }
+
 
     public int getProviderCount() {
         return providers.size();
@@ -387,7 +400,6 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
         }
     }
 }
-
 class Provider {
 
     private String className;

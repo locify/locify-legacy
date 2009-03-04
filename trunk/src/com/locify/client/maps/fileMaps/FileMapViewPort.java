@@ -34,7 +34,7 @@ public class FileMapViewPort {
     public double longitude_dimension;
     public int xmax;
     public int ymax;
-    public double xscale; //velikost v metrech 
+//    public double xscale;
 
     /** construct viewport from enf points and calculate the center */
     public FileMapViewPort(Location4D a, Location4D b, Location4D c, Location4D d, int xmax, int ymax) {
@@ -42,13 +42,12 @@ public class FileMapViewPort {
         this.B = b;
         this.C = c;
         this.D = d;
-
         this.xmax = xmax;
         this.ymax = ymax;
         center = new Location4D(0, 0, 0);
         calculateCenter();
         calculateDimension();
-        calculateScale();
+//        calculateScale();
     }
 
     /** contsruct viewport from center point and scale & calculate end points */
@@ -63,7 +62,7 @@ public class FileMapViewPort {
         C = new Location4D(0, 0, 0);
         D = new Location4D(0, 0, 0);
         calculateEndPoints();
-        calculateScale();
+//        calculateScale();
     }
 
     private void calculateDimension() {
@@ -71,9 +70,9 @@ public class FileMapViewPort {
         longitude_dimension = (B.getLongitude() - A.getLongitude() + D.getLongitude() - C.getLongitude()) / 2;
     }
     
-    private void calculateScale() {
-        this.xscale = (A.distanceTo(B) + C.distanceTo(D)) / 2;
-    }
+//    private void calculateScale() {
+//        this.xscale = (A.distanceTo(B) + C.distanceTo(D)) / 2;
+//    }
 
     private void calculateEndPoints() {
         A.setPosition(center.getLatitude() + latitude_dimension / 2, center.getLongitude() - longitude_dimension / 2, 0);
@@ -93,7 +92,7 @@ public class FileMapViewPort {
         this.latitude_dimension = lat_dim;
         this.longitude_dimension = lon_dim;
         calculateEndPoints();
-        calculateScale();
+//        calculateScale();
     }
 
     public void setCenter(Location4D pos) {

@@ -17,6 +17,9 @@ import com.locify.client.maps.TileCache;
 import com.locify.client.data.FileSystem;
 import com.locify.client.maps.projection.NullProjection;
 import com.locify.client.maps.projection.Projection;
+import com.locify.client.maps.projection.ReferenceEllipsoid;
+import com.locify.client.maps.projection.S42Projection;
+import com.locify.client.maps.projection.UTMProjection;
 import com.locify.client.net.Http;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
@@ -132,15 +135,15 @@ public abstract class FileMapManager {
                         return MAP_TYPE_SINGLE_TILE;
                     }
                 } 
-                return MAP_TYPE_WRONG;
             } catch (IOException ex) {
                 ex.printStackTrace();
-                return MAP_TYPE_WRONG;
             }
+            return MAP_TYPE_WRONG;
         } else {
             String mapPathAbsolute = "file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER + mapPath;
             try {
                 FileConnection dir = (FileConnection) Connector.open(mapPathAbsolute);
+System.out.println("MapPathAbs: " + mapPathAbsolute);
                 if (dir.exists() && dir.isDirectory()) {
                     Enumeration files = dir.list("*.xml", false); //list all nonhidden xml files
                     if (files.hasMoreElements() == false) {
@@ -169,17 +172,19 @@ public abstract class FileMapManager {
                     int position = tar.getFilePosition(mapPathAbsolute.substring(mapPathAbsolute.lastIndexOf('/') + 1, mapPathAbsolute.lastIndexOf('.')) + ".xml");
                     if (position != -1) {
                         obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, position));
+//System.out.println("ObtainedData1: " + obtainedData);
                         if (obtainedData != null)
                             return MAP_TYPE_MULTI_TILE_LOCAL_TAR_LOCIFY;
                     } else {
                         position = tar.getFilePosition(mapPathAbsolute.substring(mapPathAbsolute.lastIndexOf('/') + 1, mapPathAbsolute.lastIndexOf('.')) + ".map");
                         if (position != -1) {
                             obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, position));
+//System.out.println("ObtainedData2: " + obtainedData);
                             if (obtainedData != null)
                                 return MAP_TYPE_MULTI_TILE_LOCAL_TAR_TREKBUDDY;
                         }
                     }
-                    System.out.println("FileMapManager.getMapType() - unsupported map type");
+                    System.out.println("FileMapManager.getMapType() - unsupported map tar type");
                     return MAP_TYPE_WRONG;
                 }
                 dir.close();
@@ -208,20 +213,18 @@ public abstract class FileMapManager {
     }
 
     protected static Projection getProjection(String projection) {
-//System.out.println("Get projection: " + projection);
-/*        Projection proj;
-        if (projection.equals("UTM") || projection.equals("Mercator") || projection.equals("Transverse Mercator")) {
-            proj = new UTMProjection(ReferenceEllipsoid.WGS84);
-        } else if (projection.equals("S42")) {
-            proj = new S42Projection(ReferenceEllipsoid.KRASOVSKY);
-        } else {
-            //Latitude/Longitude
-            proj = new NullProjection();
-        }
-        return proj;
-*/
+//        Projection proj;
+//        if (projection.equals("UTM") || projection.equals("Mercator") || projection.equals("Transverse Mercator")) {
+//            proj = new UTMProjection(ReferenceEllipsoid.WGS84);
+//        } else if (projection.equals("S42")) {
+//            proj = new S42Projection(ReferenceEllipsoid.KRASOVSKY);
+//        } else {
+//            //Latitude/Longitude
+//            proj = new NullProjection();
+//        }
+//        return proj;
+
         return new NullProjection();
-        //return new S42Projection(ReferenceEllipsoid.WGS84);
     }
    
     public Projection getMapProjection() {

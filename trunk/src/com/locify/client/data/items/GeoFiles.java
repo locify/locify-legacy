@@ -595,7 +595,7 @@ public abstract class GeoFiles {
             fileSize = R.getFileSystem().getFileSize(FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
             type = getDataTypeDatabase(fileName, fileSize);
 
-System.out.println("TestFile: " + fileName + " type: " + type + " size: " + fileSize);
+//System.out.println("TestFile: " + fileName + " type: " + type + " size: " + fileSize);
             if (type == 0) {
                 fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
                 if (!fileConnection.exists()) {

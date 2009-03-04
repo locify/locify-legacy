@@ -75,8 +75,8 @@ public class Waypoint extends GeoData {
 
     public void paint(Graphics g, int x, int y) {
         if (state == Waypoint.STATE_NONE) {
-            if (styleNormal != null) {
-                g.drawImage(styleNormal.icon,
+            if (styleNormal != null && styleNormal.getIcon() != null) {
+                g.drawImage(styleNormal.getIcon(),
                         x - styleNormal.getXMove(), y - styleNormal.getYMove(),
                         Graphics.BOTTOM | Graphics.LEFT);
             } else {
@@ -84,8 +84,8 @@ public class Waypoint extends GeoData {
                 g.drawArc(x - 2, y - 2, 4, 4, 0, 360);
             }
         } else if (state == Waypoint.STATE_HIGHLIGHT) {
-            if (styleHighlight != null) {
-                g.drawImage(styleHighlight.icon,
+            if (styleHighlight != null && styleHighlight.getIcon() != null) {
+                g.drawImage(styleHighlight.getIcon(),
                         x - styleHighlight.getXMove(), y - styleHighlight.getYMove(),
                         Graphics.BOTTOM | Graphics.LEFT);
             } else {

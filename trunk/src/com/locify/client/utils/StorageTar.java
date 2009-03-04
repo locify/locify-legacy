@@ -34,6 +34,7 @@ public class StorageTar {
     private static long fileSize;
     private static int dataPosition;
     private static String actualFile;
+    private static String lastFile;
     private static int type;
 
     private String tarPath;
@@ -59,7 +60,7 @@ public class StorageTar {
             this.makeIndexes = true;
             loadMapTarVariables();
             if (makeIndexes) {
-                loadFile("");
+                indexFile();
                 getMapTileSize();
                 saveMapTarVariables();
             }
@@ -75,7 +76,7 @@ public class StorageTar {
     public int getFilePosition(String fileName) {
         if (indexes != null) {
             Integer index = (Integer) indexes.get(fileName);
-//System.out.println("GetFilePosition: " + fileName);
+//System.out.println("StorageTar.getFilePosition: " + fileName);
             if (index != null)
                 return index.intValue();
             else
@@ -90,20 +91,21 @@ public class StorageTar {
         fileSize = 0;
         dataPosition = 0;
         actualFile = "";
+        lastFile = "";
         type = '5';
     }
 
-    public String loadFile(String fileName) {
+    public void indexFile() {
         try {
             resetData();
-            
+//Logger.log("FileName: " + tarPath);
             fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
             inputStream = fileConnection.openInputStream();
 
             long l_posunuti = 0;
             byte l_filenamebytes[] = new byte[256];
             
-            while (!actualFile.equals(fileName) || makeIndexes) {
+            while (true) {
                 l_posunuti += 512 * (long) Math.ceil((float) fileSize / 512);
                 inputStream.skip(l_posunuti);
                 dataPosition += 512 * (long) Math.ceil((float) fileSize / 512);
@@ -114,13 +116,15 @@ public class StorageTar {
 //System.out.println("!!! actualFile: " + actualfile);
                 if (actualFile.equals("")) {
                     break;
-                } else if (actualFile.equals(fileName) && !makeIndexes) {
-                    return new String(loadFile(tarPath, (int) dataPosition));
                 }
 
-                if (makeIndexes) {
+                if (!lastFile.equals(actualFile)) {
 //System.out.println("\nIndexed: " + actualFile + " pos: " + dataPosition);
                     indexes.put(actualFile, new Integer(dataPosition));
+                    lastFile = actualFile;
+                } else {
+                    indexes.clear();
+                    return;
                 }
 
                 // 100 8 File mode
@@ -132,7 +136,6 @@ public class StorageTar {
                 // 124 12 File size in bytes
                 inputStream.read(l_filenamebytes, 0, 12);
                 fileSize = Oct2Long(l_filenamebytes, 11);
-//System.out.println("FileSize: " + fileSize);
                 // 136 12 Last modification time
                 inputStream.read(l_filenamebytes, 0, 12);
                 // 148 8 Check sum for header block
@@ -158,18 +161,98 @@ public class StorageTar {
             inputStream.close();
             inputStream = null;
             fileConnection = null;
-
-            return null;
-        } catch (NumberFormatException e) {
-            R.getErrorScreen().view(e, "StorageTar.loadFile(tarArchive, fileName) - nfEx", "tarArchive: " + tarPath + " fileName: " + fileName);
-            return null;
-        } catch (IOException e) {
-            R.getErrorScreen().view(e, "StorageTar.loadFile(tarArchive, fileName) - IOEx", "tarArchive: " + tarPath + " fileName: " + fileName);
-            return null;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (NumberFormatException ex) {
+            ex.printStackTrace();
         } finally {
             makeIndexes = false;
         }
     }
+
+    // unimproved function for loading file from not-indexed file !!!!
+//    public String indexFile(String fileName) {
+//        try {
+//            resetData();
+////Logger.log("FileName: " + tarPath);
+//            fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
+//            inputStream = fileConnection.openInputStream();
+//
+//            long l_posunuti = 0;
+//            byte l_filenamebytes[] = new byte[256];
+//
+//            while (!actualFile.equals(fileName) || makeIndexes) {
+//                l_posunuti += 512 * (long) Math.ceil((float) fileSize / 512);
+//                inputStream.skip(l_posunuti);
+//                dataPosition += 512 * (long) Math.ceil((float) fileSize / 512);
+//
+//                // 0 100 File name
+//                inputStream.read(l_filenamebytes, 0, 100);
+//                actualFile = new String(l_filenamebytes, 0, 100).trim();
+////System.out.println("!!! actualFile: " + actualfile);
+//                if (actualFile.equals("")) {
+//                    break;
+//                } else if (actualFile.equals(fileName) && !makeIndexes) {
+//                    return new String(loadFile(tarPath, (int) dataPosition));
+//                }
+//
+//                if (makeIndexes) {
+//                    if (!lastFile.equals(actualFile)) {
+////System.out.println("\nIndexed: " + actualFile + " pos: " + dataPosition);
+//                        indexes.put(actualFile, new Integer(dataPosition));
+//                        lastFile = actualFile;
+//                    } else {
+//
+//                    }
+//                }
+//
+//                // 100 8 File mode
+//                inputStream.read(l_filenamebytes, 0, 8);
+//                // 108 8 Owner user ID
+//                inputStream.read(l_filenamebytes, 0, 8);
+//                // 116 8 Group user ID
+//                inputStream.read(l_filenamebytes, 0, 8);
+//                // 124 12 File size in bytes
+//                inputStream.read(l_filenamebytes, 0, 12);
+//                fileSize = Oct2Long(l_filenamebytes, 11);
+////System.out.println("FileSize: " + fileSize);
+//                // 136 12 Last modification time
+//                inputStream.read(l_filenamebytes, 0, 12);
+//                // 148 8 Check sum for header block
+//                inputStream.read(l_filenamebytes, 0, 8);
+//                // 156 1 Link indicator
+//                inputStream.read(l_filenamebytes, 0, 1);
+//                type = (char) l_filenamebytes[0];
+//                // 157 100 Name of linked file
+//                inputStream.read(l_filenamebytes, 0, 100);
+//                dataPosition += 256;
+//                // Test, zda-li nema rozsirenou hlavicku
+//                inputStream.read(l_filenamebytes, 0, 6);
+//                if (l_filenamebytes[0] == 'u' && l_filenamebytes[1] == 's' && l_filenamebytes[2] == 't' && l_filenamebytes[3] == 'a' && l_filenamebytes[4] == 'r') {
+//                    dataPosition += 256;
+//                    inputStream.skip(249);
+//                    l_posunuti = 0;
+//                } else {
+//                    dataPosition -= 6;
+//                    l_posunuti = -6;
+//                }
+//            }
+//
+//            inputStream.close();
+//            inputStream = null;
+//            fileConnection = null;
+//
+//            return null;
+//        } catch (NumberFormatException e) {
+//            R.getErrorScreen().view(e, "StorageTar.loadFile(tarArchive, fileName) - nfEx", "tarArchive: " + tarPath + " fileName: " + fileName);
+//            return null;
+//        } catch (IOException e) {
+//            R.getErrorScreen().view(e, "StorageTar.loadFile(tarArchive, fileName) - IOEx", "tarArchive: " + tarPath + " fileName: " + fileName);
+//            return null;
+//        } finally {
+//            makeIndexes = false;
+//        }
+//    }
 
     public static byte[] loadFile(String tarArchive, int fileSizeFrom) {
 //System.out.println("\ntar load: " + fileSizeFrom);

@@ -13,6 +13,7 @@
  */
 package com.locify.client.locator;
 
+import com.locify.client.locator.impl.DummyLocationFilter;
 import java.util.Vector;
 import javax.microedition.location.QualifiedCoordinates;
 import com.locify.client.locator.impl.KalmanLocationFilter;
@@ -38,13 +39,12 @@ public abstract class GpsLocationProvider extends LocationProvider {
     protected float horizontalAccuracy = 100;
     protected float verticalAccuracy = 100;
     protected float altitude;
-    
     protected SatelliteManager satManager;
 
     public GpsLocationProvider() {
         super();
-        //this.locationFilter = new DummyLocationFilter();
-        this.locationFilter = new KalmanLocationFilter();
+        this.locationFilter = new DummyLocationFilter();
+        //this.locationFilter = new KalmanLocationFilter();
         this.satManager = new SatelliteManager();
     }
 
@@ -53,15 +53,12 @@ public abstract class GpsLocationProvider extends LocationProvider {
     }
 
     public void setState(int newstate) {
-        try
-        {
-        if (newstate != state) {
-            this.state = newstate;
-            notifyChangeStateToListeners();
-        }
-        }
-        catch (Exception e)
-        {
+        try {
+            if (newstate != state) {
+                this.state = newstate;
+                notifyChangeStateToListeners();
+            }
+        } catch (Exception e) {
             R.getErrorScreen().view(e, "GpsLocationProvider.setState", String.valueOf(newstate));
         }
     }

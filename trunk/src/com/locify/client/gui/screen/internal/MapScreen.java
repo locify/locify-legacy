@@ -195,8 +195,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void view() {
         try {
             mapItemManager.init();
-            //setFileMapProviders();
-            //setFileProvider(0);
+            setFileMapProviders();
+            //setFileProvider(7);
 
             if (lastCenterPoint != null) {
                 if (map instanceof TileMapLayer) {
@@ -556,7 +556,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             map = mapFile;
             makeMapAction(MA_MY_LOCATION, null);
         } else {
-            //this.setTitle(Locale.get("Maps") + " - " + mapFile.getProviderName() + " not ready!");
             R.getCustomAlert().quickView(
                     "  " + Locale.get("File_map_cannot_initialize") + " " + mapFile.getProviderName(),
                     Locale.get("Info"), "locify://refresh");
@@ -925,28 +924,27 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         } else {
             super.pointerReleased(x, y);
             if (y > TOP_MARGIN && y < (getHeight() - BOTTOM_MARGIN)) {
-//System.out.println("Released X: " + x + " Y: " + y);
                 if ((System.currentTimeMillis() - stylusTought) < 250) {
-                    if (Math.sqrt((touchZoomInButtonCenter.x - x) * (touchZoomInButtonCenter.x - x) +
-                            (touchZoomInButtonCenter.y - y) * (touchZoomInButtonCenter.y - y)) < touchZoomButtonRadius) {
-                        makeMapAction(MA_ZOOM_IN, null);
-                    } else if (Math.sqrt((touchZoomOutButtonCenter.x - x) * (touchZoomOutButtonCenter.x - x) +
-                            (touchZoomOutButtonCenter.y - y) * (touchZoomOutButtonCenter.y - y)) < touchZoomButtonRadius) {
-                        makeMapAction(MA_ZOOM_OUT, null);
-                    } else if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
-//System.out.println("Click 1.");
-                        if (Math.sqrt((lastSelectedX - x) * (lastSelectedX - x) + (lastSelectedY - y) * (lastSelectedY - y)) < (map.getPanSpeed() * 1.0)) {
-//System.out.println("Click select next");
-                            selectNextFromSelected(false);
-                        } else {
-                            ((DescriptionMapItem) mapItemManager.getItemTemp(tempWaypointDescriptionItemName)).selectButtonAt(x, y);
-//System.out.println("Click selection fire");
-                            makeSelectionActionFire();
+                    if (zoomProcess) {
+                        if (Math.sqrt((touchZoomInButtonCenter.x - x) * (touchZoomInButtonCenter.x - x) +
+                                (touchZoomInButtonCenter.y - y) * (touchZoomInButtonCenter.y - y)) < touchZoomButtonRadius) {
+                            makeMapAction(MA_ZOOM_IN, null);
+                        } else if (Math.sqrt((touchZoomOutButtonCenter.x - x) * (touchZoomOutButtonCenter.x - x) +
+                                (touchZoomOutButtonCenter.y - y) * (touchZoomOutButtonCenter.y - y)) < touchZoomButtonRadius) {
+                            makeMapAction(MA_ZOOM_OUT, null);
                         }
                     } else {
-//System.out.println("Click select nearest");
-                        selectNearestWaypoints(x, y, map.getPanSpeed() * 2 / 3, false);
-                        selectNextFromSelected(false);
+                        if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+                            if (Math.sqrt((lastSelectedX - x) * (lastSelectedX - x) + (lastSelectedY - y) * (lastSelectedY - y)) < (map.getPanSpeed() * 1.0)) {
+                                selectNextFromSelected(false);
+                            } else {
+                                ((DescriptionMapItem) mapItemManager.getItemTemp(tempWaypointDescriptionItemName)).selectButtonAt(x, y);
+                                makeSelectionActionFire();
+                            }
+                        } else {
+                            selectNearestWaypoints(x, y, map.getPanSpeed() * 2 / 3, false);
+                            selectNextFromSelected(false);
+                        }
                     }
                 }
             }
@@ -1284,6 +1282,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 case DescriptionMapItem.BUTTON_CLOSE:
                     mapItemManager.removeItemTemp(tempMapNavigationItem);
                     mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
+                    ((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)).state = Waypoint.STATE_HIGHLIGHT;
                     selectedMapItemIndex = -1;
                     repaint();
                     break;

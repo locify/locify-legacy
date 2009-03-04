@@ -73,7 +73,7 @@ public class PointMapItem extends MapItem {
                         continue;
 
                     style = ((Waypoint) waypoints.elementAt(i)).getStyleNormal();
-                    if (style == null)
+                    if (style == null || (style != null && style.getIcon() == null))
                         style = stylePointIconNormal;
 
                     g.drawImage(style.getIcon(),

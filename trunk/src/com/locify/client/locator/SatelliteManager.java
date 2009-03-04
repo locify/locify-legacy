@@ -15,6 +15,7 @@
 package com.locify.client.locator;
 
 import com.locify.client.utils.GpsUtils;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.R;
 import java.util.Hashtable;
@@ -35,15 +36,17 @@ public class SatelliteManager {
     private int snr;
 
     public SatelliteManager() {
-
     }
 
     public void parseNMEASatellites(String nmea) {
-        int starIndex = nmea.indexOf('*');
-        if (starIndex == -1) {
+        if (R.getLocator().isSatScreenActive()) {
+            int starIndex = nmea.indexOf('*');
+            if (starIndex == -1) {
+                return;
+            }
+            parseNMEASatellites(StringTokenizer.getArray(nmea.substring(0, starIndex), ","));
+        } else
             return;
-        }
-        parseNMEASatellites(StringTokenizer.getArray(nmea.substring(0, starIndex), ","));
     }
 
     public void parseNMEASatellites(String[] param) {
@@ -91,7 +94,7 @@ public class SatelliteManager {
             for (int i = 0; i < param.length; i++) {
                 nmea += param[i] + ",";
             }
-            R.getErrorScreen().view(e, "SatelliteManager.parseNmeaSatellites(String[] param)", nmea);
+            Logger.error("SatelliteManager.parseNmeaSatellites(String[] param), NMEA: " + nmea + " Ex: " + e.toString());
         }
     }
 

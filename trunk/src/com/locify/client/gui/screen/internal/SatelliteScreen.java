@@ -103,7 +103,9 @@ public class SatelliteScreen extends Form implements CommandListener, LocationEv
 
     public void view() {
         try {
+            R.getLocator().setSatScreenActive(true);
             R.getMidlet().switchDisplayable(null, this);
+
         } catch (Exception e) {
             R.getErrorScreen().view(e, "NavigationScreen.view", null);
         }
@@ -175,11 +177,13 @@ public class SatelliteScreen extends Form implements CommandListener, LocationEv
 
     public void commandAction(Command cmd, Displayable d) {
         if (cmd.equals(Commands.cmdBack)) {
+            R.getLocator().setSatScreenActive(false);
             if (R.getContext().isTemporary()) {
                 R.getContext().removeTemporaryLocation();
             }
             R.getBack().goBack();
         } else if (cmd.equals(Commands.cmdHome)) {
+            R.getLocator().setSatScreenActive(false);
             if (R.getContext().isTemporary()) {
                 R.getContext().removeTemporaryLocation();
             }

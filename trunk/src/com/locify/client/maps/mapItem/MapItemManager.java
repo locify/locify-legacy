@@ -182,19 +182,23 @@ public class MapItemManager {
 
     
     public void drawItems(Graphics g, int priority) {
-        Enumeration enu = items.keys();
-        MapItem item;
-        while (enu.hasMoreElements()) {
-            item = (MapItem) items.get(enu.nextElement());
-            if (item.priority == priority)
-                item.drawItem(g);
-        }
-        
-        enu = itemsTemp.keys();
-        while (enu.hasMoreElements()) {
-            item = (MapItem) itemsTemp.get(enu.nextElement());
-            if (item.priority == priority)
-                item.drawItem(g);
+        try {
+            Enumeration enu = items.keys();
+            MapItem item;
+            while (enu.hasMoreElements()) {
+                item = (MapItem) items.get(enu.nextElement());
+                if (item.priority == priority)
+                    item.drawItem(g);
+            }
+
+            enu = itemsTemp.keys();
+            while (enu.hasMoreElements()) {
+                item = (MapItem) itemsTemp.get(enu.nextElement());
+                if (item.priority == priority)
+                    item.drawItem(g);
+            }
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapItemManager.drawItems()", "priority: " + priority);
         }
     }
 

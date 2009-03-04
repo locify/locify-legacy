@@ -318,8 +318,11 @@ public class TileCache extends Thread {
         private boolean imageLoaded;
         private String path;
         private long startTime;
+
         private HttpConnection connection;
         private DataInputStream dis;
+        private ByteArrayOutputStream baos;
+        private DataOutputStream dos;
 
         public HttpImageDownloader(String path) {
             this.imageLoaded = false;
@@ -349,8 +352,8 @@ public class TileCache extends Thread {
                         data = new byte[length];
                         dis.readFully(data);
                     } else {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        DataOutputStream dos = new DataOutputStream(baos);
+                        baos = new ByteArrayOutputStream();
+                        dos = new DataOutputStream(baos);
                         int onebyte;
                         while ((onebyte = dis.read()) != -1) {
                             dos.write(onebyte);
@@ -362,13 +365,11 @@ public class TileCache extends Thread {
                     }
 
                     this.image = Image.createImage(data, 0, data.length);
+                } else {
+                    Logger.debug("Error while downloading map tile: " + connection.getResponseCode());
                 }
-                else
-                {
-                    Logger.debug("Error while downloading map tile: "+connection.getResponseCode());
-                }
-            } catch (Exception e) {
-                Logger.debug("TileCache.HttpImageDownloader() - imageDownloadError: " + e.getMessage());
+            } catch (IOException e) {
+                Logger.debug("TileCache.HttpImageDownloader() - imageDownloadError: " + e.toString());
                 if (e.getMessage().equals("HTTP Response Code = 404")) {
                     this.image = MapScreen.getImageNotExisted(tileSizeX, tileSizeY);
                 } else {
@@ -377,6 +378,14 @@ public class TileCache extends Thread {
             } finally {
                 this.imageLoaded = true;
                 try {
+                    if (dos != null) {
+                        dos.close();
+                        dos = null;
+                    }
+                    if (baos != null) {
+                        baos.close();
+                        baos = null;
+                    }
                     if (dis != null) {
                         dis.close();
                     }

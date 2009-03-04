@@ -62,14 +62,14 @@ public class MultiGeoData {
                 }
 
                 // first finalize GeoFileStyleMap
-                if (styles != null) {
-                    Enumeration enu = styles.elements();
-                    GeoFileStyle geoFileStyle;
-                    while (enu.hasMoreElements()) {
-                        geoFileStyle = (GeoFileStyle) enu.nextElement();
-                        geoFileStyle.finalizeData();
-                    }
-                }
+//                if (styles != null) {
+//                    Enumeration enu = styles.elements();
+//                    GeoFileStyle geoFileStyle;
+//                    while (enu.hasMoreElements()) {
+//                        geoFileStyle = (GeoFileStyle) enu.nextElement();
+//                        geoFileStyle.finalizeData();
+//                    }
+//                }
 
                 // add style to data object
                 if (data.styleName != null) {

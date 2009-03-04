@@ -257,7 +257,7 @@ public class ConfigFileTile {
                     lat = coo[0];
                     lon = coo[1];
                     addCalibrationPoint(x, y, lat, lon);
-                //MMPNUM,4
+                // MMPNUM,4
                 } else if (((String) token.elementAt(0)).startsWith("MMPNUM")) {
                     int size = parseInt(token.elementAt(1));
                     if (size >= 4) {
@@ -282,10 +282,8 @@ public class ConfigFileTile {
 
                         double[] coo;
                         coo = FileMapManager.getProjection(projectionType).projectionToFlat(lat, lon);
-//System.out.println("Old lat: " + lat + " lon: " + lon);
                         lat = coo[0];
                         lon = coo[1];
-//System.out.println("New lat: " + lat + " lon: " + lon);
                         point.position = new Location4D(lat, lon, 0.0f);
                     }
                 // IWH,Map Image Width/Height,2000,2000
@@ -296,7 +294,7 @@ public class ConfigFileTile {
             }
 
             if (cal != null && cal.length > 3) { // && calibrationPoints.size() < 4) {
-            //if (cal != null && cal.length > 3 && calibrationPoints.size() < 4) {
+//            if (cal != null && cal.length > 3 && calibrationPoints.size() < 4) {
                 calibrationPoints.removeAllElements();
                 clearMinMax();
                 for (int i = 0; i < cal.length; i++) {
@@ -319,7 +317,6 @@ public class ConfigFileTile {
                         "  tileSizeY - " + tileSizeY);
             }
         }
-//System.out.println("ParseDotMapDescriptor() - end");
     }
 
     private double parseDouble(Object obj) {
@@ -341,6 +338,7 @@ public class ConfigFileTile {
     }
 
     private void addCalibrationPoint(int x, int y, double lat, double lon) {
+//Logger.log("ConfigFileTile.addCalibrationPoint x: " + x + " y: " + y + " lat: " + lat + " lon: " + lon);
         CalibrationPoint calpoint = new CalibrationPoint();
 
         calpoint.x = x;

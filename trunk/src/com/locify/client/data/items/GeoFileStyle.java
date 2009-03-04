@@ -24,7 +24,8 @@ public class GeoFileStyle {
 
     protected String name;
     protected float scale;
-    protected Image icon;
+    private String iconUrl;
+    private Image icon;
     protected int hotSpotX;
     protected String hotSpotXunits;
     protected int hotSpotY;
@@ -45,13 +46,20 @@ public class GeoFileStyle {
 
     public void setIcon(Image icon) {
         this.icon = icon;
+        finalizeData();
     }
     
     public void setIcon(String url) {
-        icon = IconData.get(url);
+        this.iconUrl = url;
+        this.icon = IconData.get(url);
+        finalizeData();
     }
 
     public Image getIcon() {
+        if (icon == null && iconUrl != null) {
+            icon = IconData.get(iconUrl);
+            finalizeData();
+        }
         return icon;
     }
 
@@ -71,8 +79,8 @@ public class GeoFileStyle {
         return hotSpotY;
     }
 
-    public void finalizeData() {
-        if (scale != 0 && icon != null) {
+    private void finalizeData() {
+        if (icon != null) {
             icon = IconData.reScaleImage(icon,
                     (int) (icon.getWidth() * scale),
                     (int) (icon.getHeight() * scale));
