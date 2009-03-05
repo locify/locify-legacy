@@ -519,7 +519,7 @@ public class FileSystem {
         fileName = Utils.replaceString(fileName, "/", "");
         fileName = Utils.replaceString(fileName, "=", "");
         fileName = Utils.replaceString(fileName, "+", "");
-        return fileName;
+        return fileName.substring(0, 10);
     }
 
     /**

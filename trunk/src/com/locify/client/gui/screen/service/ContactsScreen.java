@@ -18,6 +18,7 @@ import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
+import de.enough.polish.ui.FilteredList;
 import de.enough.polish.ui.List;
 import de.enough.polish.util.Locale;
 import java.util.Enumeration;
@@ -70,7 +71,7 @@ public class ContactsScreen implements CommandListener {
         this.actualFilter = filter;
         this.numOfContacts = 0;
         try {
-            lstView = new List(Locale.get("Contacts_screen"), List.IMPLICIT);
+            lstView = new FilteredList(Locale.get("Contacts_screen"), List.IMPLICIT);
             lstView.setCommandListener(this);
             lstView.addCommand(Commands.cmdBack);
 
