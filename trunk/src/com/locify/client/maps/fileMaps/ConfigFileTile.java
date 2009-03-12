@@ -360,7 +360,7 @@ public class ConfigFileTile {
             Matrix H = (A.transpose().times(A)).inverse().times(A.transpose().times(X));
             mapViewPort = new FileMapViewPort(H.get(0, 0), H.get(1, 0), H.get(2, 0), H.get(3, 0), xmax, ymax);
 
-            // compute inverse helmert transformation
+            // compute inverse Helmert transformation
             A.fill(0);
             X.fill(0);
             
@@ -384,90 +384,6 @@ public class ConfigFileTile {
 
             H = (A.transpose().times(A)).inverse().times(A.transpose().times(X));
             mapViewPort.setInverseHelmert(H.get(0, 0), H.get(1, 0), H.get(2, 0), H.get(3, 0));
-
-    //        // fix calibration points
-    //        CalibrationPoint A = (CalibrationPoint) calibrationPoints.elementAt(0);
-    //        CalibrationPoint B = (CalibrationPoint) calibrationPoints.elementAt(1);
-    //        CalibrationPoint C = (CalibrationPoint) calibrationPoints.elementAt(2);
-    //        CalibrationPoint D = (CalibrationPoint) calibrationPoints.elementAt(3);
-    //
-    ////System.out.print("\nA: " + A.toString());
-    ////System.out.print("\nB: " + B.toString());
-    ////System.out.print("\nC: " + C.toString());
-    ////System.out.print("\nD: " + D.toString());
-    //
-    //        if (A.position.getLongitude() > B.position.getLongitude()) {
-    //            CalibrationPoint temp = A;
-    //            A = B;
-    //            B = temp;
-    //        }
-    //        if (C.position.getLongitude() > D.position.getLongitude()) {
-    //            CalibrationPoint temp = C;
-    //            C = D;
-    //            D = temp;
-    //        }
-    //
-    //        double lonPerPix = (((B.position.getLongitude() - A.position.getLongitude()) / (B.x - A.x)) +
-    //                ((D.position.getLongitude() - C.position.getLongitude()) / (D.x - C.x))) / 2;
-    //        double latPerPix = (((A.position.getLatitude() - C.position.getLatitude()) / (C.y - A.y)) +
-    //                ((B.position.getLatitude() - D.position.getLatitude()) / (D.y - B.y))) / 2;
-    //
-    //        // fix A (top left)
-    //        A.position = new Location4D(
-    //                A.position.getLatitude() + A.y * latPerPix,
-    //                A.position.getLongitude() - A.x * lonPerPix,
-    //                0.0f);
-    //        A.x = 0;
-    //        A.y = 0;
-    //
-    //        // fix B (top right)
-    //        B.position = new Location4D(
-    //                B.position.getLatitude() + B.y * latPerPix,
-    //                B.position.getLongitude() + (xmax - B.x) * lonPerPix,
-    //                0.0f);
-    //        B.x = xmax;
-    //        B.y = 0;
-    //
-    //        // fix C (bottom left)
-    //        C.position = new Location4D(
-    //                C.position.getLatitude() - (ymax - C.y) * latPerPix,
-    //                C.position.getLongitude() - C.x * lonPerPix,
-    //                0.0f);
-    //        C.x = 0;
-    //        C.y = ymax;
-    //
-    //        // fix D (bottom right)
-    //        D.position = new Location4D(
-    //                D.position.getLatitude() - (ymax - D.y) * latPerPix,
-    //                D.position.getLongitude() + (xmax - D.x) * lonPerPix,
-    //                0.0f);
-    //        D.x = xmax;
-    //        D.y = ymax;
-    //
-    //        for (int i = 0; i < 4; i++) {
-    //            CalibrationPoint calpoint = (CalibrationPoint) calibrationPoints.elementAt(i);
-    //            if (calpoint.position.getLatitude() < min_latitude) {
-    //                min_latitude = calpoint.position.getLatitude();
-    //            }
-    //
-    //            if (calpoint.position.getLatitude() > max_latitude) {
-    //                max_latitude = calpoint.position.getLatitude();
-    //            }
-    //
-    //            if (calpoint.position.getLongitude() < min_longitude) {
-    //                min_longitude = calpoint.position.getLongitude();
-    //            }
-    //
-    //            if (calpoint.position.getLongitude() > max_longitude) {
-    //                max_longitude = calpoint.position.getLongitude();
-    //            }
-    //        }
-    ////System.out.print("\nA: " + A.toString());
-    ////System.out.print("\nB: " + B.toString());
-    ////System.out.print("\nC: " + C.toString());
-    ////System.out.print("\nD: " + D.toString());
-    //
-    //        mapViewPort = new FileMapViewPort(A.position, B.position, C.position, D.position, xmax, ymax);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "ConfigFileTile.calculateViewPort()", "");
         }
@@ -479,7 +395,7 @@ public class ConfigFileTile {
 
     public synchronized boolean drawImageSingle(Graphics gr, FileMapViewPort targetPort) {
         try {
-            Point2D mapPoint = mapViewPort.getPointAnyWhere(targetPort.center);
+            Point2D mapPoint = mapViewPort.convertGeoToMapPixel(targetPort.center);
             int x1, x2, y1, y2;
             if (mapViewPort.containsPosition(targetPort.center)) {
                 x1 = Math.max(0, (int) (mapPoint.getX() - targetPort.xmax / 2));
@@ -499,11 +415,11 @@ public class ConfigFileTile {
 
     public synchronized boolean drawImageMulti(Graphics gr, FileMapViewPort targetPort, StorageTar tar) {
         try {
-System.out.println("ConfigFileTile.drawImageMulti()");
-            Point2D mapPoint = mapViewPort.getPointAnyWhere(targetPort.center);
-System.out.println("\n  mapViewPort " + mapViewPort.toString());
-System.out.println("\n  targetPort " + targetPort.toString());
-System.out.println("\n  center: " + targetPort.center.toString());
+//System.out.println("ConfigFileTile.drawImageMulti()");
+            Point2D mapPoint = mapViewPort.convertGeoToMapPixel(targetPort.center);
+//System.out.println("\n  mapViewPort " + mapViewPort.toString());
+//System.out.println("\n  targetPort " + targetPort.toString());
+//System.out.println("\n  center: " + targetPort.center.toString());
             int x1, x2, y1, y2;
 
             if (screenWidth == 0) {
@@ -521,9 +437,9 @@ System.out.println("\n  center: " + targetPort.center.toString());
             tileY = (int) Math.floor(mapPoint.getY() / tileSizeY);
             moveX = (int) ((tileX * tileSizeX) - mapPoint.getX());
             moveY = (int) ((tileY * tileSizeY) - mapPoint.getY());
-System.out.println("\n  drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
-System.out.println("\n  drawImageMulti - mapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
-System.out.println("\n  drawImageMulti - tileX: " + tileX + " tileY: " + tileY);
+//System.out.println("\n  drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
+//System.out.println("\n  drawImageMulti - mapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
+//System.out.println("\n  drawImageMulti - tileX: " + tileX + " tileY: " + tileY);
             Vector imageNames = new Vector();
             String imageName = null;
             for (int i = 0; i < numOfTilesXperScreen; i++) {
@@ -531,7 +447,7 @@ System.out.println("\n  drawImageMulti - tileX: " + tileX + " tileY: " + tileY);
                     if (imageHaveToExist(tileX + i, tileY + j)) {
                         imageName =  createImageName(i, j);
                         if (tar != null) {
-System.out.println("Add: " + (manager.mapPathPrefix + manager.mapPath + imageName) + "  " + tar.getTarFile() + "  " + tar.getFilePosition(imageName));
+//System.out.println("Add: " + (manager.mapPathPrefix + manager.mapPath + imageName) + "  " + tar.getTarFile() + "  " + tar.getFilePosition(imageName));
                             imageNames.addElement(new ImageRequest(
                                     manager.mapPathPrefix + manager.mapPath + imageName,
                                     tar.getTarFile(), tar.getFilePosition(imageName)));

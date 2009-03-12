@@ -125,8 +125,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /** is firstly centere after now directly? */
     private boolean firstCenterAfterND;
 
-//    private ScalableImage actualPositionImage;
-//    private ScalableGraphics scalableGraphics;
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -194,28 +192,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
         nowDirectly = false;
         firstCenterAfterND = false;
-
-    /*        try {
-    actualPositionImage = ScalableImage.createImage(
-    new ByteArrayInputStream
-    new SlowLineInputStream(original, cssSelector, stylusTought)
-    "girl1.svg",
-    new CustomResourceHandler());
-    } catch (IOException ex) {
-    ex.printStackTrace();
-    }
-    scalableGraphics = ScalableGraphics.createInstance();
-
-    }
-
-    private static class CustomResourceHandler implements ExternalResourceHandler {
-    public void requestResource(ScalableImage inImage, String inURI) {
-    try {
-    Connector.openInputStream(inURI);
-    } catch ( IOException ioe ) {
-    ioe.printStackTrace();
-    }
-    } */
     }
 
     /**
@@ -225,7 +201,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         try {
             mapItemManager.init();
             setFileMapProviders();
-
 
             if (lastCenterPoint != null) {
                 if (map instanceof TileMapLayer) {
@@ -357,8 +332,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void paint(Graphics g2) {
-//drawTestTime = System.currentTimeMillis();
-//System.out.print("\ndrawStart");
         try {
             super.paint(g2);
 
@@ -371,21 +344,19 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 g2.setClip(0, R.getTopBar().height, g2.getClipWidth(), getAvailableHeight());
                 drawMap(g2);
             } else {
-                TOP_MARGIN = g2.getClipHeight(); //nastavi dle pokusi o vyhresleni v TopBarBackground
+                TOP_MARGIN = g2.getClipHeight();
             }
-
             drawLock = false;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.paint()", null);
         }
-//System.out.println((System.currentTimeMillis() - drawTestTime) + " drawFinished");
     }
 
     /** 
-     * Draws map background (tiles) and other screen components like zoom scale, location pointer etc.
+     * Draws map background (tiles) and other screen components like zoom scale,
+     * location pointer etc.
      */
     private void drawMap(Graphics g) {
-//System.out.println((System.currentTimeMillis() - drawTestTime) + " step 01");
         try {
             map.drawMap(g);
         } catch (Exception e) {
@@ -398,17 +369,14 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(PRIORITY_HIGH)");
         }
 
-//System.out.println((System.currentTimeMillis() - drawTestTime) + " step 02");
         if (R.getLocator().hasValidLocation()) {
             drawActualLocationPoint(g);
         }
 
-//System.out.println((System.currentTimeMillis() - drawTestTime) + " step 03");
         // draw selection circle
         g.setColor(ColorsFonts.BLACK);
         g.drawArc(getWidth() / 2 - 2, getHeight() / 2 - 2, 4, 4, 0, 360);
 
-//System.out.println((System.currentTimeMillis() - drawTestTime) + " step 04");
         try {
             mapItemManager.drawItems(g, MapItem.PRIORITY_MEDIUM);
         } catch (Exception e) {
@@ -429,7 +397,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "selectedMapItemWaypoints");
         }
 
-//System.out.println((System.currentTimeMillis() - drawTestTime) + " step 05");
         if (zoomProcess) {
             try {
                 int moveX = touchZoomInButtonCenter.x + touchZoomButtonRadius + 4;
@@ -461,7 +428,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
         }
 
-//System.out.println((System.currentTimeMillis() - drawTestTime) + " step 06");
         try {
             if (MainScreen.hasPointerEvents) {
                 g.setColor(ColorsFonts.LIGHT_ORANGE);
@@ -498,33 +464,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(PRIORITY_LOW)");
         }
-
-    /*
-    scalableGraphics.bindTarget( g );
-
-    // render at fixed position and size
-    actualPositionImage.setViewportWidth( 50 );
-    actualPositionImage.setViewportHeight( 75 );
-    scalableGraphics.render( 5, 50, actualPositionImage );
-
-    // again at different position and size
-    actualPositionImage.setViewportWidth( 100 );
-    actualPositionImage.setViewportHeight( 150 );
-    scalableGraphics.render( 80, 5, actualPositionImage );
-
-    // again at size that varies with the canvas size
-    actualPositionImage.setViewportWidth( getWidth()-20 );
-    actualPositionImage.setViewportHeight( getHeight()-20 );
-    scalableGraphics.render( 0, 0, actualPositionImage );
-
-    // release the graphics context
-    scalableGraphics.releaseTarget(); */
-
-//        g.drawImage(getImageLoading(40, 40), 50, 50, Graphics.TOP | Graphics.LEFT);
-//        g.drawImage(IconData.reScaleImage(getImageLoading(40, 40), 100, 30), 50, 100, Graphics.TOP | Graphics.LEFT);
-//        g.drawImage(IconData.reScaleImage(getImageLoading(40, 40), 30, 15), 50, 150, Graphics.TOP | Graphics.LEFT);
-//        g.drawImage(IconData.rotateImage(getImageLoading(40, 40), 90), 50, 200, Graphics.TOP | Graphics.LEFT);
-
     }
 
     public MapItemManager getMapItemManager() {
@@ -543,6 +482,13 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
     }
 
+    public void getBoundingBox() {
+        Location4D[] bbox = map.getActualBoundingBox();
+        System.out.println("Bounding box");
+        System.out.println(" " + bbox[0].toString());
+        System.out.println(" " + bbox[1].toString());
+    }
+    
     public void commandAction(Command cmd, Displayable disp) {
         try {
             if (cmd.equals(Commands.cmdBack)) {
@@ -562,7 +508,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 R.getURL().call("locify://mainScreen");
             } else if (cmd.equals(cmdChangeMapFile)) {
                 String mapPath = FileSystem.ROOT + FileSystem.MAP_FOLDER;
-                R.getCustomAlert().quickView(Locale.get("No_file_maps_warning", mapPath), Locale.get("Warning"), "locify://maps");
+                R.getCustomAlert().quickView(Locale.get("No_file_maps_warning", mapPath),
+                        Locale.get("Warning"), "locify://maps");
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);
             } else if (cmd.equals(cmdZoomOut)) {
@@ -996,7 +943,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                         }
                     } else {
                         if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
-                            if (Math.sqrt((lastSelectedX - x) * (lastSelectedX - x) + (lastSelectedY - y) * (lastSelectedY - y)) < (map.getPanSpeed() * 1.0)) {
+                            if (Math.sqrt((lastSelectedX - x) * (lastSelectedX - x) + (lastSelectedY - y) *
+                                    (lastSelectedY - y)) < (map.getPanSpeed() * 1.0)) {
                                 selectNextFromSelected(false);
                             } else {
                                 ((DescriptionMapItem) mapItemManager.getItemTemp(tempWaypointDescriptionItemName)).selectButtonAt(x, y);
@@ -1029,7 +977,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void showActualRoute(RouteVariables routeVariables) {
         if (routeVariables.getPointsCount() > 0) {
             if (!mapItemManager.existItemTemp(tempRunningRouteName)) {
-                mapItemManager.addItemTemp(tempRunningRouteName, new RouteMapItem(routeVariables.getRoutePoints()), MapItem.PRIORITY_MEDIUM);
+                mapItemManager.addItemTemp(tempRunningRouteName, new RouteMapItem(
+                        routeVariables.getRoutePoints()), MapItem.PRIORITY_MEDIUM);
             } else {
                 RouteMapItem item = (RouteMapItem) mapItemManager.getItemTemp(tempRunningRouteName);
                 item.setVectorLocation4D(routeVariables.getRoutePoints());
@@ -1069,7 +1018,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public static Image getImageConnectionNotFound(int tileSizeX, int tileSizeY) {
         try {
             if (imageConnectionNotFound == null ||
-                    (imageConnectionNotFound.getWidth() != tileSizeX && imageConnectionNotFound.getHeight() != tileSizeY)) {
+                    (imageConnectionNotFound.getWidth() != tileSizeX &&
+                    imageConnectionNotFound.getHeight() != tileSizeY)) {
                 imageConnectionNotFound = getImageVarious(tileSizeX, tileSizeY, Locale.get("Connection_failed"));
             }
             return imageConnectionNotFound;
@@ -1314,7 +1264,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
             ((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)).state = Waypoint.STATE_SELECTED;
             mapItemManager.addItemTemp(tempWaypointDescriptionItemName,
-                    new DescriptionMapItem((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)), MapItem.PRIORITY_LOW);
+                    new DescriptionMapItem((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)),
+                    MapItem.PRIORITY_LOW);
         }
     }
 

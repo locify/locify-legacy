@@ -99,4 +99,6 @@ public interface MapLayer {
     public Point2D.Int getLocationCoord(Location4D loc);
 
     public void destroyMap();
+
+    public Location4D[] getActualBoundingBox();
 }

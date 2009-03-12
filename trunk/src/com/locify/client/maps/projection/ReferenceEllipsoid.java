@@ -262,24 +262,43 @@ public class ReferenceEllipsoid {
         return ret;
     }
 
+
+//    Moldensky shift parameters (m)	    dX	dY   dZ
+//    from S-JTSK to WGS84			   589	76	 480
+//    from WGS84 to S-42 (CS)			   -26	121   78
+//    from S-42 to S-JTSK			      -563 -197	-558
     private static final int dxWGS84toS42 = -26;
     private static final int dyWGS84toS42 = 121;
     private static final int dzWGS84toS42 = 78;
 
     public static double[] convertWGS84toS42(double lat, double lon) {
+        return convertSomethingToSomething(lat, lon, dxWGS84toS42, dyWGS84toS42, dzWGS84toS42,
+                WGS84, KRASOVSKY);
+    }
+
+    public static double[] convertS42toWGS84(double lat, double lon) {
+        return convertSomethingToSomething(lat, lon, -1 * dxWGS84toS42, -1 * dyWGS84toS42, -1 * dzWGS84toS42,
+                KRASOVSKY, WGS84);
+    }
+
+    public static double[] convertSomethingToSomething(double lat, double lon,
+            int dx, int dy, int dz, ReferenceEllipsoid elFrom, ReferenceEllipsoid elTo) {
         double latR = lat / GpsUtils.RHO;
         double lonR = lon / GpsUtils.RHO;
-        // a = WGS84.a
 
-        double M = WGS84.meridionalRadiusOfCurvature(latR);
-        double N = WGS84.verticalRadiusOfCurvature(latR);
-        double dlat = (-1 * dxWGS84toS42 * Math.sin(latR) * Math.cos(lonR) -
-                dyWGS84toS42 * Math.sin(latR) * Math.sin(lonR) +
-                dzWGS84toS42 * Math.cos(latR) + (WGS84.a * (KRASOVSKY.f - WGS84.f) +
-                WGS84.f * (KRASOVSKY.a - WGS84.a)) * Math.sin(2 * latR)) /
-                (M * Math.sin(Math.PI / 180 / 3600));
-        double dLon = (-1 * dxWGS84toS42 * Math.sin(lonR) + dyWGS84toS42 * Math.cos(lonR)) /
-                (N * Math.cos(latR) * Math.sin(Math.PI / 180 / 3600));
+        // temp variables
+        double latSin = Math.sin(latR);
+        double lonSin = Math.sin(lonR);
+        double latCos = Math.cos(latR);
+        double lonCos = Math.cos(lonR);
+        double tempSin = Math.sin(Math.PI / 180 / 3600);
+
+        double M = elFrom.meridionalRadiusOfCurvature(latR);
+        double N = elFrom.verticalRadiusOfCurvature(latR);
+        double dlat = (-1 * dx * latSin * lonCos - dy * latSin * lonSin +
+                dz * latCos + (elFrom.a * (elTo.f - elFrom.f) +
+                elFrom.f * (elTo.a - elFrom.a)) * Math.sin(2 * latR)) / (M * tempSin);
+        double dLon = (-1 * dx * lonSin + dy * lonCos) / (N * latCos * tempSin);
 
         double[] res = new double[2];
         res[0] = lat + dlat / 3600;

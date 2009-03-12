@@ -141,35 +141,44 @@ public class FileMapViewPort {
                 (lon < Math.max(A.getLongitude(), B.getLongitude())));
     }
 
-    public Point2D.Int getPointAnyWhere(Location4D pos) {
+    public Location4D convertMapPixelToGeo(int x, int y) {
+        Location4D loc;
+        if (helmert) {
+            loc = helmertTransformInverse(x, y);
+        } else {
+            loc = new Location4D(
+                    center.getLongitude() + (x / xmax  - 0.5) * longitude_dimension,
+                    center.getLatitude() + (y / ymax  - 0.5) * latitude_dimension,
+                    0.0f);
+        }
+        return loc;
+    }
+
+    public Point2D.Int convertGeoToMapPixel(Location4D pos) {
         Point2D.Int point;
         if (helmert) {
             point = helmertTransform(pos.getLatitude(), pos.getLongitude());
-            System.out.println("\n  FileMapViewPort.getPointAnyWhere() - Helmert");
+//            System.out.println("\n  FileMapViewPort.getPointAnyWhere() - Helmert");
         } else {
             point = new Point2D.Int(
                     xmax / 2 + (int) ((pos.getLongitude() - center.getLongitude()) / longitude_dimension * xmax),
                     ymax / 2 - (int) ((pos.getLatitude() - center.getLatitude()) / latitude_dimension * ymax));
-            System.out.println("\n  FileMapViewPort.getPointAnyWhere()");
-            System.out.println("\n    center.lat: " + center.getLatitude() + " center.lon: " + center.getLongitude());
+//            System.out.println("\n  FileMapViewPort.getPointAnyWhere()");
+//            System.out.println("\n    center.lat: " + center.getLatitude() + " center.lon: " + center.getLongitude());
         }
-        System.out.println("\n    pos.lat: " + pos.getLatitude() + " pos.lon: " + pos.getLongitude());
-        System.out.println("\n    xmax: " + xmax + " ymax: " + ymax);
-        System.out.println("\n    latDim: " + latitude_dimension + " lonDim: " + longitude_dimension);
-        System.out.println("\n    res.x: " + point.x + " res.y: " + point.y);
+//        System.out.println("\n    pos.lat: " + pos.getLatitude() + " pos.lon: " + pos.getLongitude());
+//        System.out.println("\n    xmax: " + xmax + " ymax: " + ymax);
+//        System.out.println("\n    latDim: " + latitude_dimension + " lonDim: " + longitude_dimension);
+//        System.out.println("\n    res.x: " + point.x + " res.y: " + point.y);
         return point;
     }
 
     public String toString() {
-        return "[" + xmax + "," + ymax + "]" + "\tCent:" + center + "\tdim_lon:" + longitude_dimension + "\tdim_lat:" + latitude_dimension;
+        return "[" + xmax + "," + ymax + "]" + "\tCent:" + center + "\tdim_lon:" +
+                longitude_dimension + "\tdim_lat:" + latitude_dimension;
     }
 
     private void calculateDimension() {
-        System.out.println(A.toString());
-        System.out.println(B.toString());
-        System.out.println(C.toString());
-        System.out.println(D.toString());
-
         latitude_dimension = Math.abs(A.getLatitude() - C.getLatitude() + B.getLatitude() - D.getLatitude()) / 2;
         longitude_dimension = Math.abs(B.getLongitude() - A.getLongitude() + D.getLongitude() - C.getLongitude()) / 2;
     }

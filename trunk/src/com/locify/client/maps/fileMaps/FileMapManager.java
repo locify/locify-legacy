@@ -84,7 +84,7 @@ public abstract class FileMapManager {
         if (configFile != null && configFile.isDescriptorLoaded()) {
             mapProjection = getProjection(configFile.getProjectionType());
             if (cache == null || cache.getTileSizeX() != configFile.getTileSizeX() || cache.getTileSizeY() != configFile.getTileSizeY()) {
-                cache = new TileCache(100, configFile.getTileSizeX(), configFile.getTileSizeY());
+                cache = new TileCache(configFile.getTileSizeX(), configFile.getTileSizeY());
                 cache.start();
                 Logger.debug("new FileTileCache started!!!");
             }

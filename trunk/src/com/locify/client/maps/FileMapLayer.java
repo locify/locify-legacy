@@ -60,9 +60,9 @@ public class FileMapLayer implements MapLayer {
         return mapManager != null;
     }
 
-    private double[] convertLocToMap(Location4D loc) {
-        System.out.println("\nFileMapLayer.convertLocToMap()");
-        System.out.println("\n  defLat:" + loc.getLatitude() + " defLon:" + loc.getLongitude());
+    private double[] convertGeoToMap(Location4D loc) {
+//System.out.println("\nFileMapLayer.convertLocToMap()");
+//System.out.println("\n  defLat:" + loc.getLatitude() + " defLon:" + loc.getLongitude());
         double[] coo = new double[2];
         coo[0] = loc.getLatitude();
         coo[1] = loc.getLongitude();
@@ -73,19 +73,40 @@ public class FileMapLayer implements MapLayer {
             }
         } else if (mapManager.getMapProjection() instanceof S42Projection) {
             coo = ReferenceEllipsoid.convertWGS84toS42(loc.getLatitude(), loc.getLongitude());
-            System.out.println("\n  Lat:" + coo[0] + " lon:" + coo[1]);
+//System.out.println("\n  Lat:" + coo[0] + " lon:" + coo[1]);
             if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
                 coo = mapManager.getMapProjection().projectionToFlat(coo[0], coo[1]);
             }
         }
-        System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
+//System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
         return coo;
+    }
+
+    private Location4D convertMapToGeo(double x, double y) {
+//System.out.println("\nFileMapLayer.convertLocToMap()");
+//System.out.println("\n  defX:" + x + " defY:" + y);
+        double[] coo = new double[2];
+        coo[0] = x;
+        coo[1] = y;
+
+        if (mapManager.getMapProjection() instanceof UTMProjection) {
+            if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
+                coo = mapManager.getMapProjection().projectionToSphere(coo[0], coo[1]);
+            }
+        } else if (mapManager.getMapProjection() instanceof S42Projection) {
+            if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
+                coo = mapManager.getMapProjection().projectionToSphere(coo[1], coo[0]);
+            }
+            coo = ReferenceEllipsoid.convertS42toWGS84(coo[0], coo[1]);
+        }
+//System.out.println("\n  Lat:" + coo[0] + " Lon:" + coo[1]);
+        return new Location4D(coo[0], coo[1], 0.0f);
     }
 
     public boolean setLocationCenter(Location4D loc) {
         if (isReady()) {
             try {
-                double[] coo = convertLocToMap(loc);
+                double[] coo = convertGeoToMap(loc);
                 this.viewPort.setCenter(new Location4D(coo[0], coo[1], 0.0f));
                 return true;
             } catch (Exception e) {
@@ -140,8 +161,8 @@ public class FileMapLayer implements MapLayer {
 
     public Point2D.Int getLocationCoord(Location4D loc) {
         if (isReady()) {
-            double[] coo = convertLocToMap(loc);
-            return viewPort.getPointAnyWhere(new Location4D(coo[0], coo[1], 0.0f));
+            double[] coo = convertGeoToMap(loc);
+            return viewPort.convertGeoToMapPixel(new Location4D(coo[0], coo[1], 0.0f));
         } else {
             return null;
         }
@@ -197,7 +218,7 @@ public class FileMapLayer implements MapLayer {
                     (String) availeableProviders.elementAt(number));
             int mapType = FileMapManager.getMapType(mapPath);
             ConfigFileTile map = null;
-            System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType);
+//System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType);
             if (mapType == FileMapManager.MAP_TYPE_SINGLE_TILE) {
                 manager = new FileMapManagerSingle(mapPath);
             } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE) {
@@ -231,8 +252,8 @@ public class FileMapLayer implements MapLayer {
 
                 this.moveCoefPerPixelX = viewPort.longitude_dimension / parent.getWidth();
                 this.moveCoefPerPixelY = viewPort.latitude_dimension / parent.getHeight();
-                System.out.println("\n  Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
-                System.out.println("\n  lonDim: " + viewPort.longitude_dimension + " latDim: " + viewPort.latitude_dimension);
+//System.out.println("\n  Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
+//System.out.println("\n  lonDim: " + viewPort.longitude_dimension + " latDim: " + viewPort.latitude_dimension);
             } else {
                 return false;
             }
@@ -283,5 +304,13 @@ public class FileMapLayer implements MapLayer {
 
     public void destroyMap() {
         mapManager = null;
+    }
+
+    public Location4D[] getActualBoundingBox() {
+        Location4D[] loc = new Location4D[2];
+
+        loc[0] = convertMapToGeo(viewPort.A.getLatitude(), viewPort.A.getLongitude());
+        loc[1] = convertMapToGeo(viewPort.D.getLatitude(), viewPort.D.getLongitude());
+        return loc;
     }
 }
