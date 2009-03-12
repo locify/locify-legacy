@@ -148,8 +148,16 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
         mapTile = new TileMapLayer(this);
         mapFile = new FileMapLayer(this);
-        map = mapTile;
-        map.setProviderAndMode(R.getSettings().getDefaultOnlineMapProvider());
+
+        boolean setMapFile = false;
+        if (!R.getSettings().isDefaultMapProviderOnline()) {
+            map = mapFile;
+            setMapFile = map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
+        } else if (!setMapFile) {
+            map = mapTile;
+            map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
+        }
+
         map.setDefaultZoomLevel();
 
         cmdZoomIn = new Command(Locale.get("Zoom_in"), Command.SCREEN, 1);
@@ -218,7 +226,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         try {
             mapItemManager.init();
             setFileMapProviders();
-            setFileProvider(0);
+            //setFileProvider(0);
 
             if (lastCenterPoint != null) {
                 if (map instanceof TileMapLayer) {

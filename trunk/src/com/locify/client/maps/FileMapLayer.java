@@ -54,7 +54,7 @@ public class FileMapLayer implements MapLayer {
 
     public FileMapLayer(MapScreen parent) {   
         this.parent = parent;
-        this.availeableProviders = new Vector();
+        getProvidersAndModes();
     }
 
     public boolean isReady() {

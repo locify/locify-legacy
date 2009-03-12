@@ -63,7 +63,7 @@ public class ScaleMapItem extends MapItem {
         distancePerPixel = (angleDistance / 10) / (Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y));
         double distance = (mapScreen.getWidth() / 2) * distancePerPixel;
         String units;
-
+        
         if (distance > 0 && distance < 2000000) {
             if (distance >= 1000.0) {
                 distance = distance / 1000.0;
