@@ -747,3 +747,13 @@ menuItem {
     background-color:focusedBgColor;
 }
 
+.imgOnlineMap extends menuItem
+{
+    before:url(online.png);
+    focused-style:.imgOnlineMapFocused;
+}
+.imgOnlineMapFocused extends imgOnlineMap
+{
+    background-color:focusedBgColor;
+}
+

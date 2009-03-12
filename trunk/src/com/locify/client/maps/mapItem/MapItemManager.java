@@ -41,7 +41,7 @@ public class MapItemManager {
         //default settings
         MapItem scale = new ScaleMapItem();
         scale.priority = MapItem.PRIORITY_HIGH;
-        scale.setEnabled(R.getSettings().getShowScale());
+        scale.setEnabled(true);
         addItemFixed(Locale.get("Scale"), scale);
 
 //        Object[] names = itemsState.keys();

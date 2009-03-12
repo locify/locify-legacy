@@ -266,7 +266,7 @@ Navi-course=Course
 
 #Map screen
 Change_map_tile=Online maps
-Change_map_file=Special maps
+Change_map_file=Offline maps
 Zoom_in=Zoom in (3)
 Zoom_out=Zoom out (1)
 My_location=My Location (0)
@@ -275,6 +275,7 @@ File_map=Invex/Digitex
 File_map_tile_loading=Loading...
 File_map_tile_not_exist=Not exist
 File_map_cannot_initialize=Cannot initialize
+No_file_maps_warning=You have no offline maps. You need to copy map files into {0} directory. More about map formats at http://www.locify.com/help/maps.
 
 #J2ME Polish texts
 polish.command.mark=Mark
@@ -362,9 +363,6 @@ Route_cant_be_saved=Wrong name - Route can't be saved!
 
 #Satellite screen
 Satellites=Satellites
-Waiting_for_data_p1=Waiting for data
-Waiting_for_data_p2=or your GPS doesn't
-Waiting_for_data_p3=support Satellite overview.
 
 #Contacts screen
 Contacts_screen=Contacts

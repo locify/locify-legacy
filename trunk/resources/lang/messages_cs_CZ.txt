@@ -266,7 +266,7 @@ Navi-course=Směr
 
 #Map screen
 Change_map_tile=Online mapy
-Change_map_file=Spec. mapy
+Change_map_file=Offline mapy
 Zoom_in=Přiblížit (3)
 Zoom_out=Oddálit (1)
 My_location=Moje poloha (0)
@@ -275,6 +275,7 @@ File_map=Invex/Digitex
 File_map_tile_loading=Načítá se...
 File_map_tile_not_exist=Neexistuje
 File_map_cannot_initialize=Nelze inicializovat
+No_file_maps_warning=Nemáte žádné offline mapy. Je potřeba nakopírovat soubory map do složky {0}. Více o formátech map na http://www.locify.com/help/maps.
 
 #J2ME Polish texts
 polish.command.mark=Označit
@@ -362,9 +363,6 @@ Route_cant_be_saved=Špatné jméno - trasa nemůže být uložena!
 
 #Satellite screen
 Satellites=Satelity
-Waiting_for_data_p1=Čekám na korektní data
-Waiting_for_data_p2=nebo váš GPS přijímač
-Waiting_for_data_p3=nepodporuje satelitní náhled.
 
 #Contacts screen
 Contacts_screen=Kontakty

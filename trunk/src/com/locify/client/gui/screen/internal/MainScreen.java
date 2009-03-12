@@ -228,8 +228,10 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                 cgNavigation.append(Locale.get("To_place"), IconData.get("locify://icons/navigateTo.png"));
                 //#style mainScreenListItem
                 cgNavigation.append(Locale.get("Along_route"), IconData.get("locify://icons/navigateAlong.png"));
-                //#style mainScreenListItem
-                cgNavigation.append(Locale.get("Satellites"), IconData.get("locify://icons/gps.png"));
+                if (R.getLocator().hasSatellites()) {
+                    //#style mainScreenListItem
+                    cgNavigation.append(Locale.get("Satellites"), IconData.get("locify://icons/gps.png"));
+                }
                 break;
             case 5:
                 //#style mainScreenListItem
@@ -676,24 +678,10 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
             case 4:
                 this.setTitle(Locale.get("Navigation"));
                 createOtherMenu();
-                if (NavigationScreen.isRunning()) {
-                    //#style mainScreenListItem
-                    cgNavigation.set(0, Locale.get("Continue"), IconData.get("locify://icons/select.png"));
-                } else {
-                    //#style mainScreenListItem
-                    cgNavigation.set(0, Locale.get("Compass"), IconData.get("locify://icons/compass.png"));
-                }
                 break;
             case 5:
                 this.setTitle(Locale.get("Dock_more"));
                 createOtherMenu();
-                if (CookieData.getValue("session", R.getHttp().DEFAULT_URL).equals("")) { //ignore warning!
-                    //#style mainScreenListItem
-                    cgMore.set(1, Locale.get("Login"), IconData.get("locify://icons/login.png"));
-                } else {
-                    //#style mainScreenListItem
-                    cgMore.set(1, Locale.get("Logout"), IconData.get("locify://icons/logout.png"));
-                }
                 break;
         }
         lastSelectedIndex = 0;

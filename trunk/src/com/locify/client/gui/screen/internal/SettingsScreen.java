@@ -13,7 +13,9 @@
  */
 package com.locify.client.gui.screen.internal;
 
+import com.locify.client.data.IconData;
 import com.locify.client.data.SettingsData;
+import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.TileMapLayer;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
@@ -48,19 +50,11 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
     private StringItem btnSaveOther;
     private StringItem btnSaveInterface;
     private StringItem btnSaveLocation;
-    private StringItem btnSaveMapOnline;
-    private StringItem btnSaveMapFile;
-    private StringItem btnSaveMapSettings;
+    private StringItem btnSaveMap;
     // maps variables
-    //private List lstMaps;
-    //private Form frmMaps;
-    private Form frmMapsOnline;
-    //private Form frmMapsFile;
-    //private Form frmMapsSettings;
+    private Form frmMaps;
     private ChoiceGroup cgMapProvider;
-    private ChoiceGroup cgFileMapProvider;
-    private ChoiceGroup cgMapItems;
-    
+
     public SettingsScreen() {
     }
 
@@ -135,194 +129,39 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         R.getMidlet().switchDisplayable(null, frmInterface);
     }
 
-//    public void viewMapSettings() {
-//        frmMaps = new Form(Locale.get("Maps"));
-//
-//        cgMapProvider = new ChoiceGroup(Locale.get("Default_map_provider"), Choice.EXCLUSIVE);
-//        Vector providers = (new TileMapLayer(null)).getProvidersAndModes();
-//        for (int i = 0; i < providers.size(); i++) {
-//            cgMapProvider.append((String)providers.elementAt(i), null);
-//        }
-//        cgMapProvider.setSelectedIndex(R.getSettings().getDefaultOnlineMapProvider(), true);
-//        frmMaps.append(cgMapProvider);
-//
-//        cgMapItems = new ChoiceGroup(Locale.get("Map_items"), Choice.MULTIPLE);
-//        MapItemManager manager = R.getMapItemManager();
-//        for (int i = 0; i < manager.getItemCount(); i++) {
-//            String itemName = manager.getItemName(i);
-//            cgMapItems.append(itemName, null);
-//            cgMapItems.setSelectedIndex(i, R.getSettings().getShowScale());
-//        }
-//        if (manager.getItemCount() > 0)
-//            frmMaps.append(cgMapItems);
-//
-//        frmMaps.addCommand(Commands.cmdBack);
-//        //#style imgHome
-//        frmMaps.addCommand(Commands.cmdHome);
-//        frmMaps.setCommandListener(this);
-//
-//        btnSaveMap = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
-//        btnSaveMap.setDefaultCommand(Commands.cmdSave);
-//        btnSaveMap.setItemCommandListener(this);
-//        frmMaps.append(btnSaveMap);
-//
-//        R.getMidlet().switchDisplayable(null, frmMaps);
-//    }
-    
-    
-    /**************************************/
-    /*            MAP SETTINGS            */
-    /**************************************/
-
-//    public void viewMapSettings() {
-//        lstMaps = new List(Locale.get("Maps"), List.IMPLICIT);
-//        lstMaps.append(Locale.get("Change_map_tile"), null);
-//        lstMaps.append(Locale.get("Change_map_file"), null);
-//        lstMaps.append(Locale.get("Settings"), null);
-//        lstMaps.addCommand(Commands.cmdBack);
-//        lstMaps.addCommand(Commands.cmdHome);
-//        lstMaps.setCommandListener(this);
-//        R.getMidlet().switchDisplayable(null, lstMaps);
-//    }
-
     public void viewMapSettings() {
-        frmMapsOnline = new Form(Locale.get("Change_map_tile"));
+        frmMaps = new Form(Locale.get("Maps"));
 
         cgMapProvider = new ChoiceGroup(Locale.get("Default_map_provider"), Choice.EXCLUSIVE);
         Vector providers = (new TileMapLayer(null)).getProvidersAndModes();
+        int onlineProviders = providers.size();
         for (int i = 0; i < providers.size(); i++) {
-            cgMapProvider.append((String)providers.elementAt(i), null);
+            cgMapProvider.append((String) providers.elementAt(i), IconData.get("locify://icons/online.png"));
         }
-        cgMapProvider.setSelectedIndex(R.getSettings().getDefaultOnlineMapProvider(), true);
-        frmMapsOnline.append(cgMapProvider);
+        providers = (new FileMapLayer(null)).getProvidersAndModes();
+        for (int i = 0; i < providers.size(); i++) {
+            cgMapProvider.append((String) providers.elementAt(i), IconData.get("locify://icons/saved.png"));
+        }
+        if (R.getSettings().isDefaultMapProviderOnline()) {
+            cgMapProvider.setSelectedIndex(R.getSettings().getDefaultMapProvider(), true);
+        } else {
+            cgMapProvider.setSelectedIndex(onlineProviders + R.getSettings().getDefaultMapProvider(), true);
+        }
+        frmMaps.append(cgMapProvider);
 
-        frmMapsOnline.addCommand(Commands.cmdBack);
+        frmMaps.addCommand(Commands.cmdBack);
         //#style imgHome
-        frmMapsOnline.addCommand(Commands.cmdHome);
-        frmMapsOnline.setCommandListener(this);
+        frmMaps.addCommand(Commands.cmdHome);
+        frmMaps.setCommandListener(this);
 
-        btnSaveMapOnline = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
-        btnSaveMapOnline.setDefaultCommand(Commands.cmdSave);
-        btnSaveMapOnline.setItemCommandListener(this);
-        frmMapsOnline.append(btnSaveMapOnline);
+        btnSaveMap = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
+        btnSaveMap.setDefaultCommand(Commands.cmdSave);
+        btnSaveMap.setItemCommandListener(this);
+        frmMaps.append(btnSaveMap);
 
-        R.getMidlet().switchDisplayable(null, frmMapsOnline);
+        R.getMidlet().switchDisplayable(null, frmMaps);
     }
 
-//    public void viewMapSettingsFileMaps() {
-//        frmMapsFile = new Form(Locale.get("Change_map_file"));
-//
-//        cgFileMapProvider = new ChoiceGroup(Locale.get("Change"), Choice.MULTIPLE);
-//        for (int i = 0; i < R.getSettings().getFileMapProviders().getNumOfProviders(); i++) {
-//            String name = R.getSettings().getFileMapProviders().getProviderName(i);
-//            cgFileMapProvider.append(name, null);
-//            cgFileMapProvider.setSelectedIndex(i, R.getSettings().getFileMapEnable(name));
-//        }
-//
-//        if (cgFileMapProvider.size() > 0)
-//            frmMapsFile.append(cgFileMapProvider);
-//
-//        frmMapsFile.addCommand(Commands.cmdBack);
-//        //#style imgHome
-//        frmMapsFile.addCommand(Commands.cmdHome);
-//        frmMapsFile.setCommandListener(this);
-//
-//        btnSaveMapFile = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
-//        btnSaveMapFile.setDefaultCommand(Commands.cmdSave);
-//        btnSaveMapFile.setItemCommandListener(this);
-//        frmMapsFile.append(btnSaveMapFile);
-//
-//        R.getMidlet().switchDisplayable(null, frmMapsFile);
-//    }
-//
-//    public void viewMapSettingsSettings() {
-//        frmMapsSettings = new Form(Locale.get("Settings"));
-//
-//        cgMapItems = new ChoiceGroup(Locale.get("Map_items"), Choice.MULTIPLE);
-//        MapItemManager manager = R.getMapItemManager();
-//        for (int i = 0; i < manager.getItemCount(); i++) {
-//            String itemName = manager.getItemName(i);
-//            cgMapItems.append(itemName, null);
-//            if (i == 0)
-//                cgMapItems.setSelectedIndex(i, R.getSettings().getShowScale());
-//            else
-//                cgMapItems.setSelectedIndex(i, R.getMapItemManager().isEnabled(itemName));
-//        }
-//        if (manager.getItemCount() > 0)
-//            frmMapsSettings.append(cgMapItems);
-//
-//        frmMapsSettings.addCommand(Commands.cmdBack);
-//
-//        ChoiceTextField cft = new ChoiceTextField("po", "text", 20, ChoiceTextField.ANY, (new String[]{"aaa","bbb","ccc"}), false);
-//        ChoiceGroup cg = new ChoiceGroup("p",Choice.POPUP);
-//        cg.append("sss", null);
-//        cg.append("sss", null);
-//        cg.append("sss", null);
-//
-//        frmMaps.append(cg);
-//
-//        frmMaps.addCommand(Commands.cmdBack);
-//        //#style imgHome
-//        frmMapsSettings.addCommand(Commands.cmdHome);
-//        frmMapsSettings.setCommandListener(this);
-//
-//        btnSaveMapSettings = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
-//        btnSaveMapSettings.setDefaultCommand(Commands.cmdSave);
-//        btnSaveMapSettings.setItemCommandListener(this);
-//        frmMapsSettings.append(btnSaveMapSettings);
-//
-//        R.getMidlet().switchDisplayable(null, frmMapsSettings);
-//    }
-
-//    /**
-//     *
-//     * @param label
-//     * @param item index of item in FileMapList, or negative value if add item selected
-//
-//    private void viewMapSettingsEdit(String label, int item) {
-//        if (item >= R.getSettings().getFileMapProviders().getNumOfProviders()) {
-//            selectedItem = -1;
-//            return;
-//        }
-//
-//        selectedItem = item;
-//
-//        frmMapsFileEdit = new Form(label);
-//        cmdRemoveItem = new Command(Locale.get("Delete"), Command.ITEM, 5);
-//
-//        tfMapsFileEditName = new TextField(Locale.get("Name"), null, 100, TextField.ANY);
-//        tfMapsFileEditPath = new TextField(Locale.get("Path"), null, 250, TextField.ANY);
-//        cgDefaultFileMap = new ChoiceGroup("", Choice.MULTIPLE);
-//        //cgDefaultFileMap.append(" " + Locale.get("Default"), null);
-//
-//        if (selectedItem >= 0) {
-//            tfMapsFileEditName.setString(R.getSettings().getFileMapProviders().getProviderName(selectedItem));
-//            tfMapsFileEditPath.setString(R.getSettings().getFileMapProviders().getProviderPath(selectedItem));
-//            cgDefaultFileMap.setSelectedIndex(0, R.getSettings().getFileMapProviders().isDefaultProvider(item));
-//            frmMapsFileEdit.addCommand(cmdRemoveItem);
-//        }
-//
-//        frmMapsFileEdit.insert(0, tfMapsFileEditName);
-//        frmMapsFileEdit.insert(1, tfMapsFileEditPath);
-//        frmMapsFileEdit.insert(2, cgDefaultFileMap);
-//
-//        btnSaveProviderEdit = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
-//        btnSaveProviderEdit.setDefaultCommand(Commands.cmdSave);
-//        btnSaveProviderEdit.setItemCommandListener(this);
-//        frmMapsFileEdit.append(btnSaveProviderEdit);
-//
-//        frmMapsFileEdit.addCommand(Commands.cmdBack);
-//        frmMapsFileEdit.addCommand(Commands.cmdHome);
-//        frmMapsFileEdit.setCommandListener(this);
-//
-//        R.getMidlet().switchDisplayable(null, frmMapsFileEdit);
-//    }*/
-    
-    /****************************************/
-    /*           END MAP SETTINGS           */
-    /****************************************/
-    
-    
     public void viewOtherSettings() {
         frmOther = new Form(Locale.get("Other"));
 
@@ -366,26 +205,13 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
                 case 1:
                     R.getURL().call("locify://settings/interface");
                     break;
-               case 2:
+                case 2:
                     R.getURL().call("locify://settings/maps");
                     break;
                 case 3:
                     R.getURL().call("locify://settings/other");
                     break;
             }
-//        } else if (displayable == lstMaps && command == List.SELECT_COMMAND) {
-//            int selected = lstMaps.getSelectedIndex();
-//            switch (selected) {
-//                case 0:
-//                    viewMapSettingsOnlineMaps();
-//                    break;
-//                case 1:
-//                    viewMapSettingsFileMaps();
-//                    break;
-//                case 2:
-//                    viewMapSettingsSettings();
-//                    break;
-//            }
         }
     }
 
@@ -396,40 +222,13 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
             R.getSettings().saveInterfaceSettings(cgLanguage.getSelectedIndex());
         } else if (item.equals(btnSaveOther)) {
             R.getSettings().saveOtherSettings(cgAutoLogin.getSelectedIndex(), cgExternalClose.getSelectedIndex());
-        /*} else if (command.equals(cmdEditProvider)) {
-            for (int i = 0; i < btnProviders.length; i++)
-                if (btnProviders[i] == item) {
-                    viewMapSettingsEdit(Locale.get("Edit"), i);
-                    break;
-                }
-        } else if (item.equals(btnSaveProviderEdit)) {
-            if (tfMapsFileEditName.getString() != null && tfMapsFileEditPath.getString() != null) {
-                if (selectedItem >= 0) {
-                    R.getSettings().getFileMapProviders().modifyProvider(selectedItem,
-                            tfMapsFileEditName.getString(),
-                            tfMapsFileEditPath.getString(),
-                            cgDefaultFileMap.isSelected(0));
-                } else {
-                    R.getSettings().getFileMapProviders().addProvider(
-                        tfMapsFileEditName.getString(),
-                        tfMapsFileEditPath.getString(),
-                        cgDefaultFileMap.isSelected(0));
-                }
-                R.getSettings().saveMapFileSettings();
+        } else if (item.equals(btnSaveMap)) {
+            int onlineProviders = ((new TileMapLayer(null)).getProvidersAndModes()).size();
+            if (cgMapProvider.getSelectedIndex() < onlineProviders) {
+                R.getSettings().saveMapsSettings(cgMapProvider.getSelectedIndex(), false);
+            } else {
+                R.getSettings().saveMapsSettings(cgMapProvider.getSelectedIndex() - onlineProviders, true);
             }
-            R.getURL().call("locify://mapSettingsFile");*/
-        } else if (item.equals(btnSaveMapOnline)) {
-            R.getSettings().saveMapsOnline(cgMapProvider.getSelectedIndex());
-        } else if (item.equals(btnSaveMapFile)) {
-            R.getSettings().saveMapsFile(cgFileMapProvider);
-        } else if (item.equals(btnSaveMapSettings)) {
-            for (int i = 0; i < cgMapItems.size(); i++) {
-                R.getMapItemManager().setEnabled(
-                        R.getMapItemManager().getItemName(i),
-                        cgMapItems.isSelected(i));
-            }
-            // first always "Scale"
-            R.getSettings().saveMapsSettings(cgMapItems.isSelected(0));
         }
     }
 }

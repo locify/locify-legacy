@@ -11,7 +11,6 @@
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
-
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.locator.Location4D;
@@ -43,31 +42,26 @@ public class SatelliteScreen extends Form implements CommandListener, LocationEv
 
     private int TOP_MARGIN;
     private int BOTTOM_MARGIN;
-
     private int topPanelHeigh;
-
     private int space;
     private int lineWidth;
     private int prnHeight;
     private int snrWidth;
     private int snrHeight;
-
     private int spX;
     private int spY;
     private int radius;
-
     private Image satImageNoSignal;
     private Image satImageWeak;
     private Image satImageNormal;
     private Image satImageStrong;
-    
     // temp variables
     private int satInRow;
 
     public SatelliteScreen() {
-        super("");
+        super(Locale.get("Satellites"));
 
-        try {            
+        try {
             addCommand(Commands.cmdBack);
             //#style imgHome
             addCommand(Commands.cmdHome);
@@ -115,64 +109,57 @@ public class SatelliteScreen extends Form implements CommandListener, LocationEv
         super.paint(g);
         satInRow = 0;
         Hashtable sat = R.getLocator().getSatInView();
-        if (sat != null && sat.size() != 0 && R.getContext().getSource() == LocationContext.GPS) {
-            //g.drawString("Sat size: " + sat.size(), 10, topBorder + 10, Graphics.TOP | Graphics.LEFT);
+        g.setColor(ColorsFonts.WHITE);
+        g.fillArc(spX - radius, spY - radius, 2 * radius, 2 * radius, 0, 360);
+        g.setColor(ColorsFonts.BLACK);
+        g.drawArc(spX - radius, spY - radius, 2 * radius, 2 * radius, 0, 360);
 
-            g.setColor(ColorsFonts.WHITE);
-            g.fillArc(spX - radius, spY - radius, 2 * radius, 2 * radius, 0, 360);
-            g.setColor(ColorsFonts.BLACK);
-            g.drawArc(spX - radius, spY - radius, 2 * radius, 2 * radius, 0, 360);
+        // draw lines
+        int x, y, angle, dist;
+        g.setColor(ColorsFonts.GRAY);
+        for (int i = 0; i < 360; i = i + 45) {
+            x = (int) (spX + radius * Math.sin(i / GpsUtils.RHO));
+            y = (int) (spY + radius * Math.cos(i / GpsUtils.RHO));
 
-            // draw lines
-            int x, y, angle, dist;
-            g.setColor(ColorsFonts.GRAY);
-            for (int i = 0; i < 360; i = i + 45) {
-                x = (int) (spX + radius * Math.sin(i/GpsUtils.RHO));
-                y = (int) (spY + radius * Math.cos(i/GpsUtils.RHO));
+            g.drawLine(spX, spY, x, y);
+        }
 
-                g.drawLine(spX, spY, x, y);
-            }
+        Enumeration enu = sat.keys();
+        g.setColor(ColorsFonts.BLACK);
+        g.setFont(ColorsFonts.FONT_PLAIN_SMALL);
+        while (enu.hasMoreElements()) {
+            Integer prn = (Integer) enu.nextElement();
+            SatellitePosition satel = (SatellitePosition) sat.get(prn);
 
-            Enumeration enu = sat.keys();
-            g.setColor(ColorsFonts.BLACK);
-            g.setFont(ColorsFonts.FONT_PLAIN_SMALL);
-            while (enu.hasMoreElements()) {
-                Integer prn = (Integer) enu.nextElement();
-                SatellitePosition satel = (SatellitePosition) sat.get(prn);
+            g.drawString((prn.intValue() < 10 ? "0" : "") + prn, satInRow * lineWidth + space + 2, TOP_MARGIN + space,
+                    Graphics.TOP | Graphics.LEFT);
+            g.drawRoundRect(satInRow * lineWidth + space, TOP_MARGIN + prnHeight + space,
+                    snrWidth, snrHeight, 5, 5);
+            int height = (int) (satel.getSnr() / 100.0 * snrHeight);
+            g.fillRoundRect(satInRow * lineWidth + space, TOP_MARGIN + prnHeight + space + (snrHeight - height),
+                    snrWidth, height, 5, 5);
 
-                g.drawString((prn.intValue() < 10 ? "0" : "") + prn, satInRow * lineWidth + space + 2, TOP_MARGIN + space,
-                        Graphics.TOP | Graphics.LEFT);
-                g.drawRoundRect(satInRow * lineWidth + space, TOP_MARGIN + prnHeight + space,
-                        snrWidth, snrHeight, 5, 5);
-                int height = (int) (satel.getSnr() / 100.0 * snrHeight);
-                g.fillRoundRect(satInRow * lineWidth + space, TOP_MARGIN + prnHeight + space + (snrHeight - height),
-                        snrWidth, height, 5, 5);
+            angle = (int) satel.getAzimuth();
+            dist = (int) (radius - satel.getElevation() * radius / 90.0);
+            x = (int) (spX + dist * Math.sin(angle / GpsUtils.RHO));
+            y = (int) (spY + dist * Math.cos(angle / GpsUtils.RHO));
 
-                angle = (int) satel.getAzimuth();
-                dist = (int) (radius - satel.getElevation() * radius / 90.0);
-                x = (int) (spX + dist * Math.sin(angle/GpsUtils.RHO));
-                y = (int) (spY + dist * Math.cos(angle/GpsUtils.RHO));
-
-                g.drawString("" + prn, x - 4, y - 25, Graphics.TOP | Graphics.LEFT);
-                g.drawImage(getSatImage(satel.getSnr()), x, y, Graphics.VCENTER | Graphics.HCENTER);
-                satInRow++;
-            }
-        } else {
-            g.drawString(Locale.get("Waiting_for_data_p1"), 10, TOP_MARGIN + 10, Graphics.TOP | Graphics.LEFT);
-            g.drawString(Locale.get("Waiting_for_data_p2"), 10, TOP_MARGIN + 25, Graphics.TOP | Graphics.LEFT);
-            g.drawString(Locale.get("Waiting_for_data_p3"), 10, TOP_MARGIN + 40, Graphics.TOP | Graphics.LEFT);
+            g.drawString("" + prn, x - 4, y - 25, Graphics.TOP | Graphics.LEFT);
+            g.drawImage(getSatImage(satel.getSnr()), x, y, Graphics.VCENTER | Graphics.HCENTER);
+            satInRow++;
         }
     }
 
     private Image getSatImage(int snr) {
-        if (snr == 0)
+        if (snr == 0) {
             return satImageNoSignal;
-        else if (snr > 0 && snr < 33)
+        } else if (snr > 0 && snr < 33) {
             return satImageWeak;
-        else if (snr > 33 && snr < 66)
+        } else if (snr > 33 && snr < 66) {
             return satImageNormal;
-        else
+        } else {
             return satImageStrong;
+        }
     }
 
     public void commandAction(Command cmd, Displayable d) {

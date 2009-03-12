@@ -18,7 +18,6 @@ package com.locify.client.data;
 import com.locify.client.utils.R;
 
 import com.locify.client.locator.Location4D;
-import com.locify.client.maps.fileMaps.FileMapProviders;
 import com.locify.client.utils.StringTokenizer;
 import de.enough.polish.io.Serializable;
 import de.enough.polish.util.Locale;
@@ -29,10 +28,8 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Random;
-import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.rms.RecordStore;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
@@ -58,17 +55,8 @@ public class SettingsData {
     public final String[] locales = {"en", "cs_CZ", "sl_SI", "pl_PL"};
     public final String[] languageNames = {Locale.get("English"), Locale.get("Czech"), Locale.get("Slovenian"), Locale.get("Polish")};    //settings
     private Hashtable settings;
-    private FileMapProviders fileMapProviders;
-    private Vector enabledFileProviders;
 
     public SettingsData() {
-    }
-
-    public FileMapProviders getFileMapProviders() {
-        if (fileMapProviders == null) {
-            fileMapProviders = new FileMapProviders();
-        }
-        return fileMapProviders;
     }
 
     public String getName() {
@@ -118,33 +106,27 @@ public class SettingsData {
         return Integer.parseInt(value);
     }
 
-    public int getDefaultOnlineMapProvider() {
-        String value = (String) settings.get("defaultOnlineMapProvider");
-        return Integer.parseInt(value);
+    public int getDefaultMapProvider() {
+        String value = (String) settings.get("defaultMapProvider");
+        if (value.startsWith("f")) {
+            return Integer.parseInt(value.substring(1));
+        } else {
+            return Integer.parseInt(value);
+        }
     }
 
-    /**
-     * Check if file map provider is enabled
-     * @param name of provider
-     * @return true if enabled, otherwise false
-     */
-    public boolean getFileMapEnable(String name) {
-        enabledFileProviders = StringTokenizer.getVector((String) settings.get("fileMapProvidersOff"), ",");
-        for (int i = 0; i < enabledFileProviders.size(); i++)
-            if (((String) enabledFileProviders.elementAt(i)).equals(name))
-                return false;
-        return true;
-    }
-
-    public boolean getShowScale() {
-        String value = (String) settings.get("showScale");
-        return (Integer.parseInt(value) == 1);
+    public boolean isDefaultMapProviderOnline() {
+        if (((String) settings.get("defaultMapProvider")).startsWith("f")) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public int getTcpPort() {
         return DEFAULT_TCP_PORT;
     }
-    
+
     public void setLastDevice(String lastDevice) {
         settings.put("lastDevice", lastDevice);
         saveXML();
@@ -212,10 +194,9 @@ public class SettingsData {
             settings.put("coordsFormat", String.valueOf(FORMAT_WGS84_MIN));
             settings.put("autoLogin", String.valueOf(OFF));
             settings.put("prefferedGps", String.valueOf(AUTODETECT));
-            settings.put("defaultOnlineMapProvider", "0");
+            settings.put("defaultMapProvider", "0"); //online google maps
             settings.put("showScale", "1");
-            settings.put("fileMapProvidersOff", "");
-            
+
             if (!R.getFileSystem().exists(FileSystem.SETTINGS_FILE)) {
                 //imported settings from 0.8.1
                 if (R.getFileSystem().exists(FileSystem.SETTINGS_FOLDER + "mainSettings.lcf")) {
@@ -279,28 +260,12 @@ public class SettingsData {
         R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
     }
 
-    public void saveMapsOnline(int onlineMapProvider) {
-        settings.put("defaultOnlineMapProvider", String.valueOf(onlineMapProvider));
-        saveXML();
-        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
-    }
-
-    public void saveMapsFile(ChoiceGroup cgFileMapProvider) {
-        String value = "";
-        for (int i = 0; i < cgFileMapProvider.size(); i++) {
-            if (!cgFileMapProvider.isSelected(i)) {
-                value += cgFileMapProvider.getString(i) + ",";
-            }
+    public void saveMapsSettings(int mapProvider, boolean fileMaps) {
+        if (fileMaps) {
+            settings.put("defaultMapProvider", "f" + String.valueOf(mapProvider));
+        } else {
+            settings.put("defaultMapProvider", String.valueOf(mapProvider));
         }
-        if (value.length() > 0)
-            value = value.substring(0, value.length() - 1);
-
-        settings.put("fileMapProvidersOff", value);
-        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
-    }
-
-    public void saveMapsSettings(boolean showScale) {
-        settings.put("showScale", showScale ? "1" : "0");
         saveXML();
         R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
     }
@@ -408,7 +373,9 @@ public class SettingsData {
         }
     }
 }
+
 class SettingsObject implements Serializable {
+
     private String name;
     private String password;
     private String lastDevice;

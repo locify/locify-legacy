@@ -289,8 +289,7 @@ public class TileMapLayer implements MapLayer {
 
         tileProviders = new TileFactory[][]{
                     new TileFactory[]{
-                        new GoogleMapTileFactory(this),
-                        new GoogleMapAerialTileFactory(this),
+                        new GoogleMapTileFactory(this)
                     },
                     new TileFactory[]{
                         new YahooMapTileFactory(this),

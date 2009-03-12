@@ -39,7 +39,7 @@ public class FileMapLayer implements MapLayer {
     /** parent screen of this layer */
     private MapScreen parent;
     /** map scale */
-    private double mapScaleW, mapScaleH;
+    private double mapScaleW,  mapScaleH;
     private FileMapManager mapManager;
     private FileMapViewPort viewPort;
     /** coeficient defined as moving change per click */
@@ -49,10 +49,9 @@ public class FileMapLayer implements MapLayer {
     private int selectedProvider;
     /** pan value */
     private int panValue = 25;
-
     private Vector availeableProviders;
 
-    public FileMapLayer(MapScreen parent) {   
+    public FileMapLayer(MapScreen parent) {
         this.parent = parent;
         getProvidersAndModes();
     }
@@ -62,8 +61,8 @@ public class FileMapLayer implements MapLayer {
     }
 
     private double[] convertLocToMap(Location4D loc) {
-System.out.println("\nFileMapLayer.convertLocToMap()");
-System.out.println("\n  defLat:" + loc.getLatitude() + " defLon:" + loc.getLongitude());
+        System.out.println("\nFileMapLayer.convertLocToMap()");
+        System.out.println("\n  defLat:" + loc.getLatitude() + " defLon:" + loc.getLongitude());
         double[] coo = new double[2];
         coo[0] = loc.getLatitude();
         coo[1] = loc.getLongitude();
@@ -74,15 +73,15 @@ System.out.println("\n  defLat:" + loc.getLatitude() + " defLon:" + loc.getLongi
             }
         } else if (mapManager.getMapProjection() instanceof S42Projection) {
             coo = ReferenceEllipsoid.convertWGS84toS42(loc.getLatitude(), loc.getLongitude());
-System.out.println("\n  Lat:" + coo[0] + " lon:" + coo[1]);
+            System.out.println("\n  Lat:" + coo[0] + " lon:" + coo[1]);
             if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
                 coo = mapManager.getMapProjection().projectionToFlat(coo[0], coo[1]);
             }
         }
-System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
+        System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
         return coo;
     }
-    
+
     public boolean setLocationCenter(Location4D loc) {
         if (isReady()) {
             try {
@@ -126,7 +125,7 @@ System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
     public void panDown() {
         pan(0, panValue);
     }
-    
+
     public int getPanSpeed() {
         return panValue;
     }
@@ -138,7 +137,7 @@ System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
             return false;
         }
     }
-    
+
     public Point2D.Int getLocationCoord(Location4D loc) {
         if (isReady()) {
             double[] coo = convertLocToMap(loc);
@@ -153,17 +152,19 @@ System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
     /**********************/
     public void nextProvider() {
         //actually using as previous mode
-        if (selectedProvider > 0)
+        if (selectedProvider > 0) {
             setProviderAndMode(selectedProvider--);
-        else
+        } else {
             setProviderAndMode(availeableProviders.size() - 1);
+        }
     }
 
     public void nextMode() {
-        if (selectedProvider < availeableProviders.size() - 1)
+        if (selectedProvider < availeableProviders.size() - 1) {
             setProviderAndMode(selectedProvider++);
-        else
+        } else {
             setProviderAndMode(0);
+        }
     }
 
     public int getProviderCount() {
@@ -180,11 +181,10 @@ System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
 
     public Vector getProvidersAndModes() {
         availeableProviders = new Vector();
-        for (int i = 0; i < R.getSettings().getFileMapProviders().getNumOfProviders(); i++) {
-            if (R.getSettings().getFileMapEnable(R.getSettings().getFileMapProviders().getProviderName(i)))
-                availeableProviders.addElement(R.getSettings().getFileMapProviders().getProviderName(i));
+        for (int i = 0; i < R.getFileMapProviders().getNumOfProviders(); i++) {
+            availeableProviders.addElement(R.getFileMapProviders().getProviderName(i));
         }
-    
+
         return availeableProviders;
     }
 
@@ -192,12 +192,12 @@ System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
         if (number < availeableProviders.size()) {
             FileMapManager manager;
             System.gc();
-            
-            String mapPath = R.getSettings().getFileMapProviders().getProviderPath(
+
+            String mapPath = R.getFileMapProviders().getProviderPath(
                     (String) availeableProviders.elementAt(number));
             int mapType = FileMapManager.getMapType(mapPath);
             ConfigFileTile map = null;
-System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType);
+            System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType);
             if (mapType == FileMapManager.MAP_TYPE_SINGLE_TILE) {
                 manager = new FileMapManagerSingle(mapPath);
             } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE) {
@@ -209,14 +209,14 @@ System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType);
             } else {
                 return false;
             }
-        
+
             /* SET MAP SCALE */
             if (manager.isReady()) {
-                    map = manager.getConfigFileTile();
+                map = manager.getConfigFileTile();
 
                 if (map != null) {
                     mapScaleW = map.getLonDiffPerPixel() * parent.getWidth();
-                    mapScaleH = map.getLatDiffPerPixel() * parent.getHeight();            
+                    mapScaleH = map.getLatDiffPerPixel() * parent.getHeight();
                 } else {
                     mapScaleW = 1.0 / 60.0;
                     mapScaleH = mapScaleW * parent.getHeight() / parent.getWidth();
@@ -231,8 +231,8 @@ System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType);
 
                 this.moveCoefPerPixelX = viewPort.longitude_dimension / parent.getWidth();
                 this.moveCoefPerPixelY = viewPort.latitude_dimension / parent.getHeight();
-System.out.println("\n  Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
-System.out.println("\n  lonDim: " + viewPort.longitude_dimension  + " latDim: " + viewPort.latitude_dimension);
+                System.out.println("\n  Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
+                System.out.println("\n  lonDim: " + viewPort.longitude_dimension + " latDim: " + viewPort.latitude_dimension);
             } else {
                 return false;
             }
@@ -246,7 +246,7 @@ System.out.println("\n  lonDim: " + viewPort.longitude_dimension  + " latDim: " 
     public int getActualZoomLevel() {
         return 0;
     }
-        
+
     public String getMapLayerName() {
         return "Maps";
     }
@@ -278,7 +278,7 @@ System.out.println("\n  lonDim: " + viewPort.longitude_dimension  + " latDim: " 
     public void repaint() {
     }
 
-    public void calculateZoomFrom(Location4D[] positions) {   
+    public void calculateZoomFrom(Location4D[] positions) {
     }
 
     public void destroyMap() {

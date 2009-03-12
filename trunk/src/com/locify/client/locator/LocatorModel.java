@@ -152,6 +152,17 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
         return satScreenActive;
     }
 
+    public boolean hasSatellites()
+    {
+        if (R.getContext().getSource() != LocationContext.GPS)
+            return false;
+        if (locationProvider == null)
+            return false;
+        if (locationProvider.getSatInView().size() == 0)
+            return false;
+        return true;
+    }
+
 
     public int getProviderCount() {
         return providers.size();
