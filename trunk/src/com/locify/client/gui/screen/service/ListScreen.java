@@ -58,12 +58,12 @@ public class ListScreen implements CommandListener {
      * @param icon
      */
     public void addMenuItem(String title, String url, String icon) {
-        menuItems.addElement(new MenuItem(title.trim(), url, icon));
         if (icon == null) {
             list.append(title, null);
         } else {
             list.append(title, IconData.get(icon));
         }
+        menuItems.addElement(new MenuItem(title.trim(), url, icon));
     }
 
     /**

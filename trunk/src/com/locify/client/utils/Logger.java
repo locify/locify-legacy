@@ -39,12 +39,12 @@ public class Logger {
             System.err.print(message);
         }
 
-        //#if !release
-        if (fileName == null)
-           fileName = "debug_" + System.currentTimeMillis() + ".txt";
-        out = message + "\n" + out;
-        R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message + "\n");
-        //#endif
+       ///#if !release
+       // if (fileName == null)
+       //    fileName = "debug_" + System.currentTimeMillis() + ".txt";
+       // out = message + "\n" + out;
+       // R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message + "\n");
+       // //#endif
     }
 
     public static void log(String message) {
