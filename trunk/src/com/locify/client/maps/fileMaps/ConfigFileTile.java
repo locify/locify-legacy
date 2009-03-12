@@ -18,10 +18,12 @@ import com.locify.client.maps.ImageRequest;
 import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.locator.Location4D;
 import com.locify.client.maps.geometry.Point2D;
+import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StorageTar;
 import com.locify.client.utils.StringTokenizer;
+import com.locify.client.utils.math.Matrix;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -49,6 +51,8 @@ public class ConfigFileTile {
     private int zoom;
     /** type of projection defined in xml file */
     private String projectionType;
+    /** are coordinates flat or spheric */
+    private boolean sphericCoordinates;
     /** point that define raster */
     private Vector calibrationPoints;
     /** pixel size of whole image - X*/
@@ -65,12 +69,6 @@ public class ConfigFileTile {
 
     /** loaded image */
     private Image image;
-
-    /** max values from calibrationPoints */
-    private double min_longitude;
-    private double max_longitude;
-    private double min_latitude;
-    private double max_latitude;
 
     /** size of screen */
     private int screenWidth = 0,  screenHeight = 0;
@@ -119,20 +117,15 @@ public class ConfigFileTile {
         }
     }
 
-    public void setTilesVariables() {
-    }
-
-    private void clearMinMax() {
-        min_longitude = Double.MAX_VALUE;
-        max_longitude = Double.MIN_VALUE;
-        min_latitude = Double.MAX_VALUE;
-        max_latitude = Double.MIN_VALUE;
+    public boolean isSphericCoordinate() {
+        return sphericCoordinates;
     }
 
     private void parseLocifyDescriptor(String data) {
         ByteArrayInputStream stream = null;
         InputStreamReader reader = null;
         XmlPullParser parser;
+        
         try {
             int event;
             String tagName;
@@ -161,7 +154,7 @@ public class ConfigFileTile {
                     } else if (tagName.equals("zoom")) {
                         this.zoom = Integer.parseInt(parser.nextText());
                     } else if (tagName.equals("projection")) {
-                        this.projectionType = parser.nextText();
+                        setProjectionType(parser.nextText());
                     } else if (tagName.equals("position")) {
                         int x, y;
                         x = Integer.parseInt(parser.getAttributeValue(1));
@@ -169,12 +162,18 @@ public class ConfigFileTile {
 
                         double lat, lon;
                         parser.nextTag();
+                        boolean xy = parser.getName().equalsIgnoreCase("x") ||
+                                parser.getName().equalsIgnoreCase("y");
                         lat = Double.parseDouble(parser.nextText().replace(',', '.'));
                         parser.nextTag();
                         lon = Double.parseDouble(parser.nextText().replace(',', '.'));
 
+                        if (xy) {
+                            sphericCoordinates = false;
+                        } else {
+                            sphericCoordinates = true;
+                        }
                         addCalibrationPoint(x, y, lat, lon);
-                    //System.out.println("Added calib. point:" + calpoint);
                     } else if (tagName.equals("imageWidth")) {
                         this.xmax = Integer.parseInt(parser.nextText());
                     } else if (tagName.equals("imageHeight")) {
@@ -182,7 +181,7 @@ public class ConfigFileTile {
                     }
 
                 } else if (event == XmlPullParser.END_DOCUMENT) {
-                        break;
+                    break;
                 }
             }
             if (calibrationPoints.size() == 4) {
@@ -211,55 +210,48 @@ public class ConfigFileTile {
             int[] tileSize = FileMapManager.tar.getMapTileSize();
             this.tileSizeX = tileSize[0];
             this.tileSizeY = tileSize[1];
-
+//System.out.println("\n  tileSizeX: " + tileSizeX + " tileSizeY: " + tileSizeY);
             // parsing map file
             Vector token;
-            clearMinMax();
             CalibrationPoint[] cal = null;
             for (int i = 0; i < lines.size(); i++) {
                 token = StringTokenizer.getVector(String.valueOf(lines.elementAt(i)), ",");
                 // Map Projection,Mercator
-                if (((String) token.elementAt(0)).startsWith("Map Projection")) {
-                    this.projectionType = ((String) token.elementAt(1)).trim();
-                // Point01,xy,0,0,in,deg,50,9.50552549907,N,14,15.7800292969,E,grid,,,,N
-                // Point01,xy,0,0,in, deg, 51,37.0809929264226,N,11,15,E, grid,  , , ,N
-
-                // Point01,xy,  243,  438,in, deg,    ,        ,N,    ,        ,E, grid,   ,    3414424,    5563747,N
-                // Point02,xy,15736,  438,in, deg,    ,        ,N,    ,        ,E, grid,   ,    3538424,    5563747,N
-                // Point03,xy,15736,12059,in, deg,    ,        ,N,    ,        ,E, grid,   ,    3538424,    5470747,N
-                // Point04,xy,  243,12059,in, deg,    ,        ,N,    ,        ,E, grid,   ,    3414424,    5470747,N
+                if (i == 4) {
+                    setProjectionType((String) token.elementAt(0));
+                } else if (((String) token.elementAt(0)).startsWith("Map Projection")) {
+                    //this.projectionType = ((String) token.elementAt(1)).trim();
                 } else if (((String) token.elementAt(0)).startsWith("Point")) {
                     int x, y;
                     double lat, lon, latX, lonY;
-                    double[] coo;
+                    double[] coo = new double[2];
 
                     // test point
                     if (String.valueOf(token.elementAt(2)).trim().length() == 0)
                         continue;
                     
-                    x = parseInt(token.elementAt(2));
-                    y = parseInt(token.elementAt(3));
-                    lat = parseDouble(token.elementAt(6)) + parseDouble(token.elementAt(7)) / 60.0;
-                    lon = parseDouble(token.elementAt(9)) + parseDouble(token.elementAt(10)) / 60.0;
-
-                    lonY = parseDouble(token.elementAt(14));
-                    latX = parseDouble(token.elementAt(15));
+                    x = GpsUtils.parseInt(token.elementAt(2));
+                    y = GpsUtils.parseInt(token.elementAt(3));
+                    lat = GpsUtils.parseDouble(token.elementAt(6)) + GpsUtils.parseDouble(token.elementAt(7)) / 60.0;
+                    lon = GpsUtils.parseDouble(token.elementAt(9)) + GpsUtils.parseDouble(token.elementAt(10)) / 60.0;
+                    latX = GpsUtils.parseDouble(token.elementAt(15));
+                    lonY = GpsUtils.parseDouble(token.elementAt(14));
 
                     if (lat != 0 && lon != 0) {
-                        coo = FileMapManager.getProjection(projectionType).projectionToFlat(lat, lon);
+                        coo[0] = lat;
+                        coo[1] = lon;
+                        sphericCoordinates = true;
                     } else if (latX != 0 && lonY != 0) {
-                        coo = new double[2];
                         coo[0] = latX;
                         coo[1] = lonY;
+                        sphericCoordinates = false;
                     } else
                         continue;
 
-                    lat = coo[0];
-                    lon = coo[1];
-                    addCalibrationPoint(x, y, lat, lon);
+                    addCalibrationPoint(x, y, coo[0], coo[1]);
                 // MMPNUM,4
                 } else if (((String) token.elementAt(0)).startsWith("MMPNUM")) {
-                    int size = parseInt(token.elementAt(1));
+                    int size = GpsUtils.parseInt(token.elementAt(1));
                     if (size >= 4) {
                         cal = new CalibrationPoint[size];
                         for (int j = 0; j < cal.length; j++) {
@@ -269,34 +261,29 @@ public class ConfigFileTile {
                 // MMPXY,1,0,0
                 } else if (((String) token.elementAt(0)).startsWith("MMPXY")) {
                     if (cal.length > 3) {
-                        CalibrationPoint point = cal[parseInt(token.elementAt(1)) - 1];
-                        point.x = parseInt(token.elementAt(2));
-                        point.y = parseInt(token.elementAt(3));
+                        CalibrationPoint point = cal[GpsUtils.parseInt(token.elementAt(1)) - 1];
+                        point.x = GpsUtils.parseInt(token.elementAt(2));
+                        point.y = GpsUtils.parseInt(token.elementAt(3));
                     }
                 // MMPLL,1,  11.751193,  50.953687
                 } else if (((String) token.elementAt(0)).startsWith("MMPLL")) {
                     if (cal.length > 3) {
-                        CalibrationPoint point = cal[parseInt(token.elementAt(1)) - 1];
-                        double lat = parseDouble(token.elementAt(3));
-                        double lon = parseDouble(token.elementAt(2));
-
-                        double[] coo;
-                        coo = FileMapManager.getProjection(projectionType).projectionToFlat(lat, lon);
-                        lat = coo[0];
-                        lon = coo[1];
+                        CalibrationPoint point = cal[GpsUtils.parseInt(token.elementAt(1)) - 1];
+                        double lat = GpsUtils.parseDouble(token.elementAt(3));
+                        double lon = GpsUtils.parseDouble(token.elementAt(2));
                         point.position = new Location4D(lat, lon, 0.0f);
                     }
                 // IWH,Map Image Width/Height,2000,2000
                 } else if (((String) token.elementAt(0)).startsWith("IWH")) {
-                    this.xmax = parseInt(token.elementAt(2));
-                    this.ymax = parseInt(token.elementAt(3));
+                    this.xmax = GpsUtils.parseInt(token.elementAt(2));
+                    this.ymax = GpsUtils.parseInt(token.elementAt(3));
                 }
             }
 
-            if (cal != null && cal.length > 3) { // && calibrationPoints.size() < 4) {
-//            if (cal != null && cal.length > 3 && calibrationPoints.size() < 4) {
+//            if (cal != null && cal.length > 3) { // && calibrationPoints.size() < 4) {
+            if (cal != null && cal.length > 3 && calibrationPoints.size() < 2) {
                 calibrationPoints.removeAllElements();
-                clearMinMax();
+                sphericCoordinates = true;
                 for (int i = 0; i < cal.length; i++) {
                     addCalibrationPoint(cal[i].x, cal[i].y,
                             cal[i].position.getLatitude(), cal[i].position.getLongitude());
@@ -304,13 +291,13 @@ public class ConfigFileTile {
                 cal = null;
             }
 
-            if (calibrationPoints.size() == 4 &&
+            if (calibrationPoints.size() >= 2 &&
                     xmax != 0 && ymax != 0 &&
                     tileSizeX != 0 && tileSizeY != 0 &&
                     tileSizeX != Integer.MAX_VALUE && tileSizeY != Integer.MAX_VALUE) {
                 descriptor_loaded = true;
             } else {
-                Logger.error("Map initializing problem: calibrationPoints.size() - " + calibrationPoints.size() +
+                Logger.error("  Map initializing problem: calibrationPoints.size() - " + calibrationPoints.size() +
                         "  xmax - " + xmax +
                         "  ymax - " + ymax +
                         "  tileSizeX - " + tileSizeX +
@@ -319,49 +306,21 @@ public class ConfigFileTile {
         }
     }
 
-    private double parseDouble(Object obj) {
-        try {
-            return Double.parseDouble(String.valueOf(obj).trim());
-        } catch (Exception ex) {
-            System.err.println("'" + String.valueOf(obj) + "'  ex: " + ex.toString());
-        }
-        return 0.0;
-    }
-
-    private int parseInt(Object obj) {
-        try {
-            return Integer.parseInt(String.valueOf(obj).trim());
-        } catch (Exception ex) {
-            System.err.println("'" + String.valueOf(obj) + "'  ex: " + ex.toString());
-        }
-        return 0;
+    private void setProjectionType(String projection) {
+        if (projection.startsWith("WGS 84") || projection.startsWith("UTM")) {
+            this.projectionType = "UTM";
+        } else if (projection.startsWith("Pulkovo 1942")) {
+            this.projectionType = "S42";
+        } 
     }
 
     private void addCalibrationPoint(int x, int y, double lat, double lon) {
-//Logger.log("ConfigFileTile.addCalibrationPoint x: " + x + " y: " + y + " lat: " + lat + " lon: " + lon);
+//Logger.log("  ConfigFileTile.addCalibrationPoint x: " + x + " y: " + y + " lat: " + lat + " lon: " + lon);
         CalibrationPoint calpoint = new CalibrationPoint();
 
         calpoint.x = x;
         calpoint.y = y;
-
         calpoint.position = new Location4D(lat, lon, 0);
-
-        if (calpoint.position.getLatitude() < min_latitude) {
-            min_latitude = calpoint.position.getLatitude();
-        }
-
-        if (calpoint.position.getLatitude() > max_latitude) {
-            max_latitude = calpoint.position.getLatitude();
-        }
-
-        if (calpoint.position.getLongitude() < min_longitude) {
-            min_longitude = calpoint.position.getLongitude();
-        }
-
-        if (calpoint.position.getLongitude() > max_longitude) {
-            max_longitude = calpoint.position.getLongitude();
-        }
-
         this.calibrationPoints.addElement(calpoint);
     }
 
@@ -374,71 +333,144 @@ public class ConfigFileTile {
     }
 
     private void calculateViewPort() {
-        // fix calibration points
-        CalibrationPoint A = (CalibrationPoint) calibrationPoints.elementAt(0);
-        CalibrationPoint B = (CalibrationPoint) calibrationPoints.elementAt(1);
-        CalibrationPoint C = (CalibrationPoint) calibrationPoints.elementAt(2);
-        CalibrationPoint D = (CalibrationPoint) calibrationPoints.elementAt(3);
+        try {
+            // compute Helmert transformation
+            Matrix A = new Matrix(calibrationPoints.size() * 2, 4);
+            Matrix X = new Matrix(calibrationPoints.size() * 2, 1);
 
-//System.out.print("\nA: " + A.toString());
-//System.out.print("\nB: " + B.toString());
-//System.out.print("\nC: " + C.toString());
-//System.out.print("\nD: " + D.toString());
+            CalibrationPoint calP;
+            for (int i = 0; i < calibrationPoints.size(); i++) {
+                calP = (CalibrationPoint) calibrationPoints.elementAt(i);
+                A.set(i, 0, 1);
+                A.set(i, 1, 0);
+                A.set(i, 2, calP.position.getLatitude());
+                A.set(i, 3, -1 * calP.position.getLongitude());
 
-        if (A.position.getLongitude() > B.position.getLongitude()) {
-            CalibrationPoint temp = A;
-            A = B;
-            B = temp;
+                X.set(i, 0, calP.x);
+                X.set(i + calibrationPoints.size(), 0, calP.y);
+            }
+            for (int i = calibrationPoints.size(); i < (2 * calibrationPoints.size()); i++) {
+                calP = (CalibrationPoint) calibrationPoints.elementAt(i - calibrationPoints.size());
+                A.set(i, 0, 0);
+                A.set(i, 1, 1);
+                A.set(i, 2, calP.position.getLongitude());
+                A.set(i, 3, calP.position.getLatitude());
+            }
+
+            Matrix H = (A.transpose().times(A)).inverse().times(A.transpose().times(X));
+            mapViewPort = new FileMapViewPort(H.get(0, 0), H.get(1, 0), H.get(2, 0), H.get(3, 0), xmax, ymax);
+
+            // compute inverse helmert transformation
+            A.fill(0);
+            X.fill(0);
+            
+            for (int i = 0; i < calibrationPoints.size(); i++) {
+                calP = (CalibrationPoint) calibrationPoints.elementAt(i);
+                A.set(i, 0, 1);
+                A.set(i, 1, 0);
+                A.set(i, 2, calP.x);
+                A.set(i, 3, -1 * calP.y);
+
+                X.set(i, 0, calP.position.getLatitude());
+                X.set(i + calibrationPoints.size(), 0, calP.position.getLongitude());
+            }
+            for (int i = calibrationPoints.size(); i < (2 * calibrationPoints.size()); i++) {
+                calP = (CalibrationPoint) calibrationPoints.elementAt(i - calibrationPoints.size());
+                A.set(i, 0, 0);
+                A.set(i, 1, 1);
+                A.set(i, 2, calP.y);
+                A.set(i, 3, calP.x);
+            }
+
+            H = (A.transpose().times(A)).inverse().times(A.transpose().times(X));
+            mapViewPort.setInverseHelmert(H.get(0, 0), H.get(1, 0), H.get(2, 0), H.get(3, 0));
+
+    //        // fix calibration points
+    //        CalibrationPoint A = (CalibrationPoint) calibrationPoints.elementAt(0);
+    //        CalibrationPoint B = (CalibrationPoint) calibrationPoints.elementAt(1);
+    //        CalibrationPoint C = (CalibrationPoint) calibrationPoints.elementAt(2);
+    //        CalibrationPoint D = (CalibrationPoint) calibrationPoints.elementAt(3);
+    //
+    ////System.out.print("\nA: " + A.toString());
+    ////System.out.print("\nB: " + B.toString());
+    ////System.out.print("\nC: " + C.toString());
+    ////System.out.print("\nD: " + D.toString());
+    //
+    //        if (A.position.getLongitude() > B.position.getLongitude()) {
+    //            CalibrationPoint temp = A;
+    //            A = B;
+    //            B = temp;
+    //        }
+    //        if (C.position.getLongitude() > D.position.getLongitude()) {
+    //            CalibrationPoint temp = C;
+    //            C = D;
+    //            D = temp;
+    //        }
+    //
+    //        double lonPerPix = (((B.position.getLongitude() - A.position.getLongitude()) / (B.x - A.x)) +
+    //                ((D.position.getLongitude() - C.position.getLongitude()) / (D.x - C.x))) / 2;
+    //        double latPerPix = (((A.position.getLatitude() - C.position.getLatitude()) / (C.y - A.y)) +
+    //                ((B.position.getLatitude() - D.position.getLatitude()) / (D.y - B.y))) / 2;
+    //
+    //        // fix A (top left)
+    //        A.position = new Location4D(
+    //                A.position.getLatitude() + A.y * latPerPix,
+    //                A.position.getLongitude() - A.x * lonPerPix,
+    //                0.0f);
+    //        A.x = 0;
+    //        A.y = 0;
+    //
+    //        // fix B (top right)
+    //        B.position = new Location4D(
+    //                B.position.getLatitude() + B.y * latPerPix,
+    //                B.position.getLongitude() + (xmax - B.x) * lonPerPix,
+    //                0.0f);
+    //        B.x = xmax;
+    //        B.y = 0;
+    //
+    //        // fix C (bottom left)
+    //        C.position = new Location4D(
+    //                C.position.getLatitude() - (ymax - C.y) * latPerPix,
+    //                C.position.getLongitude() - C.x * lonPerPix,
+    //                0.0f);
+    //        C.x = 0;
+    //        C.y = ymax;
+    //
+    //        // fix D (bottom right)
+    //        D.position = new Location4D(
+    //                D.position.getLatitude() - (ymax - D.y) * latPerPix,
+    //                D.position.getLongitude() + (xmax - D.x) * lonPerPix,
+    //                0.0f);
+    //        D.x = xmax;
+    //        D.y = ymax;
+    //
+    //        for (int i = 0; i < 4; i++) {
+    //            CalibrationPoint calpoint = (CalibrationPoint) calibrationPoints.elementAt(i);
+    //            if (calpoint.position.getLatitude() < min_latitude) {
+    //                min_latitude = calpoint.position.getLatitude();
+    //            }
+    //
+    //            if (calpoint.position.getLatitude() > max_latitude) {
+    //                max_latitude = calpoint.position.getLatitude();
+    //            }
+    //
+    //            if (calpoint.position.getLongitude() < min_longitude) {
+    //                min_longitude = calpoint.position.getLongitude();
+    //            }
+    //
+    //            if (calpoint.position.getLongitude() > max_longitude) {
+    //                max_longitude = calpoint.position.getLongitude();
+    //            }
+    //        }
+    ////System.out.print("\nA: " + A.toString());
+    ////System.out.print("\nB: " + B.toString());
+    ////System.out.print("\nC: " + C.toString());
+    ////System.out.print("\nD: " + D.toString());
+    //
+    //        mapViewPort = new FileMapViewPort(A.position, B.position, C.position, D.position, xmax, ymax);
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "ConfigFileTile.calculateViewPort()", "");
         }
-        if (C.position.getLongitude() > D.position.getLongitude()) {
-            CalibrationPoint temp = C;
-            C = D;
-            D = temp;
-        }
-
-        double lonPerPix = (((B.position.getLongitude() - A.position.getLongitude()) / (B.x - A.x)) +
-                ((D.position.getLongitude() - C.position.getLongitude()) / (D.x - C.x))) / 2;
-        double latPerPix = (((A.position.getLatitude() - C.position.getLatitude()) / (C.y - A.y)) +
-                ((B.position.getLatitude() - D.position.getLatitude()) / (D.y - B.y))) / 2;
-
-        // fix A (top left)
-        A.position = new Location4D(
-                A.position.getLatitude() + A.y * latPerPix,
-                A.position.getLongitude() - A.x * lonPerPix,
-                0.0f);
-        A.x = 0;
-        A.y = 0;
-
-        // fix B (top right)
-        B.position = new Location4D(
-                B.position.getLatitude() + B.y * latPerPix,
-                B.position.getLongitude() + (xmax - B.x) * lonPerPix,
-                0.0f);
-        B.x = xmax;
-        B.y = 0;
-
-        // fix C (bottom left)
-        C.position = new Location4D(
-                C.position.getLatitude() - (ymax - C.y) * latPerPix,
-                C.position.getLongitude() - C.x * lonPerPix,
-                0.0f);
-        C.x = 0;
-        C.y = ymax;
-
-        // fix D (bottom right)
-        D.position = new Location4D(
-                D.position.getLatitude() - (ymax - D.y) * latPerPix,
-                D.position.getLongitude() + (xmax - D.x) * lonPerPix,
-                0.0f);
-        D.x = xmax;
-        D.y = ymax;
-
-//System.out.print("\nA: " + A.toString());
-//System.out.print("\nB: " + B.toString());
-//System.out.print("\nC: " + C.toString());
-//System.out.print("\nD: " + D.toString());
-
-        mapViewPort = new FileMapViewPort(A.position, B.position, C.position, D.position, xmax, ymax);
     }
 
     public FileMapViewPort getAvailableViewPort() {
@@ -467,10 +499,11 @@ public class ConfigFileTile {
 
     public synchronized boolean drawImageMulti(Graphics gr, FileMapViewPort targetPort, StorageTar tar) {
         try {
+System.out.println("ConfigFileTile.drawImageMulti()");
             Point2D mapPoint = mapViewPort.getPointAnyWhere(targetPort.center);
-//System.out.println("mapViewPort " + mapViewPort.toString());
-//System.out.println("targetPort " + targetPort.toString());
-//System.out.println("Center: " + targetPort.center.toString());
+System.out.println("\n  mapViewPort " + mapViewPort.toString());
+System.out.println("\n  targetPort " + targetPort.toString());
+System.out.println("\n  center: " + targetPort.center.toString());
             int x1, x2, y1, y2;
 
             if (screenWidth == 0) {
@@ -481,23 +514,24 @@ public class ConfigFileTile {
                 numOfTotalTilesX = (int) Math.floor(xmax / tileSizeX);
                 numOfTotalTilesY = (int) Math.floor(ymax / tileSizeY);
             }
+            // top left map point (in map pixel coordinates)
             mapPoint = new Point2D.Double(mapPoint.getX() - screenWidth / 2,
                     mapPoint.getY() - screenHeight / 2);
             tileX = (int) Math.floor(mapPoint.getX() / tileSizeX);
             tileY = (int) Math.floor(mapPoint.getY() / tileSizeY);
             moveX = (int) ((tileX * tileSizeX) - mapPoint.getX());
             moveY = (int) ((tileY * tileSizeY) - mapPoint.getY());
-//System.out.println("drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
-//System.out.println("drawImageMulti - mapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
-//System.out.println("drawImageMulti - tileX: " + tileX + " tileY: " + tileY);
+System.out.println("\n  drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
+System.out.println("\n  drawImageMulti - mapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
+System.out.println("\n  drawImageMulti - tileX: " + tileX + " tileY: " + tileY);
             Vector imageNames = new Vector();
-            String imageName;
+            String imageName = null;
             for (int i = 0; i < numOfTilesXperScreen; i++) {
                 for (int j = 0; j < numOfTilesYperScreen; j++) {
                     if (imageHaveToExist(tileX + i, tileY + j)) {
                         imageName =  createImageName(i, j);
                         if (tar != null) {
-//System.out.println("Add: " + (manager.mapPathPrefix + manager.mapPath + imageName) + "  " + tar.getTarFile() + "  " + tar.getFilePosition(imageName));
+System.out.println("Add: " + (manager.mapPathPrefix + manager.mapPath + imageName) + "  " + tar.getTarFile() + "  " + tar.getFilePosition(imageName));
                             imageNames.addElement(new ImageRequest(
                                     manager.mapPathPrefix + manager.mapPath + imageName,
                                     tar.getTarFile(), tar.getFilePosition(imageName)));
@@ -521,19 +555,11 @@ public class ConfigFileTile {
                                 manager.mapPathPrefix + manager.mapPath + imageName);
                     }
                     if (image != null) {
-//                        x1 = Math.max(0, moveX + i * tileSizeX);
-//                        y1 = Math.max(0, moveY + j * tileSizeY);
-//                        x2 = Math.min(screenWidth, moveX + (i + 1) * tileSizeX);
-//                        y2 = Math.min(screenHeight, moveY + (j + 1) * tileSizeY);
-//                        if (x1 < screenWidth && y1 < screenHeight) {
-//                            drawImageMulti(image, x1, x2, y1, y2, gr);
-//                        }
                         x1 = moveX + i * tileSizeX;
                         y1 = moveY + j * tileSizeY;
-                        //x2 = moveX + (i + 1) * tileSizeX;
-                        //y2 = moveY + (j + 1) * tileSizeY;
                         if (x1 < screenWidth && y1 < screenHeight) {
-                            System.out.println("DrawImage: x1 " + x1 + " y: " + y1);
+//                            System.out.println("\n  draw: x1 " + x1 + " y: " + y1 +
+//                                    " img: " + ( manager.mapPathPrefix + manager.mapPath + imageName));
                             gr.drawImage(image, x1, y1, Graphics.LEFT | Graphics.TOP);
                         }
                     }
@@ -619,70 +645,17 @@ public class ConfigFileTile {
             return false;
         }
     }
-   
-//    private boolean drawImageMulti(Image image, int x1, int x2, int y1, int y2, Graphics gr) {
-//        int width = x2 - x1;
-//        int height = y2 - y1;
-//        int to_x = 0, to_y = 0;
-//
-//        try {
-//            if (width < tileSizeX) {
-//                if (x1 == 0) {
-//                    to_x = tileSizeX - width;
-//                }
-//            }
-//
-//            if (height < tileSizeY) {
-//                if (y1 == 0) {
-//                    to_y = tileSizeY - height;
-//                }
-//            }
-//
-//            gr.drawRegion(
-//                    image,
-//                    to_x, to_y, width, height,
-//                    Sprite.TRANS_NONE,
-//                    //target
-//                    x1, y1, Graphics.LEFT | Graphics.TOP);
-//
-//System.out.println("FileTile.drawImage(): " +
-//                    " image null: " + (image == null) +
-//                    " orig img.width: " + image.getWidth() +
-//                    " orig img.height: " + image.getHeight() +
-//                    "  x1: " + x1 +
-//                    "  y1: " + y1 +
-//                    "  x2: " + x2 +
-//                    "  y2: " + y2 +
-//                    "  to_X: " + to_x +
-//                    "  to_y: " + to_y);
-//            return true;
-//        } catch (Exception e) {
-//            R.getErrorScreen().view(e, "FileTile.drawImage()", " draw:" +
-//                    " image null: " + (image == null) +
-//                    " orig img.width: " + image.getWidth() +
-//                    " orig img.height: " + image.getHeight() +
-//                    "  x1: " + x1 +
-//                    "  y1: " + y1 +
-//                    "  x2: " + x2 +
-//                    "  y2: " + y2 +
-//                    "  to_X: " + to_x +
-//                    "  to_y: " + to_y);
-//            return false;
-//        }
-//    }
 
     public String toString() {
         return "image: " + manager.mapPath + " center: " + mapViewPort.center.toString();
     }
 
-    public double getLonDiffPerPixel() {
-System.out.println("LonDiff: " + max_longitude + "  " + min_longitude + "  " + xmax);
-        return Math.abs(max_longitude - min_longitude) / xmax;
-    }
-
     public double getLatDiffPerPixel() {
-System.out.println("LatDiff: " + max_latitude + "  " + min_latitude + "  " + ymax);
-        return Math.abs(max_latitude - min_latitude) / ymax;
+        return mapViewPort.latitude_dimension / ymax;
+    }
+    
+    public double getLonDiffPerPixel() {
+        return mapViewPort.longitude_dimension / xmax;
     }
 
     public int getTileSizeX() {
@@ -760,17 +733,6 @@ System.out.println("LatDiff: " + max_latitude + "  " + min_latitude + "  " + yma
 //        } else {
 //            return null;
 //        }
-//    }
-/**
- * Transform coordinates on sphere (in m) to image pixels
- * @param x
- * @param y
- * @return
- */
-//    private Point2D transformToImage(double x, double y) {
-//        int pixX = (int) ((x - min_longitudepositionTopLeft.getX()) / measureWidth);
-//        int pixY = (int) ((positionTopLeft.getY() - y) / measureHeight);
-//        return new Point2D.Double(x, y);
 //    }
 /**
  * Gets the thumbnail that fit with given screen width, height and padding ..

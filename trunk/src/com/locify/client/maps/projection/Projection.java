@@ -35,25 +35,20 @@ public abstract class Projection {
 
     public abstract double[] projectionToFlat(double lat, double lon);
 
-    public abstract double[] projectionToSphere(double x, double y);
-
-
-    /*Reference ellipsoids derived from Peter H. Dana's website-
-    http://www.utexas.edu/depts/grg/gcraft/notes/datum/elist.html
-    Department of Geography, University of Texas at Austin
-    Internet: pdana@mail.utexas.edu
-    3/22/95
-
-    Source
-    Defense Mapping Agency. 1987b. DMA Technical Report: Supplement to Department of Defense World Geodetic System
-    1984 Technical Report. Part I and II. Washington, DC: Defense Mapping Agency
+    /**
+     * Convert coordinates from X, Y in projection space to lat, lon on sphere.
+     *
+     * @param X coordinate in flat.
+     * @param Y coordinate in flat.
+     * @return Array of Latitude (double[0]), Longitude (double[1]) on sphere (in degreee).
      */
+    public abstract double[] projectionToSphere(double X, double Y);
 
-    //converts lat/long to UTM coords.  Equations from USGS Bulletin 1532
-    //East Longitudes are positive, West longitudes are negative.
-    //North latitudes are positive, South latitudes are negative
-    //Lat and Long are in decimal degrees
-    //Written by Chuck Gantz- chuck.gantz@globalstar.com
+    /* converts lat/long to UTM coords.  Equations from USGS Bulletin 1532
+    East Longitudes are positive, West longitudes are negative.
+    North latitudes are positive, South latitudes are negative
+    Lat and Long are in decimal degrees
+    Written by Chuck Gantz- chuck.gantz@globalstar.com */
     public static double[] LatLonToUTM(ReferenceEllipsoid refEllipsoid, double Lat, double Long) { //, char UTMZone) {
         double UTMNorthing;
         double UTMEasting;
@@ -154,16 +149,16 @@ public abstract class Projection {
 //
 //        return LetterDesignator;
 //    }
-//
-//
-//    void UTMtoLL(int ReferenceEllipsoid, const double UTMNorthing, const double UTMEasting, const char* UTMZone,
+
+    /** Converts UTM coords to lat/long.  Equations from USGS Bulletin 1532
+     * East Longitudes are positive, West longitudes are negative.
+     * North latitudes are positive, South latitudes are negative
+     * Lat and Long are in decimal degrees.
+     * Written by Chuck Gantz- chuck.gantz@globalstar.com */
+//    public void UTMtoLL(int ReferenceEllipsoid, const double UTMNorthing, const double UTMEasting, const char* UTMZone,
 //                  double& Lat,  double& Long )
 //    {
-//    //converts UTM coords to lat/long.  Equations from USGS Bulletin 1532
-//    //East Longitudes are positive, West longitudes are negative.
-//    //North latitudes are positive, South latitudes are negative
-//    //Lat and Long are in decimal degrees.
-//        //Written by Chuck Gantz- chuck.gantz@globalstar.com
+//
 //
 //        double k0 = 0.9996;
 //        double a = ellipsoid[ReferenceEllipsoid].EquatorialRadius;

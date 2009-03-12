@@ -8,6 +8,9 @@
  */
 package com.locify.client.maps.projection;
 
+import com.locify.client.utils.GpsUtils;
+import com.locify.client.utils.math.LMath;
+
 /**
  * <p> The ReferenceEllipsoid class defines a geodetic reference ellipsoid
  *     used as a standard for geodetic measurements. The World Geodetic System
@@ -35,7 +38,6 @@ package com.locify.client.maps.projection;
  *     the others.</p>
  *
  * @author Paul D. Anderson, upgraded Menion
- * @version 3.0, February 18, 2006
  */
 public class ReferenceEllipsoid {
 
@@ -109,10 +111,6 @@ public class ReferenceEllipsoid {
 
     private final double eb2;
 
-//    private Measurable<Length> _semimajorAxis;
-//
-//    private Measurable<Length> _semiminorAxis;
-
     /**
      *  Constructs an instance of a reference ellipsoid.
      *
@@ -133,30 +131,6 @@ public class ReferenceEllipsoid {
     private static double sqr(final double x) {
         return x * x;
     }
-
-//    /**
-//     * Returns the semimajor or equatorial radius of this reference ellipsoid.
-//     *
-//     * @return The semimajor radius.
-//     */
-//    public Measurable<Length> getSemimajorAxis() {
-//        if (_semimajorAxis == null) {
-//            _semimajorAxis = Measure.valueOf(a, SI.METRE);
-//        }
-//        return _semimajorAxis;
-//    }
-//
-//    /**
-//     * Returns the semiminor or polar radius of this reference ellipsoid.
-//     *
-//     * @return  The semiminor radius.
-//     */
-//    public Measurable<Length> getsSemiminorAxis() {
-//        if (_semiminorAxis == null) {
-//            _semiminorAxis = Measure.valueOf(b, SI.METRE);
-//        }
-//        return _semiminorAxis;
-//    }
 
     /**
      * Returns the flattening or ellipticity of this reference ellipsoid.
@@ -198,7 +172,7 @@ public class ReferenceEllipsoid {
 
     /**
       * Returns the <i>radius of curvature in the prime vertical</i>
-      * for this reference ellipsoid at the specified latitude.
+      * for this reference ellipsoid at the specified latitude (N).
       *
       * @param phi The local latitude (radians).
       * @return The radius of curvature in the prime vertical (meters).
@@ -207,39 +181,16 @@ public class ReferenceEllipsoid {
          return a / Math.sqrt(1.0 - (ea2 * sqr(Math.sin(phi))));
      }
 
-//    /**
-//      * Returns the <i>radius of curvature in the prime vertical</i>
-//      * for this reference ellipsoid at the specified latitude.
-//      *
-//      * @param latitude The local latitude in degree.
-//      * @return The radius of curvature in the prime vertical in metres
-//      */
-//     public Measurable<Length> verticalRadiusOfCurvature(final Measurable<Angle> latitude) {
-//         return Measure.valueOf(verticalRadiusOfCurvature(latitude.doubleValue(SI.RADIAN)), SI.METRE);
-//     }
-
     /**
      *  Returns the <i>radius of curvature in the meridian<i>
-     *  for this reference ellipsoid at the specified latitude.
+     *  for this reference ellipsoid at the specified latitude (M).
      *
      * @param phi The local latitude (in radians).
      * @return  The radius of curvature in the meridian (in meters).
      */
     public double meridionalRadiusOfCurvature(final double phi) {
-        return verticalRadiusOfCurvature(phi)
-               / (1.0 + eb2 * sqr(Math.cos(phi)));
+        return verticalRadiusOfCurvature(phi) / (1.0 + eb2 * sqr(Math.cos(phi)));
     }
-
-//    /**
-//     *  Returns the <i>radius of curvature in the meridian<i>
-//     *  for this reference ellipsoid at the specified latitude.
-//     *
-//     * @param latitude The local latitude (in radians).
-//     * @return  The radius of curvature in the meridian (in meters).
-//     */
-//    public Measurable<Length> meridionalRadiusOfCurvature(final Measurable<Angle> latitude) {
-//        return Measure.valueOf(meridionalRadiusOfCurvature(latitude.doubleValue(SI.RADIAN)), SI.METRE);
-//    }
 
     /**
      *  Returns the meridional arc, the true meridional distance on the
@@ -270,19 +221,69 @@ public class ReferenceEllipsoid {
         return ap * phi - bp * sin2Phi + cp * sin4Phi - dp * sin6Phi + ep * sin8Phi;
     }
 
-//    /**
-//     *  Returns the meridional arc, the true meridional distance on the
-//     * ellipsoid from the equator to the specified latitude.
-//     *
-//     * @param latitude   The local latitude.
-//     * @return  The meridional arc.
-//     */
-//    public Measurable<Length> meridionalArc(final Measurable<Angle> latitude) {
-//        return Measure.valueOf(meridionalArc(latitude.doubleValue(SI.RADIAN)), SI.METRE);
-//    }
-    
-//    public static transformToXYZ(ReferenceEllipsoid elipsoid, double lat, double lon, double alt) {
-//        
-//    }
+    /**
+     * Convert geodetic coordinates to XYZ coordinates.
+     * @param lat Latitude (in degree).
+     * @param lon Longitude (in degree).
+     * @param alt Altitude (in metres).
+     * @return Array of result coordinates [X][Y][Z] (in metres).
+     */
+    public double[] convertLatLonAltToXYZ(double lat, double lon, double alt) {
+        double N = verticalRadiusOfCurvature(lat);
+        lat = lat / GpsUtils.RHO;
+        lon = lon / GpsUtils.RHO;
+        double[] ret = new double[3];
+        ret[0] = (N + alt) * Math.cos(lat) * Math.cos(lon); // X
+        ret[1] = (N + alt) * Math.cos(lat) * Math.sin(lon); // Y
+        ret[2] = (N * (1 - ea2) + alt) * Math.sin(lat); // Z
+        return ret;
+    }
 
+    /**
+     * Convert XYZ coordinates to geodetic coordinates on ellipsoid.
+     * @param X coordinate (in metres).
+     * @param Y coordinate (in metres).
+     * @param Z coordinate (in metres).
+     * @return Array of result geodetic coorinates [Latitude] (in degree) [Longitude] (in degree) [Altitude] (in metres).
+     */
+    public double[] convertXYZToLatLonAlt(double X, double Y, double Z) {
+        double latO = -1;
+        double lat = 0, alt = 0, N = 0;
+
+        lat = LMath.atan(Z / ((1 - ea2) * Math.sqrt(sqr(X) + sqr(Y))));
+        while (Math.abs(lat - latO) > 0.00001) {
+            N = verticalRadiusOfCurvature(lat);
+            alt = Math.sqrt(sqr(X) + sqr(Y)) / Math.cos(lat) - N;
+            latO = lat;
+            lat = LMath.atan(Z / ((1 - (N / (N + alt)) * ea2) * Math.sqrt(sqr(X) + sqr(Y))));
+        }
+
+        double[] ret = {lat * GpsUtils.RHO, LMath.atan(Y/X) * GpsUtils.RHO, alt};
+        return ret;
+    }
+
+    private static final int dxWGS84toS42 = -26;
+    private static final int dyWGS84toS42 = 121;
+    private static final int dzWGS84toS42 = 78;
+
+    public static double[] convertWGS84toS42(double lat, double lon) {
+        double latR = lat / GpsUtils.RHO;
+        double lonR = lon / GpsUtils.RHO;
+        // a = WGS84.a
+
+        double M = WGS84.meridionalRadiusOfCurvature(latR);
+        double N = WGS84.verticalRadiusOfCurvature(latR);
+        double dlat = (-1 * dxWGS84toS42 * Math.sin(latR) * Math.cos(lonR) -
+                dyWGS84toS42 * Math.sin(latR) * Math.sin(lonR) +
+                dzWGS84toS42 * Math.cos(latR) + (WGS84.a * (KRASOVSKY.f - WGS84.f) +
+                WGS84.f * (KRASOVSKY.a - WGS84.a)) * Math.sin(2 * latR)) /
+                (M * Math.sin(Math.PI / 180 / 3600));
+        double dLon = (-1 * dxWGS84toS42 * Math.sin(lonR) + dyWGS84toS42 * Math.cos(lonR)) /
+                (N * Math.cos(latR) * Math.sin(Math.PI / 180 / 3600));
+
+        double[] res = new double[2];
+        res[0] = lat + dlat / 3600;
+        res[1] = lon + dLon / 3600;
+        return res;
+    }
 }

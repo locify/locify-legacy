@@ -11,7 +11,6 @@
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
-
 package com.locify.client.maps.fileMaps;
 
 import com.locify.client.utils.Logger;
@@ -53,9 +52,4 @@ public class FileMapManagerTarLocify extends FileMapManager {
     protected void loadHttpMapFiles() {
         Logger.error("FileMapManagerTar.loadHttpMapFiles() - unexpected operation");
     }
-
-    protected void afterLoadEvent() {
-        configFile.setTilesVariables();
-    }
-
 }

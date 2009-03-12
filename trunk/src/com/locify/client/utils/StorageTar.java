@@ -76,7 +76,7 @@ public class StorageTar {
     public int getFilePosition(String fileName) {
         if (indexes != null) {
             Integer index = (Integer) indexes.get(fileName);
-//System.out.println("StorageTar.getFilePosition: " + fileName);
+//System.out.println("\n  StorageTar.getFilePosition(): " + fileName + " index: " + index);
             if (index != null)
                 return index.intValue();
             else

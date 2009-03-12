@@ -174,9 +174,13 @@ public class GpsUtils {
         return v;
     }
 
+    public static int parseInt(Object data) {
+        return parseInt(String.valueOf(data));
+    }
+
     public static int parseInt(String data) {
         try {
-            return Integer.parseInt(data);
+            return Integer.parseInt(data.trim());
         } catch (NumberFormatException e) {
             return 0;
         }
@@ -184,7 +188,7 @@ public class GpsUtils {
 
     public static Integer parseInteger(String data) {
         try {
-            return Integer.valueOf(data);
+            return Integer.valueOf(data.trim());
         } catch (NumberFormatException e) {
             return new Integer(0);
         }
@@ -192,7 +196,7 @@ public class GpsUtils {
 
     public static float parseFloat(String data) {
         try {
-            return Float.parseFloat(data);
+            return Float.parseFloat(data.trim());
         } catch (NumberFormatException e) {
             return 0.0f;
         }
@@ -200,9 +204,21 @@ public class GpsUtils {
 
     public static long parseLong(String data) {
         try {
-            return Long.parseLong(data);
+            return Long.parseLong(data.trim());
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+
+    public static double parseDouble(Object data) {
+        return parseDouble(String.valueOf(data));
+    }
+
+    public static double parseDouble(String data) {
+        try {
+            return Double.parseDouble(data.trim());
+        } catch (Exception ex) {
+            return 0.0;
         }
     }
 

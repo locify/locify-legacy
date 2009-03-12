@@ -127,7 +127,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /** is firstly centere after now directly? */
     private boolean firstCenterAfterND;
 
-    //public static long drawTestTime;
+//    private ScalableImage actualPositionImage;
+//    private ScalableGraphics scalableGraphics;
     
     public MapScreen() {
         super(Locale.get("Maps"), true);
@@ -186,7 +187,28 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
         nowDirectly = false;
         firstCenterAfterND = false;
-    //setFileProvider(R.getSettings().getFileMapProviders().getDefaultProvider());
+        
+/*        try {
+            actualPositionImage = ScalableImage.createImage(
+                    new ByteArrayInputStream
+                    new SlowLineInputStream(original, cssSelector, stylusTought)
+                    "girl1.svg",
+                    new CustomResourceHandler());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        scalableGraphics = ScalableGraphics.createInstance();
+ 
+    }
+
+    private static class CustomResourceHandler implements ExternalResourceHandler {
+        public void requestResource(ScalableImage inImage, String inURI) {
+            try {
+                Connector.openInputStream(inURI);
+            } catch ( IOException ioe ) {
+                ioe.printStackTrace();
+            }
+        } */
     }
 
     /**
@@ -196,7 +218,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         try {
             mapItemManager.init();
             setFileMapProviders();
-            //setFileProvider(7);
+            setFileProvider(0);
 
             if (lastCenterPoint != null) {
                 if (map instanceof TileMapLayer) {
@@ -468,6 +490,33 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(PRIORITY_LOW)");
         }
+
+        /*
+        scalableGraphics.bindTarget( g );
+
+        // render at fixed position and size
+        actualPositionImage.setViewportWidth( 50 );
+        actualPositionImage.setViewportHeight( 75 );
+        scalableGraphics.render( 5, 50, actualPositionImage );
+
+        // again at different position and size
+        actualPositionImage.setViewportWidth( 100 );
+        actualPositionImage.setViewportHeight( 150 );
+        scalableGraphics.render( 80, 5, actualPositionImage );
+
+        // again at size that varies with the canvas size
+        actualPositionImage.setViewportWidth( getWidth()-20 );
+        actualPositionImage.setViewportHeight( getHeight()-20 );
+        scalableGraphics.render( 0, 0, actualPositionImage );
+
+        // release the graphics context
+        scalableGraphics.releaseTarget(); */
+
+//        g.drawImage(getImageLoading(40, 40), 50, 50, Graphics.TOP | Graphics.LEFT);
+//        g.drawImage(IconData.reScaleImage(getImageLoading(40, 40), 100, 30), 50, 100, Graphics.TOP | Graphics.LEFT);
+//        g.drawImage(IconData.reScaleImage(getImageLoading(40, 40), 30, 15), 50, 150, Graphics.TOP | Graphics.LEFT);
+//        g.drawImage(IconData.rotateImage(getImageLoading(40, 40), 90), 50, 200, Graphics.TOP | Graphics.LEFT);
+
     }
 
     public MapItemManager getMapItemManager() {

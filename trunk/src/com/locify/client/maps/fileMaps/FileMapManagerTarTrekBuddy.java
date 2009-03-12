@@ -36,7 +36,6 @@ public class FileMapManagerTarTrekBuddy extends FileMapManager {
     }
 
     protected void loadLocalMapFiles() {
-//System.out.println("Data: " + FileMapManager.getObtainedData());
         String fileValue = FileMapManager.getObtainedData();
         if (fileValue != null) {
             try {
@@ -53,9 +52,4 @@ public class FileMapManagerTarTrekBuddy extends FileMapManager {
     protected void loadHttpMapFiles() {
         Logger.error("FileMapManagerTar.loadHttpMapFiles() - unexpected operation");
     }
-
-    protected void afterLoadEvent() {
-        configFile.setTilesVariables();
-    }
-
 }

@@ -84,6 +84,13 @@ public class IconData {
         }
     }
 
+    /**
+     * Function that rescale image.
+     * @param temp Image to rescale.
+     * @param newX New width in px.
+     * @param newY New height in px.
+     * @return Rescaled image.
+     */
     public static Image reScaleImage(Image temp, int newX, int newY) {
         //Need an array (for RGB, with the size of original image)
         int rgb[] = new int[temp.getWidth()*temp.getHeight()];
@@ -106,4 +113,67 @@ public class IconData {
         }
         return out;
     }
+
+/*    // GetRotatedBitmap	- Create a new bitmap with rotated image
+    // Returns		- Returns new bitmap with rotated image
+    // hBitmap		- Bitmap to rotate
+    // radians		- Angle of rotation in radians
+    // clrBack		- Color of pixels in the resulting bitmap that do
+    //			  not get covered by source pixels
+    // Note			- If the bitmap uses colors not in the system palette
+    //			  then the result is unexpected. You can fix this by
+    //			  adding an argument for the logical palette.
+    public static Image rotateImage(Image image, int angle) {
+        float radians = (float) (angle / (180 / Math.PI));
+        float cosine = (float) Math.cos(radians);
+        float sine = (float) Math.sin(radians);
+
+        // Compute dimensions of the resulting bitmap
+        // First get the coordinates of the 3 corners other than origin
+        int x1 = (int)(-1 * image.getHeight() * sine);
+        int y1 = (int)(image.getHeight() * cosine);
+        int x2 = (int)(image.getWidth() * cosine - image.getHeight() * sine);
+        int y2 = (int)(image.getHeight() * cosine + image.getWidth() * sine);
+        int x3 = (int)(image.getWidth() * cosine);
+        int y3 = (int)(image.getHeight() * sine);
+
+        int minx = Math.min(0, Math.min(x1, Math.min(x2,x3)));
+        int miny = Math.min(0,Math.min(y1, Math.min(y2,y3)));
+        int maxx = Math.max(x1, Math.max(x2,x3));
+        int maxy = Math.max(y1, Math.max(y2,y3));
+
+        int w = maxx - minx;
+        int h = maxy - miny;
+
+
+        // Create a bitmap to hold the result
+        Image result = Image.createImage(w, h);
+        Graphics g = result.getGraphics();
+        g.setColor(ColorsFonts.CYAN);
+
+        // Now do the actual rotating - a pixel at a time
+        // Computing the destination point for each source point
+        // will leave a few pixels that do not get covered
+        // So we use a reverse transform - e.i. compute the source point
+        // for each destination point
+
+        int[] pixel = new int[1];
+
+        for( int y = miny; y < maxy; y++ ) {
+            for( int x = minx; x < maxx; x++ ) {
+                int sourcex = (int)(x*cosine + y*sine);
+                int sourcey = (int)(y*cosine - x*sine);
+                if(sourcex >= 0 && sourcex < image.getWidth() && sourcey >= 0
+                        && sourcey < image.getHeight()) {
+                    
+                    
+                    image.getRGB(pixel, 0, image.getWidth() * image.getHeight(), sourcex, sourcey, 1, 1);
+                    g.drawRGB(pixel, 0, 2, x, y, 1, 1, true);
+                }
+            }
+        }
+
+        return result;
+    }
+ */
 }

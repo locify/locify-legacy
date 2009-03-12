@@ -14,6 +14,7 @@
 package com.locify.client.maps.projection;
 
 import com.locify.client.utils.GpsUtils;
+import com.locify.client.utils.math.LMath;
 
 /**
  * Map projection for system S-42
@@ -46,22 +47,15 @@ public class S42Projection extends Projection {
      * Holds the northing in meters.
      */
     private double _northing;
-    
+
+    public S42Projection() {
+        this(ReferenceEllipsoid.KRASOVSKY);
+    }
+
     public S42Projection(ReferenceEllipsoid ellipsoid) {
         super(ellipsoid);
     }
-    
-    /**
-     * Returns the projected UTM position corresponding to the specified
-     * coordinates.
-     *
-     * @param longitudeZone the longitude zone number.
-     * @param latitudeZone  the longitude zone character.
-     * @param easting       the easting value stated in the specified unit.
-     * @param northing      the northing value stated in the specified unit.
-     * @param unit          the easting/northing length unit.
-     * @return the corresponding surface position.
-     */
+
     public void valueOf(int longitudeZone, char latitudeZone, double easting, double northing) {
         _longitudeZone = longitudeZone;
         _latitudeZone = latitudeZone;
@@ -139,18 +133,54 @@ public class S42Projection extends Projection {
         valueOf(longitudeZone, latitudeZone, easting, northing);
 
         /** interesting conversion from S42 to UTM */
-        northing += 40;
-        easting += 100;
+//        northing += 40;
+//        easting += 100;
         
         result[0] = northing;
         result[1] = easting;
         return result;
     }
 
-    public double[] projectionToSphere(double x, double y) {
-        double[] result = new double[2];
+    public double[] projectionToSphere(double X, double Y) {
+        double[] res = new double[2];
 
-        return result;
+        double a = ellipsoid.a;
+        double e = ellipsoid.getEccentricity();
+        double fe = 500000 + ((int) (X / 1000000)) * 1000000;
+        double fn = 0;
+        double lambda = 21 + 6 * (((int) (X / 1000000)) - 4);
+        double lambdaRad = lambda / GpsUtils.RHO;
+        double fi0 = 0;
+        double fi0Rad = fi0 / GpsUtils.RHO;
+        double k0 = 1;
+        double xM = X - fe;
+        double yM = Y - fn;
+        double e1 = (1 - Math.sqrt(1 - ellipsoid.getEccentricitySquared())) /
+                (1 + Math.sqrt(1 - ellipsoid.getEccentricitySquared()));
+        double M0 = a * (fi0Rad * (1 - ellipsoid.getEccentricitySquared()/4 - 3 *
+                LMath.pow(e, 4) / 64 - 5 * LMath.pow(e, 6) / 256) - Math.sin(2 * fi0Rad) *
+                (3 * e * e / 8 + 3 * LMath.pow(e, 4) / 32 + 45 * LMath.pow(e, 6) / 1024) +
+                Math.sin(4 * fi0Rad) * (15 * LMath.pow(e, 4) / 256 + 45 * LMath.pow(e, 6) / 1024) -
+                Math.sin(6 * fi0Rad) * 35 * LMath.pow(e, 6) / 3072);
+        double M = M0 + yM / k0;
+        double mu = M / (a * (1 - e * e / 4 - 3 * LMath.pow(e, 4) / 64 - 5 * LMath.pow(e, 6) / 256));
+        double fi1 = mu + Math.sin(2 * mu) * (3 * e1 / 2 - 27 * LMath.pow(e1, 3) / 32) +
+                Math.sin(4 * mu) * (21 * e1 * e1 / 16 - 55 * LMath.pow(e1, 4) / 32) + Math.sin(6 * mu) *
+                151 * LMath.pow(e1, 3) / 96 + Math.sin(8 * mu) * 1097 * LMath.pow(e1, 4) / 512;
+        double eC2 = e * e / (1 - e * e);
+        double C1 = eC2 * Math.cos(fi1) * Math.cos(fi1);
+        double T1 = Math.tan(fi1) * Math.tan(fi1);
+        double N1 = a / Math.sqrt(1 - e * e * Math.sin(fi1) * Math.sin(fi1));
+        double R1 = a * (1 - e * e) / LMath.pow(1 - e * e * Math.sin(fi1) * Math.sin(fi1), 1.5);
+        double D = xM / (N1 * k0);
+        double fiRad = fi1 - (N1 * Math.tan(fi1) / R1) * (D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * eC2) *
+                LMath.pow(D, 4) / 24 + (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * eC2 - 3 * C1 * C1) *
+                LMath.pow(e, 6) / 720);
+        double lamRad = lambdaRad + (D - (1 + 2 * T1 + C1) * LMath.pow(D, 3) / 6 + (5 - 2 * C1 + 28 * T1
+                - 3 * C1 * C1 + 8 * eC2 + 24 * T1 * T1) * LMath.pow(D, 5) / 120) / Math.cos(fi1);
+        res[0] = fiRad * GpsUtils.RHO;
+        res[1] = lamRad * GpsUtils.RHO;
+        return res;
     }
 
     /**

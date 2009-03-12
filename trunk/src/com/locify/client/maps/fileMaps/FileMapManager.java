@@ -57,7 +57,7 @@ public abstract class FileMapManager {
     protected String mapPath;
     /** prefix of mapPath if maps are from local filesystem */
     protected String mapPathPrefix;
-    /** temp variables for http strind file */
+    /** temp variables for http string file */
     private static String obtainedData;
     /** config file */
     protected ConfigFileTile configFile;
@@ -143,7 +143,6 @@ public abstract class FileMapManager {
             String mapPathAbsolute = "file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER + mapPath;
             try {
                 FileConnection dir = (FileConnection) Connector.open(mapPathAbsolute);
-System.out.println("MapPathAbs: " + mapPathAbsolute);
                 if (dir.exists() && dir.isDirectory()) {
                     Enumeration files = dir.list("*.xml", false); //list all nonhidden xml files
                     if (files.hasMoreElements() == false) {
@@ -196,7 +195,7 @@ System.out.println("MapPathAbs: " + mapPathAbsolute);
         }
     }
 
-    public ConfigFileTile getMapForScaling() {
+    public ConfigFileTile getConfigFileTile() {
         return configFile;
     }
 
@@ -213,18 +212,18 @@ System.out.println("MapPathAbs: " + mapPathAbsolute);
     }
 
     protected static Projection getProjection(String projection) {
-//        Projection proj;
-//        if (projection.equals("UTM") || projection.equals("Mercator") || projection.equals("Transverse Mercator")) {
-//            proj = new UTMProjection(ReferenceEllipsoid.WGS84);
-//        } else if (projection.equals("S42")) {
-//            proj = new S42Projection(ReferenceEllipsoid.KRASOVSKY);
-//        } else {
-//            //Latitude/Longitude
-//            proj = new NullProjection();
-//        }
-//        return proj;
+        Projection proj;
+        if (projection.equals("UTM")) {
+            proj = new UTMProjection(ReferenceEllipsoid.WGS84);
+        } else if (projection.equals("S42")) {
+            proj = new S42Projection(ReferenceEllipsoid.KRASOVSKY);
+        } else {
+            //Latitude/Longitude
+            proj = new NullProjection();
+        }
+        return proj;
 
-        return new NullProjection();
+//        return new NullProjection();
     }
    
     public Projection getMapProjection() {

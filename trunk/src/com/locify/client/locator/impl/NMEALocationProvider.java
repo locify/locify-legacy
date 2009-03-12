@@ -23,6 +23,7 @@ import com.locify.client.locator.GpsLocationProvider;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationSample;
 import com.locify.client.utils.GpsUtils;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
@@ -159,7 +160,6 @@ public class NMEALocationProvider extends GpsLocationProvider {
          */
         protected void receiveNmea(String nmea) {
             try {
-                
                 //nmea logging - should be commented in release version
                 //R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + "nmea.log", nmea+"\n");
 
@@ -212,10 +212,10 @@ public class NMEALocationProvider extends GpsLocationProvider {
                     }
                 // dop and satellites
                 } else if (param[0].equals("$GPGSA")) {
-                    if (param[16].length() > 0) {
+                    if (param.length > 16 && param[16].length() > 0) {
                         parent.horizontalAccuracy = GpsUtils.parseFloat(param[16]);
                     }
-                    if (param[17].length() > 0) {
+                    if (param.length > 17 && param[17].length() > 0) {
                         parent.verticalAccuracy = GpsUtils.parseFloat(param[17]);
                     }
                     nmeaCount++;
@@ -223,7 +223,8 @@ public class NMEALocationProvider extends GpsLocationProvider {
                     nmeaCount++;
                 }
             } catch (Exception e) {
-                R.getErrorScreen().view(e, "NMEALocationProvider.receiveNmea", nmea);
+                //R.getErrorScreen().view(e, "NMEALocationProvider.receiveNmea", nmea);
+                Logger.error("NMEALocationProvider.receiveNmea: " + nmea + " Ex: " + e.toString());
             }
         }
 

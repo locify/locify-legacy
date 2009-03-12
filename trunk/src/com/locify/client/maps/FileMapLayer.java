@@ -23,6 +23,9 @@ import com.locify.client.maps.fileMaps.FileMapManagerSingle;
 import com.locify.client.maps.fileMaps.FileMapManagerTarLocify;
 import com.locify.client.maps.fileMaps.FileMapManagerTarTrekBuddy;
 import com.locify.client.maps.geometry.Point2D;
+import com.locify.client.maps.projection.ReferenceEllipsoid;
+import com.locify.client.maps.projection.S42Projection;
+import com.locify.client.maps.projection.UTMProjection;
 import com.locify.client.utils.R;
 import javax.microedition.lcdui.Graphics;
 import java.util.Vector;
@@ -57,12 +60,34 @@ public class FileMapLayer implements MapLayer {
     public boolean isReady() {
         return mapManager != null;
     }
+
+    private double[] convertLocToMap(Location4D loc) {
+System.out.println("\nFileMapLayer.convertLocToMap()");
+System.out.println("\n  defLat:" + loc.getLatitude() + " defLon:" + loc.getLongitude());
+        double[] coo = new double[2];
+        coo[0] = loc.getLatitude();
+        coo[1] = loc.getLongitude();
+
+        if (mapManager.getMapProjection() instanceof UTMProjection) {
+            if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
+                coo = mapManager.getMapProjection().projectionToFlat(loc.getLatitude(), loc.getLongitude());
+            }
+        } else if (mapManager.getMapProjection() instanceof S42Projection) {
+            coo = ReferenceEllipsoid.convertWGS84toS42(loc.getLatitude(), loc.getLongitude());
+System.out.println("\n  Lat:" + coo[0] + " lon:" + coo[1]);
+            if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
+                coo = mapManager.getMapProjection().projectionToFlat(coo[0], coo[1]);
+            }
+        }
+System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
+        return coo;
+    }
     
     public boolean setLocationCenter(Location4D loc) {
         if (isReady()) {
             try {
-                double[] res = mapManager.getMapProjection().projectionToFlat(loc.getLatitude(), loc.getLongitude());
-                this.viewPort.setCenter(new Location4D(res[0], res[1], loc.getAltitude()));
+                double[] coo = convertLocToMap(loc);
+                this.viewPort.setCenter(new Location4D(coo[0], coo[1], 0.0f));
                 return true;
             } catch (Exception e) {
                 R.getErrorScreen().view(e, "FileMapLayer.setLocationCenter", null);
@@ -116,8 +141,8 @@ public class FileMapLayer implements MapLayer {
     
     public Point2D.Int getLocationCoord(Location4D loc) {
         if (isReady()) {
-            double[] res = mapManager.getMapProjection().projectionToFlat(loc.getLatitude(), loc.getLongitude());
-            return viewPort.getPointAnyWhere(new Location4D(res[0], res[1], loc.getAltitude()));
+            double[] coo = convertLocToMap(loc);
+            return viewPort.getPointAnyWhere(new Location4D(coo[0], coo[1], 0.0f));
         } else {
             return null;
         }
@@ -172,7 +197,7 @@ public class FileMapLayer implements MapLayer {
                     (String) availeableProviders.elementAt(number));
             int mapType = FileMapManager.getMapType(mapPath);
             ConfigFileTile map = null;
-//System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType);
+System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType);
             if (mapType == FileMapManager.MAP_TYPE_SINGLE_TILE) {
                 manager = new FileMapManagerSingle(mapPath);
             } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE) {
@@ -187,7 +212,7 @@ public class FileMapLayer implements MapLayer {
         
             /* SET MAP SCALE */
             if (manager.isReady()) {
-                    map = manager.getMapForScaling();
+                    map = manager.getConfigFileTile();
 
                 if (map != null) {
                     mapScaleW = map.getLonDiffPerPixel() * parent.getWidth();
@@ -206,9 +231,8 @@ public class FileMapLayer implements MapLayer {
 
                 this.moveCoefPerPixelX = viewPort.longitude_dimension / parent.getWidth();
                 this.moveCoefPerPixelY = viewPort.latitude_dimension / parent.getHeight();
-//System.out.println("\nXcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
-//System.out.println(parent.getWidth()  + "  " + parent.getHeight());
-//System.out.println(viewPort.longitude_dimension  + "  " + viewPort.latitude_dimension);
+System.out.println("\n  Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
+System.out.println("\n  lonDim: " + viewPort.longitude_dimension  + " latDim: " + viewPort.latitude_dimension);
             } else {
                 return false;
             }
