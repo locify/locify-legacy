@@ -146,14 +146,15 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         mapTile = new TileMapLayer(this);
         mapFile = new FileMapLayer(this);
 
-        if (R.getSettings().isDefaultMapProviderOnline()) {
+        boolean setMapFile = false;
+        if (!R.getSettings().isDefaultMapProviderOnline()) {
+            map = mapFile;
+            setMapFile = map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
+        }
+        if (!setMapFile) {
             map = mapTile;
             map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
-        } else {
-            map = mapFile;
-            map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
         }
-
 
         map.setDefaultZoomLevel();
 
