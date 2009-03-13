@@ -67,8 +67,10 @@ public class TileCache extends Thread {
      * @param tileSize
      */
     public TileCache(int tileSizeX, int tileSizeY) {
-        // set size of cache ... 2MB
-        this.maxSize = (int) ((0.5 * 1048576) / (tileSizeX * tileSizeY));
+        // set size of cache ... 1MB
+        this.maxSize = (int) ((1.0 * 1048576) / (tileSizeX * tileSizeY));
+        if (maxSize < 4)
+            maxSize = 4;
         this.tileSizeX = tileSizeX;
         this.tileSizeY = tileSizeY;
         
@@ -250,7 +252,9 @@ public class TileCache extends Thread {
 
             // clean cache
             if (tileCache.size() > maxSize) {
+System.out.println("\nTileCache: clear cache tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
                 while(tileCache.size() > ((4 * maxSize) / 5)) {
+System.out.println("\n  remove: " + ((ImageRequest) tileCache.elementAt(0)).fileName);
                     tileCache.removeElementAt(0);
                 }
             }
