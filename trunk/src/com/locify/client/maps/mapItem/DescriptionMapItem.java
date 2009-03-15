@@ -145,7 +145,7 @@ public class DescriptionMapItem extends MapItem {
                 bmfvName.paint(textPosX, textPosY, g);
                 textPosY += (bmfvName.getNumberOfLines() * 13);
                 g.setColor(ColorsFonts.GRAY);
-                g.drawLine(textPosX, textPosY - 3, textPosX + waypointDescriptionBackground.getWidth() - 4, textPosY - 3);
+                g.drawLine(textPosX, textPosY - 2, textPosX + waypointDescriptionBackground.getWidth() - 4, textPosY - 2);
                 
                 if (!item.getDescription().equals("")) {
                     bmfvDesc.paint(textPosX, textPosY, g);

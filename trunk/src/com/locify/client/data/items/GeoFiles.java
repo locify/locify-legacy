@@ -245,7 +245,7 @@ public abstract class GeoFiles {
                         try {
                             setState(STATE_DOCUMENT);
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Document' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Document' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Description")) {
                         try {
@@ -256,7 +256,7 @@ public abstract class GeoFiles {
                                 description = parser.nextText();
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Description' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Description' tag error!!!");
                         }
                     /* it will be only cloud and containts only placemark tags */
                     } else if (tagName.equalsIgnoreCase("Folder")) {
@@ -264,7 +264,7 @@ public abstract class GeoFiles {
                             setState(STATE_FOLDER);
                             actualGeoData = new WaypointsCloud("");
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Folder' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Folder' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("IconStyle")) {
                         try {
@@ -306,7 +306,7 @@ public abstract class GeoFiles {
                                 }
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'IconStyle' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'IconStyle' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Linestring")) {
                         try {
@@ -353,11 +353,11 @@ public abstract class GeoFiles {
                                     }
                                 }
                             } else {
-                                Logger.log("GeoFiles.parseKml() - LINESTRING error!!!");
+                                Logger.warning("GeoFiles.parseKml() - LINESTRING error!!!");
                                 return null;
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Linestring' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Linestring' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Name")) {
                         try {
@@ -373,7 +373,7 @@ public abstract class GeoFiles {
                                 name = parser.nextText();
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Name' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Name' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Networklink")) {
                         try {
@@ -402,7 +402,7 @@ public abstract class GeoFiles {
                                 }
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Networklink' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Networklink' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Pair")) {
                         try {
@@ -428,13 +428,13 @@ public abstract class GeoFiles {
                                 }
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Pair' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Pair' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Placemark")) {
                         try {
                             setState(STATE_PLACEMARK);
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Placemark' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Placemark' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Point")) {
                         try {
@@ -464,7 +464,7 @@ public abstract class GeoFiles {
                                             } else if (sBefore == STATE_DOCUMENT || sBefore == STATE_NONE) {
                                                 multiData.addGeoData(waypoint);
                                             } else {
-                                                Logger.log("GeoFiles.parseKml() - POINT error1!!!");
+                                                Logger.warning("GeoFiles.parseKml() - POINT error1!!!");
                                                 return null;
                                             }
                                             break;
@@ -472,11 +472,11 @@ public abstract class GeoFiles {
                                     }
                                 }
                             } else {
-                                Logger.log("GeoFiles.parseKml() - POINT error2!!!");
+                                Logger.warning("GeoFiles.parseKml() - POINT error2!!!");
                                 return null;
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Point' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Point' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Style")) {
                         try {
@@ -493,7 +493,7 @@ public abstract class GeoFiles {
                                 }
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Style' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Style' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("StyleMap")) {
                         try {
@@ -510,14 +510,14 @@ public abstract class GeoFiles {
                                 }
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'StyleMap' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'StyleMap' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("StyleUrl")) {
                         try {
                             // style begin with '#'
                             styleURL = parser.nextText().substring(1);
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'StyleUrl' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'StyleUrl' tag error!!!");
                         }
                     }
                 } else if (event == XmlPullParser.END_TAG) {
@@ -529,7 +529,7 @@ public abstract class GeoFiles {
 //                        styleURL = null;
                             multiData.addGeoData(actualGeoData);
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Folder' endTag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Folder' endTag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Placemark")) {
                         try {
@@ -542,21 +542,21 @@ public abstract class GeoFiles {
                                 multiData.addGeoData(actualGeoData);
                             }
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Placemark' endTag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Placemark' endTag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Style")) {
                         try {
                             styles.put(style.name, style);
                             setState(STATE_DOCUMENT);
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'Style' endTag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Style' endTag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("StyleMap")) {
                         try {
                             stylesMap.put(styleMap.name, styleMap);
                             setState(STATE_DOCUMENT);
                         } catch (Exception e) {
-                            Logger.log("GeoFiles.parseKml() - 'StyleMap' endTag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'StyleMap' endTag error!!!");
                         }
                     }
                 } else if (event == XmlPullParser.END_DOCUMENT) {
@@ -569,8 +569,7 @@ public abstract class GeoFiles {
             multiData.finalizeData();
             return multiData;
         } catch (Exception e) {
-            //R.getErrorScreen().view(e, "GeoFiles.parseRouteOrCloud()", fileOrData);
-            Logger.log("GeoFiles.parseKml() - FINAL error!!!\n" + e.getMessage());
+            Logger.error("GeoFiles.parseKml() - FINAL error!!!\n" + e.getMessage());
             return null;
         }
     }
@@ -595,7 +594,7 @@ public abstract class GeoFiles {
             fileSize = R.getFileSystem().getFileSize(FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
             type = getDataTypeDatabase(fileName, fileSize);
 
-//System.out.println("TestFile: " + fileName + " type: " + type + " size: " + fileSize);
+//System.out.println("TestFile: " + fileName + " type: " + type + " size: " + fileSize + "  " + System.currentTimeMillis());
             if (type == 0) {
                 fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
                 if (!fileConnection.exists()) {
@@ -736,7 +735,6 @@ public abstract class GeoFiles {
     }
 
     private static void addDataTypeToDatabase(String fileName, long fileSize, int type) {
-//System.out.println("Add: " + testString);
         if (geoTypeDatabase == null) {
             geoTypeDatabase = new Vector();
         }
@@ -760,25 +758,13 @@ public abstract class GeoFiles {
                     }
                 }
                 rs.closeRecordStore();
+                //Logger.log("GeoFiles.saveDataTypeDatabase() succesfully saved!");
             } catch (RecordStoreException ex) {
                 ex.printStackTrace();
             }
         }
     }
 
-//    private static class RecordFileFilter implements RecordFilter {
-//        private String filter;
-//
-//        public RecordFileFilter(String filter) {
-//            this.filter = filter;
-//        }
-//
-//        public boolean matches(byte[] candidate) {
-//            if ((new String(candidate)).startsWith(filter))
-//                return true;
-//            return false;
-//        }
-//    }
     /****************************************************/
     /*                 OTHER FUNCTIONS                  */
     /****************************************************/
