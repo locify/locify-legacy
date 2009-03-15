@@ -30,7 +30,6 @@ import com.locify.client.utils.Logger;
 import java.util.Date;
 import java.util.Hashtable;
 
-
 /**
  * Class is responsible for separating LocationProviders into separate thread and managing them.
  * @author Jiri Stepan
@@ -77,19 +76,17 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
             stop = true;
         }
     }
-    
     private WaitForLocator waitThread = null;
     private LocationProvider locationProvider;
-    private Vector providers; //all providers according to capabilities
+    private Vector providers; // all providers according to capabilities
     protected Vector listeners;
     private String providerChangeRequest = null;
     private Location4D lastLocation; //last aquired location from gps
     private int state;
     private float locationQuality = 0; //<0-1>
     private String requestAction;
-    private boolean providerSelected = false; //indikuje zda byl vybec nejaky provider vybran
+    private boolean providerSelected = false; // indikuje zda byl vybec nejaky provider vybran
     private boolean providerStopped = false;
-
     private boolean satScreenActive = false;
 
     public LocatorModel() {
@@ -152,17 +149,18 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
         return satScreenActive;
     }
 
-    public boolean hasSatellites()
-    {
-        if (R.getContext().getSource() != LocationContext.GPS)
+    public boolean hasSatellites() {
+        if (R.getContext().getSource() != LocationContext.GPS) {
             return false;
-        if (locationProvider == null)
+        }
+        if (locationProvider == null) {
             return false;
-        if (locationProvider.getSatInView().size() == 0)
-            return false;
+        }
+//        if (locationProvider.getSatInView().size() == 0) {
+//            return false;
+//        }
         return true;
     }
-
 
     public int getProviderCount() {
         return providers.size();
@@ -411,6 +409,7 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
         }
     }
 }
+
 class Provider {
 
     private String className;

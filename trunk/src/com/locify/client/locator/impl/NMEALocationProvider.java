@@ -37,7 +37,7 @@ import javax.microedition.io.StreamConnection;
  * 
  * @see SimulatorLocationProvider
  * 
- * @author Jiri Stepan
+ * @author Jiri, Menion
  *
  */
 public class NMEALocationProvider extends GpsLocationProvider {
@@ -83,26 +83,22 @@ public class NMEALocationProvider extends GpsLocationProvider {
             stopRequest = false;
             setState(CONNECTING);
             parent.gpsAlive = 0;
-            //cteni dat
+
             while (!stopRequest) {
                 if (inputStream != null) {
 
                     try {
-                        String s = "";
+                        StringBuffer s = new StringBuffer();
                         int ch = 0;
                         //cteni dat
-                        if (inputStream != null) {
-                            while ((ch = inputStream.read()) != '\n') {
-                                s += (char) ch;
-                            }
+                        while (((ch = inputStream.read()) != '\n') && (ch != -1)) {
+                            s.append((char) ch);
                         }
-
-                        nmea = s;
-                        receiveNmea(s);
+                        nmea = s.toString();
+                        receiveNmea(nmea);
                         if (lastLocation == null || (
                                 lastLocation.getLatitude() != actualLocation.getLatitude() &&
                                 lastLocation.getLongitude() != actualLocation.getLongitude())) {
-//System.out.println("actualLoc: " + actualLocation);
 
                             LocationSample locSampl = new LocationSample(
                                     actualLocation.getLatitude(), actualLocation.getLongitude(), actualLocation.getAltitude(),
@@ -117,7 +113,6 @@ public class NMEALocationProvider extends GpsLocationProvider {
                             parent.notifyNewLocationToListeners();
 
                             lastLocation = actualLocation.getLocation4DCopy();
-//System.out.println("filteredLoc: " + actualLocation);
                         }
 
                         parent.gpsAlive = System.currentTimeMillis();
@@ -128,7 +123,7 @@ public class NMEALocationProvider extends GpsLocationProvider {
                         } else {
                             setState(READY);
                         }
-
+//
                     } catch (Exception e) {
                         stop();
                     }
@@ -160,112 +155,116 @@ public class NMEALocationProvider extends GpsLocationProvider {
          */
         protected void receiveNmea(String nmea) {
             try {
-                //nmea logging - should be commented in release version
-                //R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + "nmea.log", nmea+"\n");
-
                 int starIndex = nmea.indexOf('*');
                 if (starIndex == -1) {
                     return;
                 }
-                String[] param = StringTokenizer.getArray(nmea.substring(0, starIndex), ",");
-                if (param[0] == null) {
-                // satellites in view
-                } else if (param[0].equals("$GPGSV")) {
+                if (nmea.length() < 10) {
+                // Satellites in view
+                } else if (nmea.startsWith("$GPGSV")) {
+                    satManager.parseNMEASatellites(nmea);
                     nmeaCount++;
-                    satManager.parseNMEASatellites(param);
-                // geographic Latitude and Longitude
-                } else if (param[0].equals("$GPGLL")) {
-                    nmeaCount++;
+                // Geographic Latitude and Longitude
+                } else if (nmea.startsWith("$GPGLL")) {
                     // not required
-                    //extractData(param, 1, 2, 3, 4, 5);
-                    //fix = (param[6].charAt(0) == 'A');
-                // NMEA format recommender minimum
-                } else if (param[0].equals("$GPRMC")) {
                     nmeaCount++;
-                    extractData(param, 3, 4, 5, 6, 1);
+                // NMEA format Recommender minimum
+                } else if (nmea.startsWith("$GPRMC")) {
+                    String[] param = StringTokenizer.getArray(nmea.substring(0, starIndex), ",");
+                    //parseLatitude(param[3], param[4]);
+                    //parseLongitude(param[5], param[6]);
                     fix = (param[2].charAt(0) == 'A');
                     if (fix) {
-                        day = GpsUtils.parseInt(param[9].substring(0, 2));
-                        month = GpsUtils.parseInt(param[9].substring(2, 4));
-                        year = 2000 + GpsUtils.parseInt(param[9].substring(4, 6));
-                        if (param[7].length() > 0) {
+//                        day = GpsUtils.parseInt(param[9].substring(0, 2));
+//                        month = GpsUtils.parseInt(param[9].substring(2, 4));
+//                        year = 2000 + GpsUtils.parseInt(param[9].substring(4, 6));
+                        speed = 0;
+                        course = 0;
+                        if (param.length > 7 && param[7].length() > 0) {
                             speed = GpsUtils.parseFloat(param[7]);
-                        } else {
-                            speed = 0;
                         }
-                        if (param[8].length() > 0) {
+                        if (param.length > 8 && param[8].length() > 0) {
                             course = GpsUtils.parseFloat(param[8]);
                         }
                     }
-                // main message
-                } else if (param[0].equals("$GPGGA")) {
                     nmeaCount++;
+                // main message !!!
+                } else if (nmea.startsWith("$GPGGA")) {
+                    String[] param = StringTokenizer.getArray(nmea.substring(0, starIndex), ",");
                     if (param[6].equals("0")) {
                         fix = false;
-                    } else {
-                        extractData(param, 2, 3, 4, 5, 1);
-                        fixSatellites = GpsUtils.parseInt(param[7]);
-                        if (param[9].length() > 0) {
-                            //parent.altitude = parse3(param[9]);
-                            parent.actualLocation.setAltitude(GpsUtils.parseFloat(param[9]));
+                    } else if (param.length > 5) {
+                        parseLatitude(param[2], param[3]);
+                        parseLongitude(param[4], param[5]);
+                        if (param.length > 7 && param[7].length() > 0)
+                            fixSatellites = GpsUtils.parseInt(param[7]);
+                        if (param.length > 10 && param[9].length() > 0 && param[10].length() > 0) {
+                            parseAltitude(param[9], param[10]);
                         }
                     }
-                // dop and satellites
-                } else if (param[0].equals("$GPGSA")) {
+                    nmeaCount++;
+                // GPS GDOP and active satellites
+                } else if (nmea.startsWith("$GPGSA")) {
+                    String[] param = StringTokenizer.getArray(nmea.substring(0, starIndex), ",");
                     if (param.length > 16 && param[16].length() > 0) {
-                        parent.horizontalAccuracy = GpsUtils.parseFloat(param[16]);
+                        parseHdop(param[16]);
                     }
                     if (param.length > 17 && param[17].length() > 0) {
-                        parent.verticalAccuracy = GpsUtils.parseFloat(param[17]);
+                        parseVdop(param[17]);
                     }
                     nmeaCount++;
-                } else if (!param[0].equals(null)) {
+                } else if (nmea.length() > 0) {
                     nmeaCount++;
                 }
             } catch (Exception e) {
-                //R.getErrorScreen().view(e, "NMEALocationProvider.receiveNmea", nmea);
                 Logger.error("NMEALocationProvider.receiveNmea: " + nmea + " Ex: " + e.toString());
             }
         }
 
-        /**
-         * Extracts coordinats from various NMEAs
-         */
-        private void extractData(String[] param, int a, int b, int c, int d, int e) {
-            try {
+        private void parseLatitude(String value, String sfere) {
+            double lat = 0.0;
+            if (value.length() > 8 && sfere.length() == 1) {
                 int degree, minute, fraction;
-
-                if (param[a].length() > 8 && param[b].length() == 1) {
-                    degree = GpsUtils.parseInt(param[a].substring(0, 2));
-                    minute = GpsUtils.parseInt(param[a].substring(2, 4));
-                    fraction = GpsUtils.parseInt(param[a].substring(5, 9).concat("0000").substring(0, 4));
-                    double lat = (degree + ((double) minute + (double) fraction / 10000) / 60);
-                    if (param[b].charAt(0) == 'S') {
-                        lat = -lat;
-                    }
-                    parent.actualLocation.setLatitude(lat);
-
+                degree = GpsUtils.parseInt(value.substring(0, 2));
+                minute = GpsUtils.parseInt(value.substring(2, 4));
+                fraction = GpsUtils.parseInt(value.substring(5, 9).concat("0000").substring(0, 4));
+                lat = (degree + ((double) minute + (double) fraction / 10000) / 60);
+                if (sfere.charAt(0) == 'S') {
+                    lat = -lat;
                 }
-                if (param[c].length() > 9 && param[d].length() == 1) {
-                    degree = GpsUtils.parseInt(param[c].substring(0, 3));
-                    minute = GpsUtils.parseInt(param[c].substring(3, 5));
-                    fraction = GpsUtils.parseInt(param[c].substring(6, 10).concat("0000").substring(0, 4));
-                    double lon = degree + ((double) minute + (double) fraction / 10000) / 60;
-                    if (param[d].charAt(0) == 'W') {
-                        lon = -lon;
-                    }
-
-                    parent.actualLocation.setLongitude(lon);
-                }
-            } catch (Exception ex) {
-                String error = "params=";
-                for (int i=0;i<param.length;i++)
-                {
-                    error += param[i]+";";
-                }
-                error += "a="+a+"b="+b+"c="+c+"d="+d+"e="+e;
-                R.getErrorScreen().view(ex, "NMEALocationProvider.extractData", error);
             }
+            parent.actualLocation.setLatitude(lat);
+        }
+
+        private void parseLongitude(String value, String sfere) {
+            double lon = 0.0;
+            if (value.length() > 9 && sfere.length() == 1) {
+                int degree, minute, fraction;
+                degree = GpsUtils.parseInt(value.substring(0, 3));
+                minute = GpsUtils.parseInt(value.substring(3, 5));
+                fraction = GpsUtils.parseInt(value.substring(6, 10).concat("0000").substring(0, 4));
+                lon = degree + ((double) minute + (double) fraction / 10000) / 60;
+                if (sfere.charAt(0) == 'W') {
+                    lon = -lon;
+                }
+            }
+            parent.actualLocation.setLongitude(lon);
+        }
+
+        private void parseAltitude(String value, String sfere) {
+            float alt = 0.0f;
+            if (value.length() > 3 && sfere.length() == 1) {
+                alt = GpsUtils.parseFloat(value);
+            }
+            parent.actualLocation.setAltitude(alt);
+        }
+
+        private void parseHdop(String value) {
+            parent.horizontalAccuracy = GpsUtils.parseFloat(value);
+        }
+
+        private void parseVdop(String value) {
+            parent.verticalAccuracy = GpsUtils.parseFloat(value);
         }
 
         public String getCommunicationURL() {

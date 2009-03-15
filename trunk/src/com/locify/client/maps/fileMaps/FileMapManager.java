@@ -230,7 +230,7 @@ public abstract class FileMapManager {
         return mapProjection;
     }
 
-    public abstract boolean drawActualMap(Graphics gr, FileMapViewPort viewPort);
+    public abstract boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY);
 
     protected abstract void loadLocalMapFiles();
 

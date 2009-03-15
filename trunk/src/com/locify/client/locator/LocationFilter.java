@@ -19,12 +19,14 @@ package com.locify.client.locator;
  */
 public interface LocationFilter {
 
-	public abstract Location4D getFilteredLocation();
-        /**
-         * @return filtered speed in m/s
-         */
-        public abstract float getFilteredSpeed();
-        public abstract float getFilteredCourse();
-	public abstract void addLocationSample(LocationSample locSamp);
+    public abstract Location4D getFilteredLocation();
 
+    /**
+     * @return filtered speed in m/s
+     */
+    public abstract float getFilteredSpeed();
+
+    public abstract float getFilteredCourse();
+
+    public abstract void addLocationSample(LocationSample locSamp);
 }

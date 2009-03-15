@@ -37,8 +37,19 @@ import javax.microedition.lcdui.Graphics;
  */
 public interface MapLayer {
 
-    /** draw map to specific*/
-    public boolean drawMap(Graphics gr);
+    /**
+     * Speed of panning in pixels.
+     */
+    public static int PAN_PIXELS = 20;
+
+    /**
+     * Draw map to place defined by center.
+     * @param g Graphics to draw at.
+     * @param mapPanX Move drawed map about fixing space (X), not real movement.
+     * @param mapPanY Move drawed map about fixing space (Y), not real movement.
+     * @return true if drawed without problem.
+     */
+    public boolean drawMap(Graphics g, int mapPanX, int mapPanY);
 
     /** sets location center to new location */
     public boolean setLocationCenter(Location4D loc);
@@ -90,8 +101,6 @@ public interface MapLayer {
     public void panUp();
 
     public void panDown();
-
-    public int getPanSpeed();
 
     public void repaint();
 

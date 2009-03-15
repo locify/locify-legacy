@@ -17,7 +17,6 @@ import com.locify.client.utils.R;
 import de.enough.polish.util.Locale;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.microedition.io.CommConnection;
 import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.SocketConnection;

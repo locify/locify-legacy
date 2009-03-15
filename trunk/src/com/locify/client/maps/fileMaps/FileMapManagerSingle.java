@@ -36,7 +36,7 @@ public class FileMapManagerSingle extends FileMapManager {
         super(mapPath);
     }
 
-    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort) {
+    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY) {
 /*        if (actualMap == null) {
             //this.unloadAllMaps();
             getFirstLocalMap(viewPort.center);

@@ -413,7 +413,8 @@ public class ConfigFileTile {
         }
     }
 
-    public synchronized boolean drawImageMulti(Graphics gr, FileMapViewPort targetPort, StorageTar tar) {
+    public synchronized boolean drawImageMulti(Graphics gr, FileMapViewPort targetPort, StorageTar tar,
+            int mapPanX, int mapPanY) {
         try {
 //System.out.println("ConfigFileTile.drawImageMulti()");
             Point2D mapPoint = mapViewPort.convertGeoToMapPixel(targetPort.center);
@@ -476,7 +477,7 @@ public class ConfigFileTile {
                         if (x1 < screenWidth && y1 < screenHeight) {
 //                            System.out.println("\n  draw: x1 " + x1 + " y: " + y1 +
 //                                    " img: " + ( manager.mapPathPrefix + manager.mapPath + imageName));
-                            gr.drawImage(image, x1, y1, Graphics.LEFT | Graphics.TOP);
+                            gr.drawImage(image, x1 + mapPanX, y1 + mapPanY, Graphics.LEFT | Graphics.TOP);
                         }
                     }
                 }

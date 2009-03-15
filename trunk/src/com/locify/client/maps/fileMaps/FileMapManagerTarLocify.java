@@ -31,8 +31,8 @@ public class FileMapManagerTarLocify extends FileMapManager {
         super(mapPath);
     }
 
-    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort) {
-        return configFile.drawImageMulti(gr, viewPort, storage);
+    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY) {
+        return configFile.drawImageMulti(gr, viewPort, storage, mapPanX, mapPanY);
     }
 
     protected void loadLocalMapFiles() {

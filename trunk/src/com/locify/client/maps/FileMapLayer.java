@@ -47,8 +47,6 @@ public class FileMapLayer implements MapLayer {
     private double moveCoefPerPixelY = 0;
     /** actual selected map provider */
     private int selectedProvider;
-    /** pan value */
-    private int panValue = 25;
     private Vector availeableProviders;
 
     public FileMapLayer(MapScreen parent) {
@@ -132,28 +130,24 @@ public class FileMapLayer implements MapLayer {
     }
 
     public void panRight() {
-        pan(panValue, 0);
+        pan(PAN_PIXELS, 0);
     }
 
     public void panLeft() {
-        pan(-panValue, 0);
+        pan(-PAN_PIXELS, 0);
     }
 
     public void panUp() {
-        pan(0, -panValue);
+        pan(0, -PAN_PIXELS);
     }
 
     public void panDown() {
-        pan(0, panValue);
+        pan(0, PAN_PIXELS);
     }
 
-    public int getPanSpeed() {
-        return panValue;
-    }
-
-    public boolean drawMap(Graphics gr) {
+    public boolean drawMap(Graphics gr, int mapPanX, int mapPanY) {
         if (isReady()) {
-            return mapManager.drawActualMap(gr, viewPort);
+            return mapManager.drawActualMap(gr, viewPort, mapPanX, mapPanY);
         } else {
             return false;
         }

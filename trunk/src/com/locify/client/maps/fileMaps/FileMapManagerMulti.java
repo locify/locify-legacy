@@ -30,9 +30,9 @@ public class FileMapManagerMulti extends FileMapManager {
         super(mapPath);
     }
 
-    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort) {
+    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY) {
         //System.out.println("FileMapManager.drawActualMap() multi tile: " + viewPort.toString());
-        return configFile.drawImageMulti(gr, viewPort, null);
+        return configFile.drawImageMulti(gr, viewPort, null, mapPanX, mapPanY);
     }
 
     protected void loadLocalMapFiles() {

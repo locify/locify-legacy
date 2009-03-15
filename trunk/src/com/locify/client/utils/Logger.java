@@ -39,12 +39,13 @@ public class Logger {
             System.err.print(message);
         }
 
-       ///#if !release
-       // if (fileName == null)
-       //    fileName = "debug_" + System.currentTimeMillis() + ".txt";
-       // out = message + "\n" + out;
-       // R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message + "\n");
-       // //#endif
+       //#if !release
+        if (fileName == null)
+           fileName = "debug_" + System.currentTimeMillis() + ".txt";
+        out = message + "\n" + out;
+        if (severity == SEVERITY_ERROR || severity == SEVERITY_WARNING)
+            R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message + "\n");
+        //#endif
     }
 
     public static void log(String message) {
@@ -61,6 +62,10 @@ public class Logger {
 
     public static void error(String message) {
         log("Exception: " + message, SEVERITY_ERROR, true);
+    }
+
+    public static void warning(String message) {
+        log("Warning: " + message, SEVERITY_WARNING, true);
     }
 
     public static String getOutText() {

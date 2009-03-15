@@ -78,7 +78,6 @@ public class TileMapLayer implements MapLayer {
     private RectangleViewPort tileBounds;
     private Image tileImage;
 
-    private static int PAN_PIXELS = 15; //how many pixels are moved when panning
     private MapScreen parent; //component which should be repaint
     private Graphics graphics; //form.graphics
     /** memory monitoring */
@@ -263,14 +262,6 @@ public class TileMapLayer implements MapLayer {
         return horizontalWrapped;
     }
 
-    public int getPanSpeed() {
-        return PAN_PIXELS;
-    }
-
-    public void setPanSpeed(int panSpeed) {
-        TileMapLayer.PAN_PIXELS = panSpeed;
-    }
-
     private void createCache() {
         if (tileCache == null) {
             this.tileCache = new TileCache(256, 256);
@@ -302,7 +293,7 @@ public class TileMapLayer implements MapLayer {
                 };
     }
 
-    public boolean drawMap(Graphics g) {
+    public boolean drawMap(Graphics g, int mapPanX, int mapPanY) {
         try {
             graphics = g;
             viewportBounds = getViewportBounds();
@@ -357,7 +348,7 @@ public class TileMapLayer implements MapLayer {
                         g.setColor(ColorsFonts.GRAY);
                         g.fillRect(tileBounds.x, tileBounds.y, tileBounds.width, tileBounds.height);
                     } else {
-                        g.drawImage(tileImage, tileBounds.x, tileBounds.y, Graphics.TOP | Graphics.LEFT);
+                        g.drawImage(tileImage, tileBounds.x + mapPanX, tileBounds.y + mapPanY, Graphics.TOP | Graphics.LEFT);
                     }
                 }
             }
