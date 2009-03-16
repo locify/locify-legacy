@@ -30,12 +30,12 @@ public class PointMapItem extends MapItem {
     /** points for painting */
     private Point2D.Int[] items;
     /** array of actualy selected points */
-    private String selectedPoints;
+    private Vector selectedPoints;
 
     public PointMapItem(Vector waypoints) {
         super();
         this.waypoints = waypoints;
-        this.selectedPoints = "";
+        this.selectedPoints = new Vector();
         initialize();
     }
 
@@ -69,7 +69,7 @@ public class PointMapItem extends MapItem {
                 GeoFileStyle style = null;
                 for (int i = 0; i < items.length; i++) {
                     // draw points
-                    if (selectedPoints.indexOf("~" + i + "~") != -1)
+                    if (selectedPoints.size() > 0 && selectedPoints.contains(new Integer(i)))
                         continue;
 
                     style = ((Waypoint) waypoints.elementAt(i)).getStyleNormal();
@@ -86,7 +86,7 @@ public class PointMapItem extends MapItem {
     }
 
     public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
-        selectedPoints = "";
+        selectedPoints.removeAllElements();
         if (initialized) {
             Waypoint tempWpt;
             for (int i = 0; i < items.length; i++) {
@@ -97,7 +97,7 @@ public class PointMapItem extends MapItem {
                         tempWpt.setStyleHighLight(stylePointIconHighlight);
                     tempWpt.state = Waypoint.STATE_HIGHLIGHT;
                     data.addElement(tempWpt);
-                    selectedPoints += ("~" + i + "~");
+                    selectedPoints.addElement(new Integer(i));
                 }
             }
         }

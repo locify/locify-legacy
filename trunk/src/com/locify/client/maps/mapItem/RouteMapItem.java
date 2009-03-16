@@ -33,7 +33,7 @@ public class RouteMapItem extends MapItem {
     /** vector containing separatings value */
     private Vector separating;
     /** array of actualy selected points */
-    private String selectedPoints;
+    private Vector selectedPoints;
     /** points for painting */
     private Point2D.Int[] items;
     /** style of whole route */
@@ -47,7 +47,7 @@ public class RouteMapItem extends MapItem {
     public RouteMapItem(Vector points) {
         super();
         setVectorLocation4D(points);
-        this.selectedPoints = "";
+        this.selectedPoints = new Vector();
         initialize();
     }
 
@@ -96,7 +96,8 @@ public class RouteMapItem extends MapItem {
                     }
 
                     // draw points
-                    if (selectedPoints.indexOf("~" + i + "~") != -1)
+                    // TODO: biggest problem is creating new Integer for every point !!!
+                    if (selectedPoints.size() > 0 && selectedPoints.contains(new Integer(i)))
                         continue;
                         
                     if (styleNormal != null && styleNormal.getIcon() != null) {
@@ -114,11 +115,12 @@ public class RouteMapItem extends MapItem {
     }
 
     public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
-        selectedPoints = "";
+        selectedPoints.removeAllElements();
         if (initialized) {
             Waypoint tempWpt;
+            Point2D.Int item;
             for (int i = 0; i < items.length; i++) {
-                Point2D.Int item = items[i];
+                item = items[i];
                 if (((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radiusSquare) {
                     tempWpt = new Waypoint(
                                 ((Location4D) points.elementAt(i)).getLatitude(),
@@ -126,7 +128,7 @@ public class RouteMapItem extends MapItem {
                                 "Route waypoint", "waypoint " + (i + 1), styleNormal, styleHightLight);
                     tempWpt.state = Waypoint.STATE_HIGHLIGHT;
                     data.addElement(tempWpt);
-                    selectedPoints += ("~" + i + "~");
+                    selectedPoints.addElement(new Integer(i));
                 }
             }
         }
