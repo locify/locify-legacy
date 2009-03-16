@@ -29,6 +29,8 @@ public class ImageRequest {
         protected int x;
         protected int y;
 
+        protected boolean requiredTile;
+
         public ImageRequest(String fileName) {
             this(fileName, null, 0);
         }
@@ -37,6 +39,7 @@ public class ImageRequest {
             this(fileName);
             this.x = x;
             this.y = y;
+            this.requiredTile = false;
         }
 
         public ImageRequest(String fileName, String tarName, int byteFromPosition) {
@@ -44,5 +47,6 @@ public class ImageRequest {
             this.tarName = tarName;
             this.byteFromPosition = byteFromPosition;
             this.image = null;
+            this.requiredTile = false;
         }
 }

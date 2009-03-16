@@ -39,13 +39,13 @@ public class Logger {
             System.err.print(message);
         }
 
-       //#if !release
+//       //#if !release
         if (fileName == null)
            fileName = "debug_" + System.currentTimeMillis() + ".txt";
         out = message + "\n" + out;
-        if (severity == SEVERITY_ERROR || severity == SEVERITY_WARNING)
+        if (severity == SEVERITY_ERROR || severity == SEVERITY_WARNING || severity == SEVERITY_DEBUG)
             R.getFileSystem().saveStringToEof(FileSystem.LOG_FOLDER + fileName, message + "\n");
-        //#endif
+//        //#endif
     }
 
     public static void log(String message) {

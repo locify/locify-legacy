@@ -73,9 +73,13 @@ public class ConfigFileTile {
     /** size of screen */
     private int screenWidth = 0,  screenHeight = 0;
     /** starting number of tile X-line */
-    private int tileX;
+    private int tileX1;
     /** starting number of tile Y-line */
-    private int tileY;
+    private int tileY1;
+    /** ending number of tile X-line */
+    private int tileX2;
+    /** ending number of tile Y-line */
+    private int tileY2;
     /** num of files able to draw on screen X-line */
     private int numOfTilesXperScreen;
     /** num of files able to draw on screen Y-line */
@@ -421,23 +425,28 @@ public class ConfigFileTile {
 //System.out.println("\n  mapViewPort " + mapViewPort.toString());
 //System.out.println("\n  targetPort " + targetPort.toString());
 //System.out.println("\n  center: " + targetPort.center.toString());
-            int x1, x2, y1, y2;
+            int x1,y1;
 
             if (screenWidth == 0) {
                 screenWidth = R.getMapScreen().getWidth();
                 screenHeight = R.getMapScreen().getHeight();
-                numOfTilesXperScreen = (int) Math.floor(screenWidth / tileSizeX) + 2;
-                numOfTilesYperScreen = (int) Math.floor(screenHeight / tileSizeY) + 2;
                 numOfTotalTilesX = (int) Math.floor(xmax / tileSizeX);
                 numOfTotalTilesY = (int) Math.floor(ymax / tileSizeY);
             }
             // top left map point (in map pixel coordinates)
-            mapPoint = new Point2D.Double(mapPoint.getX() - screenWidth / 2,
+            Point2D mapPointTL = new Point2D.Double(mapPoint.getX() - screenWidth / 2,
                     mapPoint.getY() - screenHeight / 2);
-            tileX = (int) Math.floor(mapPoint.getX() / tileSizeX);
-            tileY = (int) Math.floor(mapPoint.getY() / tileSizeY);
-            moveX = (int) ((tileX * tileSizeX) - mapPoint.getX());
-            moveY = (int) ((tileY * tileSizeY) - mapPoint.getY());
+            // bottom right map point (in map pixel coordinates)
+            Point2D mapPointBR = new Point2D.Double(mapPoint.getX() + screenWidth / 2,
+                    mapPoint.getY() + screenHeight / 2);
+            tileX1 = (int) Math.floor(mapPointTL.getX() / tileSizeX);
+            tileY1 = (int) Math.floor(mapPointTL.getY() / tileSizeY);
+            tileX2 = (int) Math.floor(mapPointBR.getX() / tileSizeX);
+            tileY2 = (int) Math.floor(mapPointBR.getY() / tileSizeY);
+            numOfTilesXperScreen = tileX2 - tileX1 + 1;
+            numOfTilesYperScreen = tileY2 - tileY1 + 1;
+            moveX = (int) ((tileX1 * tileSizeX) - mapPointTL.getX());
+            moveY = (int) ((tileY1 * tileSizeY) - mapPointTL.getY());
 //System.out.println("\n  drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
 //System.out.println("\n  drawImageMulti - mapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
 //System.out.println("\n  drawImageMulti - tileX: " + tileX + " tileY: " + tileY);
@@ -445,7 +454,7 @@ public class ConfigFileTile {
             String imageName = null;
             for (int i = 0; i < numOfTilesXperScreen; i++) {
                 for (int j = 0; j < numOfTilesYperScreen; j++) {
-                    if (imageHaveToExist(tileX + i, tileY + j)) {
+                    if (imageHaveToExist(tileX1 + i, tileY1 + j)) {
                         imageName =  createImageName(i, j);
                         if (tar != null) {
 //System.out.println("Add: " + (manager.mapPathPrefix + manager.mapPath + imageName) + "  " + tar.getTarFile() + "  " + tar.getFilePosition(imageName));
@@ -464,7 +473,7 @@ public class ConfigFileTile {
 
             for (int i = 0; i < numOfTilesXperScreen; i++) {
                 for (int j = 0; j < numOfTilesYperScreen; j++) {
-                    if (!imageHaveToExist(tileX + i, tileY + j)) {
+                    if (!imageHaveToExist(tileX1 + i, tileY1 + j)) {
                         image = MapScreen.getImageNotExisted(tileSizeX, tileSizeY);
                     } else {
                         imageName = createImageName(i, j);
@@ -499,13 +508,13 @@ public class ConfigFileTile {
     }
 
     private String createImageNameLocify(int i, int j) {
-        return manager.mapImageDir + zoom + "_" + (tileX + i) + "_" + (tileY + j) + ".png";
+        return manager.mapImageDir + zoom + "_" + (tileX1 + i) + "_" + (tileY1 + j) + ".png";
     }
 
     private String createImageNameTrekBuddy(int i, int j) {
         return "set/" + manager.mapImageDir.substring(0, manager.mapImageDir.length() - 1)
-                                        + "_" + ((tileX + i) * tileSizeX)
-                                        + "_" + ((tileY + j) * tileSizeY) + ".png";
+                                        + "_" + ((tileX1 + i) * tileSizeX)
+                                        + "_" + ((tileY1 + j) * tileSizeY) + ".png";
     }
 
     private boolean imageHaveToExist(int tileX, int tileY) {

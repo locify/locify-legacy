@@ -1136,7 +1136,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private int panMoveY;
 
     private void makePanAction(int panX, int panY) {
-//System.out.println("MakePanAction");
         if (!panProcess) {
             panThread = new PanThread();
             panThread.start();

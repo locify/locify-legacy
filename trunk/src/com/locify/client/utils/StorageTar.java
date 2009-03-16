@@ -58,13 +58,13 @@ public class StorageTar {
             this.tarPath = tarPath;
             this.indexes = new HashMap();
             this.makeIndexes = true;
-            loadMapTarVariables();
+            //loadMapTarVariables();
             if (makeIndexes) {
                 indexFile();
                 getMapTileSize();
-                saveMapTarVariables();
+                //saveMapTarVariables();
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             R.getErrorScreen().view(ex, ex.getMessage(), "StorageTar constructor");
         }
     }
@@ -98,7 +98,8 @@ public class StorageTar {
     public void indexFile() {
         try {
             resetData();
-//Logger.log("FileName: " + tarPath);
+long time = System.currentTimeMillis();
+Logger.debug("StorageTar.indexFile() indexing... (" + tarPath + ")");
             fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
             inputStream = fileConnection.openInputStream();
 
@@ -161,6 +162,7 @@ public class StorageTar {
             inputStream.close();
             inputStream = null;
             fileConnection = null;
+Logger.debug("StorageTar.indexFile() end after " + (System.currentTimeMillis() - time) + "ms");
         } catch (IOException ex) {
             ex.printStackTrace();
         } catch (NumberFormatException ex) {
@@ -255,7 +257,8 @@ public class StorageTar {
 //    }
 
     public static byte[] loadFile(String tarArchive, int fileSizeFrom) {
-//System.out.println("\ntar load: " + fileSizeFrom);
+long time = System.currentTimeMillis();
+Logger.warning("\nStorageTar.loadFile() tarArchive: " + tarArchive + " fileSizeFrom: " + fileSizeFrom);
         try {
             fileConnection = (FileConnection) Connector.open(tarArchive, Connector.READ);
             inputStream = fileConnection.openInputStream();
@@ -286,7 +289,7 @@ public class StorageTar {
             inputStream.close();
             inputStream = null;
             fileConnection = null;
-
+Logger.warning("End ... by " + (System.currentTimeMillis() - time) + "ms");
             return data;
         } catch (IOException ex) {
             R.getErrorScreen().view(ex, "StorageTar.loadFile(tarArchive, fileSize, filePosition) - IOEx", null);

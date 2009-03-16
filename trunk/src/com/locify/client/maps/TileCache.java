@@ -68,7 +68,7 @@ public class TileCache extends Thread {
      */
     public TileCache(int tileSizeX, int tileSizeY) {
         // set size of cache ... 1MB
-        this.maxSize = (int) ((0.5 * 1048576) / (tileSizeX * tileSizeY));
+        this.maxSize = (int) ((0.33 * 1048576.0) / (tileSizeX * tileSizeY));
         if (maxSize < 4)
             maxSize = 4;
         this.tileSizeX = tileSizeX;
@@ -84,14 +84,13 @@ public class TileCache extends Thread {
         this.lastRunRefresh = lastRunRemover;
         this.needRefresh = false;
         this.localRefreshCalling = false;
-        this.timeOut = 10000;
-        
+        this.timeOut = 60000;
     }
 
     public void newRequest(Vector newRequest) {
 //System.out.println("New request size: " + newRequest.size() + " localRefresh: " + localRefreshCalling);
         if (!localRefreshCalling) {
-            this.tileNewRequest = newRequest;
+            tileNewRequest = newRequest;
             cleanRequest = true;
         }
         localRefreshCalling = false;
@@ -108,10 +107,19 @@ public class TileCache extends Thread {
         }
     }
 
-    private Image getImageFromCache(String imageName) {
+    private void setAllCachedAsNotRequired() {
         for (int i = 0; i < tileCache.size(); i++) {
-            if (((ImageRequest) tileCache.elementAt(i)).fileName.equals(imageName)) {
-                return ((ImageRequest) tileCache.elementAt(i)).image;
+            ((ImageRequest) tileCache.elementAt(i)).requiredTile = false;
+        }
+    }
+
+    private Image getImageFromCache(String imageName) {
+        ImageRequest actualR;
+        for (int i = 0; i < tileCache.size(); i++) {
+            actualR = (ImageRequest) tileCache.elementAt(i);
+            if (actualR.fileName.equals(imageName)) {
+                actualR.requiredTile = true;
+                return actualR.image;
             }
         }
         return null;
@@ -188,18 +196,32 @@ public class TileCache extends Thread {
                         }
 
                     } else if (actualRequest.tarName != null) {
-//System.out.println("TileCache TAR: name - " + actualRequest.tarName + " pos: " + actualRequest.byteFromPosition);
+long time = System.currentTimeMillis();
+Logger.debug("!!! Memory before - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
+Logger.debug("TileCache.run() tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
+Logger.debug("TileCache TAR: name - " + actualRequest.tarName + " pos: " + actualRequest.byteFromPosition);
                         byte[] array = StorageTar.loadFile(actualRequest.tarName, actualRequest.byteFromPosition);
                         if (array == null || array.length == 0) {
                             actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
                         } else {
-                            actualRequest.image = Image.createImage(array, 0, array.length);
+                            try {
+                                actualRequest.image = Image.createImage(array, 0, array.length);
+                            } catch (OutOfMemoryError e) {
+                                Logger.error("TileCache.run() outOfMemoryError: " + e.toString());
+                            } catch (Exception e) {
+                                Logger.error("TileCache.run() Error: " + e.toString());
+                            } finally {
+                                if (actualRequest.image == null)
+                                    actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
+                            }
                         }
 
                         addImageToCache(actualRequest);
                         if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
                             R.getMapScreen().repaint();
                         }
+Logger.debug("TileCache TAR: end after " + (System.currentTimeMillis() - time) + "ms");
+Logger.debug("Memory after - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
                     }
 
                     refreshScreenAndDownloaders();
@@ -233,9 +255,13 @@ public class TileCache extends Thread {
 //System.out.println("Switch tileR.size(): " + tileRequest.size() + " tileNewR.size(): " + tileNewRequest.size());
             cleanRequest = false;
             tileRequest = new Vector();
+
+            setAllCachedAsNotRequired();
+
             ImageRequest actualR;
             for (int i = 0; i < tileNewRequest.size(); i++) {
                 actualR = (ImageRequest) tileNewRequest.elementAt(i);
+//Logger.debug("New request: " + actualR.fileName);
                 if (getImageFromCache(actualR.fileName) == null)
                     tileRequest.addElement(actualR);
             }
@@ -252,10 +278,25 @@ public class TileCache extends Thread {
 
             // clean cache
             if (tileCache.size() > maxSize) {
-//System.out.println("\nTileCache: clear cache tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
-                while(tileCache.size() > ((4 * maxSize) / 5)) {
-//System.out.println("\n  remove: " + ((ImageRequest) tileCache.elementAt(0)).fileName);
-                    tileCache.removeElementAt(0);
+Logger.debug("\nTileCache: clear cache tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
+                for (int i = tileCache.size() - 1; i >=0; i--) {
+                    actualR = (ImageRequest) tileCache.elementAt(i);
+                    if (!actualR.requiredTile) {
+Logger.debug("\n  remove: " + actualR.fileName);
+                        tileCache.removeElementAt(i);
+                        if (tileCache.size() < ((3 * maxSize) / 5))
+                            return;
+                    }
+                }
+            }
+            if (tileCache.size() > maxSize) {
+Logger.debug("\nTileCache: clear cache FORCE tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
+                for (int i = tileCache.size() - 1; i >=0; i--) {
+                    actualR = (ImageRequest) tileCache.elementAt(i);
+Logger.debug("\n  remove: " + actualR.fileName);
+                    tileCache.removeElementAt(i);
+                    if (tileCache.size() < Math.floor((3 * maxSize) / 5))
+                        return;
                 }
             }
         }
@@ -371,10 +412,10 @@ public class TileCache extends Thread {
 
                     this.image = Image.createImage(data, 0, data.length);
                 } else {
-                    Logger.warning("Error while downloading map tile: " + connection.getResponseCode());
+                    Logger.error("Error while downloading map tile: " + connection.getResponseCode());
                 }
             } catch (IOException e) {
-                Logger.warning("TileCache.HttpImageDownloader() - imageDownloadError: " + e.toString() + " tile: " + path);
+                Logger.error("TileCache.HttpImageDownloader() - imageDownloadError: " + e.toString() + " tile: " + path);
                 if (e.getMessage().equals("HTTP Response Code = 404")) {
                     this.image = MapScreen.getImageNotExisted(tileSizeX, tileSizeY);
                 } else {

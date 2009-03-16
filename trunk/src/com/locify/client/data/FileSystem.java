@@ -14,6 +14,7 @@
 package com.locify.client.data;
 
 import com.locify.client.utils.Capabilities;
+import com.locify.client.utils.Logger;
 import de.enough.polish.io.Serializer;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -184,7 +185,9 @@ public class FileSystem {
             Enumeration roots = FileSystemRegistry.listRoots();
             while (roots.hasMoreElements()) {
                 String root = (String) roots.nextElement();
-                if (root.equalsIgnoreCase("e:/") || root.indexOf("Card") != -1 || root.indexOf("card") != -1 || root.indexOf("SD") != -1 || root.indexOf("MMC") != -1) {
+                if (root.equalsIgnoreCase("e:/") || root.indexOf("Card") != -1 ||
+                root.indexOf("card") != -1 || root.indexOf("SD") != -1 ||
+                root.indexOf("MMC") != -1 || root.indexOf("tflash") != -1) {
                     firstRoots.addElement(root);
                 } else {
                     lastRoots.addElement(root);
