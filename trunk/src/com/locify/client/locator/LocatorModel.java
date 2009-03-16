@@ -181,7 +181,6 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
      */
     public synchronized void connectGps() {
         try {
-            System.out.println("connect gps");
             providerSelected = true;
             String oldProvider = this.providerChangeRequest;
             if (R.getSettings().getPrefferedGps() == SettingsData.AUTODETECT) {
@@ -197,13 +196,7 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
                     this.providerChangeRequest = ((Provider) providers.firstElement()).getClassName();
                 }
             }
-            System.out.println(oldProvider);
-            System.out.println(providerChangeRequest);
             if (oldProvider == null || !providerChangeRequest.equals(oldProvider)) {
-                if (locationProvider != null && !providerStopped) {
-                    locationProvider.stopProvider();
-                    locationProvider = null;
-                }
                 locationProvider = this.getLocationProviderInstance(providerChangeRequest);
                 providerStopped = false;
             }
@@ -380,7 +373,6 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
 
     /** instead of using Class.forName() */
     private LocationProvider getLocationProviderInstance(String classname) {
-
         if ("JSR179LocationProvider".equals(classname)) {
             return new JSR179LocationProvider();
         } else if ("BTNMEALocationProvider".equals(classname)) {
