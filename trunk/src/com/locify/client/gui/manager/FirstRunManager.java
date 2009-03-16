@@ -65,12 +65,18 @@ public class FirstRunManager implements CommandListener, ItemCommandListener {
             if (chosenLanguage == null) {
                 viewLanguageSelection();
             } else {
+                //windows mobile has two permission checks
+                if (Capabilities.isWindowsMobile()) {
+                    permissionsTest();
+                }
                 if (permissionsTest()) {
                     if (R.getFileSystem().createDefaultRoot()) {
                         R.getMidlet().startMIDlet();
                     } else {
                         viewRootSelection("");
                     }
+                } else {
+                    viewPermissionsWarning();
                 }
             }
         } catch (Exception e) {
@@ -92,7 +98,6 @@ public class FirstRunManager implements CommandListener, ItemCommandListener {
 
             //decide what to do next
             if ((timeAfter - timeBefore) > 700) { //no permissions set
-                viewPermissionsWarning();
                 return false;
             } else {
                 return true;
@@ -228,7 +233,7 @@ public class FirstRunManager implements CommandListener, ItemCommandListener {
     /**
      * Views welcome screen with instructions
      */
-    private void viewPermissionsWarning() {
+    public void viewPermissionsWarning() {
         frmPermissionWarning = new Form(Locale.get("Locify"));
         //#style browserTextBold
         StringItem siWarning = new StringItem(null, Locale.get("You_need_to_setup_permissions"));

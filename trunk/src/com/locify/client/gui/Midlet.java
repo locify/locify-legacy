@@ -89,6 +89,10 @@ public class Midlet extends MIDlet {
                     R.destroyLoading();
                     R.getContext().loadLastKnown();
                 }
+                else
+                {
+                    R.getFirstRun().viewPermissionsWarning();
+                }
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "Midlet.startMIDlet", null);
