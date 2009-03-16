@@ -62,6 +62,12 @@ public class LocationContext implements LocationEventGenerator {
         if (location != null) {
             R.getLocator().setProviderSelected(true);
         }
+        if (source != GPS) {
+            LocationProvider lp = R.getLocator().getLocationProvider();
+            if (lp != null) {
+                lp.stopProvider();
+            }
+        }
         if (temporary) {
             R.getLocator().setLastLocation(location);
             R.getBack().deleteLast();

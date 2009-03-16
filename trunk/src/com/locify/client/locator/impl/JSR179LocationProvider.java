@@ -108,8 +108,11 @@ public class JSR179LocationProvider extends GpsLocationProvider {
 
     }
 
-    public void destroy() {
+    public void stopProvider() {
+        System.out.println("stopping provider");
+        super.stopProvider();
         internalProvider.setLocationListener(null, 0, 0, 0);
+        R.getLocator().setProviderStopped(true);
     }
 
     /**

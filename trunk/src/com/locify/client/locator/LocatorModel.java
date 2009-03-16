@@ -173,13 +173,15 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
     public void setProviderStopped(boolean stopped) {
         providerStopped = stopped;
         locationProvider = null;
+        providerChangeRequest = null;
     }
-
+    
     /** 
      * Starts new gps location provider
      */
     public synchronized void connectGps() {
         try {
+            System.out.println("connect gps");
             providerSelected = true;
             String oldProvider = this.providerChangeRequest;
             if (R.getSettings().getPrefferedGps() == SettingsData.AUTODETECT) {
@@ -195,13 +197,15 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
                     this.providerChangeRequest = ((Provider) providers.firstElement()).getClassName();
                 }
             }
+            System.out.println(oldProvider);
+            System.out.println(providerChangeRequest);
             if (oldProvider == null || !providerChangeRequest.equals(oldProvider)) {
                 if (locationProvider != null && !providerStopped) {
                     locationProvider.stopProvider();
                     locationProvider = null;
-                    providerStopped = false;
                 }
                 locationProvider = this.getLocationProviderInstance(providerChangeRequest);
+                providerStopped = false;
             }
             if (!providerStopped) {
                 R.getContext().setLocation(null, LocationContext.GPS, null);

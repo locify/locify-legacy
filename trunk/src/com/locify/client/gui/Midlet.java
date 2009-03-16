@@ -68,6 +68,7 @@ public class Midlet extends MIDlet {
 
     public void startMIDlet() {
         try {
+            R.getLoading().view();
             if (R.getFirstRun().isFirstTime()) {
                 R.getFirstRun().start();
             } else {
@@ -75,7 +76,6 @@ public class Midlet extends MIDlet {
                 if (R.getFirstRun().permissionsTest()) {
                     R.getFirstRun().loadRoot();
 
-                    R.getLoading().view();
                     CookieData.load();
                     R.getSettings().load();
                     R.getLocator().load();

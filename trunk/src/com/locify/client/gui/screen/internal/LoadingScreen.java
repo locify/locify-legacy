@@ -40,7 +40,7 @@ public class LoadingScreen extends Canvas {
         try {
             this.setFullScreenMode(true);
             image = Image.createImage("/loading.png");
-            text = Locale.get("Loading");
+            text = "Loading";
             R.getMidlet().switchDisplayable(null, this);
         } catch (Exception e) {
         }
