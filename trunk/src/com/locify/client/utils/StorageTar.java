@@ -16,7 +16,6 @@ package com.locify.client.utils;
 import com.locify.client.data.FileSystem;
 import de.enough.polish.util.HashMap;
 import de.enough.polish.util.Iterator;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
@@ -31,15 +30,16 @@ public class StorageTar {
 
     //String path = "";
     private static FileConnection fileConnection;
-    private static DataInputStream inputStream;
+    private static InputStream inputStream;
     private static long fileSize;
     private static int dataPosition;
     private static String actualFile;
     private static String lastFile;
     private static int type;
 
+    private static int bufferSize = 25600;
+    private static byte[] buffer = new byte[bufferSize];
     private String tarPath;
-    private String xmlFileData;
     private HashMap indexes;
     long modifydate;
 
@@ -102,14 +102,14 @@ public class StorageTar {
 long time = System.currentTimeMillis();
 Logger.debug("StorageTar.indexFile() indexing... (" + tarPath + ")");
             fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
-            inputStream = fileConnection.openDataInputStream();
+            inputStream = fileConnection.openInputStream();
 
-            int l_posunuti = 0;
+            long l_posunuti = 0;
             byte l_filenamebytes[] = new byte[256];
             
             while (true) {
                 l_posunuti += 512 * (long) Math.ceil((float) fileSize / 512);
-                inputStream.skipBytes(l_posunuti);
+                inputStream.skip(l_posunuti);
                 dataPosition += 512 * (long) Math.ceil((float) fileSize / 512);
 
                 // 0 100 File name
@@ -152,7 +152,7 @@ Logger.debug("StorageTar.indexFile() indexing... (" + tarPath + ")");
                 inputStream.read(l_filenamebytes, 0, 6);
                 if (l_filenamebytes[0] == 'u' && l_filenamebytes[1] == 's' && l_filenamebytes[2] == 't' && l_filenamebytes[3] == 'a' && l_filenamebytes[4] == 'r') {
                     dataPosition += 256;
-                    inputStream.skipBytes(249);
+                    inputStream.skip(249);
                     l_posunuti = 0;
                 } else {
                     dataPosition -= 6;
@@ -262,11 +262,21 @@ long time = System.currentTimeMillis();
 Logger.warning("\nStorageTar.loadFile() tarArchive: " + tarArchive + " fileSizeFrom: " + fileSizeFrom);
         try {
             fileConnection = (FileConnection) Connector.open(tarArchive, Connector.READ);
-            inputStream = fileConnection.openDataInputStream();
-
+            inputStream = fileConnection.openInputStream();
+            
             byte[] data = new byte[256];
 Logger.warning(" step 1 " + (System.currentTimeMillis() - time) + "ms");
-            inputStream.skipBytes(fileSizeFrom);
+            int actualPos = 0;
+            while (true) {
+                if ((actualPos + bufferSize) < fileSizeFrom) {
+                    inputStream.read(buffer);
+                } else {
+                    inputStream.read(buffer, 0, fileSizeFrom - actualPos);
+                    break;
+                }
+                actualPos += bufferSize;
+            }
+            //inputStream.skip(fileSizeFrom);
 Logger.warning(" step 2 " + (System.currentTimeMillis() - time) + "ms");
             // trash
             inputStream.read(data, 0, 124);
@@ -282,7 +292,7 @@ Logger.warning(" step 2 " + (System.currentTimeMillis() - time) + "ms");
             inputStream.read(data, 0, 6);
             if (data[0] == 'u' && data[1] == 's' && data[2] == 't' && data[3] == 'a' && data[4] == 'r') {
                 dataPosition += 256;
-                inputStream.skipBytes(249);
+                inputStream.skip(249);
             } else {
                 dataPosition -= 6;
             }
