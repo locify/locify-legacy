@@ -48,7 +48,8 @@ public class StorageTar {
     private int mapTileSizeY = 0;
 
     private boolean makeIndexes;
-    
+
+
 
     /**
      * Cretae default storage that manage tar maps ie.
@@ -96,20 +97,39 @@ public class StorageTar {
         type = '5';
     }
 
+    private static void skipBytes(InputStream is, int numOfBytes) {
+        try {
+            int actualPos = 0;
+            while (true) {
+                if ((actualPos + bufferSize) < numOfBytes) {
+
+                        is.read(buffer);
+                } else {
+                    is.read(buffer, 0, numOfBytes - actualPos);
+                    break;
+                }
+                actualPos += bufferSize;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public void indexFile() {
         try {
             resetData();
 long time = System.currentTimeMillis();
-Logger.debug("StorageTar.indexFile() indexing... (" + tarPath + ")");
+//Logger.debug("StorageTar.indexFile() indexing... (" + tarPath + ")");
             fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
             inputStream = fileConnection.openInputStream();
 
-            long l_posunuti = 0;
+            int l_posunuti = 0;
             byte l_filenamebytes[] = new byte[256];
             
             while (true) {
                 l_posunuti += 512 * (long) Math.ceil((float) fileSize / 512);
-                inputStream.skip(l_posunuti);
+                skipBytes(inputStream, l_posunuti);
+                //inputStream.skip(l_posunuti);
                 dataPosition += 512 * (long) Math.ceil((float) fileSize / 512);
 
                 // 0 100 File name
@@ -163,7 +183,7 @@ Logger.debug("StorageTar.indexFile() indexing... (" + tarPath + ")");
             inputStream.close();
             inputStream = null;
             fileConnection = null;
-Logger.debug("StorageTar.indexFile() end after " + (System.currentTimeMillis() - time) + "ms");
+//Logger.debug("StorageTar.indexFile() end after " + (System.currentTimeMillis() - time) + "ms");
         } catch (IOException ex) {
             ex.printStackTrace();
         } catch (NumberFormatException ex) {
@@ -259,25 +279,16 @@ Logger.debug("StorageTar.indexFile() end after " + (System.currentTimeMillis() -
 
     public static byte[] loadFile(String tarArchive, int fileSizeFrom) {
 long time = System.currentTimeMillis();
-Logger.warning("\nStorageTar.loadFile() tarArchive: " + tarArchive + " fileSizeFrom: " + fileSizeFrom);
+//Logger.warning("\nStorageTar.loadFile() tarArchive: " + tarArchive + " fileSizeFrom: " + fileSizeFrom);
         try {
             fileConnection = (FileConnection) Connector.open(tarArchive, Connector.READ);
             inputStream = fileConnection.openInputStream();
             
             byte[] data = new byte[256];
-Logger.warning(" step 1 " + (System.currentTimeMillis() - time) + "ms");
-            int actualPos = 0;
-            while (true) {
-                if ((actualPos + bufferSize) < fileSizeFrom) {
-                    inputStream.read(buffer);
-                } else {
-                    inputStream.read(buffer, 0, fileSizeFrom - actualPos);
-                    break;
-                }
-                actualPos += bufferSize;
-            }
+//Logger.warning(" step 1 " + (System.currentTimeMillis() - time) + "ms");
+            skipBytes(inputStream, fileSizeFrom);
             //inputStream.skip(fileSizeFrom);
-Logger.warning(" step 2 " + (System.currentTimeMillis() - time) + "ms");
+//Logger.warning(" step 2 " + (System.currentTimeMillis() - time) + "ms");
             // trash
             inputStream.read(data, 0, 124);
             // file size
@@ -296,14 +307,14 @@ Logger.warning(" step 2 " + (System.currentTimeMillis() - time) + "ms");
             } else {
                 dataPosition -= 6;
             }
-Logger.warning(" step 3 " + (System.currentTimeMillis() - time) + "ms");
+//Logger.warning(" step 3 " + (System.currentTimeMillis() - time) + "ms");
             data = new byte[(int) fileSize];
             inputStream.read(data, 0,(int) fileSize);
 
             inputStream.close();
             inputStream = null;
             fileConnection = null;
-Logger.warning("End ... by " + (System.currentTimeMillis() - time) + "ms");
+//Logger.warning("End ... by " + (System.currentTimeMillis() - time) + "ms");
             return data;
         } catch (IOException ex) {
             R.getErrorScreen().view(ex, "StorageTar.loadFile(tarArchive, fileSize, filePosition) - IOEx", null);
