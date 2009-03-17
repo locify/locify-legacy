@@ -22,12 +22,12 @@ import javax.microedition.lcdui.Graphics;
  * Manages loading offline maps in locify-specific TAR
  * @author MenKat
  */
-public class FileMapManagerTarLocify extends FileMapManager {
+public class FileMapManagerTarXml extends FileMapManager {
 
     /** main tile in multi tile map */
     private StorageTar storage;
     
-    public FileMapManagerTarLocify(String mapPath) {
+    public FileMapManagerTarXml(String mapPath) {
         super(mapPath);
     }
 

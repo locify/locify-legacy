@@ -193,6 +193,10 @@ public class UTMProjection extends Projection {
         result[0] = northing;
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         result[1] = easting + 3000000;
+//System.out.println("Lon zone: " + longitudeZone);
+//System.out.println("res1: " + northing);
+//System.out.println("res2: " + easting);
+
         return result;
     }
 

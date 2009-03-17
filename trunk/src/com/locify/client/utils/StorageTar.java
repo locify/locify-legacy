@@ -263,7 +263,9 @@ Logger.warning("\nStorageTar.loadFile() tarArchive: " + tarArchive + " fileSizeF
             fileConnection = (FileConnection) Connector.open(tarArchive, Connector.READ);
             inputStream = fileConnection.openInputStream();
             byte[] data = new byte[256];
+Logger.warning(" step 1 " + (System.currentTimeMillis() - time) + "ms");
             inputStream.skip(fileSizeFrom);
+Logger.warning(" step 2 " + (System.currentTimeMillis() - time) + "ms");
             // trash
             inputStream.read(data, 0, 124);
             // file size
@@ -282,7 +284,7 @@ Logger.warning("\nStorageTar.loadFile() tarArchive: " + tarArchive + " fileSizeF
             } else {
                 dataPosition -= 6;
             }
-
+Logger.warning(" step 3 " + (System.currentTimeMillis() - time) + "ms");
             data = new byte[(int) fileSize];
             inputStream.read(data, 0,(int) fileSize);
 

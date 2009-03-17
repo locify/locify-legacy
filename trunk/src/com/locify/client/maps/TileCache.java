@@ -68,7 +68,7 @@ public class TileCache extends Thread {
      */
     public TileCache(int tileSizeX, int tileSizeY) {
         // set size of cache ... 1MB
-        this.maxSize = (int) ((0.33 * 1048576.0) / (tileSizeX * tileSizeY));
+        this.maxSize = (int) ((1.0 * 1048576.0) / (tileSizeX * tileSizeY));
         if (maxSize < 4)
             maxSize = 4;
         this.tileSizeX = tileSizeX;
@@ -221,7 +221,7 @@ Logger.debug("TileCache TAR: name - " + actualRequest.tarName + " pos: " + actua
                             R.getMapScreen().repaint();
                         }
 Logger.debug("TileCache TAR: end after " + (System.currentTimeMillis() - time) + "ms");
-Logger.debug("Memory after - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
+//Logger.debug("Memory after - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
                     }
 
                     refreshScreenAndDownloaders();
@@ -276,28 +276,36 @@ Logger.debug("Memory after - (free/total) " + Runtime.getRuntime().freeMemory() 
                 }
             }
 
+            boolean needGarbage = false;
+
             // clean cache
             if (tileCache.size() > maxSize) {
-Logger.debug("\nTileCache: clear cache tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
+                needGarbage = true;
+//Logger.debug("\nTileCache: clear cache tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
                 for (int i = tileCache.size() - 1; i >=0; i--) {
                     actualR = (ImageRequest) tileCache.elementAt(i);
                     if (!actualR.requiredTile) {
-Logger.debug("\n  remove: " + actualR.fileName);
+//Logger.debug("\n  remove: " + actualR.fileName);
                         tileCache.removeElementAt(i);
                         if (tileCache.size() < ((3 * maxSize) / 5))
-                            return;
+                            break;
                     }
                 }
             }
             if (tileCache.size() > maxSize) {
-Logger.debug("\nTileCache: clear cache FORCE tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
+//Logger.debug("\nTileCache: clear cache FORCE tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
                 for (int i = tileCache.size() - 1; i >=0; i--) {
                     actualR = (ImageRequest) tileCache.elementAt(i);
-Logger.debug("\n  remove: " + actualR.fileName);
+//Logger.debug("\n  remove: " + actualR.fileName);
                     tileCache.removeElementAt(i);
                     if (tileCache.size() < Math.floor((3 * maxSize) / 5))
-                        return;
+                        break;
                 }
+            }
+
+            if (needGarbage) {
+//Logger.debug("Garbage collecting");
+                Runtime.getRuntime().gc();
             }
         }
     }

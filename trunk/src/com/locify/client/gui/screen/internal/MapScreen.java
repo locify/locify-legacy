@@ -86,6 +86,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public static final String IMAGE_EMPTY_TILE = "/map_tile_64x64.png";
     public static final String IMAGE_ICON_PLUS = "/map_icon_plus.png";
     public static final String IMAGE_ICON_MINUS = "/map_icon_minus.png";
+    public static final String IMAGE_ICON_ACTUAL_LOCATION = "/map_icon_actualLoc.png";
     /** image displayed while tile is loading */
     private static Image loadingImage;
     /** image for nonexsited tile */
@@ -100,6 +101,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private static Image imageIconPlus;
     /** minus icon image */
     private static Image imageIconMinus;
+    /** actual position image */
+    private static Image imageActualLocation;
     /** thread for painting */
 //    private PaintThread paintThread;
     /** if some mapItems are selected this isn't null */
@@ -133,6 +136,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         drawLock = false;
         zoomProcess = false;
         mapItemManager = R.getMapItemManager();
+        
         selectedMapItemWaypoints = new Vector();
         selectedMapItemIndex = -1;
         lastSelectedX = 0;
@@ -161,7 +165,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         cmdZoomIn = new Command(Locale.get("Zoom_in"), Command.SCREEN, 1);
         cmdZoomOut = new Command(Locale.get("Zoom_out"), Command.SCREEN, 2);
         cmdMyLocation = new Command(Locale.get("My_location"), Command.SCREEN, 3);
-        //cmdSelectItem = new Command(Locale.get("SelectItem"), Command.SCREEN, 4);
         cmdChangeMapTile = new Command(Locale.get("Change_map_tile"), Command.SCREEN, 5);
         cmdChangeMapFile = new Command(Locale.get("Change_map_file"), Command.SCREEN, 6);
         this.addCommand(Commands.cmdBack);
@@ -478,15 +481,19 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     private void drawActualLocationPoint(Graphics g) {
-        Point2D actPoint = map.getLocationCoord(R.getLocator().getLastLocation());
+        Point2D.Int actPoint = map.getLocationCoord(R.getLocator().getLastLocation());
         if (actPoint != null) {
-            g.setColor(ColorsFonts.MAP_ACTUAL_LOCATION);
+            /*g.setColor(ColorsFonts.MAP_ACTUAL_LOCATION);
             g.drawArc((int) (actPoint.getX() - panMoveX - 5),
                     (int) (actPoint.getY() - panMoveY - 5), 9, 9, 0, 360);
             g.drawLine((int) (actPoint.getX() - panMoveX - 10), (int) (actPoint.getY() - panMoveY),
                     (int) (actPoint.getX() - panMoveX + 10), (int) (actPoint.getY() - panMoveY));
             g.drawLine((int) (actPoint.getX() - panMoveX), (int) (actPoint.getY() - panMoveY - 10),
                     (int) (actPoint.getX() - panMoveX), (int) (actPoint.getY() - panMoveY + 10));
+             */
+
+            g.drawImage(getMapIconActualLocation(), actPoint.x - panMoveX,
+                    actPoint.y - panMoveY, Graphics.VCENTER | Graphics.HCENTER);
         }
     }
 
@@ -1102,26 +1109,37 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         return image;
     }
 
-    public static Image getMapIconPlus() {
+    private static Image getMapIconPlus() {
         if (imageIconPlus == null) {
             try {
                 imageIconPlus = Image.createImage(IMAGE_ICON_PLUS);
             } catch (IOException ex) {
-                ex.printStackTrace();
+                R.getErrorScreen().view(ex, "MapScreen.getMapIconPlus()", null);
             }
         }
         return imageIconPlus;
     }
 
-    public static Image getMapIconMinus() {
+    private static Image getMapIconMinus() {
         if (imageIconMinus == null) {
             try {
                 imageIconMinus = Image.createImage(IMAGE_ICON_MINUS);
             } catch (IOException ex) {
-                ex.printStackTrace();
+                R.getErrorScreen().view(ex, "MapScreen.getMapIconMinus()", null);
             }
         }
         return imageIconMinus;
+    }
+
+    private static Image getMapIconActualLocation() {
+        if (imageActualLocation == null) {
+            try {
+                imageActualLocation = Image.createImage(IMAGE_ICON_ACTUAL_LOCATION);
+            } catch (IOException ex) {
+                R.getErrorScreen().view(ex, "MapScreen.getMapIconActualLocation()", null);
+            }
+        }
+        return imageActualLocation;
     }
 
     /*********************************************/

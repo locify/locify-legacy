@@ -22,12 +22,12 @@ import javax.microedition.lcdui.Graphics;
  * Manages loading offline maps in TrekBuddy specific TAR format
  * @author MenKat
  */
-public class FileMapManagerTarTrekBuddy extends FileMapManager {
+public class FileMapManagerTarMap extends FileMapManager {
 
     /** main tile in multi tile map */
     private StorageTar storage;
     
-    public FileMapManagerTarTrekBuddy(String mapPath) {
+    public FileMapManagerTarMap(String mapPath) {
         super(mapPath);
     }
 

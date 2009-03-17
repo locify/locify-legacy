@@ -91,6 +91,8 @@ public class ConfigFileTile {
     private int moveX;
     private int moveY;
 
+    private StringBuffer stringBuffer;
+    
     /**
      * Create FileTile object
      * @param fileData <b>relative</b> path in fileSystem to file (relative from ROOT)
@@ -98,12 +100,14 @@ public class ConfigFileTile {
      */
     public ConfigFileTile(String fileData, FileMapManager manager) {
         this.manager = manager;
+        this.stringBuffer = new StringBuffer();
+        
         try {
             calibrationPoints = new Vector(4);
             descriptor_loaded = false;
-            if (manager instanceof FileMapManagerTarTrekBuddy) {
+            if (manager instanceof FileMapManagerTarMap) {
                 parseDotMapDescriptor(fileData);
-            } else if (manager instanceof FileMapManagerTarLocify) {
+            } else if (manager instanceof FileMapManagerTarXml) {
                 parseLocifyDescriptor(fileData);
             } else if (manager.mapPath.startsWith("http://")) {
                 parseLocifyDescriptor(fileData);
@@ -420,8 +424,8 @@ public class ConfigFileTile {
     public synchronized boolean drawImageMulti(Graphics gr, FileMapViewPort targetPort, StorageTar tar,
             int mapPanX, int mapPanY) {
         try {
-//System.out.println("ConfigFileTile.drawImageMulti()");
             Point2D mapPoint = mapViewPort.convertGeoToMapPixel(targetPort.center);
+//System.out.println("ConfigFileTile.drawImageMulti()");
 //System.out.println("\n  mapViewPort " + mapViewPort.toString());
 //System.out.println("\n  targetPort " + targetPort.toString());
 //System.out.println("\n  center: " + targetPort.center.toString());
@@ -439,6 +443,7 @@ public class ConfigFileTile {
             // bottom right map point (in map pixel coordinates)
             Point2D mapPointBR = new Point2D.Double(mapPoint.getX() + screenWidth / 2,
                     mapPoint.getY() + screenHeight / 2);
+
             tileX1 = (int) Math.floor(mapPointTL.getX() / tileSizeX);
             tileY1 = (int) Math.floor(mapPointTL.getY() / tileSizeY);
             tileX2 = (int) Math.floor(mapPointBR.getX() / tileSizeX);
@@ -447,9 +452,11 @@ public class ConfigFileTile {
             numOfTilesYperScreen = tileY2 - tileY1 + 1;
             moveX = (int) ((tileX1 * tileSizeX) - mapPointTL.getX());
             moveY = (int) ((tileY1 * tileSizeY) - mapPointTL.getY());
+//System.out.println(mapPointTL.getX() + " " + tileSizeX + " " + tileX1);
 //System.out.println("\n  drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
-//System.out.println("\n  drawImageMulti - mapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
-//System.out.println("\n  drawImageMulti - tileX: " + tileX + " tileY: " + tileY);
+//System.out.println("\n  drawImageMulti - centerMapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
+//System.out.println("\n  drawImageMulti - tileX1: " + tileX1 + " tileY1: " + tileY2);
+//System.out.println("\n  drawImageMulti - tileX2: " + tileX2 + " tileY2: " + tileY2);
             Vector imageNames = new Vector();
             String imageName = null;
             for (int i = 0; i < numOfTilesXperScreen; i++) {
@@ -499,26 +506,18 @@ public class ConfigFileTile {
     }
 
     private String createImageName(int i, int j) {
-        if (manager instanceof FileMapManagerTarLocify) {
-            return createImageNameLocify(i, j);
-        } else if (manager instanceof FileMapManagerTarTrekBuddy) {
-            return createImageNameTrekBuddy(i, j);
+        if (manager instanceof FileMapManagerTarXml) {
+            return manager.mapImageDir + zoom + "_" + (tileX1 + i) + "_" + (tileY1 + j) + ".png";
+        } else if (manager instanceof FileMapManagerTarMap) {
+            return "set/" + manager.mapImageDir.substring(0, manager.mapImageDir.length() - 1)
+                    + "_" + ((tileX1 + i) * tileSizeX)
+                    + "_" + ((tileY1 + j) * tileSizeY) + ".png";
         }
         return null;
     }
 
-    private String createImageNameLocify(int i, int j) {
-        return manager.mapImageDir + zoom + "_" + (tileX1 + i) + "_" + (tileY1 + j) + ".png";
-    }
-
-    private String createImageNameTrekBuddy(int i, int j) {
-        return "set/" + manager.mapImageDir.substring(0, manager.mapImageDir.length() - 1)
-                                        + "_" + ((tileX1 + i) * tileSizeX)
-                                        + "_" + ((tileY1 + j) * tileSizeY) + ".png";
-    }
-
     private boolean imageHaveToExist(int tileX, int tileY) {
-//System.out.println("\ngetTile: tX: " + tileX + " tY: " + tileY);
+//System.out.println("ConfigFileTile.imageHaveToExist() - getTile: tX: " + tileX + " tY: " + tileY);
         return (tileX >= 0 && tileY >= 0 && tileX <= numOfTotalTilesX && tileY <= numOfTotalTilesY);
     }
 

@@ -40,8 +40,8 @@ public abstract class FileMapManager {
     public static final int MAP_TYPE_WRONG = -1;
     public static final int MAP_TYPE_SINGLE_TILE = 0;
     public static final int MAP_TYPE_MULTI_TILE = 1;
-    public static final int MAP_TYPE_MULTI_TILE_LOCAL_TAR_LOCIFY = 2;
-    public static final int MAP_TYPE_MULTI_TILE_LOCAL_TAR_TREKBUDDY = 3;
+    public static final int MAP_TYPE_MULTI_TILE_LOCAL_TAR_XML = 2;
+    public static final int MAP_TYPE_MULTI_TILE_LOCAL_TAR_MAP = 3;
 
     /** type of projection */
     protected Projection mapProjection;
@@ -173,14 +173,14 @@ public abstract class FileMapManager {
                         obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, position));
 //System.out.println("ObtainedData1: " + obtainedData);
                         if (obtainedData != null)
-                            return MAP_TYPE_MULTI_TILE_LOCAL_TAR_LOCIFY;
+                            return MAP_TYPE_MULTI_TILE_LOCAL_TAR_XML;
                     } else {
                         position = tar.getFilePosition(mapPathAbsolute.substring(mapPathAbsolute.lastIndexOf('/') + 1, mapPathAbsolute.lastIndexOf('.')) + ".map");
                         if (position != -1) {
                             obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, position));
 //System.out.println("ObtainedData2: " + obtainedData);
                             if (obtainedData != null)
-                                return MAP_TYPE_MULTI_TILE_LOCAL_TAR_TREKBUDDY;
+                                return MAP_TYPE_MULTI_TILE_LOCAL_TAR_MAP;
                         }
                     }
                     System.out.println("FileMapManager.getMapType() - unsupported map tar type");

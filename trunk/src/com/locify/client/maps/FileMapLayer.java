@@ -20,8 +20,8 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.maps.fileMaps.ConfigFileTile;
 import com.locify.client.maps.fileMaps.FileMapManagerMulti;
 import com.locify.client.maps.fileMaps.FileMapManagerSingle;
-import com.locify.client.maps.fileMaps.FileMapManagerTarLocify;
-import com.locify.client.maps.fileMaps.FileMapManagerTarTrekBuddy;
+import com.locify.client.maps.fileMaps.FileMapManagerTarXml;
+import com.locify.client.maps.fileMaps.FileMapManagerTarMap;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.projection.ReferenceEllipsoid;
 import com.locify.client.maps.projection.S42Projection;
@@ -217,10 +217,10 @@ public class FileMapLayer implements MapLayer {
                 manager = new FileMapManagerSingle(mapPath);
             } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE) {
                 manager = new FileMapManagerMulti(mapPath);
-            } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE_LOCAL_TAR_LOCIFY) {
-                manager = new FileMapManagerTarLocify(mapPath);
-            } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE_LOCAL_TAR_TREKBUDDY) {
-                manager = new FileMapManagerTarTrekBuddy(mapPath);
+            } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE_LOCAL_TAR_XML) {
+                manager = new FileMapManagerTarXml(mapPath);
+            } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE_LOCAL_TAR_MAP) {
+                manager = new FileMapManagerTarMap(mapPath);
             } else {
                 return false;
             }
