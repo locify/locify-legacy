@@ -68,7 +68,7 @@ public class TileCache extends Thread {
      */
     public TileCache(int tileSizeX, int tileSizeY) {
         // set size of cache ... 1MB
-        this.maxSize = (int) ((1.0 * 1048576.0) / (tileSizeX * tileSizeY));
+        this.maxSize = (int) ((0.5 * 1048576.0) / (tileSizeX * tileSizeY));
         if (maxSize < 4)
             maxSize = 4;
         this.tileSizeX = tileSizeX;
@@ -197,10 +197,10 @@ public class TileCache extends Thread {
 
                     } else if (actualRequest.tarName != null) {
 long time = System.currentTimeMillis();
-Logger.debug("!!! Memory before - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
-Logger.debug("TileCache.run() tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
-Logger.debug("TileCache TAR: name - " + actualRequest.tarName + " pos: " + actualRequest.byteFromPosition);
-                        byte[] array = StorageTar.loadFile(actualRequest.tarName, actualRequest.byteFromPosition);
+//Logger.debug("!!! Memory before - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
+//Logger.debug("TileCache.run() tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
+//Logger.debug("TileCache TAR: name - " + actualRequest.tarName + " pos: " + actualRequest.byteFromPosition);
+                        byte[] array = StorageTar.loadFile(actualRequest.tarName, actualRequest.record);
                         if (array == null || array.length == 0) {
                             actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
                         } else {
@@ -220,7 +220,7 @@ Logger.debug("TileCache TAR: name - " + actualRequest.tarName + " pos: " + actua
                         if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
                             R.getMapScreen().repaint();
                         }
-Logger.debug("TileCache TAR: end after " + (System.currentTimeMillis() - time) + "ms");
+//Logger.debug("TileCache TAR: end after " + (System.currentTimeMillis() - time) + "ms");
 //Logger.debug("Memory after - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
                     }
 

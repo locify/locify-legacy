@@ -38,23 +38,6 @@ public class FileMapManagerMulti extends FileMapManager {
     protected void loadLocalMapFiles() {
         try {
             FileConnection dir = (FileConnection) Connector.open(mapPathPrefix + mapPath + mapFilename);
-            /*if (dir.exists() && dir.isDirectory()) {
-                Enumeration files = dir.list("*.xml", false); //list all nonhidden xml files
-                while (files.hasMoreElements()) {
-                    String fname = (String) files.nextElement();
-                    String ffname = mapPath + fname;
-                    if (R.getFileSystem().exists(ffname)) {
-                        try {
-                            configFile = new ConfigFileTile(ffname, this);
-                            if (configFile.isDescriptorLoaded()) {
-                                break;
-                            }
-                        } catch (Exception e) {
-                            R.getErrorScreen().view(e, "FileMapManager.scanMapFolders", ffname);
-                        }
-                    }
-                }
-            } else */
             if (!dir.isDirectory() && mapFilename.indexOf(".xml") != -1) {
                 try {
                     configFile = new ConfigFileTile(mapPath + mapFilename, this);

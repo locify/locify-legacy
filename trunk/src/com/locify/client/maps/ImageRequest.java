@@ -14,6 +14,7 @@
 
 package com.locify.client.maps;
 
+import com.locify.client.utils.StorageTar.TarRecord;
 import javax.microedition.lcdui.Image;
 
 /**
@@ -23,7 +24,7 @@ import javax.microedition.lcdui.Image;
 public class ImageRequest {
         protected String fileName;
         protected String tarName;
-        protected int byteFromPosition;
+        protected TarRecord record;
         protected Image image;
         // for online maps number of tile
         protected int x;
@@ -32,7 +33,7 @@ public class ImageRequest {
         protected boolean requiredTile;
 
         public ImageRequest(String fileName) {
-            this(fileName, null, 0);
+            this(fileName, null, null);
         }
 
         public ImageRequest(String fileName, int x, int y) {
@@ -42,10 +43,10 @@ public class ImageRequest {
             this.requiredTile = false;
         }
 
-        public ImageRequest(String fileName, String tarName, int byteFromPosition) {
+        public ImageRequest(String fileName, String tarName, TarRecord record) {
             this.fileName = fileName;
             this.tarName = tarName;
-            this.byteFromPosition = byteFromPosition;
+            this.record = record;
             this.image = null;
             this.requiredTile = false;
         }

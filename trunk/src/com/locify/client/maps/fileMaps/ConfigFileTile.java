@@ -453,9 +453,12 @@ public class ConfigFileTile {
             moveX = (int) ((tileX1 * tileSizeX) - mapPointTL.getX());
             moveY = (int) ((tileY1 * tileSizeY) - mapPointTL.getY());
 //System.out.println(mapPointTL.getX() + " " + tileSizeX + " " + tileX1);
+//System.out.println(mapPointTL.getY() + " " + tileSizeY + " " + tileY1);
+//System.out.println(mapPointBR.getX() + " " + tileSizeX + " " + tileX2);
+//System.out.println(mapPointBR.getY() + " " + tileSizeY + " " + tileY2);
 //System.out.println("\n  drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
 //System.out.println("\n  drawImageMulti - centerMapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
-//System.out.println("\n  drawImageMulti - tileX1: " + tileX1 + " tileY1: " + tileY2);
+//System.out.println("\n  drawImageMulti - tileX1: " + tileX1 + " tileY1: " + tileY1);
 //System.out.println("\n  drawImageMulti - tileX2: " + tileX2 + " tileY2: " + tileY2);
             Vector imageNames = new Vector();
             String imageName = null;
@@ -467,9 +470,10 @@ public class ConfigFileTile {
 //System.out.println("Add: " + (manager.mapPathPrefix + manager.mapPath + imageName) + "  " + tar.getTarFile() + "  " + tar.getFilePosition(imageName));
                             imageNames.addElement(new ImageRequest(
                                     manager.mapPathPrefix + manager.mapPath + imageName,
-                                    tar.getTarFile(), tar.getFilePosition(imageName)));
+                                    tar.getTarFile(), tar.getTarRecord(imageName)));
 
                         } else {
+//Logger.debug("ConfigFileTile.drawImageMulti() Add: " + manager.mapPathPrefix + manager.mapPath + imageName);
                             imageNames.addElement(new ImageRequest(
                                     manager.mapPathPrefix + manager.mapPath + imageName));
                         }
@@ -506,7 +510,7 @@ public class ConfigFileTile {
     }
 
     private String createImageName(int i, int j) {
-        if (manager instanceof FileMapManagerTarXml) {
+        if (manager instanceof FileMapManagerTarXml || manager instanceof FileMapManagerMulti) {
             return manager.mapImageDir + zoom + "_" + (tileX1 + i) + "_" + (tileY1 + j) + ".png";
         } else if (manager instanceof FileMapManagerTarMap) {
             return "set/" + manager.mapImageDir.substring(0, manager.mapImageDir.length() - 1)

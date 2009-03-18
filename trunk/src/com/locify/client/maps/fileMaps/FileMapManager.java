@@ -24,6 +24,7 @@ import com.locify.client.net.Http;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StorageTar;
+import com.locify.client.utils.StorageTar.TarRecord;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -168,16 +169,16 @@ public abstract class FileMapManager {
                     }
                 } else if (!dir.isDirectory() && mapPath.indexOf(".tar") != -1) {
                     tar = new StorageTar(mapPathAbsolute);
-                    int position = tar.getFilePosition(mapPathAbsolute.substring(mapPathAbsolute.lastIndexOf('/') + 1, mapPathAbsolute.lastIndexOf('.')) + ".xml");
-                    if (position != -1) {
-                        obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, position));
+                    TarRecord record = tar.getTarRecord(mapPathAbsolute.substring(mapPathAbsolute.lastIndexOf('/') + 1, mapPathAbsolute.lastIndexOf('.')) + ".xml");
+                    if (record != null) {
+                        obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, record));
 //System.out.println("ObtainedData1: " + obtainedData);
                         if (obtainedData != null)
                             return MAP_TYPE_MULTI_TILE_LOCAL_TAR_XML;
                     } else {
-                        position = tar.getFilePosition(mapPathAbsolute.substring(mapPathAbsolute.lastIndexOf('/') + 1, mapPathAbsolute.lastIndexOf('.')) + ".map");
-                        if (position != -1) {
-                            obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, position));
+                        record = tar.getTarRecord(mapPathAbsolute.substring(mapPathAbsolute.lastIndexOf('/') + 1, mapPathAbsolute.lastIndexOf('.')) + ".map");
+                        if (record != null) {
+                            obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, record));
 //System.out.println("ObtainedData2: " + obtainedData);
                             if (obtainedData != null)
                                 return MAP_TYPE_MULTI_TILE_LOCAL_TAR_MAP;
