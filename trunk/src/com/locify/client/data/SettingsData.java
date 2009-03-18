@@ -52,8 +52,8 @@ public class SettingsData {
     public static final int ON = 0;
     public static final int OFF = 1;
     private static String language = "";
-    public final String[] locales = {"en", "cs_CZ", "sl_SI", "pl_PL"};
-    public final String[] languageNames = {Locale.get("English"), Locale.get("Czech"), Locale.get("Slovenian"), Locale.get("Polish")};    //settings
+    public final String[] locales = {"en", "cs_CZ"};
+    public final String[] languageNames = {Locale.get("English"), Locale.get("Czech")};    //settings
     private Hashtable settings;
 
     public SettingsData() {
