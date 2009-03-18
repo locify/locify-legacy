@@ -368,6 +368,9 @@ p {
 
 .contactsTextField extends textfield {
     margin:5;
+    //#if polish.name == WM || polish.name == WM-big
+       min-width:135;
+    //#endif
     focused-style:contactsTextFieldFocused;
 }
 
