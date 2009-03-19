@@ -88,7 +88,7 @@ public class RouteVariables {
     protected int state;
 
     /** data which have to be saved into file */
-    private String dataToSave;
+    private StringBuffer dataToSave;
     /** check if point was added and separating is possible */
     private boolean canSeparate;
 
@@ -126,7 +126,7 @@ public class RouteVariables {
 
         state = RouteManager.ROUTE_STATE_NO_ACTION;
 
-        dataToSave = "";
+        dataToSave = new StringBuffer();
         canSeparate = false;
 
         bytesToSkipAtBegin = 0;
@@ -173,33 +173,33 @@ public class RouteVariables {
     }
 
     protected void dataBegin() {
-        dataToSave += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + linSe +
+        dataToSave.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + linSe +
                 "<kml xmlns=\"http://earth.google.com/kml/2.2\">" + linSe +
-                "  <Placemark>" + linSe;
-        bytesToSkipAtBegin = dataToSave.getBytes().length;
-        dataToSave +=
+                "  <Placemark>" + linSe);
+        bytesToSkipAtBegin = dataToSave.length();
+        dataToSave.append(
                 // important space for route name
                 "                                                                            " + linSe +
-                "    <MultiGeometry>" + linSe;
+                "    <MultiGeometry>" + linSe);
     }
 
     private void dataAddPoint(Location4D point) {
         if (!canSeparate)
-            dataToSave +=
+            dataToSave.append(
                     "      <LineString>" + linSe +
-                    "        <coordinates>" + linSe;
-        dataToSave += "          " +
+                    "        <coordinates>" + linSe);
+        dataToSave.append("          " +
                 point.getLongitude() + "," +
                 point.getLatitude() + "," +
-                point.getAltitude() + linSe;
+                point.getAltitude() + linSe);
         canSeparate = true;
     }
 
     private void dataAddSpace() {
         if (canSeparate)
-            dataToSave +=
+            dataToSave.append(
                     "        </coordinates>" + linSe +
-                    "      </LineString>" + linSe;
+                    "      </LineString>" + linSe);
         canSeparate = false;
     }
 
@@ -210,7 +210,7 @@ public class RouteVariables {
             description = "      " + description;
 
         dataAddSpace();
-        dataToSave +=
+        dataToSave.append(
                 "    </MultiGeometry>" + linSe +
                 "    <description>" + linSe +
                 "      " + DESC_LENGTH + " " + GpsUtils.formatDouble(routeDist, 0) + linSe +
@@ -219,53 +219,54 @@ public class RouteVariables {
                 description + linSe +
                 "    </description>" + linSe +
                 "  </Placemark>" + linSe +
-                "</kml>";
+                "</kml>");
 
         dataFlush(false);
 
-        dataToSave = "    <name>" + routeName + "</name>";
+        dataToSave.append("    <name>" + routeName + "</name>");
         dataFlush(true);
     }
 
     public void dataFlush(boolean name) {
 //System.out.println("Data to write: " + dataToSave);
-        if (!dataToSave.equals("")) {
+        String data = dataToSave.toString();
+        if (!data.equals("")) {
             if (name) {
-                R.getFileSystem().saveStringToBytePos(FileSystem.RUNNING_TEMP_ROUTE, dataToSave, bytesToSkipAtBegin);
+                R.getFileSystem().saveStringToBytePos(FileSystem.RUNNING_TEMP_ROUTE, data, bytesToSkipAtBegin);
             } else {
-                R.getFileSystem().saveStringToEof(FileSystem.RUNNING_TEMP_ROUTE, dataToSave);
+                R.getFileSystem().saveStringToEof(FileSystem.RUNNING_TEMP_ROUTE, data);
             }
-            dataToSave = "";
+            dataToSave.delete(0, dataToSave.length());
         }
     }
 
     public void saveRouteVariables() {
-        String data = "";
-        data += (startTime + ";" + routeTime + ";" + pauseStart + ";" + pauseTimeReduction + ";" +
+        StringBuffer data = new StringBuffer();
+        data.append(startTime + ";" + routeTime + ";" + pauseStart + ";" + pauseTimeReduction + ";" +
                 routeDist + ";" + speedMax + ";" + speedActual + ";" + speedAverage + "\n");
-        data += (locationActual.getLatitude() + ";" + locationActual.getLongitude() + ";" + locationActual.getAltitude() + ";" + locationActual.getTime() + ";" +
+        data.append(locationActual.getLatitude() + ";" + locationActual.getLongitude() + ";" + locationActual.getAltitude() + ";" + locationActual.getTime() + ";" +
                 locationLastSaved.getLatitude() + ";" + locationLastSaved.getLongitude() + ";" + locationLastSaved.getAltitude() + ";" + locationLastSaved.getTime() + "\n");
-        data += (numOfNewlocation + ";" + hdop + ";" + vdop + ";" + paused + ";" + newData + ";" + pointsCount + ";" + state + "\n");
+        data.append(numOfNewlocation + ";" + hdop + ";" + vdop + ";" + paused + ";" + newData + ";" + pointsCount + ";" + state + "\n");
 
         Location4D act;
         for (int i = 0; i < routePoints.size(); i++) {
             act = (Location4D) routePoints.elementAt(i);
-            data += act.getLatitude() + ";" + act.getLongitude() + ";" + act.getAltitude() + ";" + act.getTime();
+            data.append(act.getLatitude() + ";" + act.getLongitude() + ";" + act.getAltitude() + ";" + act.getTime());
             if (i < routePoints.size() - 1)
-                data += ";";
+                data.append(";");
         }
-        data += "\n";
+        data.append("\n");
 
         Double dist;
         for (int i = 0; i < routePoints.size(); i++) {
             dist = (Double) routeDistances.elementAt(i);
-            data += dist;
+            data.append(dist);
             if (i < routeDistances.size() - 1)
-                data += ";";
+                data.append(";");
         }
-        data += "\n";
+        data.append("\n");
 
-        R.getFileSystem().saveString(FileSystem.RUNNING_ROUTE_VARIABLES, data);
+        R.getFileSystem().saveString(FileSystem.RUNNING_ROUTE_VARIABLES, data.toString());
     }
 
     public RouteVariables loadRouteVariables() {

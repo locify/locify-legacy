@@ -32,6 +32,7 @@ public class ScreenItem extends Item {
     private Image imageLabel;
     
     private String textValue;
+    private boolean textEmpty;
     private int textValueXPos;
     private BitMapFont textValueFont = ColorsFonts.BMF_ARIAL_10_BLACK;
     
@@ -41,6 +42,8 @@ public class ScreenItem extends Item {
     private int colorBackgroundInactive = ColorsFonts.CYAN;
 
     private int move = 0;
+    private Image backgroundImage;
+
     /**
      * Basic constructor
      * @param label text label of item
@@ -72,6 +75,7 @@ public class ScreenItem extends Item {
      */
     public void setTextValue(String textValue) {
         this.textValue = textValue;
+        this.textEmpty = (textValue.equals(""));
         bmfvValue = textValueFont.getViewer(textValue);
         bmfvValue.layout(w, w, 0, Graphics.TOP | Graphics.LEFT);
 
@@ -126,25 +130,37 @@ public class ScreenItem extends Item {
         this.colorBackgroundInactive = colorBackgroundInactive;
     }
 
+    private Image getBackgroundImage() {
+        if (backgroundImage == null) {
+            backgroundImage = Image.createImage(w, h);
+            Graphics g = backgroundImage.getGraphics();
+            g.setColor(ColorsFonts.LIGHT_ORANGE);
+            g.fillRect(0, 0, w, h);
+
+            // draw background
+            if (colorBackground == 0 && !selected && active) {
+                // nothing to draw
+            } else {
+                if (selected) {
+                    g.setColor(colorSelection);
+                } else if (!active) {
+                    g.setColor(colorBackgroundInactive);
+                } else {
+                    g.setColor(colorBackground);
+                }
+                g.fillRoundRect(0, 0, w, h, cornerRadius, cornerRadius);
+            }
+
+            g.setColor(colorBorder);
+            g.drawRoundRect(0, 0, w-1, h-1, cornerRadius, cornerRadius);
+        }
+        return backgroundImage;
+    }
+
     public void paint(Graphics g) {
         try {
             if (visible) {
-                // draw background
-                if (colorBackground == 0 && !selected && active) {
-                    // nothing to draw
-                } else {
-                    if (selected) {
-                        g.setColor(colorSelection);
-                    } else if (!active) {
-                        g.setColor(colorBackgroundInactive);
-                    } else {
-                        g.setColor(colorBackground);
-                    }
-                    g.fillRoundRect(x, y, w, h, cornerRadius, cornerRadius);
-                }
-
-                g.setColor(colorBorder);
-                g.drawRoundRect(x, y, w, h, cornerRadius, cornerRadius);
+                g.drawImage(getBackgroundImage(), x, y, Graphics.TOP | Graphics.LEFT);
 
                 // draw label
                 if (imageLabel != null) {
@@ -152,7 +168,7 @@ public class ScreenItem extends Item {
                     int drawY = y + (h - imageLabel.getHeight()) / 2;
                     g.drawImage(imageLabel, drawX, drawY, Graphics.TOP | Graphics.LEFT);
                 } else {
-                    if (textValue.equals(""))
+                    if (textEmpty)
                         move = y + hIntend + (h - bmfvLabel.getHeight()) / 2;
                     else
                         move = y + hIntend + (h - bmfvLabel.getHeight() - bmfvValue.getHeight()) / 3;
@@ -161,7 +177,7 @@ public class ScreenItem extends Item {
                 }
                 
                 //draw value
-                if (!textValue.equals("")) {
+                if (!textEmpty) {
                     move = (h - bmfvLabel.getHeight() - bmfvValue.getHeight()) / 3;
                     move = y + hIntend + bmfvLabel.getHeight() + 2 * move;
                     bmfvValue.paint(textValueXPos, move, g);
@@ -193,8 +209,11 @@ public class ScreenItem extends Item {
      * @param inactive set to active mode
      */
     public void setActive(boolean active) {
-        this.active = active;
-        this.selectable = active;                
+        if (this.active != active) {
+            this.active = active;
+            this.selectable = active;
+            backgroundImage = null;
+        }
     }
 
     /**
@@ -202,7 +221,10 @@ public class ScreenItem extends Item {
      * @param selected true if selected, default false
      */
     public void setSelected(boolean selected) {
-        this.selected = selected;
+        if (this.selected != selected) {
+            this.selected = selected;
+            backgroundImage = null;
+        }
     }
 
     /**
