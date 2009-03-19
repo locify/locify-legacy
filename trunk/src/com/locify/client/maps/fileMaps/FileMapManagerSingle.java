@@ -32,8 +32,8 @@ public class FileMapManagerSingle extends FileMapManager {
     /* variables for temp operations */
     private int localMapTiles_index = 0;
 
-    public FileMapManagerSingle(String mapPath) {
-        super(mapPath);
+    public FileMapManagerSingle(String mapPath, int mapCategory) {
+        super(mapPath, mapCategory);
     }
 
     public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY) {

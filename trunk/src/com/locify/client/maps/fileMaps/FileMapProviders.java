@@ -47,7 +47,7 @@ public class FileMapProviders {
         if (files != null) {
             while (files.hasMoreElements()) {
                 String filename = (String) files.nextElement();
-                if (filename.endsWith(".tar") || filename.endsWith(".xml")) {
+                if (filename.endsWith(".tar") || filename.endsWith(".xml") || filename.endsWith(".map")) {
                     addProvider(createProviderName(filename), filename);
                 }
             }

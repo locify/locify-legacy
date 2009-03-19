@@ -1,5 +1,5 @@
 /*
- * FileMapManagerTarTrekBuddy.java
+ * FileMapManagerTarLocify.java
  * This file is part of Locify.
  *
  * Locify is free software; you can redistribute it and/or modify
@@ -19,16 +19,16 @@ import com.locify.client.utils.StorageTar;
 import javax.microedition.lcdui.Graphics;
 
 /**
- * Manages loading offline maps in TrekBuddy specific TAR format
+ * Manages loading offline maps in locify-specific TAR
  * @author MenKat
  */
-public class FileMapManagerTarMap extends FileMapManager {
+public class FileMapManagerTar extends FileMapManager {
 
     /** main tile in multi tile map */
     private StorageTar storage;
     
-    public FileMapManagerTarMap(String mapPath) {
-        super(mapPath);
+    public FileMapManagerTar(String mapPath, int mapCategory) {
+        super(mapPath, mapCategory);
     }
 
     public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY) {

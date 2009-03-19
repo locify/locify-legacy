@@ -38,6 +38,7 @@ public class StorageTar {
     private static int bufferSize = 102400;
     private static byte[] buffer = new byte[bufferSize];
     private String tarPath;
+    private String imageDir = "set";
     private Hashtable indexes;
     long modifydate;
 
@@ -52,6 +53,7 @@ public class StorageTar {
     /**
      * Cretae default storage that manage tar maps ie.
      * @param tarPath <b>absolute </b> path to file
+     * @param imageDir just a name of image containing directory
      */
     public StorageTar(String tarPath) {
         try {
@@ -81,6 +83,10 @@ public class StorageTar {
                 return record;
         }
         return null;
+    }
+
+    public void setImageDir(String mapImageDir) {
+        this.imageDir = mapImageDir;
     }
     
     private void resetData() {
@@ -246,7 +252,7 @@ public class StorageTar {
                 while (tarKeys.hasMoreElements()) {
                     key = (String) tarKeys.nextElement();
 //System.out.println("KEY: " + key);
-                    if (!(key.startsWith("set/") && key.lastIndexOf('_') != -1))
+                    if (!(key.startsWith(imageDir) && key.lastIndexOf('_') != -1))
                         continue;
 
                     if (startLength == 0) {
@@ -274,7 +280,7 @@ public class StorageTar {
 
     public class TarRecord {
 
-        private int recordStart;
+        public int recordStart;
         private int recordLength;
 
         public TarRecord(int recordStart, int recordLength) {

@@ -26,8 +26,8 @@ import java.io.IOException;
  */
 public class FileMapManagerMulti extends FileMapManager {
 
-    public FileMapManagerMulti(String mapPath) {
-        super(mapPath);
+    public FileMapManagerMulti(String mapPath, int mapCategory) {
+        super(mapPath, mapCategory);
     }
 
     public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY) {
@@ -38,7 +38,8 @@ public class FileMapManagerMulti extends FileMapManager {
     protected void loadLocalMapFiles() {
         try {
             FileConnection dir = (FileConnection) Connector.open(mapPathPrefix + mapPath + mapFilename);
-            if (!dir.isDirectory() && mapFilename.indexOf(".xml") != -1) {
+            if ((!dir.isDirectory() && mapFilename.indexOf(".xml") != -1) ||
+                (!dir.isDirectory() && mapFilename.indexOf(".map") != -1)){
                 try {
                     configFile = new ConfigFileTile(mapPath + mapFilename, this);
                 } catch (Exception e) {

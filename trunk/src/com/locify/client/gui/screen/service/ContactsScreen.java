@@ -169,7 +169,7 @@ public class ContactsScreen implements CommandListener {
     }
 
     private String createName(String firstName, String lastName, String otherName) {
-        buffer.delete(0, buffer.length() - 1);
+        buffer.delete(0, buffer.length());
         if (!firstName.equals(""))
             buffer.append(firstName + ", ");
         if (!lastName.equals(""))

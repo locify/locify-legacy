@@ -20,8 +20,7 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.maps.fileMaps.ConfigFileTile;
 import com.locify.client.maps.fileMaps.FileMapManagerMulti;
 import com.locify.client.maps.fileMaps.FileMapManagerSingle;
-import com.locify.client.maps.fileMaps.FileMapManagerTarXml;
-import com.locify.client.maps.fileMaps.FileMapManagerTarMap;
+import com.locify.client.maps.fileMaps.FileMapManagerTar;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.projection.ReferenceEllipsoid;
 import com.locify.client.maps.projection.S42Projection;
@@ -210,17 +209,15 @@ public class FileMapLayer implements MapLayer {
 
             String mapPath = R.getFileMapProviders().getProviderPath(
                     (String) availeableProviders.elementAt(number));
-            int mapType = FileMapManager.getMapType(mapPath);
+            int mapType[] = FileMapManager.getMapType(mapPath);
             ConfigFileTile map = null;
-//System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType);
-            if (mapType == FileMapManager.MAP_TYPE_SINGLE_TILE) {
-                manager = new FileMapManagerSingle(mapPath);
-            } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE) {
-                manager = new FileMapManagerMulti(mapPath);
-            } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE_LOCAL_TAR_XML) {
-                manager = new FileMapManagerTarXml(mapPath);
-            } else if (mapType == FileMapManager.MAP_TYPE_MULTI_TILE_LOCAL_TAR_MAP) {
-                manager = new FileMapManagerTarMap(mapPath);
+//System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType[0] + " MapCategory: " + mapType[1]);
+            if (mapType[0] == FileMapManager.MAP_TYPE_SINGLE_TILE) {
+                manager = new FileMapManagerSingle(mapPath, mapType[1]);
+            } else if (mapType[0] == FileMapManager.MAP_TYPE_MULTI_TILE) {
+                manager = new FileMapManagerMulti(mapPath, mapType[1]);
+            } else if (mapType[0] == FileMapManager.MAP_TYPE_MULTI_TILE_LOCAL_TAR) {
+                manager = new FileMapManagerTar(mapPath, mapType[1]);
             } else {
                 return false;
             }

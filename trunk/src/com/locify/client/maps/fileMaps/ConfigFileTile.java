@@ -27,7 +27,10 @@ import com.locify.client.utils.math.Matrix;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Enumeration;
 import java.util.Vector;
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.Sprite;
@@ -105,16 +108,13 @@ public class ConfigFileTile {
         try {
             calibrationPoints = new Vector(4);
             descriptor_loaded = false;
-            if (manager instanceof FileMapManagerTarMap) {
-                parseDotMapDescriptor(fileData);
-            } else if (manager instanceof FileMapManagerTarXml) {
-                parseLocifyDescriptor(fileData);
+
+            if (manager instanceof FileMapManagerTar) {
+                parseDescriptor(fileData, manager.mapCategory);
             } else if (manager.mapPath.startsWith("http://")) {
-                parseLocifyDescriptor(fileData);
+                parseDescriptor(fileData, manager.mapCategory);
             } else {
-                if (R.getFileSystem().exists(fileData)) {
-                    parseLocifyDescriptor(R.getFileSystem().loadString(fileData));
-                }
+                parseDescriptor(R.getFileSystem().loadString(fileData), manager.mapCategory);
             }
 
             if (isDescriptorLoaded()) {
@@ -123,6 +123,13 @@ public class ConfigFileTile {
         } catch (Exception e) {
             R.getErrorScreen().view(e, "ConfigFileTile()", fileData);
         }
+    }
+
+    private void parseDescriptor(String data, int type) {
+        if (type == FileMapManager.CATEGORY_MAP)
+            parseDotMapDescriptor(data);
+        else if (type == FileMapManager.CATEGORY_XML)
+            parseLocifyDescriptor(data);
     }
 
     public boolean isSphericCoordinate() {
@@ -215,7 +222,18 @@ public class ConfigFileTile {
             return;
         else {
             // set tileSize
-            int[] tileSize = FileMapManager.tar.getMapTileSize();
+            int[] tileSize = new int[2];
+            if (manager instanceof FileMapManagerTar) {
+                tileSize = FileMapManager.tar.getMapTileSize();
+            } else {
+                try {
+                    FileConnection dir = (FileConnection) Connector.open(manager.mapPathPrefix +
+                        manager.mapPath + manager.mapImageDir);
+                    tileSize = getMapTileSizeDir(dir.list());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
             this.tileSizeX = tileSize[0];
             this.tileSizeY = tileSize[1];
 //System.out.println("\n  tileSizeX: " + tileSizeX + " tileSizeY: " + tileSizeY);
@@ -312,6 +330,38 @@ public class ConfigFileTile {
                         "  tileSizeY - " + tileSizeY);
             }
         }
+    }
+
+
+    private int[] getMapTileSizeDir(Enumeration files) {
+        int[] tileSize = new int[2];
+        if (files != null && files.hasMoreElements()) {
+            String file;
+            int startLength = 0;
+            tileSize[0] = Integer.MAX_VALUE;
+            tileSize[1] = Integer.MAX_VALUE;
+//System.out.println("tarKeys.size() " + tarKeys.length);
+            while (files.hasMoreElements()) {
+                file = (String) files.nextElement();
+
+                if (startLength == 0) {
+                    String temp = file.substring(0, file.lastIndexOf('_'));
+                    int l = temp.lastIndexOf('_');
+                    if (l != -1) {
+                        temp = temp.substring(0, l + 1);
+                        startLength = temp.length();
+                    }
+                }
+                file = file.substring(startLength);
+                int x = Integer.parseInt(file.substring(0, file.lastIndexOf('_')));
+                int y = Integer.parseInt(file.substring(file.lastIndexOf('_') + 1, file.lastIndexOf('.')));
+                if (x < tileSize[0] && x != 0)
+                    tileSize[0] = x;
+                if (y < tileSize[1] && y != 0)
+                    tileSize[1] = y;
+            }
+        }
+        return tileSize;
     }
 
     private void setProjectionType(String projection) {
@@ -510,14 +560,17 @@ public class ConfigFileTile {
     }
 
     private String createImageName(int i, int j) {
-        if (manager instanceof FileMapManagerTarXml || manager instanceof FileMapManagerMulti) {
-            return manager.mapImageDir + zoom + "_" + (tileX1 + i) + "_" + (tileY1 + j) + ".png";
-        } else if (manager instanceof FileMapManagerTarMap) {
-            return "set/" + manager.mapImageDir.substring(0, manager.mapImageDir.length() - 1)
+        if (stringBuffer.length() > 0)
+        stringBuffer.delete(0, stringBuffer.length());
+        stringBuffer.append(manager.mapImageDir);
+        if (manager.mapCategory == FileMapManager.CATEGORY_XML) {
+            stringBuffer.append(zoom + "_" + (tileX1 + i) + "_" + (tileY1 + j) + ".png");
+        } else if (manager.mapCategory == FileMapManager.CATEGORY_MAP) {
+            stringBuffer.append(manager.mapFilename.substring(0, manager.mapFilename.lastIndexOf('.'))
                     + "_" + ((tileX1 + i) * tileSizeX)
-                    + "_" + ((tileY1 + j) * tileSizeY) + ".png";
+                    + "_" + ((tileY1 + j) * tileSizeY) + ".png");
         }
-        return null;
+        return stringBuffer.toString();
     }
 
     private boolean imageHaveToExist(int tileX, int tileY) {
