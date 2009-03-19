@@ -13,14 +13,10 @@
  */
 package com.locify.client.utils;
 
-import com.locify.client.data.FileSystem;
-import de.enough.polish.util.HashMap;
-import de.enough.polish.util.Iterator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
@@ -50,7 +46,7 @@ public class StorageTar {
     private int mapTileSizeY = 0;
 
     private boolean makeIndexes;
-
+    private static int skipMethod = 1;
 
 
     /**
@@ -101,14 +97,22 @@ public class StorageTar {
     private static void skipBytes(InputStream is, int numOfBytes) {
         try {
             int actualPos = 0;
-            while (true) {
-                if ((actualPos + bufferSize) < numOfBytes) {
-                        is.read(buffer);
-                } else {
-                    is.read(buffer, 0, numOfBytes - actualPos);
-                    break;
+            if (skipMethod == -1) {
+
+            }
+
+            if (skipMethod == 1) {
+                while (true) {
+                    if ((actualPos + bufferSize) < numOfBytes) {
+                            is.read(buffer);
+                    } else {
+                        is.read(buffer, 0, numOfBytes - actualPos);
+                        break;
+                    }
+                    actualPos += bufferSize;
                 }
-                actualPos += bufferSize;
+            } else {
+                is.skip(numOfBytes);
             }
         } catch (IOException ex) {
             ex.printStackTrace();

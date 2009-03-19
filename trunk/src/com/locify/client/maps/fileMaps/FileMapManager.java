@@ -87,7 +87,7 @@ public abstract class FileMapManager {
             if (cache == null || cache.getTileSizeX() != configFile.getTileSizeX() || cache.getTileSizeY() != configFile.getTileSizeY()) {
                 cache = new TileCache(configFile.getTileSizeX(), configFile.getTileSizeY());
                 cache.start();
-                Logger.debug("new FileTileCache started!!!");
+                //Logger.debug("new FileTileCache started!!!");
             }
             ready = true;
         } else {

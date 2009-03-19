@@ -482,26 +482,53 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
     private void drawActualLocationPoint(Graphics g) {
         Point2D.Int actPoint = map.getLocationCoord(R.getLocator().getLastLocation());
-        if (actPoint != null) {
-            /*g.setColor(ColorsFonts.MAP_ACTUAL_LOCATION);
-            g.drawArc((int) (actPoint.getX() - panMoveX - 5),
-                    (int) (actPoint.getY() - panMoveY - 5), 9, 9, 0, 360);
-            g.drawLine((int) (actPoint.getX() - panMoveX - 10), (int) (actPoint.getY() - panMoveY),
-                    (int) (actPoint.getX() - panMoveX + 10), (int) (actPoint.getY() - panMoveY));
-            g.drawLine((int) (actPoint.getX() - panMoveX), (int) (actPoint.getY() - panMoveY - 10),
-                    (int) (actPoint.getX() - panMoveX), (int) (actPoint.getY() - panMoveY + 10));
-             */
+        float heading = R.getLocator().getHeading();
 
+        if (actPoint != null) {
             g.drawImage(getMapIconActualLocation(), actPoint.x - panMoveX,
                     actPoint.y - panMoveY, Graphics.VCENTER | Graphics.HCENTER);
+
+            if (R.getContext().getSource() == LocationContext.GPS) {
+                int x1 = (int) (20.0 * Math.sin((heading - 30) / GpsUtils.RHO));
+                int y1 = (int) (20.0 * Math.cos((heading - 30) / GpsUtils.RHO));
+                int x2 = (int) (40.0 * Math.sin((heading) / GpsUtils.RHO));
+                int y2 = (int) (40.0 * Math.cos((heading) / GpsUtils.RHO));
+                int x3 = (int) (20.0 * Math.sin((heading + 30) / GpsUtils.RHO));
+                int y3 = (int) (20.0 * Math.cos((heading + 30) / GpsUtils.RHO));
+                int x4 = (int) (25.0 * Math.sin((heading) / GpsUtils.RHO));
+                int y4 = (int) (25.0 * Math.cos((heading) / GpsUtils.RHO));
+                g.setColor(ColorsFonts.GREEN_SHINY);
+                g.fillTriangle(actPoint.x - panMoveX + x1, actPoint.y - panMoveY - y1,
+                        actPoint.x - panMoveX + x2, actPoint.y - panMoveY - y2,
+                        actPoint.x - panMoveX + x4, actPoint.y - panMoveY - y4);
+                g.fillTriangle(actPoint.x - panMoveX + x3, actPoint.y - panMoveY - y3,
+                        actPoint.x - panMoveX + x2, actPoint.y - panMoveY - y2,
+                        actPoint.x - panMoveX + x4, actPoint.y - panMoveY - y4);
+                g.setColor(ColorsFonts.BLACK);
+                g.setStrokeStyle(Graphics.SOLID);
+                g.drawLine(actPoint.x - panMoveX + x1, actPoint.y - panMoveY - y1,
+                        actPoint.x - panMoveX + x2, actPoint.y - panMoveY - y2);
+                g.drawLine(actPoint.x - panMoveX + x2, actPoint.y - panMoveY - y2,
+                        actPoint.x - panMoveX + x3, actPoint.y - panMoveY - y3);
+                g.drawLine(actPoint.x - panMoveX + x3, actPoint.y - panMoveY - y3,
+                        actPoint.x - panMoveX + x4, actPoint.y - panMoveY - y4);
+                g.drawLine(actPoint.x - panMoveX + x4, actPoint.y - panMoveY - y4,
+                        actPoint.x - panMoveX + x1, actPoint.y - panMoveY - y1);
+            }
         }
     }
 
-    public void getBoundingBox() {
+    /**
+     * Create and return bounding box of actual screen.
+     * @return Array of two Loaction4D objects.
+     * <p>1st is Location4D of Top Left cornet and</p> <p>2nd is the bottom right cornet of actual screen.</p>
+     */
+    public Location4D[] getBoundingBox() {
         Location4D[] bbox = map.getActualBoundingBox();
-        System.out.println("Bounding box");
-        System.out.println(" " + bbox[0].toString());
-        System.out.println(" " + bbox[1].toString());
+//        System.out.println("Bounding box");
+//        System.out.println(" " + bbox[0].toString());
+//        System.out.println(" " + bbox[1].toString());
+        return bbox;
     }
     
     public void commandAction(Command cmd, Displayable disp) {

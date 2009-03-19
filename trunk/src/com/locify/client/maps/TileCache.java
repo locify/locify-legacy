@@ -68,7 +68,7 @@ public class TileCache extends Thread {
      */
     public TileCache(int tileSizeX, int tileSizeY) {
         // set size of cache ... 1MB
-        this.maxSize = (int) ((0.5 * 1048576.0) / (tileSizeX * tileSizeY));
+        this.maxSize = (int) ((0.33 * 1048576.0) / (tileSizeX * tileSizeY));
         if (maxSize < 4)
             maxSize = 4;
         this.tileSizeX = tileSizeX;

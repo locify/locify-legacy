@@ -18,7 +18,6 @@ import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
-import de.enough.polish.ui.FilteredList;
 import de.enough.polish.ui.List;
 import de.enough.polish.util.Locale;
 import java.util.Enumeration;
@@ -47,6 +46,7 @@ public class ContactsScreen implements CommandListener {
     private List lstView;
     private int actualFilter;
     private int numOfContacts;
+    private static StringBuffer buffer = new StringBuffer();
 
     public ContactsScreen() {
     }
@@ -71,7 +71,7 @@ public class ContactsScreen implements CommandListener {
         this.actualFilter = filter;
         this.numOfContacts = 0;
         try {
-            lstView = new FilteredList(Locale.get("Contacts_screen"), List.IMPLICIT);
+            lstView = new List(Locale.get("Contacts_screen"), List.IMPLICIT);
             lstView.setCommandListener(this);
             lstView.addCommand(Commands.cmdBack);
 
@@ -120,6 +120,7 @@ public class ContactsScreen implements CommandListener {
         String[] nameValues;
         String firstName;
         String lastName;
+        String otherName;
         String email;
         String tel;
 
@@ -130,11 +131,14 @@ public class ContactsScreen implements CommandListener {
                 nameValues = contact.getStringArray(Contact.NAME, 0);
                 firstName = nameValues[Contact.NAME_GIVEN];
                 lastName = nameValues[Contact.NAME_FAMILY];
+                otherName = nameValues[Contact.NAME_OTHER];
 
                 if (firstName == null)
                     firstName = "";
                 if (lastName == null)
                     lastName = "";
+                if (otherName == null)
+                    otherName = "";
                 
                 try {
                     email = supportEmail ? contact.getString(Contact.EMAIL, 0) : "";
@@ -147,20 +151,33 @@ public class ContactsScreen implements CommandListener {
                     tel = "";
                 }
 
-                Logger.log(lastName + "," + firstName + "," + email + "," + tel);
+                //Logger.log(lastName + "," + firstName + "," + email + "," + tel);
+
 
                 if (actualFilter == FILTER_ALL) {
-                    lstView.append(lastName + ", " + firstName + "\n   " + email + ", " + tel, null);
+                    lstView.append(createName(firstName, lastName, otherName) + firstName + "\n   " + email + ", " + tel, null);
                 } else if (actualFilter == FILTER_EMAIL && !email.equals("")) {
-                    lstView.append(lastName + ", " + firstName + ",\n   " + email, null);
+                    lstView.append(createName(firstName, lastName, otherName) + "\n   " + email, null);
                 } else if (actualFilter == FILTER_TEL && !tel.equals("")) {
-                    lstView.append(lastName + ", " + firstName + ",\n   " + tel, null);
+                    lstView.append(createName(firstName, lastName, otherName) + "\n   " + tel, null);
                 }
             } catch (Exception e) {
                 Logger.log("PIMScreen.addContacts(): " + e.toString());
             }
         }
 
+    }
+
+    private String createName(String firstName, String lastName, String otherName) {
+        buffer.delete(0, buffer.length() - 1);
+        if (!firstName.equals(""))
+            buffer.append(firstName + ", ");
+        if (!lastName.equals(""))
+            buffer.append(lastName + ", ");
+        if (firstName.equals("") && lastName.equals(""))
+            buffer.append(otherName + ", ");
+
+        return buffer.toString();
     }
 
 //    private void addContact(ContactList list, String firstName, String lastName,

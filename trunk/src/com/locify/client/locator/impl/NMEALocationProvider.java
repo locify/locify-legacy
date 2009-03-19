@@ -181,7 +181,8 @@ public class NMEALocationProvider extends GpsLocationProvider {
                         speed = 0;
                         course = 0;
                         if (param.length > 7 && param[7].length() > 0) {
-                            speed = GpsUtils.parseFloat(param[7]);
+                            // recompute from knots to m/s (1 knots = 0.514444444 meters / second)
+                            speed = 0.514444444f * GpsUtils.parseFloat(param[7]);
                         }
                         if (param.length > 8 && param[8].length() > 0) {
                             course = GpsUtils.parseFloat(param[8]);
