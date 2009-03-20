@@ -25,6 +25,7 @@ import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.projection.ReferenceEllipsoid;
 import com.locify.client.maps.projection.S42Projection;
 import com.locify.client.maps.projection.UTMProjection;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import javax.microedition.lcdui.Graphics;
 import java.util.Vector;
@@ -206,12 +207,14 @@ public class FileMapLayer implements MapLayer {
         if (number < availeableProviders.size()) {
             FileMapManager manager;
             System.gc();
-
+//long time = System.currentTimeMillis();
+//Logger.debug("FileMapLayer.setProviderAndMode(" + number + ")");
             String mapPath = R.getFileMapProviders().getProviderPath(
                     (String) availeableProviders.elementAt(number));
             int mapType[] = FileMapManager.getMapType(mapPath);
+//Logger.debug("  getMapType - time: " + (System.currentTimeMillis() - time));
             ConfigFileTile map = null;
-//System.out.println("\nMapPath: " + mapPath + " MapType: " + mapType[0] + " MapCategory: " + mapType[1]);
+//System.out.println("  mapPath: " + mapPath + " MapType: " + mapType[0] + " MapCategory: " + mapType[1]);
             if (mapType[0] == FileMapManager.MAP_TYPE_SINGLE_TILE) {
                 manager = new FileMapManagerSingle(mapPath, mapType[1]);
             } else if (mapType[0] == FileMapManager.MAP_TYPE_MULTI_TILE) {
@@ -221,7 +224,7 @@ public class FileMapLayer implements MapLayer {
             } else {
                 return false;
             }
-
+//Logger.debug("  createManager - time: " + (System.currentTimeMillis() - time));
             /* SET MAP SCALE */
             if (manager.isReady()) {
                 map = manager.getConfigFileTile();
@@ -250,6 +253,7 @@ public class FileMapLayer implements MapLayer {
             }
             this.selectedProvider = number;
             this.mapManager = manager;
+//Logger.debug("  finish - time: " + (System.currentTimeMillis() - time));
             return true;
         }
         return false;

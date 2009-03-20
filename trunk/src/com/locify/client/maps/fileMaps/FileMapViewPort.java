@@ -103,6 +103,12 @@ public class FileMapViewPort {
         this.C = helmertTransformInverse(0, ymax);
         this.D = helmertTransformInverse(xmax, ymax);
         calculateDimension();
+//System.out.println("Set inverse Helmert: " + X0inv + " " + Y0inv + " " + la1inv + " " + la2inv + " " + latitude_dimension + " " + longitude_dimension);
+    }
+
+    public void appendInverseHelmertParametres(StringBuffer buffer) {
+        buffer.append(X0 + ";" + Y0 + ";" + la1 + ";" + la2 + ";" + xmax + ";" + ymax + ";" +
+                X0inv + ";" + Y0inv + ";" + la1inv + ";" + la2inv);
     }
 
     // transform from coordinates to pixels

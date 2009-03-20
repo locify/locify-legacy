@@ -14,6 +14,7 @@
 
 package com.locify.client.maps.fileMaps;
 
+import com.locify.client.data.FileSystem;
 import com.locify.client.maps.ImageRequest;
 import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.locator.Location4D;
@@ -47,6 +48,8 @@ public class ConfigFileTile {
     private String name;
     /** description of file */
     private String description;
+    /** fileName of config file */
+    private String fileName;
     /** size of tiles if map is separated into tiles */
     private int tileSizeX = 0;
     private int tileSizeY = 0;
@@ -104,24 +107,106 @@ public class ConfigFileTile {
     public ConfigFileTile(String fileData, FileMapManager manager) {
         this.manager = manager;
         this.stringBuffer = new StringBuffer();
+        this.zoom = 0;
         
         try {
             calibrationPoints = new Vector(4);
             descriptor_loaded = false;
 
-            if (manager instanceof FileMapManagerTar) {
-                parseDescriptor(fileData, manager.mapCategory);
-            } else if (manager.mapPath.startsWith("http://")) {
-                parseDescriptor(fileData, manager.mapCategory);
-            } else {
-                parseDescriptor(R.getFileSystem().loadString(fileData), manager.mapCategory);
-            }
+            FileConnection fileConnection;
 
-            if (isDescriptorLoaded()) {
-                calculateViewPort();
+            if (manager instanceof FileMapManagerTar) {
+                fileName = FileMapManager.tar.getTarFile().substring(FileMapManager.tar.getTarFile().lastIndexOf('/') + 1);
+                fileConnection = (FileConnection) Connector.open(FileMapManager.tar.getTarFile(), Connector.READ);
+            } else {
+                fileName = manager.mapFilename;
+                fileConnection = (FileConnection) Connector.open(manager.mapPathPrefix +
+                        manager.mapPath + manager.mapFilename, Connector.READ);
+            }
+            long size = -1;
+            if (fileConnection.exists())
+                size = fileConnection.fileSize();
+            fileConnection.close();
+
+            String data = R.getFileSystem().loadString(FileSystem.CACHE_FOLDER + fileName);
+//Logger.debug("Data: " + data + " size: " + size);
+
+            if (!loadConfigFile(data, size)) {
+                if (manager instanceof FileMapManagerTar) {
+                    parseDescriptor(fileData, manager.mapCategory);
+                } else if (manager.mapPath.startsWith("http://")) {
+                    parseDescriptor(fileData, manager.mapCategory);
+                } else {
+                    parseDescriptor(R.getFileSystem().loadString(fileData), manager.mapCategory);
+                }
+
+                if (isDescriptorLoaded()) {
+                    if (!calculateViewPort()) {
+                        descriptor_loaded = false;
+                    } else {
+                        saveConfigFile();
+                    }
+                }
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "ConfigFileTile()", fileData);
+        }
+    }
+
+    private boolean loadConfigFile(String data, long size) {
+        if (data != null && size != -1) {
+            String[] values = StringTokenizer.getArray(data, ";");
+            if (GpsUtils.parseLong(values[0]) == size && values.length == 18) {
+                tileSizeX = GpsUtils.parseInt(values[1]);
+                tileSizeY = GpsUtils.parseInt(values[2]);
+                sphericCoordinates = values[3].equals("true") ? true : false;
+                projectionType = values[4];
+
+                xmax = GpsUtils.parseInt(values[9]);
+                ymax = GpsUtils.parseInt(values[10]);
+
+                mapViewPort = new FileMapViewPort(GpsUtils.parseDouble(values[5]), GpsUtils.parseDouble(values[6]),
+                        GpsUtils.parseDouble(values[7]), GpsUtils.parseDouble(values[8]),
+                        xmax, ymax);
+                mapViewPort.setInverseHelmert(GpsUtils.parseDouble(values[11]), GpsUtils.parseDouble(values[12]),
+                        GpsUtils.parseDouble(values[13]), GpsUtils.parseDouble(values[14]));
+
+                name = values[15].equals("null") ? manager.mapFilename : values[15];
+                description = values[16].equals("null") ? "Map: " + projectionType : values[16];
+
+                zoom = GpsUtils.parseInt(values[17]);
+                descriptor_loaded = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void saveConfigFile() {
+        try {
+            FileConnection fileConnection;
+            stringBuffer.delete(0, stringBuffer.length());
+            if (manager instanceof FileMapManagerTar) {
+                    fileConnection = (FileConnection) Connector.open(FileMapManager.tar.getTarFile(), Connector.READ);
+                    stringBuffer.append(fileConnection.fileSize());
+                    stringBuffer.append(";" + tileSizeX + ";" + tileSizeY + ";");
+            } else {
+                fileConnection = (FileConnection) Connector.open(manager.mapPathPrefix +
+                        manager.mapPath + manager.mapFilename, Connector.READ);
+                stringBuffer.append(fileConnection.fileSize());
+                stringBuffer.append(";" + tileSizeX + ";" + tileSizeY + ";");
+            }
+            fileConnection.close();
+
+            stringBuffer.append(String.valueOf(sphericCoordinates) + ";");
+            stringBuffer.append(projectionType + ";");
+            mapViewPort.appendInverseHelmertParametres(stringBuffer);
+            stringBuffer.append(";" + name + ";" + description + ";");
+            stringBuffer.append(zoom);
+//Logger.debug("Save " + stringBuffer.toString());
+            R.getFileSystem().saveString(FileSystem.CACHE_FOLDER + fileName, stringBuffer.toString());
+        } catch (IOException ex) {
+            R.getErrorScreen().view(ex, "ConfigFileTile.saveConfigFile())", null);
         }
     }
 
@@ -130,10 +215,6 @@ public class ConfigFileTile {
             parseDotMapDescriptor(data);
         else if (type == FileMapManager.CATEGORY_XML)
             parseLocifyDescriptor(data);
-    }
-
-    public boolean isSphericCoordinate() {
-        return sphericCoordinates;
     }
 
     private void parseLocifyDescriptor(String data) {
@@ -199,7 +280,7 @@ public class ConfigFileTile {
                     break;
                 }
             }
-            if (calibrationPoints.size() == 4) {
+            if (calibrationPoints.size() == 4 && tileSizeX != 0 && tileSizeY != 0) {
                 descriptor_loaded = true;
             }
 
@@ -216,7 +297,8 @@ public class ConfigFileTile {
     }
 
     private void parseDotMapDescriptor(String data) {
-//System.out.println("ParseDotMapDescriptor() - start");
+long time = System.currentTimeMillis();
+//Logger.debug("ParseDotMapDescriptor() - start");
         Vector lines = StringTokenizer.getVector(data, "\n");
         if (lines.size() < 6)
             return;
@@ -230,13 +312,15 @@ public class ConfigFileTile {
                     FileConnection dir = (FileConnection) Connector.open(manager.mapPathPrefix +
                         manager.mapPath + manager.mapImageDir);
                     tileSize = getMapTileSizeDir(dir.list());
+                    dir.close();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             }
             this.tileSizeX = tileSize[0];
             this.tileSizeY = tileSize[1];
-//System.out.println("\n  tileSizeX: " + tileSizeX + " tileSizeY: " + tileSizeY);
+//Logger.debug("  tileSizeX: " + tileSizeX + " tileSizeY: " + tileSizeY);
+//Logger.debug("  time: " + (System.currentTimeMillis() - time));
             // parsing map file
             Vector token;
             CalibrationPoint[] cal = null;
@@ -329,9 +413,9 @@ public class ConfigFileTile {
                         "  tileSizeX - " + tileSizeX +
                         "  tileSizeY - " + tileSizeY);
             }
+//Logger.debug("  finish: " + (System.currentTimeMillis() - time));
         }
     }
-
 
     private int[] getMapTileSizeDir(Enumeration files) {
         int[] tileSize = new int[2];
@@ -372,6 +456,10 @@ public class ConfigFileTile {
         } 
     }
 
+    public boolean isSphericCoordinate() {
+        return sphericCoordinates;
+    }
+
     private void addCalibrationPoint(int x, int y, double lat, double lon) {
 //Logger.log("  ConfigFileTile.addCalibrationPoint x: " + x + " y: " + y + " lat: " + lat + " lon: " + lon);
         CalibrationPoint calpoint = new CalibrationPoint();
@@ -390,7 +478,7 @@ public class ConfigFileTile {
         return projectionType;
     }
 
-    private void calculateViewPort() {
+    private boolean calculateViewPort() {
         try {
             // compute Helmert transformation
             Matrix A = new Matrix(calibrationPoints.size() * 2, 4);
@@ -442,8 +530,10 @@ public class ConfigFileTile {
 
             H = (A.transpose().times(A)).inverse().times(A.transpose().times(X));
             mapViewPort.setInverseHelmert(H.get(0, 0), H.get(1, 0), H.get(2, 0), H.get(3, 0));
+            return true;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "ConfigFileTile.calculateViewPort()", "");
+            return false;
         }
     }
 
@@ -633,6 +723,7 @@ public class ConfigFileTile {
     }
 
     public double getLatDiffPerPixel() {
+//System.out.println("!!! " + mapViewPort.latitude_dimension + " " + ymax);
         return mapViewPort.latitude_dimension / ymax;
     }
     
@@ -662,6 +753,10 @@ public class ConfigFileTile {
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public class CalibrationPoint {

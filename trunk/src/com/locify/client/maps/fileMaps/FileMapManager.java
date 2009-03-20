@@ -21,6 +21,7 @@ import com.locify.client.maps.projection.ReferenceEllipsoid;
 import com.locify.client.maps.projection.S42Projection;
 import com.locify.client.maps.projection.UTMProjection;
 import com.locify.client.net.Http;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StorageTar;
 import com.locify.client.utils.StorageTar.TarRecord;
@@ -71,6 +72,8 @@ public abstract class FileMapManager {
     protected int mapCategory;
 
     public FileMapManager(String mapPath, int mapCategory) {
+long time = System.currentTimeMillis();
+//Logger.debug("FileMapManager.constructor()");
         this.mapCategory = mapCategory;
         if ((mapPath.startsWith("http://") && mapPath.endsWith(".xml")) ||
                 (mapPath.startsWith("http://") && mapPath.endsWith(".map"))) {
@@ -102,12 +105,14 @@ public abstract class FileMapManager {
                     }
                 }
             }
+//Logger.debug("  step1 - time: " + (System.currentTimeMillis() - time));
 //System.out.println("MID: " + mapImageDir);
             //this.mapImageDir = this.mapFilename.substring(0, this.mapFilename.lastIndexOf('.')) + "/";
             this.mapPath = FileSystem.MAP_FOLDER;
             this.mapPathPrefix = "file:///" + FileSystem.ROOT;
             this.loadLocalMapFiles();
         }
+//Logger.debug("  step2 - time: " + (System.currentTimeMillis() - time));
 
         if (configFile != null && configFile.isDescriptorLoaded()) {
             mapProjection = getProjection(configFile.getProjectionType());
@@ -120,6 +125,7 @@ public abstract class FileMapManager {
         } else {
             ready = false;
         }
+//Logger.debug("  step3 - time: " + (System.currentTimeMillis() - time));
     }
 
     public boolean isReady() {

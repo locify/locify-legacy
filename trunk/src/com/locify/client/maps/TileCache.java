@@ -202,32 +202,37 @@ public class TileCache extends Thread {
                         }
 
                     } else if (actualRequest.tarName != null) {
-long time = System.currentTimeMillis();
+                        try {
+//long time = System.currentTimeMillis();
 //Logger.debug("!!! Memory before - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
 //Logger.debug("TileCache.run() tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
 //Logger.debug("TileCache TAR: name - " + actualRequest.tarName + " pos: " + actualRequest.byteFromPosition);
-                        byte[] array = StorageTar.loadFile(actualRequest.tarName, actualRequest.record);
-                        if (array == null || array.length == 0) {
-                            actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
-                        } else {
-                            try {
-                                actualRequest.image = Image.createImage(array, 0, array.length);
-                            } catch (OutOfMemoryError e) {
-                                Logger.error("TileCache.run() outOfMemoryError: " + e.toString());
-                            } catch (Exception e) {
-                                Logger.error("TileCache.run() Error: " + e.toString());
-                            } finally {
-                                if (actualRequest.image == null)
-                                    actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
-                            }
-                        }
 
-                        addImageToCache(actualRequest);
-                        if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
-                            R.getMapScreen().repaint();
-                        }
+                            byte[] array = StorageTar.loadFile(actualRequest.tarName, actualRequest.record);
+                            if (array == null || array.length == 0) {
+                                actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
+                            } else {
+                                try {
+                                    actualRequest.image = Image.createImage(array, 0, array.length);
+                                } catch (OutOfMemoryError e) {
+                                    Logger.error("TileCache.run() outOfMemoryError: " + e.toString());
+                                } catch (Exception e) {
+                                    Logger.error("TileCache.run() Error: " + e.toString());
+                                } finally {
+                                    if (actualRequest.image == null)
+                                        actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
+                                }
+                            }
+
+                            addImageToCache(actualRequest);
+                            if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
+                                R.getMapScreen().repaint();
+                            }
 //Logger.debug("TileCache TAR: end after " + (System.currentTimeMillis() - time) + "ms");
 //Logger.debug("Memory after - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
+                        } catch (Exception e) {
+                            R.getErrorScreen().view(e, "TileCache.run()", "TarFile load");
+                        }
                     }
 
                     refreshScreenAndDownloaders();
@@ -235,10 +240,10 @@ long time = System.currentTimeMillis();
                     try {
                         Thread.sleep(250);
                     } catch (InterruptedException e) {
-                        R.getErrorScreen().view(e, "FileTileCache.run() - sleep(250)", null);
+                        R.getErrorScreen().view(e, "TileCache.run() - sleep(250)", null);
                     }
                 } catch (Exception e) {
-                    R.getErrorScreen().view(e, "FileTileCache.run() - while (!requests.isEmpty())", null);
+                    R.getErrorScreen().view(e, "TileCache.run() - while (!requests.isEmpty())", null);
                 }
                 needRefresh = true;
             }
