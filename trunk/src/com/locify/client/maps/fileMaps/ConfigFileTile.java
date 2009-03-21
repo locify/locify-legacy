@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Vector;
+import javax.bluetooth.DataElement;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Graphics;
@@ -105,6 +106,8 @@ public class ConfigFileTile {
      * or loaded data from http link
      */
     public ConfigFileTile(String fileData, FileMapManager manager) {
+//long time = System.currentTimeMillis();
+//Logger.debug("ConfigFileTile ... initializing");
         this.manager = manager;
         this.stringBuffer = new StringBuffer();
         this.zoom = 0;
@@ -127,11 +130,11 @@ public class ConfigFileTile {
             if (fileConnection.exists())
                 size = fileConnection.fileSize();
             fileConnection.close();
-
             String data = R.getFileSystem().loadString(FileSystem.CACHE_FOLDER + fileName);
-//Logger.debug("Data: " + data + " size: " + size);
+//Logger.debug("ConfigFileTile ... step1: " + (System.currentTimeMillis() - time));
 
             if (!loadConfigFile(data, size)) {
+//Logger.debug("ConfigFileTile ... step2: " + (System.currentTimeMillis() - time));
                 if (manager instanceof FileMapManagerTar) {
                     parseDescriptor(fileData, manager.mapCategory);
                 } else if (manager.mapPath.startsWith("http://")) {
@@ -139,7 +142,7 @@ public class ConfigFileTile {
                 } else {
                     parseDescriptor(R.getFileSystem().loadString(fileData), manager.mapCategory);
                 }
-
+//Logger.debug("ConfigFileTile ... step3: " + (System.currentTimeMillis() - time));
                 if (isDescriptorLoaded()) {
                     if (!calculateViewPort()) {
                         descriptor_loaded = false;
@@ -148,6 +151,7 @@ public class ConfigFileTile {
                     }
                 }
             }
+//Logger.debug("ConfigFileTile ... step4: " + (System.currentTimeMillis() - time));
         } catch (Exception e) {
             R.getErrorScreen().view(e, "ConfigFileTile()", fileData);
         }
@@ -253,8 +257,8 @@ public class ConfigFileTile {
                         setProjectionType(parser.nextText());
                     } else if (tagName.equals("position")) {
                         int x, y;
-                        x = Integer.parseInt(parser.getAttributeValue(1));
-                        y = Integer.parseInt(parser.getAttributeValue(2));
+                        x = Integer.parseInt(parser.getAttributeValue(0));
+                        y = Integer.parseInt(parser.getAttributeValue(1));
 
                         double lat, lon;
                         parser.nextTag();
@@ -285,7 +289,7 @@ public class ConfigFileTile {
             }
 
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "RouteData.parseRoute", data);
+            R.getErrorScreen().view(e, "ConfigFileTile.parseLocifyDescriptor", data);
             descriptor_loaded = false;
         } finally {
             try {
@@ -297,155 +301,149 @@ public class ConfigFileTile {
     }
 
     private void parseDotMapDescriptor(String data) {
-long time = System.currentTimeMillis();
-//Logger.debug("ParseDotMapDescriptor() - start");
-        Vector lines = StringTokenizer.getVector(data, "\n");
-        if (lines.size() < 6)
-            return;
-        else {
-            // set tileSize
-            int[] tileSize = new int[2];
-            if (manager instanceof FileMapManagerTar) {
-                tileSize = FileMapManager.tar.getMapTileSize();
-            } else {
-                try {
-                    FileConnection dir = (FileConnection) Connector.open(manager.mapPathPrefix +
-                        manager.mapPath + manager.mapImageDir);
-                    tileSize = getMapTileSizeDir(dir.list());
-                    dir.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            this.tileSizeX = tileSize[0];
-            this.tileSizeY = tileSize[1];
-//Logger.debug("  tileSizeX: " + tileSizeX + " tileSizeY: " + tileSizeY);
-//Logger.debug("  time: " + (System.currentTimeMillis() - time));
-            // parsing map file
-            Vector token;
-            CalibrationPoint[] cal = null;
-            for (int i = 0; i < lines.size(); i++) {
-                token = StringTokenizer.getVector(String.valueOf(lines.elementAt(i)), ",");
-                // Map Projection,Mercator
-                if (i == 4) {
-                    setProjectionType((String) token.elementAt(0));
-                } else if (((String) token.elementAt(0)).startsWith("Map Projection")) {
-                    //this.projectionType = ((String) token.elementAt(1)).trim();
-                } else if (((String) token.elementAt(0)).startsWith("Point")) {
-                    int x, y;
-                    double lat, lon, latX, lonY;
-                    double[] coo = new double[2];
+        try {
+//    long time = System.currentTimeMillis();
+//    Logger.debug("ParseDotMapDescriptor() - start");
+            Vector lines = StringTokenizer.getVector(data, "\n");
+            if (lines.size() < 6)
+                return;
+            else {
+                // set tileSize
+                int[] tileSize = new int[2];
+                tileSize[0] = Integer.MAX_VALUE;
+                tileSize[1] = Integer.MAX_VALUE;
 
-                    // test point
-                    if (String.valueOf(token.elementAt(2)).trim().length() == 0)
-                        continue;
-                    
-                    x = GpsUtils.parseInt(token.elementAt(2));
-                    y = GpsUtils.parseInt(token.elementAt(3));
-                    lat = GpsUtils.parseDouble(token.elementAt(6)) + GpsUtils.parseDouble(token.elementAt(7)) / 60.0;
-                    lon = GpsUtils.parseDouble(token.elementAt(9)) + GpsUtils.parseDouble(token.elementAt(10)) / 60.0;
-                    latX = GpsUtils.parseDouble(token.elementAt(15));
-                    lonY = GpsUtils.parseDouble(token.elementAt(14));
-
-                    if (lat != 0 && lon != 0) {
-                        coo[0] = lat;
-                        coo[1] = lon;
-                        sphericCoordinates = true;
-                    } else if (latX != 0 && lonY != 0) {
-                        coo[0] = latX;
-                        coo[1] = lonY;
-                        sphericCoordinates = false;
-                    } else
-                        continue;
-
-                    addCalibrationPoint(x, y, coo[0], coo[1]);
-                // MMPNUM,4
-                } else if (((String) token.elementAt(0)).startsWith("MMPNUM")) {
-                    int size = GpsUtils.parseInt(token.elementAt(1));
-                    if (size >= 4) {
-                        cal = new CalibrationPoint[size];
-                        for (int j = 0; j < cal.length; j++) {
-                            cal[j] = new CalibrationPoint();
+                if (manager instanceof FileMapManagerTar) {
+                    tileSize = FileMapManager.tar.getMapTileSize();
+                } else {
+                    FileConnection con = null;
+                    try {
+                        con = (FileConnection) Connector.open(
+                                manager.mapPathPrefix + manager.mapPath + createImageName(0, 0));
+//System.out.println("File path: " + (manager.mapPathPrefix + manager.mapPath + createImageName(0, 0)));
+                        if (con.exists()) {
+                            Image img = Image.createImage(con.openInputStream());
+                            tileSize[0] = img.getWidth();
+                            tileSize[1] = img.getHeight();
+                            img = null;
+                        }
+                    } catch (Exception ex) {
+                        R.getErrorScreen().view(ex, "ConfigFileTile.getMapTileSizeDir()", null);
+                    } finally {
+                        try {
+                            if (con != null) {
+                                con.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
-                // MMPXY,1,0,0
-                } else if (((String) token.elementAt(0)).startsWith("MMPXY")) {
-                    if (cal.length > 3) {
-                        CalibrationPoint point = cal[GpsUtils.parseInt(token.elementAt(1)) - 1];
-                        point.x = GpsUtils.parseInt(token.elementAt(2));
-                        point.y = GpsUtils.parseInt(token.elementAt(3));
-                    }
-                // MMPLL,1,  11.751193,  50.953687
-                } else if (((String) token.elementAt(0)).startsWith("MMPLL")) {
-                    if (cal.length > 3) {
-                        CalibrationPoint point = cal[GpsUtils.parseInt(token.elementAt(1)) - 1];
-                        double lat = GpsUtils.parseDouble(token.elementAt(3));
-                        double lon = GpsUtils.parseDouble(token.elementAt(2));
-                        point.position = new Location4D(lat, lon, 0.0f);
-                    }
-                // IWH,Map Image Width/Height,2000,2000
-                } else if (((String) token.elementAt(0)).startsWith("IWH")) {
-                    this.xmax = GpsUtils.parseInt(token.elementAt(2));
-                    this.ymax = GpsUtils.parseInt(token.elementAt(3));
                 }
-            }
+                this.tileSizeX = tileSize[0];
+                this.tileSizeY = tileSize[1];
+                System.gc();
+//    Logger.debug("  tileSizeX: " + tileSizeX + " tileSizeY: " + tileSizeY);
+//    Logger.debug("  time: " + (System.currentTimeMillis() - time));
+                // parsing map file
+                Vector token;
+                CalibrationPoint[] cal = null;
+                for (int i = 0; i < lines.size(); i++) {
+//    Logger.debug("  time" + i + ": " + (System.currentTimeMillis() - time));
+                    token = StringTokenizer.getVector(String.valueOf(lines.elementAt(i)), ",");
+                    // Map Projection,Mercator
+                    if (i == 1) {
+                        this.name = (String) lines.elementAt(i);
+                    } else if (i == 4) {
+                        setProjectionType((String) token.elementAt(0));
+                    } else if (((String) token.elementAt(0)).startsWith("Map Projection")) {
+                        //this.projectionType = ((String) token.elementAt(1)).trim();
+                    } else if (((String) token.elementAt(0)).startsWith("Point")) {
+                        int x, y;
+                        double lat, lon, latX, lonY;
+                        double[] coo = new double[2];
 
-//            if (cal != null && cal.length > 3) { // && calibrationPoints.size() < 4) {
-            if (cal != null && cal.length > 3 && calibrationPoints.size() < 2) {
-                calibrationPoints.removeAllElements();
-                sphericCoordinates = true;
-                for (int i = 0; i < cal.length; i++) {
-                    addCalibrationPoint(cal[i].x, cal[i].y,
-                            cal[i].position.getLatitude(), cal[i].position.getLongitude());
+                        // test point
+                        if (String.valueOf(token.elementAt(2)).trim().length() == 0)
+                            continue;
+
+                        x = GpsUtils.parseInt(token.elementAt(2));
+                        y = GpsUtils.parseInt(token.elementAt(3));
+                        lat = GpsUtils.parseDouble(token.elementAt(6)) + GpsUtils.parseDouble(token.elementAt(7)) / 60.0;
+                        lon = GpsUtils.parseDouble(token.elementAt(9)) + GpsUtils.parseDouble(token.elementAt(10)) / 60.0;
+                        latX = GpsUtils.parseDouble(token.elementAt(15));
+                        lonY = GpsUtils.parseDouble(token.elementAt(14));
+
+                        if (lat != 0 && lon != 0) {
+                            coo[0] = lat;
+                            coo[1] = lon;
+                            sphericCoordinates = true;
+                        } else if (latX != 0 && lonY != 0) {
+                            coo[0] = latX;
+                            coo[1] = lonY;
+                            sphericCoordinates = false;
+                        } else
+                            continue;
+
+                        addCalibrationPoint(x, y, coo[0], coo[1]);
+                    // MMPNUM,4
+                    } else if (((String) token.elementAt(0)).startsWith("MMPNUM")) {
+                        int size = GpsUtils.parseInt(token.elementAt(1));
+                        if (size >= 4) {
+                            cal = new CalibrationPoint[size];
+                            for (int j = 0; j < cal.length; j++) {
+                                cal[j] = new CalibrationPoint();
+                            }
+                        }
+                    // MMPXY,1,0,0
+                    } else if (((String) token.elementAt(0)).startsWith("MMPXY")) {
+                        if (cal.length > 3) {
+                            CalibrationPoint point = cal[GpsUtils.parseInt(token.elementAt(1)) - 1];
+                            point.x = GpsUtils.parseInt(token.elementAt(2));
+                            point.y = GpsUtils.parseInt(token.elementAt(3));
+                        }
+                    // MMPLL,1,  11.751193,  50.953687
+                    } else if (((String) token.elementAt(0)).startsWith("MMPLL")) {
+                        if (cal.length > 3) {
+                            CalibrationPoint point = cal[GpsUtils.parseInt(token.elementAt(1)) - 1];
+                            double lat = GpsUtils.parseDouble(token.elementAt(3));
+                            double lon = GpsUtils.parseDouble(token.elementAt(2));
+                            point.position = new Location4D(lat, lon, 0.0f);
+                        }
+                    // IWH,Map Image Width/Height,2000,2000
+                    } else if (((String) token.elementAt(0)).startsWith("IWH")) {
+                        this.xmax = GpsUtils.parseInt(token.elementAt(2));
+                        this.ymax = GpsUtils.parseInt(token.elementAt(3));
+                    }
                 }
-                cal = null;
-            }
 
-            if (calibrationPoints.size() >= 2 &&
-                    xmax != 0 && ymax != 0 &&
-                    tileSizeX != 0 && tileSizeY != 0 &&
-                    tileSizeX != Integer.MAX_VALUE && tileSizeY != Integer.MAX_VALUE) {
-                descriptor_loaded = true;
-            } else {
-                Logger.error("  Map initializing problem: calibrationPoints.size() - " + calibrationPoints.size() +
-                        "  xmax - " + xmax +
-                        "  ymax - " + ymax +
-                        "  tileSizeX - " + tileSizeX +
-                        "  tileSizeY - " + tileSizeY);
+    //            if (cal != null && cal.length > 3) { // && calibrationPoints.size() < 4) {
+                if (cal != null && cal.length > 3 && calibrationPoints.size() < 2) {
+                    calibrationPoints.removeAllElements();
+                    sphericCoordinates = true;
+                    for (int i = 0; i < cal.length; i++) {
+                        addCalibrationPoint(cal[i].x, cal[i].y,
+                                cal[i].position.getLatitude(), cal[i].position.getLongitude());
+                    }
+                    cal = null;
+                }
+
+                if (calibrationPoints.size() >= 2 &&
+                        xmax != 0 && ymax != 0 &&
+                        tileSizeX != 0 && tileSizeY != 0 &&
+                        tileSizeX != Integer.MAX_VALUE && tileSizeY != Integer.MAX_VALUE) {
+                    descriptor_loaded = true;
+                } else {
+                    Logger.error("  Map initializing problem: calibrationPoints.size() - " + calibrationPoints.size() +
+                            "  xmax - " + xmax +
+                            "  ymax - " + ymax +
+                            "  tileSizeX - " + tileSizeX +
+                            "  tileSizeY - " + tileSizeY);
+                }
+//    Logger.debug("  finish: " + (System.currentTimeMillis() - time));
             }
-//Logger.debug("  finish: " + (System.currentTimeMillis() - time));
+        } catch (Exception ex) {
+            Logger.error("ConfigFileTile.parseDotMapDescriptor(): " + data);
         }
-    }
-
-    private int[] getMapTileSizeDir(Enumeration files) {
-        int[] tileSize = new int[2];
-        if (files != null && files.hasMoreElements()) {
-            String file;
-            int startLength = 0;
-            tileSize[0] = Integer.MAX_VALUE;
-            tileSize[1] = Integer.MAX_VALUE;
-//System.out.println("tarKeys.size() " + tarKeys.length);
-            while (files.hasMoreElements()) {
-                file = (String) files.nextElement();
-
-                if (startLength == 0) {
-                    String temp = file.substring(0, file.lastIndexOf('_'));
-                    int l = temp.lastIndexOf('_');
-                    if (l != -1) {
-                        temp = temp.substring(0, l + 1);
-                        startLength = temp.length();
-                    }
-                }
-                file = file.substring(startLength);
-                int x = Integer.parseInt(file.substring(0, file.lastIndexOf('_')));
-                int y = Integer.parseInt(file.substring(file.lastIndexOf('_') + 1, file.lastIndexOf('.')));
-                if (x < tileSize[0] && x != 0)
-                    tileSize[0] = x;
-                if (y < tileSize[1] && y != 0)
-                    tileSize[1] = y;
-            }
-        }
-        return tileSize;
     }
 
     private void setProjectionType(String projection) {

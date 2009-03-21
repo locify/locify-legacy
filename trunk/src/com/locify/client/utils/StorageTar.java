@@ -47,7 +47,7 @@ public class StorageTar {
     private int mapTileSizeY = 0;
 
     private boolean makeIndexes;
-    private static int skipMethod = 1;
+    private static int skipMethod = 2;
 
 
     /**
@@ -103,11 +103,12 @@ public class StorageTar {
     private static void skipBytes(InputStream is, int numOfBytes) {
         try {
             int actualPos = 0;
-            if (skipMethod == -1) {
+//            if (skipMethod == -1) {
+//
+//            }
 
-            }
-
-            if (skipMethod == 1) {
+            //if (skipMethod == 1) {
+            if (!Capabilities.isWindowsMobile()) {
                 while (true) {
                     if ((actualPos + bufferSize) < numOfBytes) {
                             is.read(buffer);
