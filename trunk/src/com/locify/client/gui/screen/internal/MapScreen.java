@@ -407,9 +407,38 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             if (zoomProcess) {
                 try {
                     int moveX = touchZoomInButtonCenter.x + touchZoomButtonRadius + 4;
-                    g.setColor(ColorsFonts.BLUE);
-                    g.drawRoundRect(pxMoveX - borderW / 2, pxMoveY - borderH / 2,
-                            borderW, borderH, 3, 3);
+                    int bw = borderW / 2;
+                    int bh = borderH / 2;
+                    int val1 = 0;
+                    int val2 = 0;
+
+                    if (zoomTotalValue > 0) {
+                        g.setColor(ColorsFonts.BLUE);
+                        val1 = 5;
+                        val2 = 15;
+                    } else if (zoomTotalValue < 0) {
+                        g.setColor(ColorsFonts.RED);
+                        val1 = 15;
+                        val2 = 5;
+                    } else {
+                        g.setColor(ColorsFonts.LIGHT_ORANGE);
+                    }
+                    g.drawRoundRect(pxMoveX - bw, pxMoveY - bh, borderW, borderH, 5, 5);
+                    
+                    if (zoomTotalValue != 0) {
+                        g.fillTriangle(pxMoveX - bw - val1, pxMoveY,
+                                pxMoveX - bw - val2, pxMoveY - 5,
+                                pxMoveX - bw - val2, pxMoveY + 5);
+                        g.fillTriangle(pxMoveX + bw + val1, pxMoveY,
+                                pxMoveX + bw + val2, pxMoveY - 5,
+                                pxMoveX + bw + val2, pxMoveY + 5);
+                        g.fillTriangle(pxMoveX, pxMoveY - bh - val1,
+                                pxMoveX - 5, pxMoveY - bh - val2,
+                                pxMoveX + 5, pxMoveY - bh - val2);
+                        g.fillTriangle(pxMoveX, pxMoveY + bh + val1,
+                                pxMoveX - 5, pxMoveY + bh + val2,
+                                pxMoveX + 5, pxMoveY + bh + val2);
+                    }
 
                     if (!MainScreen.hasPointerEvents) {
                         g.drawImage(getMapIconPlus(), touchZoomInButtonCenter.x,
@@ -437,7 +466,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
 
         try {
-            if (MainScreen.hasPointerEvents) {
+            if (MainScreen.hasPointerEvents && map instanceof TileMapLayer) {
                 g.setColor(ColorsFonts.LIGHT_ORANGE);
                 g.fillArc(touchZoomInButtonCenter.x - touchZoomButtonRadius,
                         touchZoomInButtonCenter.y - touchZoomButtonRadius,
@@ -566,7 +595,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                         mapFile.destroyMap();
                         map = mapTile;
                         map.setProviderAndMode(i);
-                        //centerMap(lastCenterPoint, centerToActualLocation);
+                        if (centerToActualLocation)
+                            centerMap(lastCenterPoint, centerToActualLocation);
                         repaint();
                         return;
                     }
@@ -576,7 +606,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     for (int i = 0; i < providerCommandsFile.length; i++) {
                         if (providerCommandsFile[i].equals(cmd)) {
                             setFileProvider(i);
-                            //centerMap(lastCenterPoint, centerToActualLocation);
+                            if (centerToActualLocation)
+                                centerMap(lastCenterPoint, centerToActualLocation);
                             repaint();
                             return;
                         }
@@ -1273,8 +1304,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 }
             }
 
-            borderW = (int) ((1 / LMath.pow(2, zoomTotalValue)) * borderWdef);
-            borderH = (int) ((1 / LMath.pow(2, zoomTotalValue)) * borderHdef);
+            borderW = (int) ((1 / LMath.pow(2, Math.abs(zoomTotalValue))) * borderWdef);
+            borderH = (int) ((1 / LMath.pow(2, Math.abs(zoomTotalValue))) * borderHdef);
         } else if (actionType == ZOOM_UP) {
             pxMoveY -= borderH / movePartImageValue;
         } else if (actionType == ZOOM_DOWN) {

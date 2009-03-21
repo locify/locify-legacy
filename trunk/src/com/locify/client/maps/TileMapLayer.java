@@ -232,7 +232,7 @@ public class TileMapLayer implements MapLayer {
     }
 
     /** zoom level */
-    private int zoom;
+    private int zoom = 19 ;
 
     public final int getActualZoomLevel() {
         return this.zoom;
