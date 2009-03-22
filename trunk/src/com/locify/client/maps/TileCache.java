@@ -70,7 +70,7 @@ public class TileCache extends Thread {
         // set size of cache ... 1MB
         double cacheSize;
         if (Capabilities.isWindowsMobile())
-            cacheSize = 0.33;
+            cacheSize = 4.0;
         else
             cacheSize = 1.0;
         
@@ -207,20 +207,23 @@ public class TileCache extends Thread {
 //Logger.debug("!!! Memory before - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
 //Logger.debug("TileCache.run() tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
 //Logger.debug("TileCache TAR: name - " + actualRequest.tarName + " pos: " + actualRequest.byteFromPosition);
-
-                            byte[] array = StorageTar.loadFile(actualRequest.tarName, actualRequest.record);
-                            if (array == null || array.length == 0) {
+                            if (actualRequest.record == null) {
                                 actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
                             } else {
-                                try {
-                                    actualRequest.image = Image.createImage(array, 0, array.length);
-                                } catch (OutOfMemoryError e) {
-                                    Logger.error("TileCache.run() outOfMemoryError: " + e.toString());
-                                } catch (Exception e) {
-                                    Logger.error("TileCache.run() Error: " + e.toString());
-                                } finally {
-                                    if (actualRequest.image == null)
-                                        actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
+                                byte[] array = StorageTar.loadFile(actualRequest.tarName, actualRequest.record);
+                                if (array == null || array.length == 0) {
+                                    actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
+                                } else {
+                                    try {
+                                        actualRequest.image = Image.createImage(array, 0, array.length);
+                                    } catch (OutOfMemoryError e) {
+                                        Logger.error("TileCache.run() outOfMemoryError: " + e.toString());
+                                    } catch (Exception e) {
+                                        Logger.error("TileCache.run() Error: " + e.toString());
+                                    } finally {
+                                        if (actualRequest.image == null)
+                                            actualRequest.image = MapScreen.getImageConnectionNotFound(tileSizeX, tileSizeY);
+                                    }
                                 }
                             }
 

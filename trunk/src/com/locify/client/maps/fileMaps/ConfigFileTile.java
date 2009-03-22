@@ -256,10 +256,14 @@ public class ConfigFileTile {
                     } else if (tagName.equals("projection")) {
                         setProjectionType(parser.nextText());
                     } else if (tagName.equals("position")) {
-                        int x, y;
-                        x = Integer.parseInt(parser.getAttributeValue(0));
-                        y = Integer.parseInt(parser.getAttributeValue(1));
-
+                        int x = 0, y = 0;
+                        for (int i = 0; i < parser.getAttributeCount(); i++) {
+                            if (parser.getAttributeName(i).equalsIgnoreCase("x"))
+                                x = GpsUtils.parseInt(parser.getAttributeValue(i));
+                            else if (parser.getAttributeName(i).equalsIgnoreCase("y"))
+                                y = GpsUtils.parseInt(parser.getAttributeValue(i));
+                        }
+                        
                         double lat, lon;
                         parser.nextTag();
                         boolean xy = parser.getName().equalsIgnoreCase("x") ||
@@ -447,9 +451,11 @@ public class ConfigFileTile {
     }
 
     private void setProjectionType(String projection) {
-        if (projection.startsWith("WGS 84") || projection.startsWith("UTM")) {
+        if (projection.startsWith("WGS 84") || projection.startsWith("WGS84") ||
+                projection.startsWith("UTM")) {
             this.projectionType = "UTM";
-        } else if (projection.startsWith("Pulkovo 1942")) {
+        } else if (projection.startsWith("Pulkovo 1942") || projection.startsWith("S42") ||
+                projection.startsWith("S-42")) {
             this.projectionType = "S42";
         } 
     }
@@ -605,7 +611,7 @@ public class ConfigFileTile {
                     if (imageHaveToExist(tileX1 + i, tileY1 + j)) {
                         imageName =  createImageName(i, j);
                         if (tar != null) {
-//System.out.println("Add: " + (manager.mapPathPrefix + manager.mapPath + imageName) + "  " + tar.getTarFile() + "  " + tar.getFilePosition(imageName));
+//System.out.println("Add: " + (manager.mapPathPrefix + manager.mapPath + imageName) + "  " + tar.getTarFile() + " " + tar.getTarRecord(imageName));
                             imageNames.addElement(new ImageRequest(
                                     manager.mapPathPrefix + manager.mapPath + imageName,
                                     tar.getTarFile(), tar.getTarRecord(imageName)));

@@ -19,6 +19,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
+import javax.microedition.lcdui.Image;
 
 /**
  * Manages loading and writing files into one TAR file
@@ -38,7 +39,7 @@ public class StorageTar {
     private static int bufferSize = 102400;
     private static byte[] buffer = new byte[bufferSize];
     private String tarPath;
-    private String imageDir = "set";
+    private String imageDir;
     private Hashtable indexes;
     long modifydate;
 
@@ -78,15 +79,15 @@ public class StorageTar {
     public TarRecord getTarRecord(String fileName) {
         if (indexes != null) {
             TarRecord record = (TarRecord) indexes.get(fileName);
-//System.out.println("\n  StorageTar.getFilePosition(): " + fileName + " index: " + index);
+System.out.println("\n  StorageTar.getTarRecord(): " + fileName);
             if (record != null)
                 return record;
         }
         return null;
     }
 
-    public void setImageDir(String mapImageDir) {
-        this.imageDir = mapImageDir;
+    public String getImageDir() {
+        return imageDir;
     }
     
     private void resetData() {
@@ -182,6 +183,9 @@ public class StorageTar {
 
                 if (!lastFile.equals(actualFile)) {
 //System.out.println("\nIndexed: " + actualFile + " pos: " + dataPosition);
+                    if (imageDir == null && actualFile.indexOf("/") != -1) {
+                        imageDir = actualFile.substring(0, actualFile.indexOf("/") + 1);
+                    }
                     indexes.put(actualFile, new TarRecord(dataPosition, fileSize));
                     lastFile = actualFile;
                 } else {
@@ -244,9 +248,8 @@ public class StorageTar {
         if (mapTileSizeX == 0 || mapTileSizeY == 0) {
             Enumeration tarKeys = indexes.keys();
             //Arrays.sort(tarKeys);
-            if (tarKeys != null) {
+            if (tarKeys != null && imageDir != null) {
                 String key;
-                int startLength = 0;
                 mapTileSizeX = Integer.MAX_VALUE;
                 mapTileSizeY = Integer.MAX_VALUE;
 //System.out.println("tarKeys.size() " + tarKeys.length);
@@ -255,24 +258,16 @@ public class StorageTar {
 //System.out.println("KEY: " + key);
                     if (!(key.startsWith(imageDir) && key.lastIndexOf('_') != -1))
                         continue;
-
-                    if (startLength == 0) {
-                        String temp = key.substring(0, key.lastIndexOf('_'));
-                        int l = temp.lastIndexOf('_');
-                        if (l != -1) {
-                            temp = temp.substring(0, l + 1);
-                            startLength = temp.length();
-                        }
+                    Image image = null;
+                    byte[] array = loadFile(getTarFile(), getTarRecord(key));
+                    if (array != null && array.length > 0) {
+                        image = Image.createImage(array, 0, array.length);
                     }
-                    key = key.substring(startLength);
-//System.out.println("KEY: " + key);
-                    int x = Integer.parseInt(key.substring(0, key.lastIndexOf('_')));
-                    int y = Integer.parseInt(key.substring(key.lastIndexOf('_') + 1, key.lastIndexOf('.')));
-//System.out.println("x " + x + " y " + y);
-                    if (x < mapTileSizeX && x != 0)
-                        mapTileSizeX = x;
-                    if (y < mapTileSizeY && y != 0)
-                        mapTileSizeY = y;
+                    if (image == null)
+                        break;
+                    mapTileSizeX = image.getWidth();
+                    mapTileSizeY = image.getHeight();                    image = null;
+                    break;
                 }
             }
         }
@@ -287,6 +282,10 @@ public class StorageTar {
         public TarRecord(int recordStart, int recordLength) {
             this.recordStart = recordStart;
             this.recordLength = recordLength;
+        }
+
+        public String toString() {
+            return "TarRecord start: " + recordStart + " length: " + recordLength;
         }
     }
 //    private String getFileName() {

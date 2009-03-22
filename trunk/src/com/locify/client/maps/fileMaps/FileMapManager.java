@@ -72,7 +72,7 @@ public abstract class FileMapManager {
     protected int mapCategory;
 
     public FileMapManager(String mapPath, int mapCategory) {
-long time = System.currentTimeMillis();
+//long time = System.currentTimeMillis();
 //Logger.debug("FileMapManager.constructor()");
         this.mapCategory = mapCategory;
         if ((mapPath.startsWith("http://") && mapPath.endsWith(".xml")) ||
@@ -87,15 +87,13 @@ long time = System.currentTimeMillis();
 
             this.mapImageDir = this.mapFilename.substring(0, this.mapFilename.lastIndexOf('.')) + "/";
             if (mapPath.endsWith(".tar")) {
-//System.out.println("1. " + mapImageDir);
-                if (tar.getTarRecord(mapImageDir) == null) {
-                    this.mapImageDir = "set/";
-                    if (tar.getTarRecord(mapImageDir) == null) {
-                        ready = false;
-                        return;
-                    }
+                this.mapImageDir = tar.getImageDir();
+//Logger.debug("1. " + mapImageDir);
+                if (mapImageDir == null) {
+                    Logger.error("FileMapManager.constructor() - cannot find image directory in " + tar.getTarFile());
+                    ready = false;
+                    return;
                 }
-                tar.setImageDir(mapImageDir);
             } else {
                 if (!R.getFileSystem().exists(FileSystem.MAP_FOLDER + mapImageDir)) {
                     this.mapImageDir = "set/";
@@ -106,7 +104,7 @@ long time = System.currentTimeMillis();
                 }
             }
 //Logger.debug("  step1 - time: " + (System.currentTimeMillis() - time));
-//System.out.println("MID: " + mapImageDir);
+//Logger.debug("  MID: " + mapImageDir);
             //this.mapImageDir = this.mapFilename.substring(0, this.mapFilename.lastIndexOf('.')) + "/";
             this.mapPath = FileSystem.MAP_FOLDER;
             this.mapPathPrefix = "file:///" + FileSystem.ROOT;
