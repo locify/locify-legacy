@@ -15,11 +15,8 @@ package com.locify.client.locator.impl;
 
 import javax.microedition.location.Criteria;
 import javax.microedition.location.Location;
-import javax.microedition.location.LocationException;
 import javax.microedition.location.LocationListener;
-import javax.microedition.location.LocationProvider;
 
-import com.locify.client.locator.GpsLocationProvider;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationSample;
 import com.locify.client.utils.Logger;
@@ -29,7 +26,7 @@ import com.locify.client.utils.R;
  * This LocationProvider acquires data from internal GPS using javax.microedition.location api.
  * @author Jiri Stepan
  */
-public class JSR179LocationProvider extends GpsLocationProvider {
+public class JSR179LocationProvider extends com.locify.client.locator.LocationProvider {
 
     private float lastValidCourse = 0;
     private float lastValidSpeed = 0;
@@ -37,7 +34,7 @@ public class JSR179LocationProvider extends GpsLocationProvider {
 
     private final LocationListener locationListener = new LocationListener() {
 
-        public void locationUpdated(LocationProvider lp, Location location) {
+        public void locationUpdated(javax.microedition.location.LocationProvider lp, Location location) {
             doUpdateLocation(location);
         }
 
@@ -84,15 +81,15 @@ public class JSR179LocationProvider extends GpsLocationProvider {
             }
         }
 
-        public void providerStateChanged(LocationProvider lp, int newState) {
+        public void providerStateChanged(javax.microedition.location.LocationProvider lp, int newState) {
             switch (newState) {
-                case LocationProvider.OUT_OF_SERVICE:
+                case javax.microedition.location.LocationProvider.OUT_OF_SERVICE:
                     setState(com.locify.client.locator.LocationProvider.CONNECTING);
                     break;
-                case LocationProvider.AVAILABLE:
+                case javax.microedition.location.LocationProvider.AVAILABLE:
                     setState(com.locify.client.locator.LocationProvider.WAITING);
                     break;
-                case LocationProvider.TEMPORARILY_UNAVAILABLE:
+                case javax.microedition.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
                     setState(com.locify.client.locator.LocationProvider.WAITING);
                     break;
                 default:
@@ -128,11 +125,11 @@ public class JSR179LocationProvider extends GpsLocationProvider {
                 gps.setSpeedAndCourseRequired(true);
                 Criteria cellid = new Criteria();
                 try {
-                    internalProvider = LocationProvider.getInstance(gps);
+                    internalProvider = javax.microedition.location.LocationProvider.getInstance(gps);
                     if (internalProvider == null) {
-                        internalProvider = LocationProvider.getInstance(cellid);
+                        internalProvider = javax.microedition.location.LocationProvider.getInstance(cellid);
                     }
-                } catch (LocationException le) {
+                } catch (javax.microedition.location.LocationException le) {
                     Logger.error("Cannot create LocationProvider for this criteria");
                 }
                 internalProvider.setLocationListener(locationListener, 3, 1, 1);

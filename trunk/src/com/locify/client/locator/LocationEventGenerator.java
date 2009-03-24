@@ -19,24 +19,24 @@ package com.locify.client.locator;
  */
 public interface LocationEventGenerator {
 
-	/** 
-	 * register new liseter. This object shoul be notified about any 
-	 * change of location or state of thos provider 
-	 **/
-	public abstract void addLocationChangeListener(LocationEventListener listener);
-	
-	/** remove listener **/
-	public abstract void removeLocationChangeListener(LocationEventListener listener);
+    /**
+     * register new liseter. This object shoul be notified about any
+     * change of location or state of thos provider
+     **/
+    public abstract void addLocationChangeListener(LocationEventListener listener);
 
-	/** sets new state to all listeners */
+    /** remove listener **/
+    public abstract void removeLocationChangeListener(LocationEventListener listener);
+
+    /** sets new state to all listeners */
     public void notifyChangeStateToListeners();
-    
-	/** sets new location to all listeners */
+
+    /** sets new location to all listeners */
     public void notifyNewLocationToListeners();
-    
+
     /** notifying standard messages to all listeners*/
     public void notifyMessageToListener(String message);
-    
+
     /** notifying error messagens to Listeners */
     public void notifyErrorMessageToListeners(String message);
 }

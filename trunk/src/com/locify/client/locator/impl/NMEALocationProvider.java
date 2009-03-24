@@ -13,13 +13,12 @@
  */
 package com.locify.client.locator.impl;
 
-import com.locify.client.data.FileSystem;
 import java.io.IOException;
 import java.io.InputStream;
 
 import com.locify.client.utils.StringTokenizer;
 
-import com.locify.client.locator.GpsLocationProvider;
+import com.locify.client.locator.LocationProvider;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationSample;
 import com.locify.client.utils.GpsUtils;
@@ -40,13 +39,11 @@ import javax.microedition.io.StreamConnection;
  * @author Jiri, Menion
  *
  */
-public class NMEALocationProvider extends GpsLocationProvider {
+public class NMEALocationProvider extends LocationProvider {
 
     protected NMEAParser parser;
     protected InputStream inputStream;
     private String connectionUrl;
-    /** phone GPS precision in metres */
-    public float phoneGpsPrec = 1.0f;
     protected long gpsAlive = 0;
 
     public NMEAParser getParser() {
@@ -102,7 +99,7 @@ public class NMEALocationProvider extends GpsLocationProvider {
 
                             LocationSample locSampl = new LocationSample(
                                     actualLocation.getLatitude(), actualLocation.getLongitude(), actualLocation.getAltitude(),
-                                    horizontalAccuracy, verticalAccuracy,
+                                    getHorizontalAccuracy(), getVerticalAccuracy(),
                                     speed, course);
 
                             locationFilter.addLocationSample(locSampl);
@@ -325,10 +322,6 @@ public class NMEALocationProvider extends GpsLocationProvider {
         } catch (Exception ex) {
             R.getSettings().setLastDevice("");
         }
-    }
-
-    public float getHorizontalAccuracy() {
-        return horizontalAccuracy * phoneGpsPrec;
     }
 
     /**

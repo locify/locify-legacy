@@ -14,12 +14,12 @@
 
 package com.locify.client.locator.impl;
 
+import com.locify.client.data.FileSystem;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationFilter;
 import com.locify.client.locator.LocationSample;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Logger;
-import com.locify.client.utils.math.LMath;
 import com.locify.client.utils.math.Matrix;
 import java.util.Vector;
 
@@ -31,35 +31,33 @@ import java.util.Vector;
 public class KalmanLocationFilter implements LocationFilter {
 
     LocationSample lastSample;
-    /*
-    variables required for filtering
-     */
+
+    /* variables required for filtering */
     private Matrix state1,  state2,  state2pre;
     private Matrix A,  R,  H,  K,  P,  Ppre,  Q;
     private long fTime1,  fTime2;
     private double dTime;
     private double fHdop1,  fHdop2;
     private float lastCourse;
+    private float lastSpeed = 0;
     private double lastMeasLat = 0.0;
     private double lastMeasLon = 0.0;
-    /*
-    debuging mode
-     */
-    private boolean debugMode = false;
-    private int numOfTest = 230;
+    
+    /* variables for debugging mode */
+    private boolean debugMode = true;
+    private int numOfTest = 100;
     int index1 = 1000;
     private String linSe = "\n";
     private long startTime = 0;
     private Vector dataMeas,  dataResult,  dataPred;
 
+    /* number of averaged measure when standing on same place */
+    private int numOfAverageMeasure = 5;
+    /** temp variables used for averaging */
+    private boolean weightedAverage = false;
+    private double waValueLat,  waValueLon,  waWeight;
     private Vector oldMeas;
     private Measure measure;
-    private double waValueLat,  waValueLon,  waWeight;
-    private float lastSpeed = 0;
-    /** temp variable */
-    private boolean weightedAverage = false;
-    /* number of averaged measure when standing on same place */
-    private int numOfAverageMeasure = 10;
 
     public KalmanLocationFilter() {
         initializeMatrix();
@@ -76,19 +74,22 @@ public class KalmanLocationFilter implements LocationFilter {
      * @param locSamp actual measure
      */
     public void addLocationSample(LocationSample locSamp) {
-        if (debugMode)
-            System.out.println(locSamp.getLatitude() + "  " + locSamp.getLongitude() + "\n");
+if (debugMode) {
+    Logger.log("KLF new lat: " + locSamp.getLatitude() + " lon: " + locSamp.getLongitude());
+    if (lastSample != null)
+        Logger.log("    old lat: " + lastSample.getLatitude() + " lon: " + lastSample.getLongitude());
+}
 
         fTime2 = System.currentTimeMillis();
         checkMatrix();
-//System.out.println("NEW: " + locSamp);
-//System.out.println("OLD: " + lastSample);
         if (lastSample != null &&
-                // save coordinates
+                // nulls coordinates
+                (locSamp.getLatitude() != 0.0 && locSamp.getLongitude() != 0.0) &&
+                // same coordinates as measure last time
                 ((Math.abs(lastMeasLat - locSamp.getLatitude()) < 0.000001 &&
                 Math.abs(lastMeasLon - locSamp.getLongitude()) < 0.000001)
                 ||
-                // same as filtered (NMEA parser)
+                // same coordinates as filtered (NMEA parser)
                 (Math.abs(lastSample.getLatitude() - locSamp.getLatitude()) < 0.000001 &&
                 Math.abs(lastSample.getLongitude() - locSamp.getLongitude()) < 0.000001)))
             return;
@@ -96,16 +97,16 @@ public class KalmanLocationFilter implements LocationFilter {
         lastMeasLat = locSamp.getLatitude();
         lastMeasLon = locSamp.getLongitude();
         lastSample = locSamp;
-        
-        if (debugMode) {
-            if (startTime == 0) {
-                startTime = System.currentTimeMillis();
-            }
-            index1++;
 
-            dataMeas.addElement(new Measure(lastSample.getLatitude(),
-                    lastSample.getLongitude(), lastSample.getHorizontalAccuracy()));
-        }
+if (debugMode) {
+    if (startTime == 0) {
+        startTime = System.currentTimeMillis();
+    }
+    index1++;
+
+    dataMeas.addElement(new Measure(lastSample.getLatitude(),
+            lastSample.getLongitude(), lastSample.getHorizontalAccuracy()));
+}
 
         // first move in kalman filter
         if (state1.get(0, 0) == 0.0 || state1.get(2, 0) == 0.0) {
@@ -117,35 +118,35 @@ public class KalmanLocationFilter implements LocationFilter {
             fTime1 = fTime2;
             fHdop1 = lastSample.getHorizontalAccuracy();
 
-            if (debugMode) {
-                dataPred.addElement(new Measure(lastSample.getLatitude(),
-                        lastSample.getLongitude(), lastSample.getHorizontalAccuracy()));
-            }
+if (debugMode) {
+    dataPred.addElement(new Measure(lastSample.getLatitude(),
+            lastSample.getLongitude(), lastSample.getHorizontalAccuracy()));
+}
         } else {
             fHdop2 = lastSample.getHorizontalAccuracy();
 
             /* distance beetwen last and actual point */
-            float lastDist = computeDistance(state1.get(0, 0), state1.get(2, 0),
+            float lastDist = GpsUtils.computeDistance(state1.get(0, 0), state1.get(2, 0),
                     lastSample.getLatitude(), lastSample.getLongitude());
 
             /* error distance ... not perfectly but enough precise */
-            float lastMaxErrorDist = (float) Math.sqrt(2 * fHdop1 + 2 * fHdop2);
+            float lastMaxErrorDist = (float) Math.sqrt((fHdop1 + fHdop2) / 4);
             lastMaxErrorDist /= 5;
 
-            if (debugMode) {
-                System.out.println("\nHDOP1 " + GpsUtils.formatDouble(fHdop1, 1) +
-                        "  HDOP2 " + GpsUtils.formatDouble(fHdop2, 1));
-                System.out.println("\nlastD " + GpsUtils.formatDouble(lastDist, 2) +
-                        "  lastME " + GpsUtils.formatDouble(lastMaxErrorDist, 2));
-            }
+if (debugMode) {
+    Logger.log("    HDOP1 " + GpsUtils.formatDouble(fHdop1, 1) +
+            "  HDOP2 " + GpsUtils.formatDouble(fHdop2, 1));
+    Logger.log("    lastD " + GpsUtils.formatDouble(lastDist, 2) +
+            "  lastME " + GpsUtils.formatDouble(lastMaxErrorDist, 2));
+}
 
             //lastMaxErrorDist = 0;
             if (lastDist <= lastMaxErrorDist) {
-                if (debugMode) {
-                    System.out.println("\n***** average *****");
-                    dataPred.addElement(new Measure(lastSample.getLatitude(),
-                            lastSample.getLongitude(), lastSample.getHorizontalAccuracy()));
-                }
+if (debugMode) {
+    Logger.log("    ***** average *****");
+    dataPred.addElement(new Measure(lastSample.getLatitude(),
+            lastSample.getLongitude(), lastSample.getHorizontalAccuracy()));
+}
                 if (!weightedAverage) {
                     oldMeas.removeAllElements();
                 }
@@ -184,8 +185,8 @@ public class KalmanLocationFilter implements LocationFilter {
 
                 weightedAverage = true;
             } else {
-                if (debugMode)
-                    System.out.println("\n***** kalman *****");
+if (debugMode)
+    Logger.log("    ***** kalman *****");
                 kalmanFilter();
                 weightedAverage = false;
             }
@@ -194,20 +195,20 @@ public class KalmanLocationFilter implements LocationFilter {
             fHdop1 = fHdop2;
         }
 
+if (debugMode) {
+    dataResult.addElement(new Measure(lastSample.getLatitude(),
+            lastSample.getLongitude(), lastSample.getHorizontalAccuracy()));
 
-        if (debugMode) {
-            dataResult.addElement(new Measure(lastSample.getLatitude(),
-                    lastSample.getLongitude(), lastSample.getHorizontalAccuracy()));
+    //Logger.log("dataMeas: " + dataMeas.size() + "  dataResu: " + dataResult.size());
 
-            //Logger.log("dataMeas: " + dataMeas.size() + "  dataResu: " + dataResult.size());
-
-            if (index1 == (1000 + numOfTest)) {
-                //saveDXF();
-                //saveLog(dataMeas);
-                debugMode = false;
-                Logger.debug("Sucesfully saved " + (index1 - 1000) + " ... end");
-            }
-        }
+    if (index1 == (1000 + numOfTest)) {
+        saveDXF();
+        //saveLog(dataMeas);
+        debugMode = false;
+        Logger.log("Sucesfully saved " + (index1 - 1000) + " ... end");
+        System.exit(1);
+    }
+}
     }
 
     /**
@@ -255,52 +256,52 @@ public class KalmanLocationFilter implements LocationFilter {
         state2pre = A.times(state1);
 
         /* predict fictive deviance error */
-        Q.set(0, 0, fHdop1 / 5.0);
-        Q.set(1, 1, fHdop1 / 3.0);
-        Q.set(2, 2, fHdop1 / 5.0);
-        Q.set(3, 3, fHdop1 / 3.0);
+        Q.set(0, 0, fHdop1 / 1.0);
+        Q.set(1, 1, fHdop1 / 1.0);
+        Q.set(2, 2, fHdop1 / 1.0);
+        Q.set(3, 3, fHdop1 / 1.0);
         Ppre = (A.times(P)).times(A.transpose()).plus(Q);
 
-        if (debugMode) {
-            dataPred.addElement(new Measure(state2pre.get(0, 0), state2pre.get(2, 0), 0.0));
-        }
+if (debugMode) {
+    dataPred.addElement(new Measure(state2pre.get(0, 0), state2pre.get(2, 0), 0.0));
+}
 
-        /* update phase */
+        /********************************************/
+        /*     Update phase (apriori estimate)     */
+        /********************************************/
         R.set(0, 0, fHdop2);
         R.set(1, 1, 2 * fHdop2);
         R.set(2, 2, fHdop2);
         R.set(3, 3, 2 * fHdop2);
-
-
+        
+if (debugMode) {
+    Logger.log("    A:\n" + A.print(2));
+    Logger.log("    P:\n" + P.print(2));
+//    Logger.log("    H:\n" + H.print(2));
+//    Logger.log("    Ppre:\n" + Ppre.print(2));
+//    Logger.log("    R:\n" + R.print(2));
+//    Logger.log("\n" + (((H.times(Ppre)).times(H.transpose())).plus(R)).print(2));
+}
         /* Kalman gain */
-        if (debugMode) {
-            System.out.println("\nA:\n" + A.print(2));
-            System.out.println("\nP:\n" + P.print(2));
-            System.out.println("\nH:\n" + H.print(2));
-            System.out.println("\nPpre:\n" + Ppre.print(2));
-            System.out.println("\nR:\n" + R.print(2));
-            System.out.println((((H.times(Ppre)).times(H.transpose())).plus(R)).print(2));
-        }
         K = (Ppre.times(H.transpose())).times(
                 (((H.times(Ppre)).times(H.transpose())).plus(R)).inverse());
 //        System.out.println("state2pre  " + state2pre.get(0, 0) + " " + state2pre.get(1, 0));
 //        System.out.println(K.times(state2.minus(H.times(state2pre))).getRowDimension() + " " + K.times(state2.minus(H.times(state2pre))).getColumnDimension());
         state2 = state2pre.plus(K.times(state2.minus(H.times(state2pre))));
-
         P = (Matrix.identity(4, 4).minus(K.times(H))).times(Ppre);
 
-//        System.out.println("P:\n" + P.print(2) + "\n");
-        if (debugMode) {
-            System.out.println("\nK:\n" + K.print(2));
-            System.out.println("\nnew P:\n" + P.print(2));
-        }
+if (debugMode) {
+    Logger.log("    K:\n" + K.print(2));
+    Logger.log("    new P:\n" + P.print(2));
+    Logger.log("    state2:\n" + state2.print(5));
+}
 
         /* prepare for next cycle */
         lastSample.setLatitude(state2.get(0, 0));
         lastSample.setLongitude(state2.get(2, 0));
 
         /* compute speed */
-        float tempSpeed = (float) (computeDistance(state1.get(0, 0), state1.get(2, 0), state2.get(0, 0), state2.get(2, 0)) / dTime);
+        float tempSpeed = (float) (GpsUtils.computeDistance(state1.get(0, 0), state1.get(2, 0), state2.get(0, 0), state2.get(2, 0)) / dTime);
 //System.out.println("t1: " + tempSpeed);
         if (tempSpeed > 1.5f * lastSpeed && lastSpeed > 0)
             tempSpeed = 1.5f * lastSpeed;
@@ -312,62 +313,16 @@ public class KalmanLocationFilter implements LocationFilter {
 //System.out.println("t2: " + lastSpeed);
         /* compute heading */
         lastSample.setCourse(lastCourse =
-                computeAzimut(state1.get(0, 0), state1.get(2, 0), state2.get(0, 0), state2.get(2, 0)));
+                GpsUtils.computeAzimut(state1.get(0, 0), state1.get(2, 0), state2.get(0, 0), state2.get(2, 0)));
 
         state2.copyTo(state1);
-    }
-
-    /**
-     * compute distance beetwen two points on sphere (WGS-84 diametr)
-     * @param lat1 lattitude of first point
-     * @param lon1 longitude of first point
-     * @param lat2 lattitude of second point
-     * @param lon2 longitude of second point
-     * @return distance in metres
-     */
-    private float computeDistance(double lat1, double lon1, double lat2, double lon2) {
-        double dLat = GpsUtils.degToRad(lat2 - lat1);
-        double dLon = GpsUtils.degToRad(lon2 - lon1);
-
-        double a = Math.sin(dLat / 2.0) * Math.sin(dLat / 2.0) +
-                Math.cos(GpsUtils.degToRad(lat1)) * Math.cos(GpsUtils.degToRad(lat2)) *
-                Math.sin(dLon / 2.0) * Math.sin(dLon / 2.0);
-
-        //return (float) (Location4D.R * 2.0 * Utils.atan2(Math.sqrt(a), Math.sqrt(1 - a))); 
-        return (float) (Location4D.R * 2.0 * LMath.asin(Math.sqrt(a)));
-    }
-
-    /**
-     * Compute azimut from two points on sphere
-     * @param lat1 lattitude of the first point
-     * @param lon1 longitude of the first point
-     * @param lat2 lattitude of the second point
-     * @param lon2 longitude of the second point
-     * @return Azimut from first to second [degree]
-     */
-    private float computeAzimut(double lat1, double lon1, double lat2, double lon2) {
-
-        //inspired by skript vyssi geodesie 
-        lat1 = GpsUtils.degToRad(lat1);
-        lon1 = GpsUtils.degToRad(lon1);
-        lat2 = GpsUtils.degToRad(lat2);
-        lon2 = GpsUtils.degToRad(lon2);
-
-        double dLon = (lon2 - lon1);
-
-        double y = Math.sin(dLon) * Math.cos(lat2);
-        double x = Math.cos(lat1) * Math.sin(lat2) -
-                Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-
-        return (float) ((GpsUtils.radToDeg(LMath.atan2(y, x)) + 360) % 360);
     }
 
     /**
      * Initialize needed matrix for Kalman filter
      */
     private void initializeMatrix() {
-        //#debug
-        //System.out.println("GPSKalman: initializeKalman - start");
+        ////#debug
         state1 = new Matrix(4, 1, 0.0);
         state2 = new Matrix(4, 1, 0.0);
         state2pre = new Matrix(4, 1, 0.0);
@@ -403,12 +358,10 @@ public class KalmanLocationFilter implements LocationFilter {
         K = new Matrix(4, 4, 0.0);
 
         Q = new Matrix(4, 4, 0.0);
-    //#debug
-    //System.out.println("GPSKalman: initializeKalman - finish");
     }
 
     /**
-     * Check matrix if ccontains only allowed values
+     * Check matrix if contains only allowed values
      */
     private void checkMatrix() {
         /* for max speed 5000km/h = 1400m/s => max change of coordinates per sec = 0.0125 */
@@ -471,249 +424,246 @@ public class KalmanLocationFilter implements LocationFilter {
 //        }
 //    }
 //
-//    /**
-//     * Save points to DXF, points created only during debug
-//     */
-//    private void saveDXF() {
-//        if (debugMode) {
-//            Thread thread = new Thread(new Runnable() {
-//
-//                public void run() {
-//                    String errorMessage = "no error";
-//
-//                    try {
-//                        Logger.log(" ... outDXF algorithm initialized ... \n");
-//
-//                        //String fileName = WaypointData.fileName("dxfKalman");
-//
-//                        String pointLayerMeas = "pointsMeas";
-//                        String pointLayerPred = "pointsPred";
-//                        String pointLayerResu = "pointsResu";
-//
-//                        String data = "";
-//
-//                        data += ("0" + linSe);
-//                        data += ("SECTION" + linSe);
-//                        data += ("2" + linSe);
-//                        data += ("TABLES" + linSe);
-//
-//                        data += ("0" + linSe);
-//                        data += ("TABLE" + linSe);
-//                        data += ("2" + linSe);
-//                        data += ("LAYER" + linSe);
-//
-//                        data += ("0" + linSe);
-//                        data += ("LAYER" + linSe);
-//                        data += ("100" + linSe);
-//                        data += ("AcDbSymbolTableRecord" + linSe);
-//                        data += ("100" + linSe);
-//                        data += ("AcDbLayerTableRecord" + linSe);
-//                        data += ("70" + linSe);
-//                        data += ("0" + linSe);
-//                        data += ("2" + linSe);
-//                        data += (pointLayerMeas + linSe);
-//                        data += ("6" + linSe);
-//                        data += ("Continuous" + linSe);
-//                        data += ("62" + linSe);
-//                        data += ("7" + linSe);
-//
-//                        data += ("0" + linSe);
-//                        data += ("LAYER" + linSe);
-//                        data += ("100" + linSe);
-//                        data += ("AcDbSymbolTableRecord" + linSe);
-//                        data += ("100" + linSe);
-//                        data += ("AcDbLayerTableRecord" + linSe);
-//                        data += ("70" + linSe);
-//                        data += ("0" + linSe);
-//                        data += ("2" + linSe);
-//                        data += (pointLayerPred + linSe);
-//                        data += ("6" + linSe);
-//                        data += ("Continuous" + linSe);
-//                        data += ("62" + linSe);
-//                        data += ("3" + linSe);
-//
-//                        data += ("0" + linSe);
-//                        data += ("LAYER" + linSe);
-//                        data += ("100" + linSe);
-//                        data += ("AcDbSymbolTableRecord" + linSe);
-//                        data += ("100" + linSe);
-//                        data += ("AcDbLayerTableRecord" + linSe);
-//                        data += ("70" + linSe);
-//                        data += ("0" + linSe);
-//                        data += ("2" + linSe);
-//                        data += (pointLayerResu + linSe);
-//                        data += ("6" + linSe);
-//                        data += ("Continuous" + linSe);
-//                        data += ("62" + linSe);
-//                        data += ("1" + linSe);
-//
-//                        data += ("0" + linSe);
-//                        data += ("ENDTAB" + linSe);
-//                        data += ("0" + linSe);
-//                        data += ("ENDSEC" + linSe);
-//
-//                        data += ("0" + linSe);
-//                        data += ("SECTION" + linSe);
-//                        data += ("2" + linSe);
-//                        data += ("ENTITIES" + linSe);
-//
-//                        Measure meas1, meas2, pred1, pred2, resu1,
-//                                resu2;
-//                        if (dataMeas.size() != dataResult.size()) {
-//                            errorMessage = "diff size Meas (" + dataMeas.size() + ") & Resu (" + dataResult.size() + ")";
-//                        }
-//                        for (int i = 0; i < dataMeas.size() - 1; i++) {
-//                            // coordinates in the right precission format
-//
-//                            meas1 = (Measure) dataMeas.elementAt(i);
-//                            meas2 = (Measure) dataMeas.elementAt(i + 1);
-//                            pred1 = (Measure) dataPred.elementAt(i);
-//                            pred2 = (Measure) dataPred.elementAt(i + 1);
-//                            resu1 = (Measure) dataResult.elementAt(i);
-//                            resu2 = (Measure) dataResult.elementAt(i + 1);
-//
-//                            /**************************/
-//                            /* first point of measure */
-//                            /**************************/
-//                            data += ("0" + linSe);
-//                            data += ("POINT" + linSe);
-//                            // 8 ... layer name
-//                            data += ("8" + linSe);
-//                            data += (pointLayerMeas + linSe);
-//                            // 62 ... color set 256 ... by layer
-//                            data += ("62" + linSe);
-//                            data += ("256" + linSe);
-//                            // 10 .. X coo
-//                            data += ("10" + linSe);
-//                            data += (meas1.getLat() + linSe);
-//                            data += ("20" + linSe);
-//                            data += (meas1.getLon() + linSe);
-//                            data += ("30" + linSe);
-//                            data += ("0.0" + linSe);
-//
-//                            /**************************/
-//                            /* first point of predict */
-//                            /**************************/
-//                            data += ("0" + linSe);
-//                            data += ("POINT" + linSe);
-//                            // 8 ... layer name
-//                            data += ("8" + linSe);
-//                            data += (pointLayerPred + linSe);
-//                            // 62 ... color set 256 ... by layer
-//                            data += ("62" + linSe);
-//                            data += ("256" + linSe);
-//                            // 10 .. X coo
-//                            data += ("10" + linSe);
-//                            data += (pred1.getLat() + linSe);
-//                            data += ("20" + linSe);
-//                            data += (pred1.getLon() + linSe);
-//                            data += ("30" + linSe);
-//                            data += ("0.0" + linSe);
-//
-//                            /*************************/
-//                            /* first point of result */
-//                            /*************************/
-//                            data += ("0" + linSe);
-//                            data += ("POINT" + linSe);
-//                            // 8 ... layer name
-//                            data += ("8" + linSe);
-//                            data += (pointLayerResu + linSe);
-//                            // 62 ... color set 256 ... by layer
-//                            data += ("62" + linSe);
-//                            data += ("256" + linSe);
-//                            // 10 .. X coo
-//                            data += ("10" + linSe);
-//                            data += (resu1.getLat() + linSe);
-//                            data += ("20" + linSe);
-//                            data += (resu1.getLon() + linSe);
-//                            data += ("30" + linSe);
-//                            data += ("0.0" + linSe);
-//
-//                            data += ("0" + linSe);
-//                            data += ("LINE" + linSe);
-//                            // 8 ... layer name
-//                            data += ("8" + linSe);
-//                            data += (pointLayerMeas + linSe);
-//                            // 62 ... color set 256 ... by layer
-//                            data += ("62" + linSe);
-//                            data += ("256" + linSe);
-//                            // 10 .. X coo
-//                            data += ("10" + linSe);
-//                            data += (meas1.getLat() + linSe);
-//                            data += ("20" + linSe);
-//                            data += (meas1.getLon() + linSe);
-//                            data += ("30" + linSe);
-//                            data += ("0.0" + linSe);
-//                            data += ("11" + linSe);
-//                            data += (meas2.getLat() + linSe);
-//                            data += ("21" + linSe);
-//                            data += (meas2.getLon() + linSe);
-//                            data += ("31" + linSe);
-//                            data += ("0.0" + linSe);
-//
-//                            data += ("0" + linSe);
-//                            data += ("LINE" + linSe);
-//                            // 8 ... layer name
-//                            data += ("8" + linSe);
-//                            data += (pointLayerPred + linSe);
-//                            // 62 ... color set 256 ... by layer
-//                            data += ("62" + linSe);
-//                            data += ("256" + linSe);
-//                            // 10 .. X coo
-//                            data += ("10" + linSe);
-//                            data += (pred1.getLat() + linSe);
-//                            data += ("20" + linSe);
-//                            data += (pred1.getLon() + linSe);
-//                            data += ("30" + linSe);
-//                            data += ("0.0" + linSe);
-//                            data += ("11" + linSe);
-//                            data += (pred2.getLat() + linSe);
-//                            data += ("21" + linSe);
-//                            data += (pred2.getLon() + linSe);
-//                            data += ("31" + linSe);
-//                            data += ("0.0" + linSe);
-//
-//                            data += ("0" + linSe);
-//                            data += ("LINE" + linSe);
-//                            // 8 ... layer name
-//                            data += ("8" + linSe);
-//                            data += (pointLayerResu + linSe);
-//                            // 62 ... color set 256 ... by layer
-//                            data += ("62" + linSe);
-//                            data += ("256" + linSe);
-//                            // 10 .. X coo
-//                            data += ("10" + linSe);
-//                            data += (resu1.getLat() + linSe);
-//                            data += ("20" + linSe);
-//                            data += (resu1.getLon() + linSe);
-//                            data += ("30" + linSe);
-//                            data += ("0.0" + linSe);
-//                            data += ("11" + linSe);
-//                            data += (resu2.getLat() + linSe);
-//                            data += ("21" + linSe);
-//                            data += (resu2.getLon() + linSe);
-//                            data += ("31" + linSe);
-//                            data += ("0.0" + linSe);
-//                        }
-//
-//                        data += ("0" + linSe);
-//                        data += ("ENDSEC" + linSe);
-//                        data += ("0" + linSe);
-//                        data += ("EOF" + linSe);
-//
-//                        //write file
-//                        References.getFileSystem().saveString(FileSystem.LOG_FOLDER + System.currentTimeMillis() + ".dxf", data);
-//                       // References.getGui().showError("saved", errorMessage, "he??");
-//                        Logger.log(" ... outDXF algorithm finished ... \n");
-//                    } catch (Exception e) {
-//                        References.getErrorScreen().view(e, "KalmanLocationFilter.saveDXF", null);
-//                    }
-//                }
-//            });
-//
-//            thread.start();
-//        }
-//    }
+    /**
+     * Save points to DXF, points created only during debug
+     */
+    private void saveDXF() {
+        if (debugMode) {
+            Thread thread = new Thread(new Runnable() {
+
+                public void run() {
+                    String errorMessage = "no error";
+
+                    try {
+                        Logger.debug(" ... outDXF algorithm initialized ... \n");
+
+                        //String fileName = WaypointData.fileName("dxfKalman");
+
+                        String pointLayerMeas = "pointsMeas";
+                        String pointLayerPred = "pointsPred";
+                        String pointLayerResu = "pointsResu";
+
+                        String data = "";
+
+                        data += ("0" + linSe);
+                        data += ("SECTION" + linSe);
+                        data += ("2" + linSe);
+                        data += ("TABLES" + linSe);
+
+                        data += ("0" + linSe);
+                        data += ("TABLE" + linSe);
+                        data += ("2" + linSe);
+                        data += ("LAYER" + linSe);
+
+                        data += ("0" + linSe);
+                        data += ("LAYER" + linSe);
+                        data += ("100" + linSe);
+                        data += ("AcDbSymbolTableRecord" + linSe);
+                        data += ("100" + linSe);
+                        data += ("AcDbLayerTableRecord" + linSe);
+                        data += ("70" + linSe);
+                        data += ("0" + linSe);
+                        data += ("2" + linSe);
+                        data += (pointLayerMeas + linSe);
+                        data += ("6" + linSe);
+                        data += ("Continuous" + linSe);
+                        data += ("62" + linSe);
+                        data += ("7" + linSe);
+
+                        data += ("0" + linSe);
+                        data += ("LAYER" + linSe);
+                        data += ("100" + linSe);
+                        data += ("AcDbSymbolTableRecord" + linSe);
+                        data += ("100" + linSe);
+                        data += ("AcDbLayerTableRecord" + linSe);
+                        data += ("70" + linSe);
+                        data += ("0" + linSe);
+                        data += ("2" + linSe);
+                        data += (pointLayerPred + linSe);
+                        data += ("6" + linSe);
+                        data += ("Continuous" + linSe);
+                        data += ("62" + linSe);
+                        data += ("3" + linSe);
+
+                        data += ("0" + linSe);
+                        data += ("LAYER" + linSe);
+                        data += ("100" + linSe);
+                        data += ("AcDbSymbolTableRecord" + linSe);
+                        data += ("100" + linSe);
+                        data += ("AcDbLayerTableRecord" + linSe);
+                        data += ("70" + linSe);
+                        data += ("0" + linSe);
+                        data += ("2" + linSe);
+                        data += (pointLayerResu + linSe);
+                        data += ("6" + linSe);
+                        data += ("Continuous" + linSe);
+                        data += ("62" + linSe);
+                        data += ("1" + linSe);
+
+                        data += ("0" + linSe);
+                        data += ("ENDTAB" + linSe);
+                        data += ("0" + linSe);
+                        data += ("ENDSEC" + linSe);
+
+                        data += ("0" + linSe);
+                        data += ("SECTION" + linSe);
+                        data += ("2" + linSe);
+                        data += ("ENTITIES" + linSe);
+
+                        Measure meas1, meas2, pred1, pred2, resu1, resu2;
+                        if (dataMeas.size() != dataResult.size()) {
+                            errorMessage = "diff size Meas (" + dataMeas.size() + ") & Resu (" + dataResult.size() + ")";
+                        }
+                        for (int i = 0; i < dataMeas.size() - 1; i++) {
+                            // coordinates in the right precission format
+                            meas1 = (Measure) dataMeas.elementAt(i);
+                            meas2 = (Measure) dataMeas.elementAt(i + 1);
+                            pred1 = (Measure) dataPred.elementAt(i);
+                            pred2 = (Measure) dataPred.elementAt(i + 1);
+                            resu1 = (Measure) dataResult.elementAt(i);
+                            resu2 = (Measure) dataResult.elementAt(i + 1);
+
+                            /**************************/
+                            /* first point of measure */
+                            /**************************/
+                            data += ("0" + linSe);
+                            data += ("POINT" + linSe);
+                            // 8 ... layer name
+                            data += ("8" + linSe);
+                            data += (pointLayerMeas + linSe);
+                            // 62 ... color set 256 ... by layer
+                            data += ("62" + linSe);
+                            data += ("256" + linSe);
+                            // 10 .. X coo
+                            data += ("10" + linSe);
+                            data += (meas1.getLat() + linSe);
+                            data += ("20" + linSe);
+                            data += (meas1.getLon() + linSe);
+                            data += ("30" + linSe);
+                            data += ("0.0" + linSe);
+
+                            /**************************/
+                            /* first point of predict */
+                            /**************************/
+                            data += ("0" + linSe);
+                            data += ("POINT" + linSe);
+                            // 8 ... layer name
+                            data += ("8" + linSe);
+                            data += (pointLayerPred + linSe);
+                            // 62 ... color set 256 ... by layer
+                            data += ("62" + linSe);
+                            data += ("256" + linSe);
+                            // 10 .. X coo
+                            data += ("10" + linSe);
+                            data += (pred1.getLat() + linSe);
+                            data += ("20" + linSe);
+                            data += (pred1.getLon() + linSe);
+                            data += ("30" + linSe);
+                            data += ("0.0" + linSe);
+
+                            /*************************/
+                            /* first point of result */
+                            /*************************/
+                            data += ("0" + linSe);
+                            data += ("POINT" + linSe);
+                            // 8 ... layer name
+                            data += ("8" + linSe);
+                            data += (pointLayerResu + linSe);
+                            // 62 ... color set 256 ... by layer
+                            data += ("62" + linSe);
+                            data += ("256" + linSe);
+                            // 10 .. X coo
+                            data += ("10" + linSe);
+                            data += (resu1.getLat() + linSe);
+                            data += ("20" + linSe);
+                            data += (resu1.getLon() + linSe);
+                            data += ("30" + linSe);
+                            data += ("0.0" + linSe);
+
+                            data += ("0" + linSe);
+                            data += ("LINE" + linSe);
+                            // 8 ... layer name
+                            data += ("8" + linSe);
+                            data += (pointLayerMeas + linSe);
+                            // 62 ... color set 256 ... by layer
+                            data += ("62" + linSe);
+                            data += ("256" + linSe);
+                            // 10 .. X coo
+                            data += ("10" + linSe);
+                            data += (meas1.getLat() + linSe);
+                            data += ("20" + linSe);
+                            data += (meas1.getLon() + linSe);
+                            data += ("30" + linSe);
+                            data += ("0.0" + linSe);
+                            data += ("11" + linSe);
+                            data += (meas2.getLat() + linSe);
+                            data += ("21" + linSe);
+                            data += (meas2.getLon() + linSe);
+                            data += ("31" + linSe);
+                            data += ("0.0" + linSe);
+
+                            data += ("0" + linSe);
+                            data += ("LINE" + linSe);
+                            // 8 ... layer name
+                            data += ("8" + linSe);
+                            data += (pointLayerPred + linSe);
+                            // 62 ... color set 256 ... by layer
+                            data += ("62" + linSe);
+                            data += ("256" + linSe);
+                            // 10 .. X coo
+                            data += ("10" + linSe);
+                            data += (pred1.getLat() + linSe);
+                            data += ("20" + linSe);
+                            data += (pred1.getLon() + linSe);
+                            data += ("30" + linSe);
+                            data += ("0.0" + linSe);
+                            data += ("11" + linSe);
+                            data += (pred2.getLat() + linSe);
+                            data += ("21" + linSe);
+                            data += (pred2.getLon() + linSe);
+                            data += ("31" + linSe);
+                            data += ("0.0" + linSe);
+
+                            data += ("0" + linSe);
+                            data += ("LINE" + linSe);
+                            // 8 ... layer name
+                            data += ("8" + linSe);
+                            data += (pointLayerResu + linSe);
+                            // 62 ... color set 256 ... by layer
+                            data += ("62" + linSe);
+                            data += ("256" + linSe);
+                            // 10 .. X coo
+                            data += ("10" + linSe);
+                            data += (resu1.getLat() + linSe);
+                            data += ("20" + linSe);
+                            data += (resu1.getLon() + linSe);
+                            data += ("30" + linSe);
+                            data += ("0.0" + linSe);
+                            data += ("11" + linSe);
+                            data += (resu2.getLat() + linSe);
+                            data += ("21" + linSe);
+                            data += (resu2.getLon() + linSe);
+                            data += ("31" + linSe);
+                            data += ("0.0" + linSe);
+                        }
+
+                        data += ("0" + linSe);
+                        data += ("ENDSEC" + linSe);
+                        data += ("0" + linSe);
+                        data += ("EOF" + linSe);
+
+                        //write file
+                        com.locify.client.utils.R.getFileSystem().saveString(FileSystem.LOG_FOLDER + System.currentTimeMillis() + ".dxf", data);
+                        Logger.debug(" ... outDXF algorithm finished ... \n");
+                    } catch (Exception e) {
+                        com.locify.client.utils.R.getErrorScreen().view(e, "KalmanLocationFilter.saveDXF", null);
+                    }
+                }
+            });
+
+            thread.start();
+        }
+    }
 //
 //    /**
 //     * test of kalman filter used only for debug without GPS connected

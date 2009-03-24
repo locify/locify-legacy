@@ -13,9 +13,13 @@
  */
 package com.locify.client.locator;
 
+import com.locify.client.locator.impl.DummyLocationFilter;
+import com.locify.client.locator.impl.KalmanLocationFilter;
+import com.locify.client.utils.R;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.microedition.location.QualifiedCoordinates;
 
 /**
  * This abstract class represents any type of location acquiring and filtering. LocationProvider continously monitors position 
@@ -34,77 +38,131 @@ public abstract class LocationProvider implements LocationEventGenerator {
     public static final int CONNECTING = 4; //connecting to gps
     public static final int MANUAL = 5; //from location context
     protected Vector listeners;
-   
+
+    protected int state; //is GPS ready to navigate?
+    protected LocationFilter locationFilter;
+    protected Location4D actualLocation;
+    protected LocationSample lastSample;
+    /* gps data */
+    protected QualifiedCoordinates oldCoordinates;
+    protected QualifiedCoordinates currentCoordinates;
+    protected float speed;
+    protected float course;
+    protected float horizontalAccuracy = 100;
+    protected float verticalAccuracy = 100;
+    protected float altitude;
+    protected SatelliteManager satManager;
+
+//    /** phone GPS precision in metres */
+//    public float phoneGpsPrec = 1.0f;
+    
     public LocationProvider() {
         listeners = new Vector();
+        this.locationFilter = new DummyLocationFilter();
+        //this.locationFilter = new KalmanLocationFilter();
+        this.satManager = new SatelliteManager();
     }
 
+    public void setState(int newstate) {
+        try {
+            if (newstate != state) {
+                this.state = newstate;
+                notifyChangeStateToListeners();
+            }
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "GpsLocationProvider.setState", String.valueOf(newstate));
+        }
+    }
+
+    /** @return satellites in hashtable */
+    public Hashtable getSatInView() {
+        return satManager.getSatInView();
+    }
+    
     /**
      * Returns last location after necessary filtering
      */
-    public abstract Location4D getActualLocation();
+    public Location4D getActualLocation() {
+        return actualLocation;
+    }
+
+    public float getAltitude() {
+        return altitude;
+    }
 
     /**
      * Returns last location sample before filtering. It means raw data.
      */
-    public abstract LocationSample getLastSample();
+    public LocationSample getLastSample() {
+        return lastSample;
+    }
 
     /**
      * Returns state of location provider eg. NOT AVAILABLE, WAITING, READY
      * @see com.locify.client.locator.LocatorModel
      */
-    public abstract int getState();
+    public int getState() {
+        return state;
+    }
 
     /** @retun speen in m/s */
-    public abstract float getSpeed();
+    public float getSpeed() {
+        return speed;
+    }
 
     /** @return course(heading) in radians */
-    public abstract float getCourse();
+    public float getCourse() {
+        return course;
+    }
 
     /** @return accuracy in meters */
-    public abstract float getHorizontalAccuracy();
+    public float getHorizontalAccuracy() {
+        return horizontalAccuracy;
+    }
 
     /** @return accuracy in meters */
-    public abstract float getVerticalAccuracy();
-
-    /** @return satellites in hashtable */
-     public abstract Hashtable getSatInView();
+    public float getVerticalAccuracy() {
+        return verticalAccuracy;
+    }
 
     /** stops provider */
-    public abstract void stopProvider();
+    public void stopProvider() {
+        this.state = LocationProvider.CONNECTING;
+        this.listeners = new Vector(); //delete all listeners
+    }
 
     /**************** locationEventGenerator ********************/
     /** sets new state to all listeners */
     synchronized public void notifyChangeStateToListeners() {
-        Enumeration listeners = this.listeners.elements();
-        while (listeners.hasMoreElements()) {
-            LocationEventListener list = (LocationEventListener) listeners.nextElement();
+        Enumeration lst = this.listeners.elements();
+        while (lst.hasMoreElements()) {
+            LocationEventListener list = (LocationEventListener) lst.nextElement();
             list.stateChanged(this, getState());
         }
     }
 
     /** sets new location to all listeners */
     synchronized public void notifyNewLocationToListeners() {
-        Enumeration listeners = this.listeners.elements();
-        while (listeners.hasMoreElements()) {
-            LocationEventListener list = (LocationEventListener) listeners.nextElement();
+        Enumeration lst = this.listeners.elements();
+        while (lst.hasMoreElements()) {
+            LocationEventListener list = (LocationEventListener) lst.nextElement();
             list.locationChanged(this, getActualLocation());
         }
     }
 
     synchronized public void notifyErrorMessageToListeners(String message) {
-        Enumeration listeners = this.listeners.elements();
-        while (listeners.hasMoreElements()) {
-            LocationEventListener list = (LocationEventListener) listeners.nextElement();
+        Enumeration lst = this.listeners.elements();
+        while (lst.hasMoreElements()) {
+            LocationEventListener list = (LocationEventListener) lst.nextElement();
             list.errorMessage(this, message);
         }
 
     }
 
     public void notifyMessageToListener(String message) {
-        Enumeration listeners = this.listeners.elements();
-        while (listeners.hasMoreElements()) {
-            LocationEventListener list = (LocationEventListener) listeners.nextElement();
+        Enumeration lst = this.listeners.elements();
+        while (lst.hasMoreElements()) {
+            LocationEventListener list = (LocationEventListener) lst.nextElement();
             list.message(this, message);
         }
     }

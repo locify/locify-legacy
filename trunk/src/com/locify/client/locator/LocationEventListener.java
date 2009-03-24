@@ -13,14 +13,17 @@
  */
 package com.locify.client.locator;
 
-
 /**
  * Interface for location changes
  * @author jiris
  */
 public interface LocationEventListener {
+
     void locationChanged(LocationEventGenerator sender, Location4D location);
+
     void stateChanged(LocationEventGenerator sender, int state);
+
     void errorMessage(LocationEventGenerator sender, String message);
+
     void message(LocationEventGenerator sender, String message);
 }

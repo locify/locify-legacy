@@ -13,6 +13,8 @@
  */
 package com.locify.client.utils;
 
+import com.locify.client.locator.Location4D;
+import com.locify.client.utils.math.LMath;
 import de.enough.polish.util.Locale;
 import java.util.Vector;
 
@@ -27,6 +29,51 @@ public class GpsUtils {
     public static final int FORMAT_WGS84_SEC = 2; //14°52'12.34
     
     public static final double RHO = 180/Math.PI;
+
+    /**
+     * compute distance beetwen two points on sphere (WGS-84 diametr)
+     * @param lat1 lattitude of first point
+     * @param lon1 longitude of first point
+     * @param lat2 lattitude of second point
+     * @param lon2 longitude of second point
+     * @return distance in metres
+     */
+    public static float computeDistance(double lat1, double lon1, double lat2, double lon2) {
+        double dLat = GpsUtils.degToRad(lat2 - lat1);
+        double dLon = GpsUtils.degToRad(lon2 - lon1);
+
+        double a = Math.sin(dLat / 2.0) * Math.sin(dLat / 2.0) +
+                Math.cos(GpsUtils.degToRad(lat1)) * Math.cos(GpsUtils.degToRad(lat2)) *
+                Math.sin(dLon / 2.0) * Math.sin(dLon / 2.0);
+
+        //return (float) (Location4D.R * 2.0 * Utils.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+        return (float) (Location4D.R * 2.0 * LMath.asin(Math.sqrt(a)));
+    }
+
+    /**
+     * Compute azimut from two points on sphere
+     * @param lat1 lattitude of the first point
+     * @param lon1 longitude of the first point
+     * @param lat2 lattitude of the second point
+     * @param lon2 longitude of the second point
+     * @return Azimut from first to second [degree]
+     */
+    public static float computeAzimut(double lat1, double lon1, double lat2, double lon2) {
+
+        //inspired by skript vyssi geodesie
+        lat1 = GpsUtils.degToRad(lat1);
+        lon1 = GpsUtils.degToRad(lon1);
+        lat2 = GpsUtils.degToRad(lat2);
+        lon2 = GpsUtils.degToRad(lon2);
+
+        double dLon = (lon2 - lon1);
+
+        double y = Math.sin(dLon) * Math.cos(lat2);
+        double x = Math.cos(lat1) * Math.sin(lat2) -
+                Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+
+        return (float) ((GpsUtils.radToDeg(LMath.atan2(y, x)) + 360) % 360);
+    }
 
     /** formatuje double na dany pocet desetinych mist */
     public static String formatDouble(double value, int precision) {

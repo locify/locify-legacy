@@ -21,7 +21,7 @@ import com.locify.client.utils.math.LMath;
 
 /**
  * Reprezents position in WGS84 coordinate system in 4 dimensions - lat, lon, alt and time
- * @author Jiri Stepan
+ * @author Jiri, Menion
  */
 public class Location4D {
 
@@ -68,36 +68,6 @@ public class Location4D {
 
         return (R * c); // Final distance is in meters
     }
-
-    /*    public double azimutTo(Location4D target) {
-    double lat1, lon1, lat2, lon2;
-
-    try {
-    lat1 = latitude * RADIANSPERDEGREE;
-    lon1 = longitude * RADIANSPERDEGREE;
-    lat2 = target.getLatitude() * RADIANSPERDEGREE;
-    lon2 = target.getLongitude() * RADIANSPERDEGREE;
-
-    double barcosvalval = Math.cos(Math.PI / 2 - lat2) * Math.cos(Math.PI / 2 - lat1) + Math.sin(Math.PI / 2 - lat2) * Math.sin(Math.PI / 2 - lat1) * Math.cos(lon2 - lon1);
-    double b = GpsUtils.acos(barcosvalval);
-    double d = distanceTo(target) / R;
-    double r = GpsUtils.acos((Math.sin(lat2) - Math.sin(lat1) * Math.cos(d)) / (Math.sin(d) * Math.cos(lat1))); //je to opravdu acos? Nema byt asin?
-
-    double sindif = Math.sin(lon2 - lon1);
-    double out = r / RADIANSPERDEGREE; //vystup ve stupnich
-    if (sindif < 0) {
-    return 360 - out;
-    } else if (Double.isNaN(out)) {
-    return 0;
-    } else {
-    return out;
-    }
-    } catch (java.lang.NumberFormatException e) {
-    return 0;
-
-    }
-    }
-     */
     
     public double azimutTo(Location4D target) {
         //inspired by book Advanced geodesy
