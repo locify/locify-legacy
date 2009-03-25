@@ -14,14 +14,12 @@
 
 package com.locify.client.data;
 
-import de.enough.polish.io.Serializable;
-
 /**
  * Object for storing service settings
  *
  * @author Destil
  */
-public class ServiceSetting implements Serializable {
+public class ServiceSetting {
     private String name;
     private String value;
     private String service;

@@ -67,14 +67,8 @@ public class TileCache extends Thread {
      * @param tileSize
      */
     public TileCache(int tileSizeX, int tileSizeY) {
-        // set size of cache ... 1MB
-        double cacheSize;
-        if (Capabilities.isWindowsMobile())
-            cacheSize = 4.0;
-        else
-            cacheSize = 1.0;
         
-        this.maxSize = (int) ((cacheSize * 1048576.0) / (tileSizeX * tileSizeY));
+        this.maxSize = (int) ((R.getSettings().getCacheSize() * 1024) / (tileSizeX * tileSizeY));
         if (maxSize < 4)
             maxSize = 4;
         this.tileSizeX = tileSizeX;

@@ -14,13 +14,11 @@
 
 package com.locify.client.gui.screen.internal;
 
-import de.enough.polish.io.Serializable;
-
 /**
  * Object for one main screen item
  * @author David Vavra
  */
-public class MainScreenItem implements Serializable {
+public class MainScreenItem{
     private String icon;
     private String id, title;
     private long timestamp;

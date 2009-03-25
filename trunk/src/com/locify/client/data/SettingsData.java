@@ -19,7 +19,7 @@ import com.locify.client.utils.R;
 
 import com.locify.client.locator.Location4D;
 import com.locify.client.utils.StringTokenizer;
-import de.enough.polish.io.Serializable;
+import com.locify.client.utils.Capabilities;
 import de.enough.polish.util.Locale;
 import de.enough.polish.util.base64.Base64;
 import java.io.ByteArrayOutputStream;
@@ -51,6 +51,8 @@ public class SettingsData {
     public static final int AUTODETECT = 0;
     public static final int ON = 0;
     public static final int OFF = 1;
+    public static final int REPAINT_DURING = 0;
+    public static final int WAIT_UNTIL_END_OF_PANNING = 1;
     private static String language = "";
     public final String[] locales = {"en", "cs_CZ"};
     public final String[] languageNames = {Locale.get("English"), Locale.get("Czech")};    //settings
@@ -127,6 +129,16 @@ public class SettingsData {
         return DEFAULT_TCP_PORT;
     }
 
+    public int getCacheSize()
+    {
+        return Integer.parseInt((String)settings.get("cacheSize"));
+    }
+
+    public int getPanning()
+    {
+        return Integer.parseInt((String)settings.get("panning"));
+    }
+
     public void setLastDevice(String lastDevice) {
         settings.put("lastDevice", lastDevice);
         saveXML();
@@ -195,22 +207,14 @@ public class SettingsData {
             settings.put("autoLogin", String.valueOf(OFF));
             settings.put("prefferedGps", String.valueOf(AUTODETECT));
             settings.put("defaultMapProvider", "0"); //online google maps
-            settings.put("showScale", "1");
+            if (Capabilities.isWindowsMobile()) {
+                settings.put("cacheSize", "330"); //kB
+            } else {
+                settings.put("cacheSize", "1024"); //kB
+            }
+            settings.put("panning", String.valueOf(WAIT_UNTIL_END_OF_PANNING));
 
             if (!R.getFileSystem().exists(FileSystem.SETTINGS_FILE)) {
-                //imported settings from 0.8.1
-                if (R.getFileSystem().exists(FileSystem.SETTINGS_FOLDER + "mainSettings.lcf")) {
-                    SettingsObject settingsObject = (SettingsObject) R.getFileSystem().loadObject(FileSystem.SETTINGS_FOLDER + "mainSettings.lcf");
-                    settings.put("name", settingsObject.getName());
-                    settings.put("password", Base64.encode(settingsObject.getPassword()));
-                    settings.put("lastDevice", settingsObject.getLastDevice());
-                    settings.put("lastLocation", settingsObject.getLastLatitude() + "," + settingsObject.getLastLongitude());
-                    settings.put("externalClose", String.valueOf(settingsObject.getExternalClose()));
-                    settings.put("coordsFormat", String.valueOf(settingsObject.getCoordsFormat()));
-                    settings.put("autoLogin", String.valueOf(settingsObject.getAutoLogin()));
-                    settings.put("prefferedGps", String.valueOf(settingsObject.getPrefferedGps()));
-                    R.getFileSystem().delete(FileSystem.SETTINGS_FOLDER + "mainSettings.lcf");
-                }
                 saveXML();
             } else {
                 //other application starts
@@ -230,8 +234,6 @@ public class SettingsData {
 
     public void saveInterfaceSettings(int selectedLanguage) {
         try {
-            language = locales[selectedLanguage];
-            Locale.loadTranslations("/" + language + ".loc");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             DataOutputStream dos = new DataOutputStream(baos);
             dos.writeUTF(R.getFileSystem().getRoot());
@@ -241,7 +243,7 @@ public class SettingsData {
             RecordStore recordStore = RecordStore.openRecordStore("locify", true);
             recordStore.setRecord(1, data, 0, data.length);
             recordStore.closeRecordStore();
-            R.getCustomAlert().quickView(Locale.get("Changed_language_after_restart"), Locale.get("Info"), "locify://refresh");
+            R.getCustomAlert().quickView(Locale.get("Restart_needed"), Locale.get("Info"), "locify://refresh");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "SettingsData.saveInterfaceSettings", null);
         }
@@ -288,6 +290,14 @@ public class SettingsData {
         } catch (Exception e) {
             R.getErrorScreen().view(e, "SettingsData.saveLocifyCredentials", null);
         }
+    }
+
+    public void saveAdvancedMaps(int cacheSize, int panning)
+    {
+        settings.put("cacheSize", String.valueOf(cacheSize));
+        settings.put("panning", String.valueOf(panning));
+        saveXML();
+        R.getCustomAlert().quickView(Locale.get("Restart_needed"), Locale.get("Info"), "locify://refresh");
     }
 
     public void loadXML() {
@@ -371,114 +381,5 @@ public class SettingsData {
             R.getErrorScreen().view(e, "SettingsData.syncData", null);
             return "";
         }
-    }
-}
-
-class SettingsObject implements Serializable {
-
-    private String name;
-    private String password;
-    private String lastDevice;
-    private double lastLatitude;
-    private double lastLongitude;
-    private int externalClose;
-    private int prefferedGps;
-    private int coordsFormat; //format of coordinate
-    private int autoLogin;
-    private int connectGps;
-
-    public SettingsObject(String name, String password, String lastDevice,
-            double lastLatitude, double lastLongitude,
-            int externalClose, int autoConnectGps, int coordsFormat, int autoLogin, int connectGps) {
-        this.name = name;
-        this.password = password;
-        this.lastDevice = lastDevice;
-        this.lastLatitude = lastLatitude;
-        this.lastLongitude = lastLongitude;
-        this.externalClose = externalClose;
-        this.prefferedGps = autoConnectGps;
-        this.coordsFormat = coordsFormat;
-        this.autoLogin = autoLogin;
-        this.connectGps = connectGps;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getLastDevice() {
-        return lastDevice;
-    }
-
-    public void setLastDevice(String lastDevice) {
-        this.lastDevice = lastDevice;
-    }
-
-    public double getLastLatitude() {
-        return lastLatitude;
-    }
-
-    public void setLastLatitude(double lastLatitude) {
-        this.lastLatitude = lastLatitude;
-    }
-
-    public double getLastLongitude() {
-        return lastLongitude;
-    }
-
-    public void setLastLongitude(double lastLongitude) {
-        this.lastLongitude = lastLongitude;
-    }
-
-    public int getExternalClose() {
-        return externalClose;
-    }
-
-    public void setExternalClose(int externalClose) {
-        this.externalClose = externalClose;
-    }
-
-    public int getPrefferedGps() {
-        return prefferedGps;
-    }
-
-    public void setPrefferedGps(int prefferedGps) {
-        this.prefferedGps = prefferedGps;
-    }
-
-    public int getCoordsFormat() {
-        return coordsFormat;
-    }
-
-    public void setCoordsFormat(int coordsFormat) {
-        this.coordsFormat = coordsFormat;
-    }
-
-    public void setAutoLogin(int autoLogin) {
-        this.autoLogin = autoLogin;
-    }
-
-    public int getAutoLogin() {
-        return autoLogin;
-    }
-
-    public int getConnectGps() {
-        return connectGps;
-    }
-
-    public void setConnectGps(int connectGps) {
-        this.connectGps = connectGps;
     }
 }

@@ -21,7 +21,6 @@ import com.locify.client.utils.Utils;
 import com.locify.client.utils.StringTokenizer;
 import java.io.ByteArrayInputStream;
 import com.locify.client.utils.UTF8;
-import de.enough.polish.io.Serializable;
 import org.kxml2.io.KXmlParser;
 
 /**
@@ -43,12 +42,6 @@ public class ServiceSettingsData {
             R.getLoading().setText(Locale.get("Loading_service_settings"));
             if (!R.getFileSystem().exists(FileSystem.SERVICE_SETTINGS_FILE)) {  //prvni start aplikace
                 settings = new Vector();
-                //0.8.5 compatibility
-                if (R.getFileSystem().exists(FileSystem.SETTINGS_FOLDER+"serviceSettings.lcf"))
-                {
-                    settings = (Vector) R.getFileSystem().loadObject(FileSystem.SETTINGS_FOLDER + "serviceSettings.lcf");
-                    R.getFileSystem().delete(FileSystem.SETTINGS_FOLDER + "serviceSettings.lcf");
-                }
                 saveXML();
             } else {
                 loadXML();

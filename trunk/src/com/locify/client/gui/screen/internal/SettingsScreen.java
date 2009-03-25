@@ -31,6 +31,7 @@ import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.StringItem;
+import javax.microedition.lcdui.TextField;
 
 /**
  * Views Locify settings
@@ -51,6 +52,11 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
     private StringItem btnSaveInterface;
     private StringItem btnSaveLocation;
     private StringItem btnSaveMap;
+    private StringItem siAdvancedMaps;
+    private Form frmAdvancedMaps;
+    private ChoiceGroup cgPanning;
+    private TextField tfCacheSize;
+    private StringItem btnSaveAdvancedMaps;
     // maps variables
     private Form frmMaps;
     private ChoiceGroup cgMapProvider;
@@ -159,6 +165,11 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         btnSaveMap.setItemCommandListener(this);
         frmMaps.append(btnSaveMap);
 
+        siAdvancedMaps = new StringItem("",Locale.get("Advanced_settings"),StringItem.HYPERLINK);
+        siAdvancedMaps.setDefaultCommand(Commands.cmdView);
+        siAdvancedMaps.setItemCommandListener(this);
+        frmMaps.append(siAdvancedMaps);
+
         R.getMidlet().switchDisplayable(null, frmMaps);
     }
 
@@ -189,6 +200,31 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         frmOther.setCommandListener(this);
 
         R.getMidlet().switchDisplayable(null, frmOther);
+    }
+
+    public void viewAdvancedMapSettings() {
+        frmAdvancedMaps = new Form(Locale.get("Advanced_settings"));
+
+        tfCacheSize = new TextField(Locale.get("Cache_size"),String.valueOf(R.getSettings().getCacheSize()),10,TextField.NUMERIC);
+        frmAdvancedMaps.append(tfCacheSize);
+
+        cgPanning = new ChoiceGroup(Locale.get("Panning_behaviour"), Choice.EXCLUSIVE);
+        cgPanning.append(Locale.get("Repaint_during"), null);
+        cgPanning.append(Locale.get("Wait_until_end_of_panning"), null);
+        cgPanning.setSelectedIndex(R.getSettings().getPanning(), true);
+        frmAdvancedMaps.append(cgPanning);
+
+        btnSaveAdvancedMaps = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
+        btnSaveAdvancedMaps.setDefaultCommand(Commands.cmdSave);
+        btnSaveAdvancedMaps.setItemCommandListener(this);
+        frmAdvancedMaps.append(btnSaveAdvancedMaps);
+
+        frmAdvancedMaps.addCommand(Commands.cmdBack);
+        //#style imgHome
+        frmAdvancedMaps.addCommand(Commands.cmdHome);
+        frmAdvancedMaps.setCommandListener(this);
+
+        R.getMidlet().switchDisplayable(null, frmAdvancedMaps);
     }
 
     public void commandAction(Command command, Displayable displayable) {
@@ -229,6 +265,12 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
             } else {
                 R.getSettings().saveMapsSettings(cgMapProvider.getSelectedIndex() - onlineProviders, true);
             }
+        } else if (item.equals(siAdvancedMaps))
+        {
+            viewAdvancedMapSettings();
+        } else if (item.equals(btnSaveAdvancedMaps))
+        {
+            R.getSettings().saveAdvancedMaps(Integer.parseInt(tfCacheSize.getString()),cgPanning.getSelectedIndex());
         }
     }
 }

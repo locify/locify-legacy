@@ -198,12 +198,17 @@ Autologin=Automatické přihlášení
 On=Zapnuto
 Off=Vypnuto
 Language=Jazyk
-Changed_language_after_restart=Změny v jazyku se plně projeví až při příštím spuštění aplikace
+Restart_needed=Změny se projeví až po restartu aplikace
 Settings_saved=Nastavení bylo uloženo
 Default_map_provider=Výchozí poskytovatel map
 Map_items=Mapové přídavky
 Scale=Měřítko
 Touch=Dotyková podpora
+Advanced_settings=Pokročilé nastavení
+Cache_size=Velikost cache (kB)
+Panning_behaviour=Chování při posouvání
+Repaint_during=Překreslovat pořád
+Wait_until_end_of_panning=Počkat na konec posouvání
 
 #Check version
 Download_latest=Aktualizovat

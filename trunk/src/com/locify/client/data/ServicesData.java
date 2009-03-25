@@ -46,11 +46,6 @@ public class ServicesData {
             R.getLoading().setText(Locale.get("Loading_services"));
             if (!R.getFileSystem().exists(FileSystem.SERVICES_FILE)) {  //prvni start aplikace
                 services = new Vector();
-                //0.8.5 compatibility
-                if (R.getFileSystem().exists(FileSystem.SETTINGS_FOLDER + "services.lcf")) {
-                    services = (Vector) R.getFileSystem().loadObject(FileSystem.SETTINGS_FOLDER + "services.lcf");
-                    R.getFileSystem().delete(FileSystem.SETTINGS_FOLDER + "services.lcf");
-                }
                 saveXML();
             } else {
                 loadXML();

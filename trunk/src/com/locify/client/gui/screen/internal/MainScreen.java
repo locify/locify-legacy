@@ -121,38 +121,25 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
 
             if (!R.getFileSystem().exists(FileSystem.MAINSCREEN_FILE)) {  //prvni start aplikace
                 items = new Vector();
-                //0.8.5 compatibility
-                if (R.getFileSystem().exists(FileSystem.SETTINGS_FOLDER + "mainScreen.lcf")) {
-                    //ostatni starty aplikace, nacitam data
-                    items = (Vector) R.getFileSystem().loadObject(FileSystem.SETTINGS_FOLDER + "mainScreen.lcf");
-                    //add items to form in proper order
-                    for (int i = 0; i < items.size(); i++) {
-                        MainScreenItem item = (MainScreenItem) items.elementAt(i);
-                        //#style mainScreenListItem
-                        cgServices.append(item.getTitle(), IconData.get(item.getIcon()));
-                    }
-                    R.getFileSystem().delete(FileSystem.SETTINGS_FOLDER + "mainScreen.lcf");
-                } else {
-                    //nacitani zastupcu na download z JADu
-                    Logger.log("Loading shortcuts from JAD file");
-                    int i = 1;
-                    while (true) {
-                        if (R.getMidlet().getAppProperty("Shortcut-" + i) == null) {
-                            break;
+                //nacitani zastupcu na download z JADu
+                Logger.log("Loading shortcuts from JAD file");
+                int i = 1;
+                while (true) {
+                    if (R.getMidlet().getAppProperty("Shortcut-" + i) == null) {
+                        break;
+                    } else {
+                        String[] parts = StringTokenizer.getArray(R.getMidlet().getAppProperty("Shortcut-" + i), "|");
+                        if (parts[1].startsWith("locify://")) {
+                            //shorcut to internal function
+                            addEdit(parts[1], parts[0], R.getURL().getIcon(parts[1]));
                         } else {
-                            String[] parts = StringTokenizer.getArray(R.getMidlet().getAppProperty("Shortcut-" + i), "|");
-                            if (parts[1].startsWith("locify://")) {
-                                //shorcut to internal function
-                                addEdit(parts[1], parts[0], R.getURL().getIcon(parts[1]));
-                            } else {
-                                //shorcut to download
-                                addEdit(parts[1], parts[0], R.getURL().getIcon("locify://shortcut"));
-                            }
-                            i++;
+                            //shorcut to download
+                            addEdit(parts[1], parts[0], R.getURL().getIcon("locify://shortcut"));
                         }
+                        i++;
                     }
-                    autoInstallRequest = true;
                 }
+                autoInstallRequest = true;
                 saveXML();
             } else {
                 loadXML();

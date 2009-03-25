@@ -21,6 +21,7 @@ import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.NetworkLink;
 import com.locify.client.data.items.WaypointsCloud;
+import com.locify.client.data.SettingsData;
 import com.locify.client.locator.*;
 import com.locify.client.maps.*;
 import com.locify.client.maps.geometry.Point2D;
@@ -197,7 +198,14 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
         nowDirectly = false;
         firstCenterAfterND = false;
+        if (R.getSettings().getPanning() == SettingsData.REPAINT_DURING)
+        {
+            showAllDuringPanning = true;
+        }
+        else
+        {
         showAllDuringPanning = false;
+        }
     }
 
     /**

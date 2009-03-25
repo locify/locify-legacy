@@ -198,12 +198,17 @@ Autologin=Autologin
 On=On
 Off=Off
 Language=Language
-Changed_language_after_restart=New language will be fully loaded after next application start
+Restart_needed=Changes will apply after restart of Locify
 Settings_saved=Settings has been saved
 Default_map_provider=Default Map Provider
 Map_items=Map Items
 Scale=Scale
 Touch=Touch support
+Advanced_settings=Advanced settings
+Cache_size=Cache size (kB)
+Panning_behaviour=Panning behaviour
+Repaint_during=Repaint during
+Wait_until_end_of_panning=Wait until end of panning
 
 #Check version
 Download_latest=Download Latest

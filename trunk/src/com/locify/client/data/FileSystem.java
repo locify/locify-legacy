@@ -15,7 +15,6 @@ package com.locify.client.data;
 
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Logger;
-import de.enough.polish.io.Serializer;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -391,27 +390,6 @@ public class FileSystem {
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.loadBytes", fileName);
-            return null;
-        }
-    }
-
-    /**
-     * Loads object from filesystem and deserializes it
-     * @param fileName file name
-     * @return deserialized object
-     */
-    public synchronized Object loadObject(String fileName) {
-        try {
-            FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT + fileName);
-            if (!fileConnection.exists()) {
-                return null;
-            }
-            DataInputStream dis = fileConnection.openDataInputStream();
-            Object object = Serializer.deserialize(dis);
-            dis.close();
-            fileConnection.close();
-            return object;
-        } catch (Exception e) {
             return null;
         }
     }

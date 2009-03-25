@@ -21,7 +21,6 @@ import com.locify.client.utils.Utils;
 import de.enough.polish.util.Locale;
 import java.io.ByteArrayInputStream;
 import com.locify.client.utils.UTF8;
-import de.enough.polish.io.Serializable;
 import org.kxml2.io.KXmlParser;
 
 /**
@@ -47,11 +46,6 @@ public class CookieData {
             R.getLoading().setText(Locale.get("Loading_cookies"));
             if (!R.getFileSystem().exists(FileSystem.COOKIES_FILE)) {  //prvni start aplikace
                 cookies = new Vector();
-                //0.8.5 compatibility
-                if (R.getFileSystem().exists(FileSystem.SETTINGS_FOLDER + "cookies.lcf")) {
-                    cookies = (Vector) R.getFileSystem().loadObject(FileSystem.SETTINGS_FOLDER + "cookies.lcf");
-                    R.getFileSystem().delete(FileSystem.SETTINGS_FOLDER + "cookies.lcf");
-                }
                 saveXML();
             } else {
                 loadXML();
@@ -401,7 +395,7 @@ public class CookieData {
  * One single cookie object
  * @author Destil
  */
-class Cookie implements Serializable {
+class Cookie {
 
     private String name;
     private String value;

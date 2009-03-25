@@ -13,13 +13,12 @@
  */
 package com.locify.client.data;
 
-import de.enough.polish.io.Serializable;
 
 /**
  * Object for storing service info
  * @author Destil
  */
-public class Service implements Serializable {
+public class Service {
 
     private String id;
     private String name;
