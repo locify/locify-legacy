@@ -303,7 +303,6 @@ How_to_add_service_text=Službu si můžete přidat z našeho seznamu služeb: '
 How_to_connect_gps=Jak připojit GPS?
 How_to_connect_gps_text=Pokud zvolíte 'Nastavit polohu->GPS', Locify se pokusí připojit k nejvhodnějšímu GPS zařízení. Pokud chcete připojit jiné zařízení, jděte na 'Více->Nastavení->Poloha'. Pro Windows Mobile musí běžet na pozadí ještě program jménem Locify Porter - více na http://www.locify.com/help/windows-mobile. Locify lze používat i bez GPS - polohu můžete získat zadáním adresy, z uloženého bodu atd. 
 What_coloured_satellites_mean=Co znamenají barvy satelitků?
-What_coloured_satellites_mean_text=Poskytují informace o stavu GPS.\n\nBlikající černý znamená připojování.\nBlikající červený znamená úspěšné připojení a čekání na GPS fix.\nOranžový znamená platnou polohu s přesností horší než 50 m.\nŽlutý znamená platnou polohu s přesností mezi 15ti a 50ti metry.\nZelený znamená platnou polohu s přesností lepší jak 15 m.\nPísmeno M ve čtverci znamená manuálně nastavenou polohu.
 What_is_login_for=Na co je přihlášení?
 What_is_login_for_text=Po vybrání 'Více->Přihlásit' se můžete přihlásit k Locify účtu. Ten si můžete vytvořit buď na našem webu nebo přímo z mobilu. Po přihlášení máte možnost synchronizovat služby a soubory mezi webem a telefonem.
 What_is_synchronized=Co je synchronizováno?
@@ -312,6 +311,14 @@ How_to_manage_services=Jak spravovat položky na hlavní obrazovce?
 How_to_manage_services_text=Máte mnoho možností, jak si přizpůsobit hlavní obrazovku. Můžete přidávat služby, zástupce, mazat je nebo přesunovat. Vše naleznete pod 'Doma->Možnosti->Služba/Zástupce'
 Credits=Credits
 Credits_text=Copyright (c) 2007-2009, Locify Ltd. Všechna práva vyhrazena\n\nVíce na: http://www.locify.com\n\nTato aplikace je open-source (GNU-GPL).\n\nLocify neposkytuje mapová data, mapová data pocházejí od třetích stran. Přečtěte si podmínky použití těchto služeb:\n\nGoogle Maps: http://code.google.com/apis/maps/terms.html\nYahoo Maps: http://info.yahoo.com/legal/us/yahoo/maps/mapsapi/mapsapi-2141.html\nMicrosoft VirtualEarth: http://msdn.microsoft.com/en-us/cc300389.aspx\nOpenStreetMaps: http://wiki.openstreetmap.org/index.php/OpenStreetMap_License\n\nMějte na paměti, že Locify je aplikace zdarma stejně jako tyto mapové podklady (v desktopovém prohlížeči).
+Icons_help=Ikonky GPS:
+Connecting_help=Připojování k GPS
+Nosignal_help=Připojeno, čeká se na polohu
+Weak_help=Validní poloha, nízká přesnost (>50 m)
+Normal_help=Validní poloha, běžná přenost (15-50m)
+Strong_help=Validní poloha, vysoká přesnost (<15m)
+Manual_help=Manuální poloha jako adresa, poslední známá, ...
+Dont_show_next_time=Přístě nezobrazovat
 
 #Error screen
 Error_occured=Nastala chyba

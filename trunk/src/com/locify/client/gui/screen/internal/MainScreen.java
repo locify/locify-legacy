@@ -713,6 +713,10 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                     }
                     break;
                 case 1:
+                    if (listItem==0 && R.getSettings().getShowIconsHelp())
+                    {
+                        R.getHelp().viewIconsHelp();
+                    }
                     R.getURL().call(R.getContext().actions[listItem]); //don't disable warning
                     break;
                 case 2:

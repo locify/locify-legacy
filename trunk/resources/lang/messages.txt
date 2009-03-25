@@ -303,7 +303,6 @@ How_to_add_service_text=You can add a service from the list of verified services
 How_to_connect_gps=How to connect GPS?
 How_to_connect_gps_text=When you select 'Set Location->GPS', Locify will try to connect to most suitable GPS. If you want to connect different GPS, go to 'More->Settings->Location'. For Windows mobile devices, small program called Locify Porter has to be running on background. Read more at http://www.locify.com/help/windows-mobile. Locify can also be used without GPS - you can acquire location by entering address, selecting saved point etc.
 What_coloured_satellites_mean=What coloured satellites mean?
-What_coloured_satellites_mean_text=They indicate condition of GPS signal.\n\nBlinking black means connecting.\nBlinking red means connected but no GPS fix\nOrange means valid position with accuracy worse than 50 meters.\nYellow means valid position with accuracy between 15 and 50 meters.\nGreen means valid position with accuracy better than 15 meters.\nLetter M means manually configured location.
 What_is_login_for=What is login for?
 What_is_login_for_text=If you select 'More->Login', you can log in to your Locify account. After login you can synchronize all the data in your phone with the Locify server.
 What_is_synchronized=What is synchronized?
@@ -312,6 +311,14 @@ How_to_manage_services=How to manage items on main screen?
 How_to_manage_services_text=You have various options in managing items. You can add new services, shortcuts, delete them, move their position on the main screen etc. Everything is done by selecting Service in the main screen and then 'Options->Service/Shortcut'.  
 Credits=Credits
 Credits_text=Copyright (c) 2007-2009, Locify Ltd. All Rights Reserved\n\nSearch for more at: http://www.locify.com\n\nLocify is open-source (GNU-GPL).\n\nLocify doesn't provide it's map data. Locify uses map data of third party providers. Please read Terms of service of all providers we use:\n\nGoogle Maps: http://code.google.com/apis/maps/terms.html\nYahoo Maps: http://info.yahoo.com/legal/us/yahoo/maps/mapsapi/mapsapi-2141.html\nMicrosoft VirtualEarth: http://msdn.microsoft.com/en-us/cc300389.aspx\nOpenStreetMaps: http://wiki.openstreetmap.org/index.php/OpenStreetMap_License\n\nNote that Locify is free as this map data (in web browser) is.
+Icons_help=GPS icons:
+Connecting_help=Connecting to GPS
+Nosignal_help=Connected, but no GPS fix
+Weak_help=Valid location, weak accuracy (>50 m)
+Normal_help=Valid location, normal accuracy (15-50m)
+Strong_help=Valid location, great accuracy (<15m)
+Manual_help=Manual location like address, last known, ...
+Dont_show_next_time=Don't show next time
 
 #Error screen
 Error_occured=Error occured

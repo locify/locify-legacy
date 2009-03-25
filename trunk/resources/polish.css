@@ -404,6 +404,10 @@ p {
     background-color:focusedBgColor;
 }
 
+.helpIcons extends form {
+    view-type:midp2;
+}
+
 /* Alert */
 .alertForm
 {

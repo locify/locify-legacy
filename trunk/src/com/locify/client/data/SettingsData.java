@@ -129,14 +129,16 @@ public class SettingsData {
         return DEFAULT_TCP_PORT;
     }
 
-    public int getCacheSize()
-    {
-        return Integer.parseInt((String)settings.get("cacheSize"));
+    public int getCacheSize() {
+        return Integer.parseInt((String) settings.get("cacheSize"));
     }
 
-    public int getPanning()
-    {
-        return Integer.parseInt((String)settings.get("panning"));
+    public int getPanning() {
+        return Integer.parseInt((String) settings.get("panning"));
+    }
+
+    public boolean getShowIconsHelp() {
+        return (settings.get("showIconsHelp").equals("1"));
     }
 
     public void setLastDevice(String lastDevice) {
@@ -213,6 +215,7 @@ public class SettingsData {
                 settings.put("cacheSize", "1024"); //kB
             }
             settings.put("panning", String.valueOf(WAIT_UNTIL_END_OF_PANNING));
+            settings.put("showIconsHelp", "1");
 
             if (!R.getFileSystem().exists(FileSystem.SETTINGS_FILE)) {
                 saveXML();
@@ -277,6 +280,14 @@ public class SettingsData {
         saveXML();
     }
 
+    public void setShowIconsHelp(boolean show) {
+        if (show) {
+            settings.put("showIconsHelp", "1");
+        } else {
+            settings.put("showIconsHelp", "0");
+        }
+    }
+
     /**
      * Saves login and password to database
      * @param login
@@ -292,8 +303,7 @@ public class SettingsData {
         }
     }
 
-    public void saveAdvancedMaps(int cacheSize, int panning)
-    {
+    public void saveAdvancedMaps(int cacheSize, int panning) {
         settings.put("cacheSize", String.valueOf(cacheSize));
         settings.put("panning", String.valueOf(panning));
         saveXML();
