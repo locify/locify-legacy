@@ -249,7 +249,7 @@ public class Http implements Runnable {
     private HttpConnection handleHeaders(HttpConnection httpConnection) throws IOException {
         int j = 0;
         while (httpConnection.getHeaderField(j) != null) {
-          //  Logger.debug("input header " + j + ": " + httpConnection.getHeaderFieldKey(j) + "=" + httpConnection.getHeaderField(j));
+            Logger.debug("input header " + j + ": " + httpConnection.getHeaderFieldKey(j) + "=" + httpConnection.getHeaderField(j));
             //new cookies
             if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("Set-Cookie")) {
                 Logger.log("Set-cookie: " + httpConnection.getHeaderField(j));

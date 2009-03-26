@@ -15,6 +15,7 @@ package com.locify.client.net;
 
 import com.locify.client.data.CacheData;
 import com.locify.client.maps.fileMaps.FileMapManager;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 
 /**
@@ -41,6 +42,7 @@ public class ContentHandler {
      */
     public static void handle(String url, String response) {
         try {
+            Logger.debug("content handler:");
             //kml
             if (response.indexOf("<kml xmlns=") != -1 && response.indexOf("<kml xmlns=") < 100) {
                 R.getGeoDataBrowser().setKml(response);
@@ -54,8 +56,11 @@ public class ContentHandler {
                 Geocoding.error();
             } //special Locify xhtml
             else if (response.indexOf("<body class=\"alert\">") != -1 || response.indexOf("<body class=\"list\">") != -1 || response.indexOf("<body class=\"serviceInfo\">") != -1 || response.indexOf("<body class=\"confirmation\">") != -1 || response.indexOf("<body class=\"update\">") != -1 || response.indexOf("<meta http-equiv=\"refresh\"") != -1 || response.indexOf("<locify:call") != -1 || response.indexOf("<sync>") != -1) {
-                    boolean shouldCache = R.getXmlParser().parseLocifyXHTML(response);
+                Logger.debug("special xhtml");
+                boolean shouldCache = R.getXmlParser().parseLocifyXHTML(response);
+                Logger.debug("shouldCache="+shouldCache+", pragmra="+pragmaNoCache);
                     if (!pragmaNoCache && shouldCache) {
+                        Logger.debug("adding to cache");
                         CacheData.add(url, response);
                     }
             } //some other html or form
@@ -64,6 +69,7 @@ public class ContentHandler {
             } else {
                 R.getHTMLScreen().view(response);
                 if (!pragmaNoCache) {
+                    Logger.debug("adding to cache");
                     CacheData.add(url, response);
                 }
             }
