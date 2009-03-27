@@ -13,6 +13,7 @@
  */
 package com.locify.client.gui.manager;
 
+import com.locify.client.data.FileSystem;
 import com.locify.client.data.SettingsData;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
@@ -176,6 +177,8 @@ public class FirstRunManager implements CommandListener, ItemCommandListener {
             dis.close();
             recordStore.closeRecordStore();
             SettingsData.setLanguage(chosenLanguage);
+            //create map folder
+            R.getFileSystem().checkFolders(FileSystem.MAP_FOLDER);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "LoadingScreen.loadLanguage", null);
         }

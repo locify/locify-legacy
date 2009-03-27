@@ -116,8 +116,8 @@ public class CookieData {
         try {
             //vytvoreni domeny pokud neni
             if (domain.equals("") || domain == null) {
-                String[] parts1 = StringTokenizer.getArray(R.getHttp().url.substring(7), "/");
-                String[] parts2 = StringTokenizer.getArray(R.getHttp().url.substring(7), "?");
+                String[] parts1 = StringTokenizer.getArray(R.getHttp().getLastUrl().substring(7), "/");
+                String[] parts2 = StringTokenizer.getArray(R.getHttp().getLastUrl().substring(7), "?");
                 if (parts1[0].length() < parts2[0].length()) {
                     domain = parts1[0];
                 } else {
@@ -382,7 +382,7 @@ public class CookieData {
             int start = text.indexOf("$cookies[");
             int end = text.indexOf("]");
             String cookieName = text.substring(start + 9, end);
-            text = Utils.replaceString(text, text.substring(start, end + 1), getValue(cookieName, R.getHttp().url));
+            text = Utils.replaceString(text, text.substring(start, end + 1), getValue(cookieName, R.getHttp().getLastUrl()));
             return text;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "CookieData.replaceVariables", text);

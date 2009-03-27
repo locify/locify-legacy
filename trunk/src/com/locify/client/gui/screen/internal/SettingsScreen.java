@@ -168,6 +168,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         siAdvancedMaps = new StringItem("",Locale.get("Advanced_settings"),StringItem.HYPERLINK);
         siAdvancedMaps.setDefaultCommand(Commands.cmdView);
         siAdvancedMaps.setItemCommandListener(this);
+        //#style a
         frmMaps.append(siAdvancedMaps);
 
         R.getMidlet().switchDisplayable(null, frmMaps);

@@ -178,7 +178,7 @@ public class XmlParser {
                 int type = parser.getEventType();
 
                 if (type == XmlPullParser.START_TAG) {
-                    Logger.logNoBreak("<" + name + ">" + type);
+                    Logger.logNoBreak("<" + name + ">");
                     if (name.equals("li")) {
                         iconUrl = null;
                     }
@@ -193,7 +193,7 @@ public class XmlParser {
                 }
             } while (parser.nextTag() != KXmlParser.END_TAG || !parser.getName().equals("ul"));
             //provedeni akce
-            R.getCustomList().view(R.getHttp().url);
+            R.getCustomList().view(R.getHttp().getLastUrl());
         } catch (Exception e) {
             R.getErrorScreen().view(e, "XmlParser.parseList", null);
         }
@@ -272,17 +272,17 @@ public class XmlParser {
                 Service service = new Service(syncId, serviceName, serviceUrl, serviceDesc, syncTimestamp, serviceIcon, syncTimestamp, serviceSettings);
                 ServicesData.add(service);
             } else if (autoInstall) {
-                Service service = new Service(R.getHttp().url, serviceName, serviceUrl, serviceDesc, syncTimestamp, serviceIcon, syncTimestamp, serviceSettings);
+                Service service = new Service(R.getHttp().getLastUrl(), serviceName, serviceUrl, serviceDesc, syncTimestamp, serviceIcon, syncTimestamp, serviceSettings);
                 ServicesData.add(service);
                 R.getMainScreen().autoInstallNext();
             } else if (isUpdateService()) //service info stazene z netu
             {
-                Service service = new Service(R.getHttp().url, serviceName, serviceUrl, serviceDesc, Utils.timestamp(), serviceIcon, Utils.timestamp(), serviceSettings);
+                Service service = new Service(R.getHttp().getLastUrl(), serviceName, serviceUrl, serviceDesc, Utils.timestamp(), serviceIcon, Utils.timestamp(), serviceSettings);
                 ServicesData.add(service);
                 setUpdateService(false);
                 R.getURL().call(serviceUrl);
             } else {
-                Service service = new Service(R.getHttp().url, serviceName, serviceUrl, serviceDesc, Utils.timestamp(), serviceIcon, Utils.timestamp(), serviceSettings);
+                Service service = new Service(R.getHttp().getLastUrl(), serviceName, serviceUrl, serviceDesc, Utils.timestamp(), serviceIcon, Utils.timestamp(), serviceSettings);
                 R.getConfirmScreen().setService(service);
                 R.getConfirmScreen().view(serviceName + ":\n" + serviceDesc + "\n\n" + Locale.get("Really_add_service"));
             }

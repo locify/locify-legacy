@@ -808,7 +808,6 @@ public class XHTMLTagHandler
             Enumeration enumeration = elements.keys();
             while (enumeration.hasMoreElements()) {
                 String name = (String) enumeration.nextElement();
-System.out.println("\nElement: " + name);
                 String value = Variables.replace((String) elements.get(name), true);
 
                 //replace friendly coordianates to decimal format
@@ -947,9 +946,8 @@ System.out.println("\nElement: " + name);
         if (url.startsWith("http://") || url.startsWith("locify://")) {
             return url;
         }
-
-        int lastSlash = R.getHttp().url.lastIndexOf('/');
-        return R.getHttp().url.substring(0, lastSlash + 1) + url;
+        int lastSlash = R.getHttp().getLastUrl().lastIndexOf('/');
+        return R.getHttp().getLastUrl().substring(0, lastSlash + 1) + url;
     }
 
     public void addCommands(String a, String b, String c, Item i) {

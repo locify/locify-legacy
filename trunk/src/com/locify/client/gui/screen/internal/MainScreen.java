@@ -715,6 +715,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                 case 1:
                     if (listItem==0 && R.getSettings().getShowIconsHelp())
                     {
+                        R.getContext().setBackScreen("locify://help?text=3");
                         R.getHelp().viewIconsHelp();
                     }
                     R.getURL().call(R.getContext().actions[listItem]); //don't disable warning

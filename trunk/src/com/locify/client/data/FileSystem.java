@@ -507,7 +507,7 @@ public class FileSystem {
      * Checks folders in given fileName and creates them if neccessary
      * @param fileName file name
      */
-    private void checkFolders(String fileName) {
+    public void checkFolders(String fileName) {
         try {
             String[] folders = StringTokenizer.getArray(fileName, "/");
             String folder = "";

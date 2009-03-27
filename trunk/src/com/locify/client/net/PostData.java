@@ -28,7 +28,7 @@ public class PostData {
     private boolean urlEncoded;
 
     public PostData() {
-        postData = "";
+        postData = null;
         urlEncoded = true;
     }
 
@@ -36,16 +36,7 @@ public class PostData {
      * Deletes POST data on new connection
      */
     public void reset() {
-        postData = "";
-    }
-    
-    /**
-     * Are some POST data set?
-     * @return
-     */
-    public boolean isSet()
-    {
-        return !postData.equals("");
+        postData = null;
     }
 
     /**
@@ -63,10 +54,11 @@ public class PostData {
      */
     public void add(String name, String value) {
         value = Variables.replace(value, true);
-        if (!postData.equals("")) {
-            postData += "&";
+        if (postData != null) {
+            postData += "&" + name + "=" + new String(UTF8.encode(value));
+        } else {
+            postData = name + "=" + new String(UTF8.encode(value));
         }
-        postData += name + "=" + new String(UTF8.encode(value));
         urlEncoded = true;
     }
 
@@ -84,10 +76,10 @@ public class PostData {
                     return Utils.urlUTF8decode(namevalue[1]);
                 }
             }
-            return "";
+            return null;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "PostData.get", name);
-            return "";
+            return null;
         }
     }
 

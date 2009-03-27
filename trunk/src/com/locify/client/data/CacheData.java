@@ -28,10 +28,10 @@ public class CacheData {
      * @param url cache url
      * @return cache html
      */
-    public static String get(String url) {
+    public static byte[] get(String url) {
         try {
             url = FileSystem.CACHE_FOLDER + FileSystem.hashFileName(ServicesData.getCurrent()) + "/" + FileSystem.hashFileName(url) + ".html";
-            return R.getFileSystem().loadString(url);
+            return R.getFileSystem().loadBytes(url);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "CacheData.get", url);
             return null;

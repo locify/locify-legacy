@@ -85,9 +85,8 @@ public class HelpScreen implements CommandListener, ItemCommandListener {
     /**
      * Views one selected help text
      */
-    public void viewText() {
+    public void viewText(int selected) {
         try {
-            int selected = list.getSelectedIndex();
             if (selected == 3) {
                 viewIconsHelp();
             } else {
@@ -141,7 +140,7 @@ public class HelpScreen implements CommandListener, ItemCommandListener {
         if (command == Commands.cmdHome) {
             R.getURL().call("locify://mainScreen");
         } else if (command == List.SELECT_COMMAND) {
-            R.getURL().call("locify://helpText");
+            R.getURL().call("locify://help?text="+list.getSelectedIndex());
         } else if (command == Commands.cmdBack) {
             R.getBack().goBack();
         }

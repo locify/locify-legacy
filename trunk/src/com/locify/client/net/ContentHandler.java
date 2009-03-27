@@ -13,68 +13,78 @@
  */
 package com.locify.client.net;
 
+import com.locify.client.data.IconData;
+import com.locify.client.data.AudioData;
 import com.locify.client.data.CacheData;
+import com.locify.client.data.ServicesData;
 import com.locify.client.maps.fileMaps.FileMapManager;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
+import com.locify.client.utils.UTF8;
 
 /**
  * Processes incoming data and decides proper action, also manages caching
  * @author Destil
  */
 public class ContentHandler {
-    
-    private static boolean pragmaNoCache;
-    private static boolean loadedFromCache;
-
-    public static void setPragmaNoCache(boolean pragmaNoCache) {
-        ContentHandler.pragmaNoCache = pragmaNoCache;
-    }
-
-    public static void setLoadedFromCache(boolean loadedFromCache) {
-        ContentHandler.loadedFromCache = loadedFromCache;
-    }
 
     /**
      * Handles content from net
-     * @param url url of content
-     * @param response content
+     * @param response
      */
-    public static void handle(String url, String response) {
+    public static void handle(HttpResponse response) {
         try {
-            Logger.debug("content handler:");
-            //kml
-            if (response.indexOf("<kml xmlns=") != -1 && response.indexOf("<kml xmlns=") < 100) {
-                R.getGeoDataBrowser().setKml(response);
-                R.getBack().dontSave();
-                R.getURL().call("locify://geoFileBrowser");
-            } //geocoding result
-            else if (response.indexOf("<ResultSet") != -1) {
-                Geocoding.result(response);
-            } //geocoding error
-            else if (response.indexOf("<Error xmlns=\"urn:yahoo:api\">") != -1) {
-                Geocoding.error();
-            } //special Locify xhtml
-            else if (response.indexOf("<body class=\"alert\">") != -1 || response.indexOf("<body class=\"list\">") != -1 || response.indexOf("<body class=\"serviceInfo\">") != -1 || response.indexOf("<body class=\"confirmation\">") != -1 || response.indexOf("<body class=\"update\">") != -1 || response.indexOf("<meta http-equiv=\"refresh\"") != -1 || response.indexOf("<locify:call") != -1 || response.indexOf("<sync>") != -1) {
-                Logger.debug("special xhtml");
-                boolean shouldCache = R.getXmlParser().parseLocifyXHTML(response);
-                Logger.debug("shouldCache="+shouldCache+", pragmra="+pragmaNoCache);
-                    if (!pragmaNoCache && shouldCache) {
+            if (response.isImage()) {
+                if (response.getUrl().startsWith(ServicesData.getCurrent())) {
+                    R.getCustomList().refreshIcon(response.getUrl(), response.getData());
+                } else {
+                    R.getMainScreen().refreshIcon(response.getUrl(), response.getData());
+                }
+                IconData.save(response.getUrl(), response.getData());
+            } else if (response.isAudio()) {
+                AudioData.save(response.getUrl(), response.getData());
+            } else { //string content
+                String data = UTF8.decode(response.getData(), 0, response.getData().length);
+                if (data.length() == 0) {
+                    Logger.log("No data");
+                    return;
+                }
+                Logger.log("Data:");
+                Logger.log(data);
+
+                //kml
+                if (data.indexOf("<kml xmlns=") != -1 && data.indexOf("<kml xmlns=") < 100) {
+                    R.getGeoDataBrowser().setKml(data);
+                    R.getBack().dontSave();
+                    R.getURL().call("locify://geoFileBrowser");
+                } //geocoding result
+                else if (data.indexOf("<ResultSet") != -1) {
+                    Geocoding.result(data);
+                } //geocoding error
+                else if (data.indexOf("<Error xmlns=\"urn:yahoo:api\">") != -1) {
+                    Geocoding.error();
+                } //special Locify xhtml
+                else if (data.indexOf("<body class=\"alert\">") != -1 || data.indexOf("<body class=\"list\">") != -1 || data.indexOf("<body class=\"serviceInfo\">") != -1 || data.indexOf("<body class=\"confirmation\">") != -1 || data.indexOf("<body class=\"update\">") != -1 || data.indexOf("<meta http-equiv=\"refresh\"") != -1 || data.indexOf("<locify:call") != -1 || data.indexOf("<sync>") != -1) {
+                    Logger.debug("Parsing special XHTML: ");
+                    boolean shouldCache = R.getXmlParser().parseLocifyXHTML(data);
+                    Logger.debug("shouldCache=" + shouldCache + ", pragmra=" + response.isDisabledCaching());
+                    if (!response.isDisabledCaching() && shouldCache) {
                         Logger.debug("adding to cache");
-                        CacheData.add(url, response);
+                        CacheData.add(response.getUrl(), data);
                     }
-            } //some other html or form
-            else if (response.startsWith("<?xml version=\"1.0\"?>")) {
-                FileMapManager.setObtainedData(response);
-            } else {
-                R.getHTMLScreen().view(response);
-                if (!pragmaNoCache) {
-                    Logger.debug("adding to cache");
-                    CacheData.add(url, response);
+                } //some other html or form
+                else if (data.startsWith("<?xml version=\"1.0\"?>")) {
+                    FileMapManager.setObtainedData(data);
+                } else {
+                    R.getHTMLScreen().view(data);
+                    if (!response.isDisabledCaching()) {
+                        Logger.debug("adding to cache");
+                        CacheData.add(response.getUrl(), data);
+                    }
                 }
             }
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "ContentHandler.handle", response);
+            R.getErrorScreen().view(e, "ContentHandler.handle", response.getUrl());
         }
     }
 }

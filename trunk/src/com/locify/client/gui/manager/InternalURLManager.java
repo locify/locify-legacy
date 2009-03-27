@@ -194,9 +194,13 @@ public class InternalURLManager {
             } else if (url.equals("locify://checkVersion")) {
                 //display current version and check it
                 R.getUpdate().checkVersion();
-            } else if (url.equals("locify://help")) {
+            } else if (url.startsWith("locify://help")) {
                 //view help
-                R.getHelp().viewMenu();
+                if (parameters == null) {
+                    R.getHelp().viewMenu();
+                } else {
+                    R.getHelp().viewText(Integer.parseInt((String) parameters.get("text")));
+                }
             } else if (url.equals("locify://exit")) {
                 //exit midlet
                 R.getMidlet().exitMIDlet();
@@ -209,7 +213,7 @@ public class InternalURLManager {
                 R.getXmlParser().setUpdateService(true);
                 R.getHttp().start(R.getMainScreen().getFocusedItem().getId());
             } else if (url.equals("locify://serviceSettings")) {
-                if (R.getPostData().isSet()) {
+                if (R.getPostData() != null) {
                     //saves values sent to service settings
                     ServiceSettingsData.saveFromForm(R.getPostData().getUrlEncoded());
                 } else {
@@ -226,9 +230,6 @@ public class InternalURLManager {
             } else if (url.equals("locify://register")) {
                 //display registration form
                 R.getAuthentication().viewRegister();
-            } else if (url.equals("locify://helpText")) {
-                //view one selected helptext
-                R.getHelp().viewText();
             } else if (url.equals("locify://logger")) {
                 //view one selected helptext
                 R.getLoggerScreen().view();

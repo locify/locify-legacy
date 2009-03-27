@@ -100,6 +100,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
                 siLinkRegister.addCommand(cmdSelect);
                 siLinkRegister.setItemCommandListener(this);
                 siLinkRegister.setDefaultCommand(cmdSelect);
+                //#style a
                 frmLogin.append(siLinkRegister);
             }
 
@@ -161,6 +162,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
             } else if (url.startsWith("locify://authentication?challenge=")) {
                 String[] parts = StringTokenizer.getArray(url, "=");
                 String challenge = parts[1];
+                R.getPostData().add("login", tfLogin.getString());
                 if (R.getSettings().getAutoLogin() == SettingsData.ON && !R.getSettings().getName().equals("")) {
                     R.getPostData().add("hash", Utils.urlUTF8Encode(Sha1.encode(Sha1.encode(R.getSettings().getPassword()) + challenge)));
                 } else {
@@ -211,7 +213,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
             }
             if (httpBasic) {
                 String basicResponse = Base64.encode(login + ":" + password);
-                R.getHttp().startBasic(basicResponse);
+                R.getHttp().repeat(basicResponse);
             } else {
                 R.getPostData().add("login", login);
                 R.getPostData().add("password", password);

@@ -15,10 +15,6 @@ package com.locify.client.net;
 
 import com.locify.client.data.CacheData;
 import com.locify.client.data.CookieData;
-import com.locify.client.data.IconData;
-import com.locify.client.data.ServicesData;
-import com.locify.client.data.AudioData;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -31,8 +27,8 @@ import com.locify.client.utils.R;
 import com.locify.client.data.SettingsData;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.StringTokenizer;
-import com.locify.client.utils.UTF8;
 import java.io.IOException;
+import java.util.Vector;
 
 /**
  * Manages almost all connections to the HTTP server - manages caching, headers, cookies etc.
@@ -41,212 +37,165 @@ import java.io.IOException;
 public class Http implements Runnable {
 
     public static String DEFAULT_URL;
-    public String url = ""; //aktualni url
-    private Thread thread;
-    private boolean imageDownload = false;
-    private boolean audioDownload = false;
-    private boolean httpBasic;
-    private String basicResponse;
+    private Thread thread = null;
+    private HttpConnection httpConnection = null;
+    private InputStream is = null;
+    private ByteArrayOutputStream baos = null;
+    private DataOutputStream dos = null;
+    private Vector requestQueue;
+    private HttpRequest request;
+    private HttpResponse response;
 
     public Http() {
         //#if release
 //#         DEFAULT_URL = "http://client.locify.com/";
         //#else
         DEFAULT_URL = "http://client.stage.locify.com/";
-    //#endif
+        //#endif
+        requestQueue = new Vector();
     }
 
     /***
-     * Opens new url in new thread
-     * @param url http url
+     * Opens new request in new thread
+     * @param url
      */
     public void start(String url) {
-        ContentHandler.setPragmaNoCache(false);
-        httpBasic = false;
-        this.url = url;
-        thread = new Thread(this);
-        thread.start();
+        start(new HttpRequest(url, R.getPostData().getUrlEncoded(), R.getPostData().isUrlEncoded(), CookieData.getHeaderData(url)));
+    }
+
+    /***
+     * Opens new request in new thread
+     * @param newRequest
+     */
+    private void start(HttpRequest newRequest) {
+        requestQueue.addElement(newRequest);
+        R.getPostData().reset();
+        if (requestQueue.size() == 1) {
+            thread = new Thread(this);
+            thread.start();
+        }
     }
 
     /**
-     * Resends previous request via HTTP BASIC AUTH with credentials in basic response
-     * @param basicResponse
+     * Repeats last request with additional http basic header
+     * @param basic http basic string
      */
-    public void startBasic(String basicResponse) {
-        httpBasic = true;
-        this.basicResponse = basicResponse;
-        thread = new Thread(this);
-        thread.start();
+    public void repeat(String basic) {
+        request.setHttpBasicResponse(basic);
+        start(request);
     }
 
-    /***
-     * Connects to the internet, sends data through POST, gets response and starts XML parsing
+    /**
+     * This thread performs all downloading using request queue
      */
     public void run() {
-        HttpConnection httpConnection = null;
-        InputStream is = null;
-        ByteArrayOutputStream baos = null;
-        DataOutputStream dos = null;
         try {
-            //cache checking
-            String response = CacheData.get(url);
-            if (response == null) {
-                TopBarBackground.setHttpStatus(TopBarBackground.CONNECTING);
-                ContentHandler.setLoadedFromCache(false);
+            while (!requestQueue.isEmpty()) {
+                request = (HttpRequest) requestQueue.firstElement();
+                response = new HttpResponse(request.getUrl());
+                //firstly try cache
+                response.setData(CacheData.get(request.getUrl()));
+                if (response.getData() != null) {
+                    Logger.log("Loading page from cache");
+                } else //not cache page - downloading
+                {
+                    try {
+                        TopBarBackground.setHttpStatus(TopBarBackground.CONNECTING);
+                        Logger.log("---------- REQUEST -----------");
+                        Logger.log("URL: " + request.getUrl());
 
-                //not i cache - downloading from net
-                Logger.log("---------- REQUEST -----------");
-                Logger.log("URL: " + url);
-                httpConnection = (HttpConnection) Connector.open(url);
-                httpConnection = sendData(httpConnection);
-
-                //receiving data
-                is = httpConnection.openInputStream();
-                TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
-                Logger.log("---------- ANSWER -----------");
-                //headers
-                httpConnection = handleHeaders(httpConnection);
-                if (httpConnection == null) {
-                    return;
-                }
-                Logger.log("Response code:" + httpConnection.getResponseCode());
-                int responseCode = httpConnection.getResponseCode();
-                if (responseCode == 401) {
-                    //zacatek autentifikace
-                    if (url.startsWith(DEFAULT_URL)) {
-                        R.getAuthentication().setNext("locify://refresh");
-                        url = "locify://authentication";
-                    }
-                    R.getPostData().reset();
-                    R.getAuthentication().start(url);
-                    return;
-                } else if (responseCode == 301 || responseCode == 302 || responseCode == 303 || responseCode == 307) {
-                    Logger.log("Redirecting to " + url);
-                    R.getPostData().reset();
-                    start(url);
-                    return;
-                } else {
-
-                    if (responseCode == 403) //auth failed
-                    {
-                        R.getSettings().setAutologin(SettingsData.OFF);
-                    }
-
-                    //reading data byte by byte
-                    baos = new ByteArrayOutputStream();
-                    dos = new DataOutputStream(baos);
-                    int onebyte;
-                    while ((onebyte = is.read()) != -1) {
-                        dos.write(onebyte);
-                    }
-                    byte[] byteArr = baos.toByteArray();
-
-                    if (imageDownload) {
-                        ContentHandler.setPragmaNoCache(true);
-                        Logger.log("Image received");
-                        if (responseCode == HttpConnection.HTTP_OK) {
-                            if (url.startsWith(ServicesData.getCurrent())) {
-                                R.getCustomList().refreshIcon(url, byteArr);
-                            } else {
-                                R.getMainScreen().refreshIcon(url, byteArr);
-                            }
-                            IconData.save(url, byteArr);
-                        } else {
-                            Logger.log("Image download failed");
+                        //open connection
+                        httpConnection = (HttpConnection) Connector.open(request.getUrl());
+                        //set request headers
+                        setRequestHeaders();
+                        //set cookies
+                        httpConnection.setRequestProperty("Cookie", CookieData.getHeaderData(request.getUrl()));
+                        Logger.log("COOKIES: " + CookieData.getHeaderData(request.getUrl()));
+                        if (request.getPostData() == null) { //no post data => get
+                            httpConnection.setRequestMethod(HttpConnection.GET);
+                        } else //post data => post
+                        {
+                            httpConnection.setRequestMethod(HttpConnection.POST);
+                            sendPostData();
                         }
-                        imageDownload = false;
-                        audioDownload = false;
-                        return;
-                    } else if (audioDownload) {
-                        ContentHandler.setPragmaNoCache(true);
-                        Logger.log("Audio received");
-                        if (responseCode == HttpConnection.HTTP_OK) {
-                            AudioData.save(url, byteArr);
-                        } else {
-                            Logger.log("Audio download failed");
+
+                        //receiving data
+                        is = httpConnection.openInputStream();
+                        TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
+                        Logger.log("---------- ANSWER -----------");
+                        //handle incoming headers
+                        if (handleHeaders()) //action based on headers, no need for downloading
+                        {
+                            requestQueue.removeElementAt(0);
+                            continue;
                         }
-                        imageDownload = false;
-                        audioDownload = false;
-                        return;
-                    } else {
-                        response = UTF8.decode(byteArr, 0, byteArr.length);
-                        if (response.length() == 0) {
-                            Logger.log("No data");
-                            R.getPostData().reset();
-                            return;
+                        //handle response code
+                        if (handleResponseCode()) //action based on response code, no need for downloading
+                        {
+                            requestQueue.removeElementAt(0);
+                            continue;
                         }
-                        Logger.log("Data:");
-                        Logger.log(response);
+                        //read data
+                        readData();
+
+                    } catch (ConnectionNotFoundException e) {
+                        R.getConnectionProblem().occured();
+                    } catch (IOException e) {
+                        R.getConnectionProblem().occured();
+                    } catch (Exception e) {
+                        R.getErrorScreen().view(e, "Http.run.request", request.getUrl());
+                    } finally {
+                        stop();
                     }
                 }
-
-            } else {
-                Logger.log("Loading cache: " + url);
-                ContentHandler.setLoadedFromCache(true);
+                //process content
+                ContentHandler.handle(response);
+                //remove request from the queue
+                requestQueue.removeElementAt(0);
             }
-            ContentHandler.handle(url, response);
-            R.getPostData().reset();
-
-        } catch (ConnectionNotFoundException e) {
-            R.getConnectionProblem().occured();
-        } catch (IOException e) {
-            R.getConnectionProblem().occured();
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "Http.run", url);
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                    is = null;
-                }
-                if (httpConnection != null) {
-                    httpConnection.close();
-                    httpConnection = null;
-                }
-                if (baos != null) {
-                    baos.close();
-                    baos = null;
-                }
-                if (dos != null) {
-                    dos.close();
-                    dos = null;
-                }
-            } catch (Exception e) {
-            }
-            TopBarBackground.setHttpStatus(TopBarBackground.UNDEFINED);
+            R.getErrorScreen().view(e, "Http.run", null);
         }
     }
 
-    private HttpConnection sendData(HttpConnection httpConnection) throws IOException {
-        String postData = R.getPostData().getUrlEncoded();
-        httpConnection.setRequestMethod(postData.equals("") ? HttpConnection.GET : HttpConnection.POST);
-        //cookies
-        httpConnection.setRequestProperty("Cookie", CookieData.getHeaderData(url));
-        Logger.log("COOKIES: " + CookieData.getHeaderData(url));
-        //user-agent
-        String userAgent = httpConnection.getRequestProperty("User-Agent");
-        if (userAgent == null) {
-            userAgent = "";
-        }
-        httpConnection.setRequestProperty("User-Agent", "Locify/" + R.getMidlet().getAppProperty("MIDlet-Version") + "/" + SettingsData.getLanguage() + "/" + userAgent);
-        if (httpBasic) {
-            httpConnection.setRequestProperty("Authorization", "Basic " + basicResponse);
-        }
-        if (!postData.equals("")) {
-            if (R.getPostData().isUrlEncoded()) {
-                httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            }
-            httpConnection.setRequestProperty("Content-Length", String.valueOf(postData.length()));
-            TopBarBackground.setHttpStatus(TopBarBackground.SENDING);
-            OutputStream outputStream = httpConnection.openOutputStream();
-            outputStream.write(postData.getBytes());
-            outputStream.close();
-            Logger.log("POST: " + postData);
-        }
-        return httpConnection;
+    public String getLastUrl() {
+        return request.getUrl();
     }
 
-    private HttpConnection handleHeaders(HttpConnection httpConnection) throws IOException {
+    private void setRequestHeaders() {
+        try {
+            //user-agent
+            String userAgent = httpConnection.getRequestProperty("User-Agent");
+            if (userAgent == null) {
+                userAgent = "";
+            }
+            httpConnection.setRequestProperty("User-Agent", "Locify/" + R.getMidlet().getAppProperty("MIDlet-Version") + "/" + SettingsData.getLanguage() + "/" + userAgent);
+            if (request.getHttpBasicResponse() != null) {
+                httpConnection.setRequestProperty("Authorization", "Basic " + request.getHttpBasicResponse());
+            }
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "Http.setRequestHeaders", null);
+        }
+    }
+
+    private void sendPostData() throws IOException {
+        if (request.isPostDataUrlEncoded()) {
+            httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        }
+        httpConnection.setRequestProperty("Content-Length", String.valueOf(request.getPostData().length()));
+        TopBarBackground.setHttpStatus(TopBarBackground.SENDING);
+        OutputStream outputStream = httpConnection.openOutputStream();
+        outputStream.write(request.getPostData().getBytes());
+        outputStream.close();
+        Logger.log("POST: " + request.getPostData());
+    }
+
+    /**
+     * Handles incoming headers
+     * @return true when header stops current download
+     * @throws java.io.IOException
+     */
+    private boolean handleHeaders() throws IOException {
         int j = 0;
         while (httpConnection.getHeaderField(j) != null) {
             Logger.debug("input header " + j + ": " + httpConnection.getHeaderFieldKey(j) + "=" + httpConnection.getHeaderField(j));
@@ -258,43 +207,148 @@ public class Http implements Runnable {
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("X-Challenge")) {
                 Logger.log("Challenge received: " + httpConnection.getHeaderField(j));
                 R.getAuthentication().start("locify://authentication?challenge=" + httpConnection.getHeaderField(j));
-                return null;
+                return true;
             } //forbid caching
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("Pragma")) {
                 if (httpConnection.getHeaderField(j).equalsIgnoreCase("no-cache")) {
                     Logger.log("Pragma: no-cache = page will not be cached");
-                    ContentHandler.setPragmaNoCache(true);
+                    response.setDisabledCaching(true);
                 }
             } //location url
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("Location")) {
-                url = httpConnection.getHeaderField(j);
+                response.setNewLocation(httpConnection.getHeaderField(j));
             } //image download
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("Content-type")) {
                 if (httpConnection.getHeaderField(j).equalsIgnoreCase("image/png")) {
-                    imageDownload = true;
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ex) {
-                    }
+                    response.setImage(true);
                 } else if (httpConnection.getHeaderField(j).equalsIgnoreCase("audio/x-wav")) {
-                    audioDownload = true;
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ex) {
-                    }
+                    response.setAudio(true);
                 }
             } // http basic auth
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("WWW-Authenticate")) {
                 if (httpConnection.getHeaderField(j).indexOf("Basic") != -1) {
                     String[] parts = StringTokenizer.getArray(httpConnection.getHeaderField(j), "\"");
                     R.getAuthentication().start("locify://authentication?realm=" + parts[1]);
-                    return null;
+                    return true;
                 }
             }
             j++;
         }
-        return httpConnection;
+        return false;
+    }
+
+    /**
+     * Handles incoming response code
+     * @return true if response code stops current download
+     * @throws java.io.IOException
+     */
+    private boolean handleResponseCode() throws IOException {
+        int responseCode = httpConnection.getResponseCode();
+        Logger.log("Response code:" + responseCode);
+        if (responseCode == 401) {
+            //auth start
+            if (request.getUrl().startsWith(DEFAULT_URL)) {
+                R.getAuthentication().setNext("locify://refresh");
+                R.getAuthentication().start("locify://authentication");
+            } else {
+                R.getAuthentication().start(request.getUrl());
+            }
+            return true;
+        } else if (responseCode == 301 || responseCode == 302 || responseCode == 303 || responseCode == 307) {
+            Logger.log("Redirecting to " + response.getNewLocation());
+            start(response.getNewLocation());
+            return true;
+        } else {
+            if (responseCode == 403) //auth failed
+            {
+                R.getSettings().setAutologin(SettingsData.OFF);
+            }
+            if ((response.isAudio() || response.isImage()) && responseCode != 200) {
+                Logger.log("Image download failed: " + responseCode);
+                return true;
+            }
+            return false;
+        }
+    }
+
+    private void readData() throws IOException {
+        //reading data byte by byte
+        baos = new ByteArrayOutputStream();
+        dos = new DataOutputStream(baos);
+        int onebyte;
+        while ((onebyte = is.read()) != -1) {
+            dos.write(onebyte);
+        }
+        response.setData(baos.toByteArray());
+    }
+
+    private void stop() {
+        try {
+            if (is != null) {
+                is.close();
+                is = null;
+            }
+            if (httpConnection != null) {
+                httpConnection.close();
+                httpConnection = null;
+            }
+            if (baos != null) {
+                baos.close();
+                baos = null;
+            }
+            if (dos != null) {
+                dos.close();
+                dos = null;
+            }
+            if (thread != null) {
+                thread = null;
+            }
+
+            TopBarBackground.setHttpStatus(TopBarBackground.UNDEFINED);
+        } catch (Exception e) {
+        }
     }
 }
+
+class HttpRequest {
+
+    private String url;
+    private String postData;
+    private boolean postDataUrlEncoded;
+    private String cookies;
+    private String httpBasicResponse;
+
+    public HttpRequest(String url, String postData, boolean postDataUrlEncoded, String cookies) {
+        this.url = url;
+        this.postData = postData;
+        this.postDataUrlEncoded = postDataUrlEncoded;
+        this.cookies = cookies;
+    }
+
+    public String getPostData() {
+        return postData;
+    }
+
+    public String getHttpBasicResponse() {
+        return httpBasicResponse;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getCookies() {
+        return cookies;
+    }
+
+    public boolean isPostDataUrlEncoded() {
+        return postDataUrlEncoded;
+    }
+
+    public void setHttpBasicResponse(String httpBasicResponse) {
+        this.httpBasicResponse = httpBasicResponse;
+    }
+}
+
 
 
