@@ -23,6 +23,7 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import de.enough.polish.util.Arrays;
 import de.enough.polish.util.Comparator;
@@ -106,18 +107,23 @@ public class FileSystemScreen implements CommandListener, Comparator {
                 }
 
                 //reading files
+                Logger.debug("file listing start");
                 while (files.hasMoreElements()) {
                     String filename = (String) files.nextElement();
                     if (filename.endsWith(".kml")) {
                         double distance = 9999;
+                        Logger.debug("file: "+filename);
                         int type = GeoFiles.getDataTypeFile(filename);
+                        Logger.debug("type: "+type);
                         if (type == GeoFiles.TYPE_ROUTE && (filter == null || "route".equals(filter))) {
                             String name = GeoFiles.parseKmlFile(filename, true).getName();
                             filesystemItems.addElement(new FileSystemScreenItem(
                                     filename, name, distance, GeoFiles.TYPE_ROUTE));
                         } else if (type == GeoFiles.TYPE_WAYPOINT && (filter == null || "place".equals(filter))) {
+                            Logger.debug("parsing waypoint");
                             Waypoint waypoint = (Waypoint) GeoFiles.parseKmlFile(filename, false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
                             if (waypoint != null) {
+                                Logger.debug("waypoint name="+waypoint.getName());
                                 if (comparingDistance) {
                                     distance = waypoint.getLocation().distanceTo(R.getLocator().getLastLocation());
                                 }
