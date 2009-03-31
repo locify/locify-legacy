@@ -591,13 +591,15 @@ public abstract class GeoFiles {
         long fileSize = 0;
 
         try {
+Logger.debug("GeoFiles.getDataTypeFile() - " + fileName);
             fileSize = R.getFileSystem().getFileSize(FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
             type = getDataTypeDatabase(fileName, fileSize);
 
-//System.out.println("TestFile: " + fileName + " type: " + type + " size: " + fileSize + "  " + System.currentTimeMillis());
+Logger.debug("  testFile: " + fileName + " type: " + type + " size: " + fileSize);
             if (type == 0) {
                 fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
                 if (!fileConnection.exists()) {
+Logger.debug("  connect to: " + ("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName) + " problem, return corrupt result");
                     return TYPE_CORRUPT;
                 }
 
@@ -606,6 +608,7 @@ public abstract class GeoFiles {
                 parser.setInput(is, "utf-8");
 
                 type = getDataType(parser);
+Logger.debug("  return parser type: " + type);
             }
             return type;
         } catch (Exception e) {
@@ -690,6 +693,7 @@ public abstract class GeoFiles {
             }
 
             if (actualType == TYPE_CORRUPT) {
+Logger.debug("  almost result - containPlacemark: " + containPlacemark);
                 if (containPlacemark) {
                     return TYPE_WAYPOINT;
                 } else {
@@ -712,6 +716,7 @@ public abstract class GeoFiles {
         for (int i = 0; i < geoTypeDatabase.size(); i++) {
             gft = (GeoFileType) geoTypeDatabase.elementAt(i);
             if (gft.compare(fileName, fileSize)) {
+Logger.debug("  database compare succes, type: " + gft.getType());
                 return gft.getType();
             }
         }
