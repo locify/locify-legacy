@@ -18,6 +18,7 @@ import com.locify.client.data.SettingsData;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
+import com.locify.client.utils.Utils;
 import de.enough.polish.util.Locale;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -159,6 +160,17 @@ public class FirstRunManager implements CommandListener, ItemCommandListener {
             recordStore.closeRecordStore();
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FirstRunManager.loadLanguage", chosenLanguage);
+        }
+    }
+
+    /**
+     * Used just for applet
+     */
+    public void loadEnglish() {
+        try {
+            Locale.loadTranslations(new DataInputStream(FirstRunManager.class.getResourceAsStream("/en.loc")));
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "FirstRunManager.loadEnglish", null);
         }
     }
 

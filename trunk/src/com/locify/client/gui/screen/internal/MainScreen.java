@@ -121,6 +121,19 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
 
             if (!R.getFileSystem().exists(FileSystem.MAINSCREEN_FILE)) {  //prvni start aplikace
                 items = new Vector();
+                //#if applet
+//#                 addEdit("http://services.locify.com/wikipedia/welcome", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://services.locify.com/nearestCaches/", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://services.locify.com/twitter/welcome", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://services.locify.com/panoramio/welcome", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://services.locify.com/eventful/welcome", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://services.locify.com/opencaching/welcome", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://services.locify.com/fireeagle/welcome", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://services.locify.com/upcoming/welcome", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://services.locify.com/zvents/welcome", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://services.locify.com/accuweather/welcome", "", R.getURL().getIcon("locify://shortcut"));
+//#                 addEdit("http://locify.destil.cz/geomail/", "", R.getURL().getIcon("locify://shortcut"));
+                //#else
                 //nacitani zastupcu na download z JADu
                 Logger.log("Loading shortcuts from JAD file");
                 int i = 1;
@@ -139,6 +152,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                         i++;
                     }
                 }
+                //#endif
                 autoInstallRequest = true;
                 saveXML();
             } else {
@@ -166,6 +180,13 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
             this.setScreenStateListener(this);
             this.setTabbedFormListener(this);
             this.setActiveTab(0);
+            //#if applet
+//#             autoInstall();
+            //#else
+            if (autoInstallRequest) {
+                R.getConfirmScreen().view(Locale.get("Autoinstall_confirmation"), ConfirmScreen.AUTOINSTALL_SERVICES);
+            }
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MainScreen.load", null);
         }
@@ -246,12 +267,9 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
      * Views the screen
      */
     public void view() {
-        if (autoInstallRequest) {
-            R.getConfirmScreen().view(Locale.get("Autoinstall_confirmation"), ConfirmScreen.AUTOINSTALL_SERVICES);
-        } else {
+        if (!autoInstallRequest) {
             R.getMidlet().switchDisplayable(null, this);
         }
-        autoInstallRequest = false;
     }
 
     /**
@@ -495,6 +513,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                 autoInstallUrls.removeElement(autoInstallUrls.firstElement());
             } else {
                 R.getXmlParser().setAutoInstall(false);
+                autoInstallRequest = false;
                 refreshIcons();
                 view();
             }
@@ -713,8 +732,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                     }
                     break;
                 case 1:
-                    if (listItem==0 && R.getSettings().getShowIconsHelp())
-                    {
+                    if (listItem == 0 && R.getSettings().getShowIconsHelp()) {
                         R.getContext().setBackScreen("locify://help?text=3");
                         R.getHelp().viewIconsHelp();
                     }

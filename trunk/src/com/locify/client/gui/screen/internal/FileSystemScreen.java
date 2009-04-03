@@ -82,6 +82,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
      */
     public void view(String filter, String target) {
         try {
+            Logger.debug("---------- FILESYSTEM browser view -------");
             GeoFiles.fileBrowserOpened = true;
             
             this.filter = filter;
@@ -97,6 +98,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
             }
 
             Enumeration files = R.getFileSystem().listFiles(FileSystem.FILES_FOLDER, "*.kml");
+            Logger.debug("enumeration="+files);
             filesystemItems = new Vector();
             if (files != null) {
                 //comparing mode

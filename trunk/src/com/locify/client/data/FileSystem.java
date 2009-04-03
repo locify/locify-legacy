@@ -74,6 +74,9 @@ public class FileSystem {
      */
     public String getDefaultRoot() {
         try {
+            //#if applet
+//#                  return "";
+            //#else
             //memory card or phone's memory?
             Enumeration roots = FileSystemRegistry.listRoots();
             String directory = "";
@@ -88,6 +91,7 @@ public class FileSystem {
                 ROOT = directory;
             }
             return ROOT;
+            //#endif
         } catch (SecurityException e) {
             return "";
         } catch (Exception e) {
@@ -102,7 +106,11 @@ public class FileSystem {
      */
     public Enumeration getRoots() {
         try {
+            //#if applet
+//#             return null;
+            //#else
             return FileSystemRegistry.listRoots();
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.getRoots", null);
             return null;
@@ -111,6 +119,9 @@ public class FileSystem {
 
     public Enumeration getFolders(String folder) {
         try {
+            //#if applet
+//#             return null;
+            //#else
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + folder);
             if (!fileConnection.exists()) {
                 return null;
@@ -126,6 +137,7 @@ public class FileSystem {
             }
             fileConnection.close();
             return folders.elements();
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.getFolders", folder);
             return null;
@@ -134,12 +146,16 @@ public class FileSystem {
 
     public Enumeration getFiles(String folder) {
         try {
+            //#if applet
+//#             return null;
+            //#else
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + folder);
             if (!fileConnection.exists()) {
                 return null;
             }
 
             return fileConnection.list();
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.getFiles", folder);
             return null;
@@ -148,8 +164,10 @@ public class FileSystem {
    
     public synchronized void writeTestData(String root) {
         try {
+            //#if !applet
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + root);
             fileConnection.close();
+            //#endif
         } catch (Exception e) {
         }
     }
@@ -160,6 +178,9 @@ public class FileSystem {
      */
     public synchronized boolean createDefaultRoot() {
         try {
+            //#if applet
+//#             return true;
+            //#else
             //defining of locify folders for various phones
             //#if release
 //#             String locifyFolder = "Locify/";
@@ -219,6 +240,7 @@ public class FileSystem {
                 }
             }
             return false;
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.createDefaultRoot", null);
             return false;
@@ -232,6 +254,9 @@ public class FileSystem {
      */
     public synchronized boolean createRoot(String root) {
         try {
+            //#if applet
+//#             return true;
+            //#else
             FileSystem.ROOT = root;
             //create Locify folder if not exist
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT);
@@ -240,6 +265,7 @@ public class FileSystem {
             }
             fileConnection.close();
             return true;
+            //#endif
         } catch (Exception e) {
             return false;
         }
@@ -253,6 +279,9 @@ public class FileSystem {
      */
     public synchronized Enumeration listFiles(String folder, String pattern) {
         try {
+            //#if applet
+//#             return null;
+            //#else
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT + folder);
             if (!fileConnection.exists()) {
                 return null;
@@ -266,6 +295,7 @@ public class FileSystem {
             }
             fileConnection.close();
             return files;
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.listFiles", folder);
             return null;
@@ -278,11 +308,13 @@ public class FileSystem {
      */
     public synchronized void delete(String fileName) {
         try {
+            //#if !applet
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT + fileName);
             if (fileConnection.exists()) {
                 fileConnection.delete();
             }
             fileConnection.close();
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.delete", fileName);
         }
@@ -294,6 +326,7 @@ public class FileSystem {
      */
     public synchronized void deleteAll(String folder) {
         try {
+            //#if !applet
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT + folder);
             if (fileConnection.exists() && fileConnection.isDirectory()) {
                 Enumeration files = fileConnection.list();
@@ -302,6 +335,7 @@ public class FileSystem {
                     delete(folder + (String) files.nextElement());
                 }
             }
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.deleteAll", folder);
         }
@@ -314,6 +348,9 @@ public class FileSystem {
      */
     public synchronized boolean exists(String fileName) {
         try {
+            //#if applet
+//#             return false;
+            //#else
             FileConnection fileConnection = null;
             if (fileName.startsWith("file://")) {
                 fileConnection = (FileConnection) Connector.open(fileName);
@@ -323,6 +360,7 @@ public class FileSystem {
             boolean exists = fileConnection.exists();
             fileConnection.close();
             return exists;
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.exists", ROOT + fileName);
             return false;
@@ -336,11 +374,13 @@ public class FileSystem {
      */
     public synchronized void renameFile(String oldFile, String newName) {
         try {
+            //#if !applet
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT + oldFile);
             if (fileConnection.exists()) {
                 fileConnection.rename(newName);
             }
             fileConnection.close();
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.renameFile()", oldFile + " to " + newName);
         }
@@ -353,7 +393,9 @@ public class FileSystem {
      */
     public void saveBytes(String fileName, byte[] data) {
         try {
+            //#if !applet
             new DataWriter(fileName, data, -1);
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.saveBytes", fileName);
         }
@@ -366,6 +408,9 @@ public class FileSystem {
      */
     public synchronized byte[] loadBytes(String fileName) {
         try {
+            //#if applet
+//#             return null;
+            //#else
             //get the stream
             FileConnection fileConnection = null;
             fileConnection = (FileConnection) Connector.open("file:///" + ROOT + fileName);
@@ -388,6 +433,7 @@ public class FileSystem {
                 fileConnection.close();
                 return null;
             }
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.loadBytes", fileName);
             return null;
@@ -401,10 +447,12 @@ public class FileSystem {
      */
     public void saveString(String fileName, String string) {
         try {
+            //#if !applet
             if (!fileName.equals("files/.kml")) {
                 byte[] byteArr = UTF8.encode(string);
                 new DataWriter(fileName, byteArr, -1);
             }
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.saveString()", fileName);
         }
@@ -412,7 +460,9 @@ public class FileSystem {
 
     public void saveStringToBytePos(String fileName, String string, long bytePos) {
         try {
+            //#if !applet
             new DataWriter(fileName, UTF8.encode(string), bytePos);
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.saveStringToBytePos()", fileName);
         }
@@ -424,7 +474,9 @@ public class FileSystem {
      */
     public void saveStringToEof(String fileName, String string) {
         try {
+            //#if !applet
             new DataWriter(fileName, UTF8.encode(string), -2);
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.saveStringToEof()", fileName);
         }
@@ -437,12 +489,16 @@ public class FileSystem {
      */
     public String loadString(String fileName) {
         try {
+            //#if applet
+//#             return null;
+            //#else
             byte[] byteArr = loadBytes(fileName);
             if (byteArr == null) {
                 return null;
             } else {
                 return UTF8.decode(byteArr, 0, byteArr.length);
             }
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.loadString", fileName);
             return null;
@@ -457,6 +513,9 @@ public class FileSystem {
      */
     public synchronized long getTimestamp(String fileName) {
         try {
+            //#if applet
+//#             return -1;
+            //#else
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT + fileName);
             if (!fileConnection.exists()) {
                 return -1;
@@ -464,6 +523,7 @@ public class FileSystem {
             long lastModified = fileConnection.lastModified() / 1000;
             fileConnection.close();
             return lastModified;
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.getTimestamp", fileName);
             return -1;
@@ -477,6 +537,9 @@ public class FileSystem {
      */
     public synchronized long getFileSize(String file) {
         try {
+            //#if applet
+//#             return -1;
+            //#else
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + file);
             if (!fileConnection.exists()) {
                 return -1;
@@ -484,6 +547,7 @@ public class FileSystem {
             long size = fileConnection.fileSize();
             fileConnection.close();
             return size;
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.getFileSize", file);
             return -1;
@@ -509,6 +573,7 @@ public class FileSystem {
      */
     public void checkFolders(String fileName) {
         try {
+            //#if !applet
             String[] folders = StringTokenizer.getArray(fileName, "/");
             String folder = "";
             for (int i = 0; i <
@@ -522,7 +587,7 @@ public class FileSystem {
 
                 fileConnection.close();
             }
-
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.checkFolders", fileName);
         }
@@ -530,6 +595,9 @@ public class FileSystem {
 
     public static String getLastChar(String filename) {
         try {
+            //#if applet
+//#             return null;
+            //#else
             //create if not exist
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + filename);
             if (!fileConnection.exists()) {
@@ -547,7 +615,8 @@ public class FileSystem {
             dis.close();
             fileConnection.close();
             return String.valueOf((char) lastD);
-        } catch (IOException ex) {
+            //#endif
+        } catch (Exception ex) {
             R.getErrorScreen().view(ex, "FileSystem.getLastChar", filename);
             return null;
         }

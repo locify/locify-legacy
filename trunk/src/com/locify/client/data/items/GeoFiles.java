@@ -256,7 +256,7 @@ public abstract class GeoFiles {
                                 description = parser.nextText();
                             }
                         } catch (Exception e) {
-                            Logger.warning("GeoFiles.parseKml() - 'Description' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Description' tag error: "+e.toString());
                         }
                     /* it will be only cloud and containts only placemark tags */
                     } else if (tagName.equalsIgnoreCase("Folder")) {

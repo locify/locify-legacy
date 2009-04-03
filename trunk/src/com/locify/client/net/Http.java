@@ -199,6 +199,11 @@ public class Http implements Runnable {
         int j = 0;
         while (httpConnection.getHeaderField(j) != null) {
             Logger.debug("input header " + j + ": " + httpConnection.getHeaderFieldKey(j) + "=" + httpConnection.getHeaderField(j));
+            if (httpConnection.getHeaderFieldKey(j)==null)
+            {
+                j++;
+                continue;
+            }
             //new cookies
             if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("Set-Cookie")) {
                 Logger.log("Set-cookie: " + httpConnection.getHeaderField(j));

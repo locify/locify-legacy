@@ -219,9 +219,23 @@ textfield {
     focused-style:.textfieldFocused;
     scroll-mode:normal;
     min-width:60;
+    layout:newline-after;
     //#if polish.name == WM-big
       font-bitmap:arial_20;
     //#endif
+}
+
+/* direct input info */
+info {
+	padding-right: 5;
+    margin-top:1;
+	background: none;
+	border-color: black;
+	font-style: plain;
+	font-face: proportional;
+	font-size: small;
+	font-color: fontColor;
+	layout: right;
 }
 
 .textFieldFocused extends textfield{

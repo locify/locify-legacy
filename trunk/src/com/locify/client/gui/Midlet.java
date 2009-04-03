@@ -69,31 +69,38 @@ public class Midlet extends MIDlet {
     public void startMIDlet() {
         try {
             R.getLoading().view();
+            //#if !applet
             if (R.getFirstRun().isFirstTime()) {
                 R.getFirstRun().start();
             } else {
                 R.getFirstRun().loadLanguage();
                 if (R.getFirstRun().permissionsTest()) {
                     R.getFirstRun().loadRoot();
-
+                    //#else
+//#                     R.getFirstRun().loadEnglish();
+                    //#endif
                     CookieData.load();
                     R.getSettings().load();
                     R.getLocator().load();
                     DeletedData.load();
                     ServicesData.load();
                     ServiceSettingsData.load();
+                    //#if !applet
                     if (!Capabilities.isWindowsMobile())
                         R.getContactsScreen().load();
                     R.getRouteScreen().loadUnfinishedRoute();
+                    //#endif
                     R.getMainScreen().load();
                     R.destroyLoading();
                     R.getContext().loadLastKnown();
+                //#if !applet
                 }
                 else
                 {
                     R.getFirstRun().viewPermissionsWarning();
                 }
             }
+            //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "Midlet.startMIDlet", null);
         }

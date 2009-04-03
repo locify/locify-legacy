@@ -116,7 +116,7 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
             if (Capabilities.isSonyEricsson() && Capabilities.hasCOMMs()) {
                 providers.addElement(new Provider("COMNMEALocationProvider", Locale.get("COMNMEALocationProvider"), "com_gps_21x21.png"));
             }
-            //#if !release
+            //#if !release || applet
             providers.addElement(new Provider("SimulatorLocationProvider", Locale.get("SimulatorLocationProvider"), "simulator_gps_21x21.png"));
         //#endif
         } catch (Exception e) {
