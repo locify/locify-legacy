@@ -18,6 +18,7 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.GpsUtils;
+import com.locify.client.utils.Logger;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
@@ -57,35 +58,39 @@ public class ScaleMapItem extends MapItem {
     }
     
     public void initialize() {
-        p1 = mapScreen.getActualMapLayer().getLocationCoord(new Location4D(0.1, 14.0, 0.0f));
-        p2 = mapScreen.getActualMapLayer().getLocationCoord(new Location4D(0.2, 14.0, 0.0f));
+        try {
+            p1 = mapScreen.getActualMapLayer().getLocationCoord(new Location4D(0.1, 14.0, 0.0f));
+            p2 = mapScreen.getActualMapLayer().getLocationCoord(new Location4D(0.2, 14.0, 0.0f));
 
-        distancePerPixel = (angleDistance / 10) / (Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y));
-        double distance = (mapScreen.getWidth() / 2) * distancePerPixel;
-        String units;
-        
-        if (distance > 0 && distance < 2000000) {
-            if (distance >= 1000.0) {
-                distance = distance / 1000.0;
-                if (distance < 10.0) {
-                    distance = Math.floor(distance * 10.0) / 10.0;
-                } else if (distance < 100.0) {
-                    distance = Math.floor(distance);
-                } else if (distance < 1000.0) {
-                    distance = Math.floor(distance / 10.0) * 10.0;
+            distancePerPixel = (angleDistance / 10) / (Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y));
+            double distance = (mapScreen.getWidth() / 2) * distancePerPixel;
+            String units;
+
+            if (distance > 0 && distance < 2000000) {
+                if (distance >= 1000.0) {
+                    distance = distance / 1000.0;
+                    if (distance < 10.0) {
+                        distance = Math.floor(distance * 10.0) / 10.0;
+                    } else if (distance < 100.0) {
+                        distance = Math.floor(distance);
+                    } else if (distance < 1000.0) {
+                        distance = Math.floor(distance / 10.0) * 10.0;
+                    } else {
+                        distance = Math.floor(distance / 100.0) * 100.0;
+                    }
+                    units = " km";
                 } else {
-                    distance = Math.floor(distance / 100.0) * 100.0;
+                    distance = Math.floor(distance / 10.0) * 10.0;
+                    units = " m";
                 }
-                units = " km";
+                scale = String.valueOf(GpsUtils.formatDouble(distance, 0)) + units;
             } else {
-                distance = Math.floor(distance / 10.0) * 10.0;
-                units = " m";
+                scale = "-";
             }
-            scale = String.valueOf(GpsUtils.formatDouble(distance, 0)) + units;
-        } else {
-            scale = "-";
+            initialized = true;
+        } catch (Exception ex) {
+            Logger.error("ScaleMapItem.initialize() " + ex.toString());
         }
-        initialized = true;
     }
 
     public void panItem(int moveX, int moveY) {

@@ -13,9 +13,7 @@
  */
 package com.locify.client.maps.fileMaps;
 
-import com.locify.client.utils.Logger;
-import com.locify.client.utils.R;
-import com.locify.client.utils.StorageTar;
+import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
 /**
@@ -24,32 +22,14 @@ import javax.microedition.lcdui.Graphics;
  */
 public class FileMapManagerTar extends FileMapManager {
 
-    /** main tile in multi tile map */
-    private StorageTar storage;
-    
-    public FileMapManagerTar(String mapPath, int mapCategory) {
-        super(mapPath, mapCategory);
+    public FileMapManagerTar(String mapPath) {
+        super(mapPath);
     }
 
-    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY) {
-        return configFile.drawImageMulti(gr, viewPort, storage, mapPanX, mapPanY);
-    }
-
-    protected void loadLocalMapFiles() {
-        String fileValue = FileMapManager.getObtainedData();
-        if (fileValue != null) {
-            try {
-                configFile = new ConfigFileTile(fileValue, this);
-                if (configFile.isDescriptorLoaded()) {
-                    storage = tar;
-                }
-            } catch (Exception e) {
-                R.getErrorScreen().view(e, "FileMapManagerTar.loadLocalMapFiles()", null);
-            }
-        }
-    }
-
-    protected void loadHttpMapFiles() {
-        Logger.error("FileMapManagerTar.loadHttpMapFiles() - unexpected operation");
+    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort,
+            Vector imageExist, Vector imageNotExist, int mapPanX, int mapPanY) {
+        //return drawImageMulti(gr, viewPort, storageTar, mapPanX, mapPanY);
+        appendRequests(imageExist, imageNotExist, viewPort, storageTar, mapPanX, mapPanY);
+        return true;
     }
 }

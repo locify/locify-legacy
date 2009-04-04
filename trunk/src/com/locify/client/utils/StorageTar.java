@@ -13,13 +13,18 @@
  */
 package com.locify.client.utils;
 
+import com.locify.client.maps.fileMaps.FileMapManager;
+import de.enough.polish.util.Arrays;
+import de.enough.polish.util.Comparator;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import javax.microedition.lcdui.Image;
+import javax.microedition.rms.RecordComparator;
 
 /**
  * Manages loading and writing files into one TAR file
@@ -27,7 +32,7 @@ import javax.microedition.lcdui.Image;
  */
 public class StorageTar {
 
-    //String path = "";
+    // temp variables
     private static FileConnection fileConnection;
     private static InputStream inputStream;
     private static int fileSize;
@@ -40,32 +45,43 @@ public class StorageTar {
     private static byte[] buffer = new byte[bufferSize];
     private String tarPath;
     private String imageDir;
-    private Hashtable indexes;
-    long modifydate;
+    private String imagePrefix;
+    private int imageSuffixLength;
 
-    // map variables
-    private int mapTileSizeX = 0;
-    private int mapTileSizeY = 0;
+    // main config file
+    private int configFileStart;
+    private int configFileLength;
+    private int configFileType;
 
-    private boolean makeIndexes;
-    private static int skipMethod = 2;
-
+    private byte[] index;
 
     /**
-     * Cretae default storage that manage tar maps ie.
-     * @param tarPath <b>absolute </b> path to file
-     * @param imageDir just a name of image containing directory
+     * Cretae default storage that manage tar maps.
+     * @param tarPath <b>Absolute</b> path to file.
+     * @param imageDir Just a name of image containing directory.
      */
+    public StorageTar() {
+        this(null);
+    }
+
     public StorageTar(String tarPath) {
         try {
             this.tarPath = tarPath;
-            this.indexes = new Hashtable();
-            this.makeIndexes = true;
-            //loadMapTarVariables();
-            if (makeIndexes) {
+
+            fileConnection = null;
+            inputStream = null;
+            fileSize = 0;
+            dataPosition = 0;
+            actualFile = "";
+            lastFile = "";
+            type = '5';
+
+            configFileStart = -1;
+            configFileLength = -1;
+            configFileType = -1;
+
+            if (this.tarPath != null) {
                 indexFile();
-                getMapTileSize();
-                //saveMapTarVariables();
             }
         } catch (Exception ex) {
             R.getErrorScreen().view(ex, ex.getMessage(), "StorageTar constructor");
@@ -76,39 +92,48 @@ public class StorageTar {
         return tarPath;
     }
 
-    public TarRecord getTarRecord(String fileName) {
-        if (indexes != null) {
-            TarRecord record = (TarRecord) indexes.get(fileName);
-System.out.println("\n  StorageTar.getTarRecord(): " + fileName);
-            if (record != null)
-                return record;
+    public TarRecord getConfigFile() {
+        if (configFileStart > -1 && configFileLength > -1) {
+            return new TarRecord(configFileStart, configFileLength);
+        } else {
+            return null;
         }
-        return null;
+    }
+
+    public int getConfigFileType() {
+        return configFileType;
     }
 
     public String getImageDir() {
         return imageDir;
     }
     
-    private void resetData() {
-        inputStream = null;
-        fileConnection = null;
-        indexes.clear();
-        fileSize = 0;
-        dataPosition = 0;
-        actualFile = "";
-        lastFile = "";
-        type = '5';
+    /**
+     * Get TarRecord from choosed file position.
+     * @param filePosition Position of file in map directory.
+     * @return TarRecord or null if this TarRecord doesn't exist.
+     */
+    public TarRecord getTarRecord(int filePosition) {
+        if (index != null && index.length >= ((filePosition + 1) * 8)) {
+//System.out.println("\n  StorageTar.getTarRecord(): " + filePosition);
+            return new TarRecord(byteArrayToInt(index, filePosition * 8),
+                    byteArrayToInt(index, filePosition * 8 + 4));
+        }
+        return null;
+    }
+
+    private static int byteArrayToInt(byte[] b, int offset) {
+        int value = 0;
+        for (int i = 0; i < 4; i++) {
+            int shift = (4 - 1 - i) * 8;
+            value += (b[i + offset] & 0x000000FF) << shift;
+        }
+        return value;
     }
 
     private static void skipBytes(InputStream is, int numOfBytes) {
         try {
             int actualPos = 0;
-//            if (skipMethod == -1) {
-//
-//            }
-
-            //if (skipMethod == 1) {
             if (!Capabilities.isWindowsMobile()) {
                 while (true) {
                     if ((actualPos + bufferSize) < numOfBytes) {
@@ -123,27 +148,27 @@ System.out.println("\n  StorageTar.getTarRecord(): " + fileName);
                 is.skip(numOfBytes);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Logger.error("StorageTar.skipBytes() error: " + ex.toString());
         }
     }
 
     public void indexFile() {
-        try {
-            resetData();
-//long time = System.currentTimeMillis();
-//Logger.debug("StorageTar.indexFile() indexing... (" + tarPath + ")");
+        try {            
+//Logger.debug("  StorageTar.indexFile() indexing... (" + tarPath + ") " + (System.currentTimeMillis() - FileMapLayer.TIME));
             fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
             inputStream = fileConnection.openInputStream();
 
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(baos);
+
+            Vector imageData = new Vector();
+            
             int l_posunuti = 0;
             byte l_filenamebytes[] = new byte[256];
-            
             while (true) {
                 l_posunuti += 512 * (long) Math.ceil((float) fileSize / 512);
                 skipBytes(inputStream, l_posunuti);
-                //inputStream.skip(l_posunuti);
                 dataPosition += 512 * (long) Math.ceil((float) fileSize / 512);
-
                 // 0 100 File name
                 inputStream.read(l_filenamebytes, 0, 100);
                 actualFile = new String(l_filenamebytes, 0, 100).trim();
@@ -181,37 +206,115 @@ System.out.println("\n  StorageTar.getTarRecord(): " + fileName);
                     l_posunuti = -6;
                 }
 
+                actualFile = actualFile.replace('\\', '/');
                 if (!lastFile.equals(actualFile)) {
-//System.out.println("\nIndexed: " + actualFile + " pos: " + dataPosition);
+//Logger.log("  StorageTar.indexFile(): try to index: " + actualFile);
                     if (imageDir == null && actualFile.indexOf("/") != -1) {
                         imageDir = actualFile.substring(0, actualFile.indexOf("/") + 1);
                     }
-                    indexes.put(actualFile, new TarRecord(dataPosition, fileSize));
+                    if (imagePrefix == null && imageDir != null && actualFile.startsWith(imageDir) &&
+                            actualFile.length() > imageDir.length()) {
+                        String imageName = actualFile.substring(imageDir.length());
+                        int count = 0;
+                        for (int i = 0; i < imageName.length(); i++) {
+                            if (imageName.charAt(i) == '_')
+                                count++;
+                        }
+
+                        if (count == 1) {
+                            imagePrefix = imageDir;
+                        } else if (count == 2) {
+                            imagePrefix = imageDir + imageName.substring(0, imageName.indexOf('_') + 1);
+                        } else {
+                            count--;
+                            int pos = 0;
+                            for (int i = 0; i < imageName.length(); i++) {
+                                if (imageName.charAt(i) == '_')
+                                    pos++;
+                                if (count == pos) {
+                                    imagePrefix = imageDir + imageName.substring(0, i + 1);
+                                    break;
+                                }
+                            }
+                        }
+                        imageSuffixLength = imageName.substring(imageName.lastIndexOf('.')).length();
+                    }
+                    // is image and not other file or image directory
+                    if (imagePrefix != null && actualFile.startsWith(imagePrefix)) {
+                        imageData.addElement(
+                                new TempRecord(actualFile.substring(imagePrefix.length(), actualFile.length() - imageSuffixLength),
+                                dataPosition, fileSize));
+                    // config file
+                    } else if (actualFile.indexOf("/") == -1 && 
+                            (actualFile.endsWith(".xml") || actualFile.endsWith(".map"))) {
+                        if (actualFile.endsWith(".xml"))
+                            configFileType = FileMapManager.CATEGORY_XML;
+                        else if (actualFile.endsWith(".map"))
+                            configFileType = FileMapManager.CATEGORY_MAP;
+                        configFileStart = dataPosition;
+                        configFileLength = fileSize;
+                    }
                     lastFile = actualFile;
                 } else {
-                    indexes.clear();
                     return;
                 }
             }
 
+            TempRecord[] imageArray = new TempRecord[imageData.size()];
+            for (int i = 0; i < imageData.size(); i++) {
+                imageArray[i] = (TempRecord) imageData.elementAt(i);
+            }
+            imageData = null;
+
+            Arrays.shellSort(imageArray, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    TempRecord tr1 = (TempRecord) o1;
+                    TempRecord tr2 = (TempRecord) o2;
+
+                    if (tr1.x < tr2.x) {
+                        return RecordComparator.PRECEDES;
+                    } else if (tr1.x > tr2.x) {
+                        return RecordComparator.FOLLOWS;
+                    } else {
+                        if (tr1.y < tr2.y) {
+                            return RecordComparator.PRECEDES;
+                        } else {
+                            return RecordComparator.FOLLOWS;
+                        }
+                    }
+                }
+            });
+
+            for (int i = 0; i < imageArray.length; i++) {
+                TempRecord tr = imageArray[i];
+                dos.writeInt(tr.recordStart);
+                dos.writeInt(tr.recordLength);
+            }
+            imageArray = null;
+
+            dos.flush();
+            index = baos.toByteArray();
+
+            baos.close();
+            baos = null;
+            dos.close();
+            dos = null;
             inputStream.close();
             inputStream = null;
+            fileConnection.close();
             fileConnection = null;
-//Logger.debug("StorageTar.indexFile() end after " + (System.currentTimeMillis() - time) + "ms");
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Logger.error(ex.toString());
         } catch (NumberFormatException ex) {
-            ex.printStackTrace();
-        } finally {
-            makeIndexes = false;
+            Logger.error(ex.toString());
         }
     }
 
-    public static byte[] loadFile(String tarArchive, TarRecord record) {
+    public byte[] loadFile(TarRecord record) {
 //long time = System.currentTimeMillis();
 //Logger.warning("\nStorageTar.loadFile() tarArchive: " + tarArchive + " fileSizeFrom: " + record.recordStart + " length: " + record.recordLength);
         try {
-            fileConnection = (FileConnection) Connector.open(tarArchive, Connector.READ);
+            fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
             inputStream = fileConnection.openInputStream();
             
             byte[] data = new byte[256];
@@ -224,6 +327,7 @@ System.out.println("\n  StorageTar.getTarRecord(): " + fileName);
 
             inputStream.close();
             inputStream = null;
+            fileConnection.close();
             fileConnection = null;
 //Logger.warning("End ... by " + (System.currentTimeMillis() - time) + "ms");
             return data;
@@ -241,37 +345,39 @@ System.out.println("\n  StorageTar.getTarRecord(): " + fileName);
         return l_cislo;
     }
 
-
-    // functions for managings cached storageTar configs
-
-    public int[] getMapTileSize() {
-        if (mapTileSizeX == 0 || mapTileSizeY == 0) {
-            Enumeration tarKeys = indexes.keys();
-            //Arrays.sort(tarKeys);
-            if (tarKeys != null && imageDir != null) {
-                String key;
-                mapTileSizeX = Integer.MAX_VALUE;
-                mapTileSizeY = Integer.MAX_VALUE;
-//System.out.println("tarKeys.size() " + tarKeys.length);
-                while (tarKeys.hasMoreElements()) {
-                    key = (String) tarKeys.nextElement();
-//System.out.println("KEY: " + key);
-                    if (!(key.startsWith(imageDir) && key.lastIndexOf('_') != -1))
-                        continue;
-                    Image image = null;
-                    byte[] array = loadFile(getTarFile(), getTarRecord(key));
-                    if (array != null && array.length > 0) {
-                        image = Image.createImage(array, 0, array.length);
-                    }
-                    if (image == null)
-                        break;
-                    mapTileSizeX = image.getWidth();
-                    mapTileSizeY = image.getHeight();                    image = null;
-                    break;
-                }
-            }
+    public static StorageTar loadStorageTar(DataInputStream dis) {
+        StorageTar storageTar = new StorageTar();
+        try {
+            storageTar.tarPath = dis.readUTF();
+            storageTar.configFileType = dis.readInt();
+            storageTar.configFileStart = dis.readInt();
+            storageTar.configFileLength = dis.readInt();
+            storageTar.imageDir = dis.readUTF();
+            int length = dis.readInt();
+            storageTar.index = new byte[length];
+            dis.read(storageTar.index);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-        return new int[]{mapTileSizeX, mapTileSizeY};
+        return storageTar;
+    }
+
+    public void saveStorageTar(DataOutputStream dos) {
+        try {
+            dos.writeUTF(tarPath);
+            dos.writeInt(configFileType);
+            dos.writeInt(configFileStart);
+            dos.writeInt(configFileLength);
+            dos.writeUTF(imageDir);
+            dos.writeInt(index.length);
+            dos.write(index, 0, index.length);
+        } catch (Exception ex) {
+            Logger.error(ex.toString());
+        }
+    }
+
+    public String toString() {
+        return "StorageTar [tarPath: " + tarPath + ", imageDir: " + imageDir + "]";
     }
 
     public class TarRecord {
@@ -288,52 +394,23 @@ System.out.println("\n  StorageTar.getTarRecord(): " + fileName);
             return "TarRecord start: " + recordStart + " length: " + recordLength;
         }
     }
-//    private String getFileName() {
-//        // locify map tar
-//        return tarPath.substring( tarPath.lastIndexOf('/') + 1, tarPath.lastIndexOf('.')) + ".lmt";
-//    }
-//
-//    public void saveMapTarVariables() throws IOException {
-//        String data = "";
-//
-//        fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
-//        data += fileConnection.fileSize() + ";" + mapTileSizeX + ";" + mapTileSizeY + "\n";
-//
-//        Object key, value;
-//        Iterator iter = indexes.keysIterator();
-//        while (iter.hasNext()) {
-//            key = iter.next();
-//            value = indexes.get(key);
-//
-//            data += String.valueOf(key) + ";" + String.valueOf(value) + "\n";
-//        }
-//
-//        R.getFileSystem().saveString(FileSystem.CACHE_FOLDER + getFileName(), data);
-//        //System.out.println("SaveMapTarVariables() completed");
-//    }
-//
-//    public void loadMapTarVariables() throws IOException {
-//        if (R.getFileSystem().exists(FileSystem.CACHE_FOLDER + getFileName())) {
-//            String data = R.getFileSystem().loadString(FileSystem.CACHE_FOLDER + getFileName());
-//
-//            Vector lines = StringTokenizer.getVector(data, "\n");
-//            Vector token = StringTokenizer.getVector(String.valueOf(lines.elementAt(0)), ";");
-//            long size = Long.parseLong(String.valueOf(token.elementAt(0)));
-//
-//            fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
-//            if (fileConnection.fileSize() == size) {
-//                mapTileSizeX = Integer.parseInt(String.valueOf(token.elementAt(1)));
-//                mapTileSizeY = Integer.parseInt(String.valueOf(token.elementAt(2)));
-//                indexes.clear();
-//                for (int i = 1; i < lines.size(); i++) {
-//                    token = StringTokenizer.getVector(String.valueOf(lines.elementAt(i)), ";");
-//                    if (token.size() == 2)
-//                        indexes.put(String.valueOf(token.elementAt(0)),
-//                                Integer.valueOf(String.valueOf(token.elementAt(1))));
-//                }
-//                makeIndexes = false;
-//            }
-//        }
-//        //System.out.println("LoadMapTarVariables() " + mapTileSizeX + " " + mapTileSizeY + " " + indexes.size());
-//    }
+
+    private class TempRecord {
+
+        private int x;
+        private int y;
+        private int recordStart;
+        private int recordLength;
+
+        public TempRecord(String name, int recordStart, int recordLength) {
+            this.x = GpsUtils.parseInt(name.substring(0, name.indexOf("_")));
+            this.y = GpsUtils.parseInt(name.substring(name.indexOf("_") + 1));
+            this.recordStart = recordStart;
+            this.recordLength = recordLength;
+        }
+
+        public String toString() {
+            return "TempRecord [" + recordStart + " " + recordLength + " " + x + " " + y + "]";
+        }
+    }
 }

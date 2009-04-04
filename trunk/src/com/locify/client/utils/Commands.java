@@ -36,4 +36,5 @@ public class Commands {
     public static Command cmdAnotherLocation = new Command(Locale.get("Another_location"), Command.SCREEN, 10);
     public static Command cmdYes = new Command(Locale.get("Yes"), Command.OK, 1);
     public static Command cmdNo = new Command(Locale.get("No"), Command.CANCEL, 2);
+    public static Command cmdCancel = new Command(Locale.get("Cancel"), Command.CANCEL, 5);
 }

@@ -17,18 +17,18 @@ import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.maps.fileMaps.FileMapViewPort;
 import com.locify.client.maps.fileMaps.FileMapManager;
 import com.locify.client.locator.Location4D;
-import com.locify.client.maps.fileMaps.ConfigFileTile;
-import com.locify.client.maps.fileMaps.FileMapManagerMulti;
-import com.locify.client.maps.fileMaps.FileMapManagerSingle;
-import com.locify.client.maps.fileMaps.FileMapManagerTar;
+import com.locify.client.maps.fileMaps.FileMapConfig;
+import com.locify.client.maps.fileMaps.StoreManager;
+import com.locify.client.maps.fileMaps.StoreManagerMapInfo;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.projection.ReferenceEllipsoid;
 import com.locify.client.maps.projection.S42Projection;
 import com.locify.client.maps.projection.UTMProjection;
-import com.locify.client.utils.Logger;
+import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
 import javax.microedition.lcdui.Graphics;
 import java.util.Vector;
+import javax.microedition.lcdui.Image;
 
 /**
  * Layer for rendering offline maps
@@ -37,63 +37,70 @@ import java.util.Vector;
 public class FileMapLayer implements MapLayer {
 
     /** parent screen of this layer */
-    private MapScreen parent;
+    private MapScreen mapScreen;
     /** map scale */
     private double mapScaleW,  mapScaleH;
-    private FileMapManager mapManager;
+//    private FileMapManager mapManager;
     private FileMapViewPort viewPort;
     /** coeficient defined as moving change per click */
     private double moveCoefPerPixelX = 0;
     private double moveCoefPerPixelY = 0;
     /** actual selected map provider */
-    private int selectedProvider;
-    private Vector availeableProviders;
+
+    private Vector imageExist;
+    private Vector imageNotExist;
+    private Vector managers;
+
+public static long TIME;
 
     public FileMapLayer(MapScreen parent) {
-        this.parent = parent;
-        getProvidersAndModes();
+        this.mapScreen = parent;
+        this.managers = new Vector();
+        this.imageExist = new Vector();
+        this.imageNotExist = new Vector();
     }
 
     public boolean isReady() {
-        return mapManager != null;
+//        return mapManager != null;
+        return managers.size() > 0;
     }
 
-    private double[] convertGeoToMap(Location4D loc) {
+    public static double[] convertGeoToMap(FileMapConfig fileMapConfig, Location4D loc) {
 //System.out.println("\nFileMapLayer.convertLocToMap()");
 //System.out.println("\n  defLat:" + loc.getLatitude() + " defLon:" + loc.getLongitude());
         double[] coo = new double[2];
         coo[0] = loc.getLatitude();
         coo[1] = loc.getLongitude();
 
-        if (mapManager.getMapProjection() instanceof UTMProjection) {
-            if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
-                coo = mapManager.getMapProjection().projectionToFlat(loc.getLatitude(), loc.getLongitude());
+        if (fileMapConfig.getMapProjection() instanceof UTMProjection) {
+            if (!fileMapConfig.isSphericCoordinate()) {
+                coo = fileMapConfig.getMapProjection().projectionToFlat(loc.getLatitude(), loc.getLongitude());
             }
-        } else if (mapManager.getMapProjection() instanceof S42Projection) {
+        } else if (fileMapConfig.getMapProjection() instanceof S42Projection) {
             coo = ReferenceEllipsoid.convertWGS84toS42(loc.getLatitude(), loc.getLongitude());
 //System.out.println("\n  Lat:" + coo[0] + " lon:" + coo[1]);
-            if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
-                coo = mapManager.getMapProjection().projectionToFlat(coo[0], coo[1]);
+            if (!fileMapConfig.isSphericCoordinate()) {
+                coo = fileMapConfig.getMapProjection().projectionToFlat(coo[0], coo[1]);
             }
         }
 //System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
         return coo;
     }
 
-    private Location4D convertMapToGeo(double x, double y) {
-//System.out.println("\nFileMapLayer.convertLocToMap()");
+    public static Location4D convertMapToGeo(FileMapConfig fileMapConfig, double x, double y) {
+//System.out.println("\nFileMapLayer.convertMapToGeo()");
 //System.out.println("\n  defX:" + x + " defY:" + y);
         double[] coo = new double[2];
         coo[0] = x;
         coo[1] = y;
 
-        if (mapManager.getMapProjection() instanceof UTMProjection) {
-            if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
-                coo = mapManager.getMapProjection().projectionToSphere(coo[0], coo[1]);
+        if (fileMapConfig.getMapProjection() instanceof UTMProjection) {
+            if (!fileMapConfig.isSphericCoordinate()) {
+                coo = fileMapConfig.getMapProjection().projectionToSphere(coo[1], coo[0]);
             }
-        } else if (mapManager.getMapProjection() instanceof S42Projection) {
-            if (!mapManager.getConfigFileTile().isSphericCoordinate()) {
-                coo = mapManager.getMapProjection().projectionToSphere(coo[1], coo[0]);
+        } else if (fileMapConfig.getMapProjection() instanceof S42Projection) {
+            if (!fileMapConfig.isSphericCoordinate()) {
+                coo = fileMapConfig.getMapProjection().projectionToSphere(coo[1], coo[0]);
             }
             coo = ReferenceEllipsoid.convertS42toWGS84(coo[0], coo[1]);
         }
@@ -104,7 +111,7 @@ public class FileMapLayer implements MapLayer {
     public boolean setLocationCenter(Location4D loc) {
         if (isReady()) {
             try {
-                double[] coo = convertGeoToMap(loc);
+                double[] coo = convertGeoToMap(getFirstManager().getFileMapConfig(), loc);
                 this.viewPort.setCenter(new Location4D(coo[0], coo[1], 0.0f));
                 return true;
             } catch (Exception e) {
@@ -123,8 +130,8 @@ public class FileMapLayer implements MapLayer {
      */
     public void pan(int lonMultiplicator, int latMultiplicator) {
         viewPort.setCenter(new Location4D(
-                viewPort.center.getLatitude() - (moveCoefPerPixelY * latMultiplicator),
-                viewPort.center.getLongitude() + (moveCoefPerPixelX * lonMultiplicator),
+                viewPort.getCenter().getLatitude() - (moveCoefPerPixelY * latMultiplicator),
+                viewPort.getCenter().getLongitude() + (moveCoefPerPixelX * lonMultiplicator),
                 0));
         repaint();
     }
@@ -145,17 +152,103 @@ public class FileMapLayer implements MapLayer {
         pan(0, PAN_PIXELS);
     }
 
-    public boolean drawMap(Graphics gr, int mapPanX, int mapPanY) {
-        if (isReady()) {
-            return mapManager.drawActualMap(gr, viewPort, mapPanX, mapPanY);
-        } else {
-            return false;
+    public synchronized boolean drawMap(Graphics gr, int mapPanX, int mapPanY) {
+        try {
+            if (isReady()) {
+//Logger.log("  READY");
+//TIME = System.currentTimeMillis();
+                imageExist.removeAllElements();
+                imageNotExist.removeAllElements();
+                for (int i = managers.size() - 1; i >= 0; i--) {
+                    int images = imageExist.size();
+                    FileMapManager manager = (FileMapManager) managers.elementAt(i);
+                    manager.drawActualMap(gr, viewPort, imageExist, imageNotExist, mapPanX, mapPanY);
+
+                    if ((imageExist.size() - images) == 0) {
+//Logger.log("  REMOVE: " + i);
+                        manager = null;
+                        managers.removeElementAt(i);
+                    }
+                }
+                MapScreen.getTileCache().newRequest(imageExist);
+//Logger.log("Step 1: " + (System.currentTimeMillis() - TIME) + " managers: " + managers.size() +
+//        ", imageExist: " + imageExist.size() + ", imageNotExist: " + imageNotExist.size());
+
+                Image image;
+                ImageRequest ir;
+                for (int i = 0; i < imageNotExist.size(); i++) {
+                    ir = (ImageRequest) imageNotExist.elementAt(i);
+                    image = MapScreen.getImageNotExisted(ir.tileSizeX, ir.tileSizeY);
+                    if (image != null) {
+//Logger.log("  FileMapLayer.drawImages() NotExist: x: " + ir.x + " y: " + ir.y);
+                        gr.drawImage(image, ir.x, ir.y, Graphics.LEFT | Graphics.TOP);
+                    }
+                }
+
+//Logger.log("Step 2: " + (System.currentTimeMillis() - TIME));
+                for (int i = 0; i < imageExist.size(); i++) {
+                    ir = (ImageRequest) imageExist.elementAt(i);
+                    image = MapScreen.getTileCache().getImage(ir.fileName, ir.tileSizeX, ir.tileSizeY);
+                    if (image != null) {
+//Logger.log("  FileMapLayer.drawImages() Exist: name: " + ir.fileName + " x: " + ir.x + " y: " + ir.y);
+                        gr.drawImage(image, ir.x, ir.y, Graphics.LEFT | Graphics.TOP);
+                    }
+                }
+
+//Logger.log("Step 3: " + (System.currentTimeMillis() - TIME) + " ine.size: " + imageNotExist.size());
+                if (imageNotExist.size() > 0) {
+                    Location4D[] locs = getActualBoundingBox();
+                    if (locs != null) {
+                        Vector findedData = StoreManager.getMapsAroundScreen(locs[0].getLatitude(),
+                            locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
+//Logger.log("Step 4: " + (System.currentTimeMillis() - TIME));
+                        for (int i = 0; i < findedData.size(); i++) {
+                            StoreManagerMapInfo smmi = (StoreManagerMapInfo) findedData.elementAt(i);
+                            if (smmi.mapZoom == getActualZoomLevel()) {
+//Logger.log("Add: " + smmi.mapName);
+                                addNextMapManager(StoreManager.getInitializedOfflineMap(smmi.mapName, false),
+                                        false, false);
+                            }
+                        }
+                    }
+                }
+
+                for (int i = managers.size() - 1; i >= 0; i--) {
+                    FileMapManager manager = (FileMapManager) managers.elementAt(i);
+
+                    Point2D.Int p1 = getLocationCoord(convertMapToGeo(manager.getFileMapConfig(),
+                            manager.getFileMapConfig().getMapViewPort().getCalibrationCorner(1).getLatitude(),
+                            manager.getFileMapConfig().getMapViewPort().getCalibrationCorner(1).getLongitude()));
+                    Point2D.Int p2 = getLocationCoord(convertMapToGeo(manager.getFileMapConfig(),
+                            manager.getFileMapConfig().getMapViewPort().getCalibrationCorner(4).getLatitude(),
+                            manager.getFileMapConfig().getMapViewPort().getCalibrationCorner(4).getLongitude()));
+                    if (p1.x < 0)
+                        p1.x = -5;
+                    if (p1.y < 0)
+                        p1.y = -5;
+                    if (p2.x < 0)
+                        p2.x = -5;
+                    if (p2.y < 0)
+                        p2.y = -5;
+//Logger.log("Draw: " + p1.x + " " + p1.y + " " + p2.x + " " + p2.y);
+                    gr.setColor(ColorsFonts.RED);
+//                    gr.drawRect(p1.x-1, p1.y-1, p2.x+1, p2.y+1);
+//                    gr.drawRect(p1.x+1, p1.y+1, p2.x-1, p2.y-1);
+//                    gr.setColor(ColorsFonts.WHITE);
+                    gr.drawRect(p1.x, p1.y, p2.x, p2.y);
+                }
+//Logger.log("Step 5: " + (System.currentTimeMillis() - TIME));
+                return true;
+            }
+        } catch (Exception ex) {
+            R.getErrorScreen().view(ex, "FileMapLayer.drawMap()", " managers: " + managers.size());
         }
+        return false;
     }
 
     public Point2D.Int getLocationCoord(Location4D loc) {
         if (isReady()) {
-            double[] coo = convertGeoToMap(loc);
+            double[] coo = convertGeoToMap(getFirstManager().getFileMapConfig(), loc);
             return viewPort.convertGeoToMapPixel(new Location4D(coo[0], coo[1], 0.0f));
         } else {
             return null;
@@ -166,24 +259,15 @@ public class FileMapLayer implements MapLayer {
     /*  UNUSED FUNCTIONS  */
     /**********************/
     public void nextProvider() {
-        //actually using as previous mode
-        if (selectedProvider > 0) {
-            setProviderAndMode(selectedProvider--);
-        } else {
-            setProviderAndMode(availeableProviders.size() - 1);
-        }
+        return;
     }
 
     public void nextMode() {
-        if (selectedProvider < availeableProviders.size() - 1) {
-            setProviderAndMode(selectedProvider++);
-        } else {
-            setProviderAndMode(0);
-        }
+        return;
     }
 
     public int getProviderCount() {
-        return availeableProviders.size();
+        return 0;
     }
 
     public int getModeSize() {
@@ -191,76 +275,103 @@ public class FileMapLayer implements MapLayer {
     }
 
     public String getProviderName() {
-        return (String) availeableProviders.elementAt(selectedProvider);
+        String name = "";
+        for (int i = 0; i < managers.size(); i++) {
+            name += ((FileMapManager) managers.elementAt(i)).getMapName();
+        }
+        return name;
     }
 
     public Vector getProvidersAndModes() {
-        availeableProviders = new Vector();
-        for (int i = 0; i < R.getFileMapProviders().getNumOfProviders(); i++) {
-            availeableProviders.addElement(R.getFileMapProviders().getProviderName(i));
-        }
-
-        return availeableProviders;
+        return new Vector();
     }
 
-    public boolean setProviderAndMode(int number) {
-        if (number < availeableProviders.size()) {
-            FileMapManager manager;
-            System.gc();
-//long time = System.currentTimeMillis();
-//Logger.debug("FileMapLayer.setProviderAndMode(" + number + ")");
-            String mapPath = R.getFileMapProviders().getProviderPath(
-                    (String) availeableProviders.elementAt(number));
-            int mapType[] = FileMapManager.getMapType(mapPath);
-//Logger.debug("  getMapType - time: " + (System.currentTimeMillis() - time));
-            ConfigFileTile map = null;
-//System.out.println("  mapPath: " + mapPath + " MapType: " + mapType[0] + " MapCategory: " + mapType[1]);
-            if (mapType[0] == FileMapManager.MAP_TYPE_SINGLE_TILE) {
-                manager = new FileMapManagerSingle(mapPath, mapType[1]);
-            } else if (mapType[0] == FileMapManager.MAP_TYPE_MULTI_TILE) {
-                manager = new FileMapManagerMulti(mapPath, mapType[1]);
-            } else if (mapType[0] == FileMapManager.MAP_TYPE_MULTI_TILE_LOCAL_TAR) {
-                manager = new FileMapManagerTar(mapPath, mapType[1]);
+    public boolean addNextMapManager(FileMapManager fmm, boolean removeAll, boolean force) {
+        if (alreadyLoaded(fmm))
+            return false;
+        
+        if (removeAll) {
+            destroyMap();
+            return setProviderAndMode(fmm);
+        } else {
+            if (compareToFirstProvidet(fmm)) {
+                return setProviderAndMode(fmm);
             } else {
-                return false;
-            }
-//Logger.debug("  createManager - time: " + (System.currentTimeMillis() - time));
-            /* SET MAP SCALE */
-            if (manager.isReady()) {
-                map = manager.getConfigFileTile();
-
-                if (map != null) {
-                    mapScaleW = map.getLonDiffPerPixel() * parent.getWidth();
-                    mapScaleH = map.getLatDiffPerPixel() * parent.getHeight();
+                if (force) {
+                    destroyMap();
+                    return setProviderAndMode(fmm);
                 } else {
-                    mapScaleW = 1.0 / 60.0;
-                    mapScaleH = mapScaleW * parent.getHeight() / parent.getWidth();
+                    return false;
                 }
-
-                this.viewPort = new FileMapViewPort(
-                        new Location4D(0, 0, 0),
-                        mapScaleW,
-                        mapScaleH,
-                        parent.getWidth(),
-                        parent.getHeight());
-
-                this.moveCoefPerPixelX = viewPort.longitude_dimension / parent.getWidth();
-                this.moveCoefPerPixelY = viewPort.latitude_dimension / parent.getHeight();
-//System.out.println("\n  Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
-//System.out.println("\n  lonDim: " + viewPort.longitude_dimension + " latDim: " + viewPort.latitude_dimension);
-            } else {
-                return false;
             }
-            this.selectedProvider = number;
-            this.mapManager = manager;
-//Logger.debug("  finish - time: " + (System.currentTimeMillis() - time));
+        }
+    }
+
+    private boolean setProviderAndMode(FileMapManager fmm) {
+        mapScaleW = fmm.getFileMapConfig().getLonDiffPerPixel() * mapScreen.getWidth();
+        mapScaleH = fmm.getFileMapConfig().getLatDiffPerPixel() * mapScreen.getHeight();
+
+        Location4D center;
+        if (viewPort != null)
+            center = viewPort.getCenter();
+        else
+            center = new Location4D(0.0, 0.0, 0.0f);
+
+        this.viewPort = new FileMapViewPort(
+                center,
+                mapScaleW,
+                mapScaleH,
+                mapScreen.getWidth(),
+                mapScreen.getHeight());
+        this.moveCoefPerPixelX = viewPort.getLongitudeDimension() / mapScreen.getWidth();
+        this.moveCoefPerPixelY = viewPort.getLatitudeDimension() / mapScreen.getHeight();
+//Logger.log("    mapScaleW: " + mapScaleW + " mapScaleH: " + mapScaleH);
+//Logger.log("    Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
+//Logger.log("    lonDim: " + viewPort.getLongitudeDimension() + " latDim: " + viewPort.getLatitudeDimension());
+
+        managers.addElement(fmm);
+//Logger.log("  Added manager: " + fmm.getMapName());
+        return true;
+    }
+
+    private boolean compareToFirstProvidet(FileMapManager fmm) {
+        if (managers.size() == 0) {
             return true;
+        } else {
+            FileMapManager firstFmm = (FileMapManager) managers.elementAt(0);
+            double mapScale1W = firstFmm.getFileMapConfig().getLonDiffPerPixel();
+            double mapScale1H = firstFmm.getFileMapConfig().getLatDiffPerPixel();
+            double mapScale2W = fmm.getFileMapConfig().getLonDiffPerPixel();
+            double mapScale2H = fmm.getFileMapConfig().getLatDiffPerPixel();
+//Logger.log("  FileMapLayer.compareToFirstProvider() " + mapScale1H + " " + mapScale2H + " " + mapScale1W + " " + mapScale2W);
+            if (mapScale1W == mapScale2W && mapScale1H == mapScale2H)
+                return true;
+            return false;
+        }
+    }
+
+    private boolean alreadyLoaded(FileMapManager fmm) {
+        for (int i = 0; i < managers.size(); i++) {
+            FileMapManager test = (FileMapManager) managers.elementAt(i);
+            if (test.getMapName().equals(fmm.getMapName()))
+                return true;
         }
         return false;
     }
 
+    private FileMapManager getFirstManager() {
+        if (isReady())
+            return (FileMapManager) managers.elementAt(0);
+        else
+            return null;
+    }
+
     public int getActualZoomLevel() {
-        return 0;
+        if (isReady()) {
+            return getFirstManager().getFileMapConfig().getMapZoom();
+        } else {
+            return 0;
+        }
     }
 
     public String getMapLayerName() {
@@ -287,25 +398,36 @@ public class FileMapLayer implements MapLayer {
         return;
     }
 
-    public void setDefaultZoomLevel() {
-        return;
-    }
-
     public void repaint() {
     }
 
     public void calculateZoomFrom(Location4D[] positions) {
+        return;
     }
 
     public void destroyMap() {
-        mapManager = null;
+        for (int i = 0; i < managers.size(); i++) {
+            FileMapManager fm = ((FileMapManager) managers.elementAt(i));
+            fm = null;
+        }
+        managers.removeAllElements();
     }
 
     public Location4D[] getActualBoundingBox() {
-        Location4D[] loc = new Location4D[2];
-
-        loc[0] = convertMapToGeo(viewPort.A.getLatitude(), viewPort.A.getLongitude());
-        loc[1] = convertMapToGeo(viewPort.D.getLatitude(), viewPort.D.getLongitude());
-        return loc;
+        if (isReady()) {
+            Location4D[] loc = new Location4D[2];
+    //Logger.log("C" + viewPort.getCalibrationCorner(1).toString());
+            if (managers.size() > 0) {
+                loc[0] = convertMapToGeo(getFirstManager().getFileMapConfig(),
+                        viewPort.getCalibrationCorner(1).getLatitude(),
+                        viewPort.getCalibrationCorner(1).getLongitude());
+                loc[1] = convertMapToGeo(getFirstManager().getFileMapConfig(),
+                        viewPort.getCalibrationCorner(4).getLatitude(),
+                        viewPort.getCalibrationCorner(4).getLongitude());
+            }
+            return loc;
+        } else {
+            return null;
+        }
     }
 }

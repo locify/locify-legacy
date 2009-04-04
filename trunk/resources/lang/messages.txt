@@ -276,11 +276,21 @@ Zoom_in=Zoom in (3)
 Zoom_out=Zoom out (1)
 My_location=My Location (0)
 SelectItem=Select (7)
-File_map=Invex/Digitex
 File_map_tile_loading=Loading...
 File_map_tile_not_exist=Not exist
 File_map_cannot_initialize=Cannot initialize
-No_file_maps_warning=You have no offline maps. You need to copy map files into {0} directory. More about map formats at http://www.locify.com/help/maps.
+No_file_maps_warning=You have no offline maps initialized or no map intersect current view. You need to copy map files into {0} directory and then initialize them from this menu. More about map formats at http://www.locify.com/help/maps.
+Creating_warning=Selected map wasn't succesfully inicialized. Please run Initialization process again.
+Searching=Searching...
+Initializing=Initializing...
+Find_maps=Find maps
+Initialize_maps=Initialize maps
+Select_and_center=Select and center
+Map_ready=Map ready
+Unsupported=Unsupported
+Process_stopped=Process stopped
+Completed=Completed...
+No_files=No map files in map directory
 
 #J2ME Polish texts
 polish.command.mark=Mark

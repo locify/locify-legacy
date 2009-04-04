@@ -114,9 +114,9 @@ public class FileSystemScreen implements CommandListener, Comparator {
                     String filename = (String) files.nextElement();
                     if (filename.endsWith(".kml")) {
                         double distance = 9999;
-                        Logger.debug("file: "+filename);
+                        Logger.debug("file: " + filename);
                         int type = GeoFiles.getDataTypeFile(filename);
-                        Logger.debug("type: "+type);
+                        Logger.debug("type: " + type);
                         if (type == GeoFiles.TYPE_ROUTE && (filter == null || "route".equals(filter))) {
                             String name = GeoFiles.parseKmlFile(filename, true).getName();
                             filesystemItems.addElement(new FileSystemScreenItem(
@@ -125,7 +125,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
                             Logger.debug("parsing waypoint");
                             Waypoint waypoint = (Waypoint) GeoFiles.parseKmlFile(filename, false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
                             if (waypoint != null) {
-                                Logger.debug("waypoint name="+waypoint.getName());
+                                Logger.debug("waypoint name: " + waypoint.getName());
                                 if (comparingDistance) {
                                     distance = waypoint.getLocation().distanceTo(R.getLocator().getLastLocation());
                                 }

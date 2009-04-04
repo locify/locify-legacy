@@ -84,6 +84,7 @@ public class GeoFileBrowser implements CommandListener {
      * @param kml kml data
      */
     public void setKml(String kml) {
+        kml = GeoFiles.correctStringData(kml);
         int type = GeoFiles.getDataTypeString(kml);
         multiData = GeoFiles.parseKmlString(kml, false);
         if (multiData != null && multiData.getDataSize() > 0) {
@@ -136,16 +137,29 @@ public class GeoFileBrowser implements CommandListener {
     public void view() {
         try {
             if (multiData != null) {
-                viewDirectly();
+                if (dataType == GeoFiles.TYPE_NETWORKLINK)
+                    R.getMapScreen().view(networkLink);
 
-                if (dataType == GeoFiles.TYPE_MULTI)
-                    viewDataMultiGeoFile();
-                else if (dataType == GeoFiles.TYPE_WAYPOINT)
-                    viewDataWaypoint();
-                else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD)
-                    viewDataWaypointCloud();
-                else if (dataType == GeoFiles.TYPE_ROUTE)
-                    viewDataRoute();
+                if (R.getMapScreen().isNowDirectly()) {
+                    if (dataType == GeoFiles.TYPE_MULTI)
+                        R.getMapScreen().view(multiData);
+                    else if (dataType == GeoFiles.TYPE_WAYPOINT)
+                        R.getMapScreen().view(waypoint);
+                    else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD)
+                        R.getMapScreen().view(waypointCloud);
+                    else if (dataType == GeoFiles.TYPE_ROUTE)
+                        R.getMapScreen().view(route);
+                    return;
+                } else {
+                    if (dataType == GeoFiles.TYPE_MULTI)
+                        viewDataMultiGeoFile();
+                    else if (dataType == GeoFiles.TYPE_WAYPOINT)
+                        viewDataWaypoint();
+                    else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD)
+                        viewDataWaypointCloud();
+                    else if (dataType == GeoFiles.TYPE_ROUTE)
+                        viewDataRoute();
+                }
             } else {
                 formWaypoint = new Form(Locale.get("Error_occured"));
                 formWaypoint.append(new StringItem(Locale.get("Wrong_file"), ""));
@@ -238,22 +252,6 @@ public class GeoFileBrowser implements CommandListener {
         R.getMidlet().switchDisplayable(null, formWaypointCloud);
     }
 
-    // subfunctions
-    private void viewDirectly() {
-        if (R.getMapScreen().isNowDirectly()) {
-            if (dataType == GeoFiles.TYPE_MULTI)
-                R.getMapScreen().view(multiData);
-            else if (dataType == GeoFiles.TYPE_NETWORKLINK)
-                R.getMapScreen().view(networkLink);
-            else if (dataType == GeoFiles.TYPE_ROUTE)
-                R.getMapScreen().view(route);
-            else if (dataType == GeoFiles.TYPE_WAYPOINT)
-                R.getMapScreen().view(waypoint);
-            else if (dataType == GeoFiles.TYPE_WAYPOINTS_CLOUD)
-                R.getMapScreen().view(waypointCloud);
-            return;
-        }
-    }
     private void addDescription(Form form, GeoData data) {
         if (data.getDescription().length() > 0) {
             form.append(new StringItem("\n  " + Locale.get("Description"), ""));

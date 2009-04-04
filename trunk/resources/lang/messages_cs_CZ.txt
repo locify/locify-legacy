@@ -280,7 +280,18 @@ File_map=Invex/Digitex
 File_map_tile_loading=Načítá se...
 File_map_tile_not_exist=Neexistuje
 File_map_cannot_initialize=Nelze inicializovat
-No_file_maps_warning=Nemáte žádné offline mapy. Je potřeba nakopírovat soubory map do složky {0}. Více o formátech map na http://www.locify.com/help/maps.
+No_file_maps_warning=Nemáte žádné offline mapy inicializované nebo žádná není v současné viditelné oblasti. Je potřeba nakopírovat soubory map do složky {0} a poté spustit inicializaci. Více o formátech map na http://www.locify.com/help/maps.
+Creating_warning=Vybraná mapa nebyla úspěšně nastavena. Zvol prosím znovu Inicializaci.
+Searching=Vyhledává...
+Initializing=Inicializuje...
+Find_maps=Najdi mapy
+Initialize_maps=Inicializovat mapy
+Select_and_center=Vyber a vycentruj
+Map_ready=Mapa připravena
+Unsupported=Nepodporovaná
+Process_stopped=Proces zastaven
+Completed=Dokončeno...
+No_files=Soubory s mapou nenalezeny
 
 #J2ME Polish texts
 polish.command.mark=Označit

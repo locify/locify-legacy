@@ -25,6 +25,7 @@ import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
 import de.enough.polish.util.Locale;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,7 +34,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import org.kxml2.io.KXmlParser;
@@ -105,6 +105,27 @@ public abstract class GeoFiles {
         R.getFileSystem().renameFile(FileSystem.RUNNING_TEMP_ROUTE, fileName);
     }
 
+    public static String correctStringData(String string) {
+        byte[] data = string.getBytes();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+
+        int i;
+        int lastI = 0;
+        while ((i = bais.read()) != -1) {
+            // 10 - LF, 13 - CR
+            if (i == 10 && lastI != 13) {
+                baos.write(13);
+                baos.write(10);
+            } else {
+                baos.write(i);
+            }
+            lastI = i;
+            //System.out.println(i + " " + ((char) i));
+        }
+        return baos.toString();
+    }
+
     /**
      * Creates KML file and writes it in filesystem
      * @param latitude latitude in degrees
@@ -137,7 +158,7 @@ public abstract class GeoFiles {
             int type = getDataTypeString(kml);
             String name = parseKmlString(kml, true).getName();
 
-            if (name != null && name.length() > 0) {
+            if (type != TYPE_CORRUPT && name != null && name.length() > 0) {
                 R.getFileSystem().saveString(FileSystem.FILES_FOLDER + fileName(name), kml);
                 //view alert
                 if (!Sync.isRunning()) {
@@ -241,6 +262,7 @@ public abstract class GeoFiles {
                 event = parser.nextToken();
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
+Logger.debug("  parseKML - tagName: " + tagName);
                     if (tagName.equalsIgnoreCase("Document")) {
                         try {
                             setState(STATE_DOCUMENT);
@@ -438,6 +460,7 @@ public abstract class GeoFiles {
                         }
                     } else if (tagName.equalsIgnoreCase("Point")) {
                         try {
+Logger.debug("  parseKML - tagPoint");
                             /* sActual is always placemark but sBefore may be FOLDER
                              * (waypoint_cloud) or DOCUMENT (waypoint) */
                             if (sActual == STATE_PLACEMARK) {
@@ -446,6 +469,7 @@ public abstract class GeoFiles {
                                     event = parser.nextToken();
                                     if (event == XmlPullParser.START_TAG) {
                                         tagName = parser.getName();
+Logger.debug("  parseKML - tagPoint - tagName:" + tagName);
                                         if (tagName.equalsIgnoreCase("Coordinates")) {
                                             String coordinates = parser.nextText();
                                             String[] parts = StringTokenizer.getArray(coordinates, ",");
@@ -454,7 +478,9 @@ public abstract class GeoFiles {
                                         }
                                     } else if (event == XmlPullParser.END_TAG) {
                                         tagName = parser.getName();
+Logger.debug("  parseKML - tagPoint - tagNameEnd:" + tagName);
                                         if (tagName.equalsIgnoreCase("Placemark")) {
+Logger.debug("  parseKML - tagPoint - tagNameEnd data:" + name + " " + description);
                                             waypoint.name = name;
                                             waypoint.description = description;
                                             waypoint.styleName = styleURL;
@@ -522,6 +548,7 @@ public abstract class GeoFiles {
                     }
                 } else if (event == XmlPullParser.END_TAG) {
                     tagName = parser.getName();
+Logger.debug("  parseKML - tagNameEnd:" + tagName);
                     if (tagName.equalsIgnoreCase("Folder")) {
                         try {
                             setState(STATE_DOCUMENT);
@@ -558,6 +585,8 @@ public abstract class GeoFiles {
                         } catch (Exception e) {
                             Logger.warning("GeoFiles.parseKml() - 'StyleMap' endTag error!!!");
                         }
+                    } else if (tagName.equalsIgnoreCase("kml")) {
+                        break;
                     }
                 } else if (event == XmlPullParser.END_DOCUMENT) {
                     break;
@@ -575,6 +604,7 @@ public abstract class GeoFiles {
     }
 
     private static void setState(int state) {
+Logger.debug("  parseKML - setState: " + state);
         sBefore = sActual;
         sActual = state;
     }
@@ -665,11 +695,15 @@ Logger.debug("  return parser type: " + type);
         try {
             int event;
             String tagName;
-
+for (int i = 0; i < XmlPullParser.TYPES.length; i++) {
+    Logger.debug("Type: " + XmlPullParser.TYPES[i] + " (" + i + ")");
+}
             while (true) {
                 event = parser.nextToken();
+Logger.debug("    parserTag: token: " + event);
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
+Logger.debug("    parserTag: " + tagName);
                     if (tagName.equalsIgnoreCase("linestring")) {
                         if (actualType == TYPE_CORRUPT || actualType == TYPE_ROUTE) {
                             actualType = TYPE_ROUTE;
@@ -687,6 +721,12 @@ Logger.debug("  return parser type: " + type);
                     } else if (tagName.equalsIgnoreCase("placemark")) {
                         containPlacemark = true;
                     }
+                } else if (event == XmlPullParser.END_TAG) {
+                    tagName = parser.getName();
+Logger.debug("    parserTagEnd: " + tagName);
+                    if (tagName.equalsIgnoreCase("kml")) {
+                        break;
+                    }
                 } else if (event == XmlPullParser.END_DOCUMENT) {
                     break;
                 }
@@ -703,7 +743,7 @@ Logger.debug("  almost result - containPlacemark: " + containPlacemark);
                 return actualType;
             }
         } catch (Exception e) {
-            Logger.debug("GeoFiles.getDataType()");
+            Logger.debug("GeoFiles.getDataType() err:" + e.toString());
             return TYPE_CORRUPT;
         }
     }
@@ -725,17 +765,17 @@ Logger.debug("  database compare succes, type: " + gft.getType());
 
     private static void loadDataTypeDatabase() {
         if (geoTypeDatabase == null) {
-            try {
+//            try {
                 geoTypeDatabase = new Vector();
-                RecordStore rs = RecordStore.openRecordStore(GEO_FILES_RECORD_STORE, true, RecordStore.AUTHMODE_PRIVATE, true);
-                RecordEnumeration re = rs.enumerateRecords(null, null, false);
-                while (re.hasNextElement()) {
-                    geoTypeDatabase.addElement(new GeoFileType(new String(re.nextRecord())));
-                }
-                rs.closeRecordStore();
-            } catch (RecordStoreException ex) {
-                ex.printStackTrace();
-            }
+//                RecordStore rs = RecordStore.openRecordStore(GEO_FILES_RECORD_STORE, true, RecordStore.AUTHMODE_PRIVATE, true);
+//                RecordEnumeration re = rs.enumerateRecords(null, null, false);
+//                while (re.hasNextElement()) {
+//                    geoTypeDatabase.addElement(new GeoFileType(new String(re.nextRecord())));
+//                }
+//                rs.closeRecordStore();
+//            } catch (RecordStoreException ex) {
+//                ex.printStackTrace();
+//            }
         }
     }
 

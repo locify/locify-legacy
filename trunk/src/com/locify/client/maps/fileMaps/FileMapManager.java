@@ -13,23 +13,22 @@
  */
 package com.locify.client.maps.fileMaps;
 
-import com.locify.client.maps.TileCache;
 import com.locify.client.data.FileSystem;
-import com.locify.client.maps.projection.NullProjection;
-import com.locify.client.maps.projection.Projection;
-import com.locify.client.maps.projection.ReferenceEllipsoid;
-import com.locify.client.maps.projection.S42Projection;
-import com.locify.client.maps.projection.UTMProjection;
+import com.locify.client.maps.ImageRequest;
+import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.net.Http;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StorageTar;
 import com.locify.client.utils.StorageTar.TarRecord;
+import com.locify.client.utils.Utils;
 import java.io.IOException;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Graphics;
+import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.game.Sprite;
 
 /**
  * Manages loading of offline maps
@@ -37,291 +36,470 @@ import javax.microedition.lcdui.Graphics;
  */
 public abstract class FileMapManager {
 
-    public static final int MAP_TYPE_WRONG = -1;
-    public static final int MAP_TYPE_SINGLE_TILE = 0;
-    public static final int MAP_TYPE_MULTI_TILE = 1;
-    public static final int MAP_TYPE_MULTI_TILE_LOCAL_TAR = 2;
+    public static final int MAP_TYPE_SINGLE_TILE = 1;
+    public static final int MAP_TYPE_MULTI_TILE = 2;
+    public static final int MAP_TYPE_MULTI_TILE_LOCAL_TAR = 3;
 
     public static final int CATEGORY_XML = 10;
     public static final int CATEGORY_MAP = 11;
 
+    /** storage for tar */
+    protected StorageTar storageTar;
+    /** if mapmanager is succesfully initialized */
+    private boolean ready;
+    
+    /** config file with all important map parametres */
+    protected FileMapConfig fileMapConfig;
 
-    /** type of projection */
-    protected Projection mapProjection;
-    /** vector that contains single map tiles */
-    protected Vector mapTiles;
-    /** map table for caches images */
-    protected static TileCache cache;
     /** map config filename */
     protected String mapFilename;
     /** dir for images relative to mappath */
     protected String mapImageDir;
     /** path to map */
     protected String mapPath;
-    /** prefix of mapPath if maps are from local filesystem */
-    protected String mapPathPrefix;
-    /** temp variables for http string file */
-    private static String obtainedData;
-    /** config file */
-    protected ConfigFileTile configFile;
-    /** if mapmanager is succesfully initialized */
-    private boolean ready;
-    /** storage for tar */
-    protected static StorageTar tar;
-    /** map category (xml or map config file) */
-    protected int mapCategory;
 
-    public FileMapManager(String mapPath, int mapCategory) {
-//long time = System.currentTimeMillis();
-//Logger.debug("FileMapManager.constructor()");
-        this.mapCategory = mapCategory;
+    
+    ///////////////////////////////////////////
+    //            TEMP VARIABLES             //
+    ///////////////////////////////////////////
+    /** StringBuffer for many circumstances */
+    private static StringBuffer stringBuffer = new StringBuffer();
+    /** size of screen */
+    private int screenWidth = 0,  screenHeight = 0;
+    /** starting number of tile X-line */
+    private int tileX1;
+    /** starting number of tile Y-line */
+    private int tileY1;
+    /** ending number of tile X-line */
+    private int tileX2;
+    /** ending number of tile Y-line */
+    private int tileY2;
+    /** num of files able to draw on screen X-line */
+    private int numOfTilesXperScreen;
+    /** num of files able to draw on screen Y-line */
+    private int numOfTilesYperScreen;
+    /** num of files of whole map X-line */
+    private int numOfTotalTilesX;
+    /** num of files of whole map Y-line */
+    private int numOfTotalTilesY;
+    /** move result in X */
+    private int moveX;
+    /** move result in Y */
+    private int moveY;
+    /** loaded image used for drawing*/
+    private Image image;
+    /** data for Http transfer */
+    private static String obtainedData;
+
+    public FileMapManager(String mapPath) {
+        this.ready = false;
+
         if ((mapPath.startsWith("http://") && mapPath.endsWith(".xml")) ||
                 (mapPath.startsWith("http://") && mapPath.endsWith(".map"))) {
             this.mapFilename = mapPath.substring(mapPath.lastIndexOf('/') + 1);
             this.mapImageDir = this.mapFilename.substring(0, this.mapFilename.lastIndexOf('.')) + "/";
             this.mapPath = mapPath.substring(0, (mapPath.length() - this.mapFilename.length()));
-            this.mapPathPrefix = "";
-            this.loadHttpMapFiles();
+
         } else if (mapPath.endsWith(".xml") || mapPath.endsWith(".map") || mapPath.endsWith(".tar")) {
             this.mapFilename = mapPath;
-
-            this.mapImageDir = this.mapFilename.substring(0, this.mapFilename.lastIndexOf('.')) + "/";
-            if (mapPath.endsWith(".tar")) {
-                this.mapImageDir = tar.getImageDir();
-//Logger.debug("1. " + mapImageDir);
-                if (mapImageDir == null) {
-                    Logger.error("FileMapManager.constructor() - cannot find image directory in " + tar.getTarFile());
+            if (!mapPath.endsWith(".tar")) {
+                this.mapImageDir = this.mapFilename.substring(0, this.mapFilename.lastIndexOf('.')) + "/";
+                if (!R.getFileSystem().exists(FileSystem.MAP_FOLDER + mapImageDir)) {
+                    Logger.error("FileMapManager.constructor() - cannot find image directory in " + mapPath);
                     ready = false;
                     return;
                 }
             } else {
-                if (!R.getFileSystem().exists(FileSystem.MAP_FOLDER + mapImageDir)) {
-                    this.mapImageDir = "set/";
-                    if (!R.getFileSystem().exists(FileSystem.MAP_FOLDER + mapImageDir)) {
-                        ready = false;
-                        return;
-                    }
-                }
+                this.mapImageDir = null;
             }
-//Logger.debug("  step1 - time: " + (System.currentTimeMillis() - time));
-//Logger.debug("  MID: " + mapImageDir);
-            //this.mapImageDir = this.mapFilename.substring(0, this.mapFilename.lastIndexOf('.')) + "/";
-            this.mapPath = FileSystem.MAP_FOLDER;
-            this.mapPathPrefix = "file:///" + FileSystem.ROOT;
-            this.loadLocalMapFiles();
-        }
-//Logger.debug("  step2 - time: " + (System.currentTimeMillis() - time));
-
-        if (configFile != null && configFile.isDescriptorLoaded()) {
-            mapProjection = getProjection(configFile.getProjectionType());
-            if (cache == null || cache.getTileSizeX() != configFile.getTileSizeX() || cache.getTileSizeY() != configFile.getTileSizeY()) {
-                cache = new TileCache(configFile.getTileSizeX(), configFile.getTileSizeY());
-                cache.start();
-                //Logger.debug("new FileTileCache started!!!");
-            }
-            ready = true;
+            this.mapPath = "file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER;
         } else {
+            Logger.error("FileMapManager.constructor() - unknown map type: " + mapPath);
             ready = false;
+            return;
         }
-//Logger.debug("  step3 - time: " + (System.currentTimeMillis() - time));
+
+        ready = true;
+//Logger.debug("FileMapManager.constructor() - new Map mapFileName: " + this.mapFilename +
+//        " mapImageDir: " + this.mapImageDir + " mapPath: " + this.mapPath);
+    }
+
+    public String getMapName() {
+        return mapFilename;
     }
 
     public boolean isReady() {
-        return ready;
+//Logger.debug("    FileMapManager.isReady() ready: " + ready + " fileMapConfig.isReady() " +
+//        fileMapConfig.isReady() + " mapImageDir: " + mapImageDir);
+        return ready && fileMapConfig != null && fileMapConfig.isReady() && mapImageDir != null;
     }
 
-    public static int[] getMapType(String mapPath) {
-        int[] retValue = new int[2];
-        retValue[0] = MAP_TYPE_WRONG;
-        retValue[1] = CATEGORY_XML;
+    /**
+     * Main function that check what king of map type is taht file.
+     * @param mapPath Path to file, if started with <i>HTTP</i>,
+     * its absolute web, otherwise it's relative within MAP directory.
+     * @return Array of two values.
+     * <ul><li>1. Type of map (wrong, single, multi, multiTar).
+     * <li>2. Map category (xml, map).</ul>
+     */
+    public static FileMapManager getMapType(String mapPath) {
+        FileMapManager fmm = null;
 
+        /* HTTP maps */
         if ((mapPath.startsWith("http://") && mapPath.endsWith(".xml")) ||
             (mapPath.startsWith("http://") && mapPath.endsWith(".map"))) {
-            obtainedData = "";
-            Http http = R.getHttp();
-            http.start(mapPath);
-            long actualTime = System.currentTimeMillis();
-            while (obtainedData.equals("") && (System.currentTimeMillis() - actualTime) < 10000) {
-                try {
-                    Thread.sleep(250);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            
-            if (obtainedData.equals("")) {
-                return retValue;
-            } else {
-                retValue[0] = MAP_TYPE_MULTI_TILE;
-                if (mapPath.endsWith(".xml"))
-                    retValue[1] = CATEGORY_XML;
-                else if (mapPath.endsWith(".map"))
-                    retValue[1] = CATEGORY_MAP;
-                
-                return retValue;
-            }
-        } else if ((mapPath.startsWith("file:///") && mapPath.endsWith(".xml")) ||
-                (mapPath.startsWith("file:///") && mapPath.endsWith(".map")) ||
-                mapPath.endsWith(".xml") || mapPath.endsWith(".map")) {
-            if (!mapPath.startsWith("file:///"))
-                mapPath = "file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER + mapPath;
             try {
-                FileConnection dir = (FileConnection) Connector.open(mapPath);
-                if (dir.exists()) {
-                    String ffDirName = mapPath.substring(0, mapPath.lastIndexOf('.'));
-                    String ffImageName = ffDirName + ".png";
-
-                    dir = (FileConnection) Connector.open(ffDirName);
-                    if (!dir.exists()) {
-                        ffDirName = mapPath.substring(0, mapPath.lastIndexOf('/')) + "/set";
-                        ffImageName = ffDirName + ".png";
-                        dir = (FileConnection) Connector.open(ffDirName);
+                obtainedData = "";
+                Http http = R.getHttp();
+                http.start(mapPath);
+                long actualTime = System.currentTimeMillis();
+                while (obtainedData.equals("") && (System.currentTimeMillis() - actualTime) < 10000) {
+                    try {
+                        Thread.sleep(250);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
                     }
-                    
-                    if (dir.exists() && dir.isDirectory()) {
-                        retValue[0] = MAP_TYPE_MULTI_TILE;
-                        if (mapPath.endsWith(".xml"))
-                            retValue[1] = CATEGORY_XML;
-                        else if (mapPath.endsWith(".map"))
-                            retValue[1] = CATEGORY_MAP;
+                }
 
-                        return retValue;
+                if (obtainedData.equals("")) {
+                    return null;
+                } else {
+                    if (mapPath.endsWith(".xml")) {
+                        fmm = new FileMapManagerMulti(mapPath);
+                        fmm.setFileMapConfig(FileMapConfig.parseLocifyDescriptor(obtainedData));
+                    } else if (mapPath.endsWith(".map")) {
+                        fmm = new FileMapManagerMulti(mapPath);
+                        fmm.setFileMapConfig(FileMapConfig.parseDotMapDescriptor(obtainedData));
+                    } else {
+                        return null;
                     }
-                    dir = (FileConnection) Connector.open(ffImageName);
-                    if (dir.exists() && !dir.isDirectory()) {
-                        retValue[0] = MAP_TYPE_SINGLE_TILE;
-                        if (mapPath.endsWith(".xml"))
-                            retValue[1] = CATEGORY_XML;
-                        else if (mapPath.endsWith(".map"))
-                            retValue[1] = CATEGORY_MAP;
-
-                        return retValue;
-                    }
-                } 
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                    return fmm;
+                }
+            } catch (Exception ex) {
+                R.getErrorScreen().view(ex, "FileMapManager.getMapType() (http)", mapPath);
             }
-            return retValue;
-        } else {
+        /* LOCAL maps (single or multi) */
+        } else if (mapPath.endsWith(".xml") || mapPath.endsWith(".map")) {
             String mapPathAbsolute = "file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER + mapPath;
             try {
-                FileConnection dir = (FileConnection) Connector.open(mapPathAbsolute);
-                if (dir.exists() && dir.isDirectory()) {
-//                    Enumeration files = dir.list("*.xml", false); //list all nonhidden xml files
-//                    if (files.hasMoreElements() == false) {
-//                        files = dir.list("*.map", false);
-//                        if (files.hasMoreElements() == false) {
-//                            return MAP_TYPE_WRONG;
-//                        } else {
-//                            String fname = (String) files.nextElement();
-//                            String ffname = mapPath + fname;
-//                            String ffDirName = ffname.substring(0, ffname.lastIndexOf('.'));
-//                            String ffImageName = ffname.substring(0, ffname.lastIndexOf('.')) + ".png";
-//
-//                            if (R.getFileSystem().exists(FileSystem.MAP_FOLDER + ffname)) {
-//                                if (R.getFileSystem().exists(FileSystem.MAP_FOLDER + ffDirName)) {
-//                                    return MAP_TYPE_MULTI_TILE;
-//                                }
-//                                if (R.getFileSystem().exists(FileSystem.MAP_FOLDER + ffImageName)) {
-//                                    return MAP_TYPE_SINGLE_TILE;
-//                                }
-//                            } else {
-//                                return MAP_TYPE_WRONG;
-//                            }
-//                        }
-//                    } else {
-//                        String fname = (String) files.nextElement();
-//                        String ffname = mapPath + fname;
-//                        String ffDirName = ffname.substring(0, ffname.lastIndexOf('.'));
-//                        String ffImageName = ffname.substring(0, ffname.lastIndexOf('.')) + ".png";
-////                    System.out.println("\n" + ffname);
-////                    System.out.println("\n" + ffDirName);
-////                    System.out.println("\n" + ffImageName);
-//                        if (R.getFileSystem().exists(FileSystem.MAP_FOLDER + ffname)) {
-//                            if (R.getFileSystem().exists(FileSystem.MAP_FOLDER + ffDirName)) {
-//                                return MAP_TYPE_MULTI_TILE;
-//                            }
-//                            if (R.getFileSystem().exists(FileSystem.MAP_FOLDER + ffImageName)) {
-//                                return MAP_TYPE_SINGLE_TILE;
-//                            }
-//                        } else {
-//                            return MAP_TYPE_WRONG;
-//                        }
-//                    }
-                } else if (!dir.isDirectory() && mapPath.indexOf(".tar") != -1) {
-                    tar = new StorageTar(mapPathAbsolute);
-                    TarRecord record = tar.getTarRecord(mapPathAbsolute.substring(mapPathAbsolute.lastIndexOf('/') + 1, mapPathAbsolute.lastIndexOf('.')) + ".xml");
-                    if (record != null) {
-                        obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, record));
-//System.out.println("ObtainedData1: " + obtainedData);
-                        if (obtainedData != null) {
-                            retValue[0] = MAP_TYPE_MULTI_TILE_LOCAL_TAR;
-                            retValue[1] = CATEGORY_XML;
-//System.out.println("Map: " + retValue[0] + " " + retValue[1]);
-                            return retValue;
+                FileConnection dir;
+                if (R.getFileSystem().exists(mapPathAbsolute)) {
+                    String ffDirName = mapPathAbsolute.substring(0, mapPathAbsolute.lastIndexOf('.'));
+                    String ffImageName = ffDirName + ".png";
+                    String data = R.getFileSystem().loadString(FileSystem.MAP_FOLDER + mapPath);
+
+                    dir = (FileConnection) Connector.open(ffDirName);                    
+                    if (dir.exists() && dir.isDirectory()) {
+                        if (mapPath.endsWith(".xml")) {
+                            fmm = new FileMapManagerMulti(mapPath);
+                            fmm.setFileMapConfig(FileMapConfig.parseLocifyDescriptor(data));
+                        } else if (mapPath.endsWith(".map")) {
+                            fmm = new FileMapManagerMulti(mapPath);
+                            fmm.setFileMapConfig(FileMapConfig.parseDotMapDescriptor(data));
+                        }
+                        dir.close();
+                        return fmm;
+                    }
+
+                    dir = (FileConnection) Connector.open(ffImageName);
+                    if (dir.exists() && !dir.isDirectory()) {
+                        if (mapPath.endsWith(".xml")) {
+                            fmm = new FileMapManagerSingle(mapPath);
+                            fmm.setFileMapConfig(FileMapConfig.parseLocifyDescriptor(data));
+                        } else if (mapPath.endsWith(".map")) {
+                            fmm = new FileMapManagerSingle(mapPath);
+                            fmm.setFileMapConfig(FileMapConfig.parseDotMapDescriptor(data));
+                        }
+                        
+                        dir.close();
+                        return fmm;
+                    }
+                }
+            } catch (IOException ex) {
+                R.getErrorScreen().view(ex, "FileMapManager.getMapType() (map + xml)", mapPath);
+            }
+        /* LOCAL maps (tar) */
+        } else if (mapPath.endsWith(".tar")) {
+            try {
+                String mapPathAbsolute = "file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER + mapPath;
+//Logger.log("  FileMapManager.getMapType() - " + mapPathAbsolute);
+                FileConnection connection = (FileConnection) Connector.open(mapPathAbsolute);
+                if (connection.exists() && !connection.isDirectory()) {
+                    StorageTar storageTar = new StorageTar(mapPathAbsolute);
+                    TarRecord record = storageTar.getConfigFile();
+                    String data;
+                    if (storageTar.getConfigFileType() == FileMapManager.CATEGORY_XML && record != null) {
+                        data = new String(storageTar.loadFile(record));
+                        if (data != null) {
+                            fmm = new FileMapManagerTar(mapPath);
+                            fmm.setStorageTar(storageTar);
+                            fmm.setFileMapConfig(FileMapConfig.parseLocifyDescriptor(data));
+                        }
+                    } else if (storageTar.getConfigFileType() == FileMapManager.CATEGORY_MAP && record != null) {
+                        data = new String(storageTar.loadFile(record));
+                        if (data != null) {
+                            fmm = new FileMapManagerTar(mapPath);
+                            fmm.setStorageTar(storageTar);
+                            fmm.setFileMapConfig(FileMapConfig.parseDotMapDescriptor(data));
                         }
                     } else {
-                        record = tar.getTarRecord(mapPathAbsolute.substring(mapPathAbsolute.lastIndexOf('/') + 1, mapPathAbsolute.lastIndexOf('.')) + ".map");
-                        if (record != null) {
-                            obtainedData = new String(StorageTar.loadFile(mapPathAbsolute, record));
-//System.out.println("ObtainedData2: " + obtainedData);
-                            if (obtainedData != null) {
-                                retValue[0] = MAP_TYPE_MULTI_TILE_LOCAL_TAR;
-                                retValue[1] = CATEGORY_MAP;
-
-                                return retValue;
-                            }
-                        }
+                        Logger.error("FileMapManager.getMapType() - unsupported map tar type");
+                        return null;
                     }
-                    System.out.println("FileMapManager.getMapType() - unsupported map tar type");
-                    return retValue;
+                    connection.close();
+                    return fmm;
                 }
-                dir.close();
-            } catch (IOException e) {
-                R.getErrorScreen().view(e, "FileMapManager.scanMapFolders", mapPath);
+            } catch (IOException ex) {
+                R.getErrorScreen().view(ex, "FileMapManager.getMapType() (tar)", mapPath);
             }
-            return retValue;
+        }
+        return null;
+    }
+
+    public boolean setFileMapConfig(FileMapConfig fileMapConfig) {
+        if (fileMapConfig != null) {
+            this.fileMapConfig = fileMapConfig;
+            if (!fileMapConfig.isReady())
+                calculateTileSize();
+
+            return true;
+        } else {
+            return false;
         }
     }
 
-    public ConfigFileTile getConfigFileTile() {
-        return configFile;
+    public void setStorageTar(StorageTar tar) {
+        this.storageTar = tar;
+        this.mapImageDir = storageTar.getImageDir();
     }
 
-    protected TileCache getCache() {
-        return cache;
+    private void calculateTileSize() {
+        Image img = null;
+        if (storageTar != null) {
+            byte[] data = storageTar.loadFile(storageTar.getTarRecord(0));
+            try {
+                img = Image.createImage(data, 0, data.length);
+            } catch (Exception e) {
+                Logger.error("FileMapManager.calculateTileSize() " + e.toString());
+            }
+        } else {
+            FileConnection con = null;
+            try {
+                con = (FileConnection) Connector.open(mapPath + createImageName(0, 0, null));
+//Logger.log("File path: " + (manager.mapPathPrefix + manager.mapPath + createImageName(0, 0)));
+                if (con.exists()) {
+                    img = Image.createImage(con.openInputStream());
+                }
+            } catch (Exception ex) {
+                R.getErrorScreen().view(ex, "ConfigFileTile.getMapTileSizeDir()", null);
+            } finally {
+                try {
+                    if (con != null) {
+                        con.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (img != null) {
+            fileMapConfig.tileSizeX = img.getWidth();
+            fileMapConfig.tileSizeY = img.getHeight();
+            img = null;
+        } else {
+            Logger.error("FileMapManager.calculateTileSize() - problem");
+        }
     }
 
-    public static void setObtainedData(String httpData) {
-        FileMapManager.obtainedData = httpData;
+    private String createImageName(int i, int j, StorageTar tar) {
+        if (stringBuffer.length() > 0)
+            stringBuffer.delete(0, stringBuffer.length());
+        stringBuffer.append(mapImageDir);
+        if (tar != null) {
+            stringBuffer.append(i);
+            stringBuffer.append("_");
+            stringBuffer.append(j);
+        } else {
+            stringBuffer.append(Utils.addZerosBefore("" + i, 3) + "_" + Utils.addZerosBefore("" + j, 3));
+        }
+        return stringBuffer.toString();
+    }
+
+    public synchronized boolean drawImageSingle(Graphics gr, FileMapViewPort targetPort) {
+        try {
+            Point2D mapPoint = fileMapConfig.getMapViewPort().convertGeoToMapPixel(targetPort.getCenter());
+            int x1, x2, y1, y2;
+            if (fileMapConfig.getMapViewPort().containsPosition(targetPort.getCenter())) {
+                x1 = Math.max(0, (int) (mapPoint.getX() - targetPort.getXmax() / 2));
+                y1 = Math.max(0, (int) (mapPoint.getY() - targetPort.getYmax() / 2));
+                x2 = Math.min(image.getWidth(), (int) (mapPoint.getX() + targetPort.getXmax() / 2));
+                y2 = Math.min(image.getHeight(), (int) (mapPoint.getY() + targetPort.getYmax() / 2));
+
+                drawImageSingle(image, x1, x2, y1, y2, gr, targetPort);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "FileTile.draw()", null);
+            return false;
+        }
     }
     
-    public static String getObtainedData() {
-        return obtainedData;
-    }
+    private boolean drawImageSingle(Image image, int x1, int x2, int y1, int y2, Graphics gr, FileMapViewPort targetPort) {
+        int width = x2 - x1;
+        int height = y2 - y1;
+        int to_x = 0, to_y = 0;
 
-    protected static Projection getProjection(String projection) {
-        Projection proj;
-        if (projection.equals("UTM")) {
-            proj = new UTMProjection(ReferenceEllipsoid.WGS84);
-        } else if (projection.equals("S42")) {
-            proj = new S42Projection(ReferenceEllipsoid.KRASOVSKY);
-        } else {
-            //Latitude/Longitude
-            proj = new NullProjection();
+        try {
+            if (width == targetPort.getXmax()) {
+                to_x = 0;
+            } else {
+                if (x1 == 0) {
+                    to_x = targetPort.getXmax() - width;
+                } else {
+                    to_x = 0;
+                }
+            }
+
+            if (height == targetPort.getYmax()) {
+                to_y = 0;
+            } else {
+                if (y1 == 0) {
+                    to_y = targetPort.getYmax() - height;
+                } else {
+                    to_y = 0;
+                }
+            }
+
+            gr.drawRegion(
+                    //source
+                    image,
+                    x1, y1, width, height,
+                    Sprite.TRANS_NONE,
+                    //target
+                    to_x, to_y, Graphics.LEFT | Graphics.TOP);
+
+            return true;
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "FileTile.drawImageSingle()", " draw:" +
+                    " image null: " + (image == null) +
+                    " orig img.width: " + image.getWidth() +
+                    " orig img.height: " + image.getHeight() +
+                    "  x1: " + x1 +
+                    "  y1: " + y1 +
+                    "  x2: " + x2 +
+                    "  y2: " + y2 +
+                    "  to_X: " + to_x +
+                    "  to_y: " + to_y);
+            return false;
         }
-        return proj;
-
-//        return new NullProjection();
-    }
-   
-    public Projection getMapProjection() {
-        return mapProjection;
     }
 
-    public abstract boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY);
+    public synchronized void appendRequests(Vector imageExist, Vector imageNotExist,
+            FileMapViewPort targetPort, StorageTar tar, int mapPanX, int mapPanY) {
+        try {
+            Point2D mapPoint = fileMapConfig.getMapViewPort().convertGeoToMapPixel(targetPort.getCenter());
+//Logger.log(" FileMapManager.appendRequests() - " + mapPath + mapImageDir);
+//Logger.log("   mapViewPort " + fileMapConfig.getMapViewPort().toString());
+//Logger.log("   targetPort " + targetPort.toString());
+//Logger.log("   center: " + targetPort.getCenter().toString());
 
-    protected abstract void loadLocalMapFiles();
+            if (screenWidth == 0) {
+                screenWidth = R.getMapScreen().getWidth();
+                screenHeight = R.getMapScreen().getHeight();
+                numOfTotalTilesX = (int) (fileMapConfig.xmax / fileMapConfig.tileSizeX);
+                if (fileMapConfig.xmax % fileMapConfig.tileSizeX != 0)
+                    numOfTotalTilesX++;
+                numOfTotalTilesY = (int) (fileMapConfig.ymax / fileMapConfig.tileSizeY);
+                if (fileMapConfig.ymax % fileMapConfig.tileSizeY != 0)
+                    numOfTotalTilesY++;
+            }
+            // top left map point (in map pixel coordinates)
+            Point2D mapPointTL = new Point2D.Double(mapPoint.getX() - screenWidth / 2,
+                    mapPoint.getY() - screenHeight / 2);
+            // bottom right map point (in map pixel coordinates)
+            Point2D mapPointBR = new Point2D.Double(mapPoint.getX() + screenWidth / 2,
+                    mapPoint.getY() + screenHeight / 2);
 
-    protected abstract void loadHttpMapFiles();
+            tileX1 = (int) Math.floor(mapPointTL.getX() / fileMapConfig.tileSizeX);
+            tileY1 = (int) Math.floor(mapPointTL.getY() / fileMapConfig.tileSizeY);
+            tileX2 = (int) Math.floor(mapPointBR.getX() / fileMapConfig.tileSizeX);
+            tileY2 = (int) Math.floor(mapPointBR.getY() / fileMapConfig.tileSizeY);
+            numOfTilesXperScreen = tileX2 - tileX1 + 1;
+            numOfTilesYperScreen = tileY2 - tileY1 + 1;
+            moveX = (int) ((tileX1 * fileMapConfig.tileSizeX) - mapPointTL.getX());
+            moveY = (int) ((tileY1 * fileMapConfig.tileSizeY) - mapPointTL.getY());
+//Logger.log("   " + numOfTotalTilesX + " " + numOfTotalTilesY);
+//Logger.log("   " + fileMapConfig.xmax + " " + fileMapConfig.ymax);
+//Logger.log("   " + fileMapConfig.tileSizeX + " " + fileMapConfig.tileSizeY);
+//Logger.log("   " + mapPointTL.getX() + " " + fileMapConfig.tileSizeX + " " + tileX1);
+//Logger.log("   " + mapPointTL.getY() + " " + fileMapConfig.tileSizeY + " " + tileY1);
+//Logger.log("   " + mapPointBR.getX() + " " + fileMapConfig.tileSizeX + " " + tileX2);
+//Logger.log("   " + mapPointBR.getY() + " " + fileMapConfig.tileSizeY + " " + tileY2);
+//Logger.log("   drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
+//Logger.log("   drawImageMulti - centerMapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
+//Logger.log("   drawImageMulti - tileX1: " + tileX1 + " tileY1: " + tileY1);
+//Logger.log("   drawImageMulti - tileX2: " + tileX2 + " tileY2: " + tileY2);
+
+            String imageName = null;
+
+            ImageRequest ir;
+            int x1;
+            int y1;
+            for (int i = 0; i < numOfTilesXperScreen; i++) {
+                for (int j = 0; j < numOfTilesYperScreen; j++) {
+                    x1 = moveX + mapPanX + i * fileMapConfig.tileSizeX;
+                    y1 = moveY + mapPanY + j * fileMapConfig.tileSizeY;
+
+                    for (int k = imageNotExist.size() - 1; k >= 0; k--) {
+                        ir = (ImageRequest) imageNotExist.elementAt(k);
+                        if (Math.abs(ir.getX() - x1) < 2 && Math.abs(ir.getY() - y1) < 2) {
+//Logger.log("  FileMapManager.appendRequests() - remove: x: " + ir.getX() + ", y: " + ir.getY());
+                            imageNotExist.removeElementAt(k);
+                            break;
+                        }
+                    }
+
+                    if (imageHaveToExist(tileX1 + i, tileY1 + j)) {
+                        imageName =  createImageName(tileX1 + i, tileY1 + j, tar);
+                        if (tar != null) {
+                            ir = new ImageRequest(mapPath + imageName,
+                                    tar, tar.getTarRecord(numOfTotalTilesY * (tileX1 + i) + (tileY1 + j)),
+                                    fileMapConfig.tileSizeX, fileMapConfig.tileSizeY, x1, y1);
+                        } else {
+                            
+                            ir = new ImageRequest(mapPath + imageName, fileMapConfig.tileSizeX,
+                                    fileMapConfig.tileSizeY, x1, y1);
+                        }
+//Logger.log("  FileMapManager.appendRequests() - ImageExist: " + ir.toString());
+                        imageExist.addElement(ir);
+                    } else {
+                        ir = new ImageRequest(null, fileMapConfig.tileSizeX,
+                                fileMapConfig.tileSizeY, x1, y1);
+//Logger.log("  FileMapManager.appendRequests() - ImageNotExist: " + ir.toString());
+                        imageNotExist.addElement(ir);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            R.getErrorScreen().view(ex, "FileMapManager.appendRequest()", mapPath + mapImageDir);
+        }
+    }
+
+    private boolean imageHaveToExist(int tileX, int tileY) {
+//Logger.log("    ConfigFileTile.imageHaveToExist() - getTile: tX: " + tileX + " tY: " + tileY);
+        return (tileX >= 0 && tileY >= 0 && tileX < numOfTotalTilesX && tileY < numOfTotalTilesY);
+    }
+
+    public FileMapConfig getFileMapConfig() {
+        return fileMapConfig;
+    }
+
+    public static void setObtainedData(String data) {
+        FileMapManager.obtainedData = data;
+    }
+
+    public abstract boolean drawActualMap(Graphics gr, FileMapViewPort viewPort,
+            Vector imageExist, Vector imageNotExist, int mapPanX, int mapPanY);
 }

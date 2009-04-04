@@ -14,7 +14,6 @@
 package com.locify.client.data;
 
 import com.locify.client.utils.Capabilities;
-import com.locify.client.utils.Logger;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -26,7 +25,7 @@ import com.locify.client.utils.Sha1;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
-import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Vector;
@@ -53,6 +52,7 @@ public class FileSystem {
     public static final String FILES_FOLDER = "files/";
     public static final String LOG_FOLDER = "log/";
     public static final String MAP_FOLDER = "maps/";
+    public static final String CACHE_MAP_FOLDER = SETTINGS_FOLDER + "cache/map/";
     //files definition
     public static final String SETTINGS_FILE = SETTINGS_FOLDER + "mainSettings.xml";
     public static final String COOKIES_FILE = SETTINGS_FOLDER + "cookies.xml";
@@ -393,6 +393,8 @@ public class FileSystem {
      */
     public void saveBytes(String fileName, byte[] data) {
         try {
+            if (data.length == 0)
+                return;
             //#if !applet
             new DataWriter(fileName, data, -1);
             //#endif
@@ -417,22 +419,31 @@ public class FileSystem {
             if (!fileConnection.exists()) {
                 return null;
             }
-            DataInputStream dis = fileConnection.openDataInputStream();
-            if (dis != null) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                int ch;
-                while ((ch = dis.read()) != -1) {
-                    baos.write(ch);
-                }
-                byte[] data = baos.toByteArray();
-                baos.close();
-                dis.close();
-                fileConnection.close();
-                return data;
-            } else {
-                fileConnection.close();
-                return null;
-            }
+
+            InputStream is = fileConnection.openInputStream();
+            byte[] data = new byte[(int) fileConnection.fileSize()];
+            is.read(data);
+            is.close();
+            fileConnection.close();
+            return data;
+
+            // this is so sloooooow :)
+//            DataInputStream dis = fileConnection.openDataInputStream();
+//            if (dis != null) {
+//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                int ch;
+//                while ((ch = dis.read()) != -1) {
+//                    baos.write(ch);
+//                }
+//                byte[] data = baos.toByteArray();
+//                baos.close();
+//                dis.close();
+//                fileConnection.close();
+//                return data;
+//            } else {
+//                fileConnection.close();
+//                return null;
+//            }
             //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.loadBytes", fileName);
@@ -542,6 +553,9 @@ public class FileSystem {
             //#else
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + file);
             if (!fileConnection.exists()) {
+                return -1;
+            } else if (fileConnection.isDirectory()) {
+                fileConnection.close();
                 return -1;
             }
             long size = fileConnection.fileSize();

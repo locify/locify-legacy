@@ -51,23 +51,31 @@ public interface MapLayer {
      */
     public boolean drawMap(Graphics g, int mapPanX, int mapPanY);
 
-    /** sets location center to new location */
+    /**
+     * Sets location center to new location.
+     * @param loc New location center.
+     * @return If setted allright <b>true</b>, otherwise <b>false</b>.
+     */
     public boolean setLocationCenter(Location4D loc);
 
-    /** each mapLayer can contain many providers for current location. This switch the next */
+    /**
+     * Each mapLayer can contain many providers for current location.
+     * This switch the next.
+     */
     public void nextProvider();
 
-    /** how many providers are available for current location*/
+    /** 
+     * How many providers are available for current location
+     */
     public int getProviderCount();
 
     public String getProviderName();
 
     public Vector getProvidersAndModes();
-
-    public boolean setProviderAndMode(int number);
-
-    /** each map providre can contain many modes (arieal, map, hybrid, foto, ...)
-     * This function returns how many modes has selected provider
+    /**
+     * Each map providre can contain many modes (arieal, map, hybrid, foto, ...).
+     * This function returns how many modes has selected provider.
+     * @return Number of modes.
      */
     public int getModeSize();
 
@@ -86,8 +94,6 @@ public interface MapLayer {
     public void zoomOut();
 
     public void setZoomLevel(int zoom_level);
-
-    public void setDefaultZoomLevel();
 
     public void calculateZoomFrom(Location4D[] positions);
 

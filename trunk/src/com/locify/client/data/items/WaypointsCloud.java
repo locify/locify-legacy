@@ -15,6 +15,7 @@
 package com.locify.client.data.items;
 
 import com.locify.client.locator.Location4D;
+import com.locify.client.utils.Logger;
 import java.util.Vector;
 
 /**
@@ -81,6 +82,7 @@ public class WaypointsCloud extends GeoData {
     }
 
     public void addWaypoint(Waypoint waypoint) {
+Logger.debug("  WaypointsCloud.addWaypoint() " + waypoint.toString());
         waypoints.addElement(waypoint);
         initialized = false;
     }

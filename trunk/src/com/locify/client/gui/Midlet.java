@@ -24,6 +24,7 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
+import com.locify.client.maps.fileMaps.StoreManager;
 import com.locify.client.utils.Capabilities;
 
 /**
@@ -93,10 +94,9 @@ public class Midlet extends MIDlet {
                     R.getMainScreen().load();
                     R.destroyLoading();
                     R.getContext().loadLastKnown();
+//                    StoreManager.initializeOfflineMaps(null);
                 //#if !applet
-                }
-                else
-                {
+                } else {
                     R.getFirstRun().viewPermissionsWarning();
                 }
             }

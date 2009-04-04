@@ -18,7 +18,11 @@ package com.locify.client.maps.projection;
  * @author MenKat
  */
 public abstract class Projection {
-    // WGS84 constants
+
+    public static final int PROJECTION_NULL = -1;
+    public static final int PROJECTION_UTM = 1;
+    public static final int PROJECTION_S42 = 2;
+
     /** WGS84 radius in metres*/
     public static final double WGS84_RADIUS = 6378137.0;
     /** WGS84 perimetr in metres*/

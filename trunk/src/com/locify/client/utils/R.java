@@ -40,6 +40,7 @@ import com.locify.client.gui.screen.internal.FileSystemScreen;
 import com.locify.client.gui.screen.internal.LoadingScreen;
 import com.locify.client.gui.screen.internal.LocationScreens;
 import com.locify.client.gui.screen.internal.LogScreen;
+import com.locify.client.gui.screen.internal.MapOfflineChooseScreen;
 import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.gui.screen.internal.PlaceSaveScreen;
 import com.locify.client.gui.screen.internal.RouteSaveScreen;
@@ -80,6 +81,7 @@ public class R {
     private static GeoFileBrowser geoDataBrowser;
     private static RouteSaveScreen routeSaveScreen;
     private static MapScreen mapScreen;
+    private static MapOfflineChooseScreen mapOfflineChooseScreen;
     private static MapItemManager mapItemManager;
     private static BackScreenManager backScreens;
     private static ShortcutsScreen shortcuts;
@@ -193,6 +195,13 @@ public class R {
 
     public static boolean isMapScreenInitialized() {
         return mapScreen != null;
+    }
+
+    public static MapOfflineChooseScreen getMapOfflineChooseScreen() {
+        if (mapOfflineChooseScreen == null) {
+            mapOfflineChooseScreen = new MapOfflineChooseScreen();
+        }
+        return mapOfflineChooseScreen;
     }
 
     public static MapItemManager getMapItemManager() {

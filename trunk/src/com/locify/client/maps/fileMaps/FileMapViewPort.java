@@ -16,6 +16,9 @@ package com.locify.client.maps.fileMaps;
 
 import com.locify.client.locator.Location4D;
 import com.locify.client.maps.geometry.Point2D;
+import com.locify.client.utils.Logger;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /** Tato trida reprezentuje vyrez z WGS84 souradnicoveho systemu
  *  - A - horni levy roh
@@ -26,24 +29,35 @@ import com.locify.client.maps.geometry.Point2D;
  **/
 public class FileMapViewPort {
 
-    public Location4D A,  B,  C,  D;
-    public Location4D center;
+    /** Top-left point */
+    private Location4D A;
+    /** Top-right point */
+    private Location4D B;
+    /** Bottom-left point */
+    private Location4D C;
+    /** Bottom-right point */
+    private Location4D D;
+    private Location4D center;
     /* kolik uhlovych stupnu a minut zobrazuji */
-    public double latitude_dimension; 
-    public double longitude_dimension;
-    public int xmax;
-    public int ymax;
+    private double latitude_dimension;
+    private double longitude_dimension;
+    private int xmax;
+    private int ymax;
 
     // helmert transformation parametres
     private double X0;
     private double Y0;
-    private double la1;
-    private double la2;
+    private double laXS;
+    private double laXC;
+    private double laYS;
+    private double laYC;
     private double X0inv;
     private double Y0inv;
-    private double la1inv;
-    private double la2inv;
-    public boolean helmert;
+    private double laXSinv;
+    private double laXCinv;
+    private double laYSinv;
+    private double laYCinv;
+    private boolean helmert;
 
     /** construct viewport from end points and calculate the center */
     public FileMapViewPort(Location4D a, Location4D b, Location4D c, Location4D d, int xmax, int ymax) {
@@ -73,7 +87,7 @@ public class FileMapViewPort {
     }
 
     /**
-     * Create FileMapViewPort from Helmert transformation coeficients. Its important
+     * Create FileMapViewPort from Transformation coeficients. Its important
      * to compute inverse coeficients and after that call function SetInverseHelmert()
      * which complete settings of this ViewPort.
      * @param X0
@@ -83,59 +97,84 @@ public class FileMapViewPort {
      * @param xmax
      * @param ymax
      */
-    public FileMapViewPort(double X0, double Y0, double la1, double la2, int xmax, int ymax) {
+    public FileMapViewPort(double X0, double Y0, double laXS, double laXC, double laYS, double laYC, int xmax, int ymax) {
         this.X0 = X0;
         this.Y0 = Y0;
-        this.la1 = la1;
-        this.la2  = la2;
+        this.laXC = laXC;
+        this.laXS  = laXS;
+        this.laYC = laYC;
+        this.laYS = laYS;
         this.xmax = xmax;
         this.ymax = ymax;
         this.helmert = true;
     }
 
-    public void setInverseHelmert(double X0, double Y0, double la1, double la2) {
+    public void setInverseTransformParametres(double X0, double Y0, double laXS, double laXC, double laYS, double laYC) {
         this.X0inv = X0;
         this.Y0inv = Y0;
-        this.la1inv = la1;
-        this.la2inv  = la2;
+        this.laXSinv  = laXS;
+        this.laXCinv = laXC;
+        this.laYSinv = laYS;
+        this.laYCinv = laYC;
         this.A = helmertTransformInverse(0, 0);
         this.B = helmertTransformInverse(xmax, 0);
         this.C = helmertTransformInverse(0, ymax);
         this.D = helmertTransformInverse(xmax, ymax);
         calculateDimension();
+        calculateCenter();
 //System.out.println("Set inverse Helmert: " + X0inv + " " + Y0inv + " " + la1inv + " " + la2inv + " " + latitude_dimension + " " + longitude_dimension);
     }
 
-    public void appendInverseHelmertParametres(StringBuffer buffer) {
-        buffer.append(X0 + ";" + Y0 + ";" + la1 + ";" + la2 + ";" + xmax + ";" + ymax + ";" +
-                X0inv + ";" + Y0inv + ";" + la1inv + ";" + la2inv);
+    public void appendHelmertParametres(DataOutputStream dos) {
+        try {
+            dos.writeDouble(X0);
+            dos.writeDouble(Y0);
+            dos.writeDouble(laXS);
+            dos.writeDouble(laXC);
+            dos.writeDouble(laYS);
+            dos.writeDouble(laYC);
+            dos.writeDouble(X0inv);
+            dos.writeDouble(Y0inv);
+            dos.writeDouble(laXSinv);
+            dos.writeDouble(laXCinv);
+            dos.writeDouble(laYSinv);
+            dos.writeDouble(laYCinv);
+        } catch (IOException ex) {
+            Logger.error("FileMapViewPort.appendInverseHelmertParametres() " + ex.toString());
+        }
     }
 
     // transform from coordinates to pixels
     private Point2D.Int helmertTransform(double X, double Y) {
-        int x1 = (int) (X0 + la1 * X - la2 * Y);
-        int y1 = (int) (Y0 + la1 * Y + la2 * X);
+        int x1 = (int) (X0 + laXC * X - laYS * Y);
+        int y1 = (int) (Y0 + laXS * X + laYC * Y);
         return new Point2D.Int(x1, y1);
     }
 
     // transform from pixels to coordinates
     private Location4D helmertTransformInverse(double X, double Y) {
-        double x1 = X0inv + la1inv * X - la2inv * Y;
-        double y1 = Y0inv + la1inv * Y + la2inv * X;
+        double x1 = X0inv + laXCinv * X - laYSinv * Y;
+        double y1 = Y0inv + laXSinv * X + laYCinv * Y;
         return new Location4D(x1, y1, 0.0f);
-    }
-
-    public double getLatitudeDimension() {
-        return latitude_dimension;
-    }
-
-    public double getLongitudeDimension() {
-        return longitude_dimension;
     }
 
     public void setCenter(Location4D pos) {
         this.center = pos;
         calculateEndPoints();
+    }
+
+    public Location4D getCenter() {
+        return center;
+    }
+
+    private void calculateCenter() {
+        if (center == null)
+            center = new Location4D(0.0, 0.0, 0.0f);
+        
+        center.setPosition(
+                (A.getLatitude() + B.getLatitude() + C.getLatitude() + D.getLatitude()) / 4.0,
+                (A.getLongitude() + B.getLongitude() + C.getLongitude() + D.getLongitude()) / 4.0,
+                0);
     }
 
     public boolean containsPosition(Location4D pos) {
@@ -160,6 +199,12 @@ public class FileMapViewPort {
         return loc;
     }
 
+    /**
+     * Convert Geodetic coordinates in appropriate map system (eg. S-42 x=...m, y=...m)
+     * to pixel system of this viewport.
+     * @param pos Position you want to convert.
+     * @return Pixel coordinates in this viewport.
+     */
     public Point2D.Int convertGeoToMapPixel(Location4D pos) {
         Point2D.Int point;
         if (helmert) {
@@ -179,11 +224,14 @@ public class FileMapViewPort {
         return point;
     }
 
-    public String toString() {
-        return "[" + xmax + "," + ymax + "]" + "\tCent:" + center + "\tdim_lon:" +
-                longitude_dimension + "\tdim_lat:" + latitude_dimension;
+    public double getLatitudeDimension() {
+        return latitude_dimension;
     }
 
+    public double getLongitudeDimension() {
+        return longitude_dimension;
+    }
+    
     private void calculateDimension() {
         latitude_dimension = Math.abs(A.getLatitude() - C.getLatitude() + B.getLatitude() - D.getLatitude()) / 2;
         longitude_dimension = Math.abs(B.getLongitude() - A.getLongitude() + D.getLongitude() - C.getLongitude()) / 2;
@@ -196,10 +244,43 @@ public class FileMapViewPort {
         D.setPosition(center.getLatitude() - latitude_dimension / 2, center.getLongitude() + longitude_dimension / 2, 0);
     }
 
-    private void calculateCenter() {
-        center.setPosition(
-                (A.getLatitude() + B.getLatitude() + C.getLatitude() + D.getLatitude()) / 4.0,
-                (A.getLongitude() + B.getLongitude() + C.getLongitude() + D.getLongitude()) / 4.0,
-                0);
+    public int getXmax() {
+        return xmax;
+    }
+
+    public int getYmax() {
+        return ymax;
+    }
+    
+    /**
+     * Get Location4D corner.
+     * @param number of the corner.
+     * <ul>
+     * <li>1. (A) top-left</li>
+     * <li>2. (B) top-right</li>
+     * <li>3. (C) bottom-left</li>
+     * <li>4. (D) bottom-right</li>
+     * </ul>
+     * @return Location4D corner.
+     */
+    public Location4D getCalibrationCorner(int number) {
+        if (number > 0 && number < 5) {
+            switch (number) {
+                case 1:
+                    return A;
+                case 2:
+                    return B;
+                case 3:
+                    return C;
+                case 4:
+                    return D;
+            }
+        }
+        return null;
+    }
+
+    public String toString() {
+        return " Map viewport: [" + xmax + "," + ymax + "]" + ", cent:" + center + ", dim_lon:" +
+                longitude_dimension + ", dim_lat:" + latitude_dimension;
     }
 }

@@ -14,6 +14,7 @@
 
 package com.locify.client.maps;
 
+import com.locify.client.utils.StorageTar;
 import com.locify.client.utils.StorageTar.TarRecord;
 import javax.microedition.lcdui.Image;
 
@@ -22,32 +23,85 @@ import javax.microedition.lcdui.Image;
  * @author Menion
  */
 public class ImageRequest {
-        protected String fileName;
-        protected String tarName;
-        protected TarRecord record;
-        protected Image image;
-        // for online maps number of tile
-        protected int x;
-        protected int y;
+    protected String fileName;
+    protected StorageTar tar;
+    protected TarRecord record;
+    protected Image image;
 
-        protected boolean requiredTile;
+    /**
+     * Online maps - number of tile X<br>
+     * Offline maps - top left pixel for print X.
+     */
+    protected int x;
+    /**
+     * Online maps - number of tile Y<br>
+     * Offline maps - top left pixel for print Y.
+     */
+    protected int y;
 
-        public ImageRequest(String fileName) {
-            this(fileName, null, null);
-        }
+    // for all maps tileSize
+    protected int tileSizeX;
+    protected int tileSizeY;
 
-        public ImageRequest(String fileName, int x, int y) {
-            this(fileName);
-            this.x = x;
-            this.y = y;
-            this.requiredTile = false;
-        }
+    protected boolean requiredTile;
 
-        public ImageRequest(String fileName, String tarName, TarRecord record) {
-            this.fileName = fileName;
-            this.tarName = tarName;
-            this.record = record;
-            this.image = null;
-            this.requiredTile = false;
-        }
+    /**
+     * Create ImageRequest for Offline <b>unpacked</b> maps.
+     * @param fileName Absolute path to file.
+     * @param tileSizeX Width of required image.
+     * @param tileSizeY Height of required image.
+     * @param drawFromX Pixel from start draw (top-left X).
+     * @param drawFromY Pixel from start draw (top-left Y).
+     */
+    public ImageRequest(String fileName, int tileSizeX, int tileSizeY, int drawFromX, int drawFromY) {
+        this(fileName, null, null, tileSizeX, tileSizeY, drawFromX, drawFromY);
+    }
+
+    /**
+     * Create ImageRequest for Online maps.
+     * @param x X index of map on world map.
+     * @param y Y index of map on wolrd map.
+     * @param fileName Absolute path to file.
+     * @param tileSizeX Width of required image.
+     * @param tileSizeY Height of required image.
+     */
+    public ImageRequest(int x, int y, String fileName, int tileSizeX, int tileSizeY) {
+        this(fileName, null, null, tileSizeX, tileSizeY, x, y);
+    }
+
+    /**
+     * Create ImageRequest for Offline <b>packed</b> maps.
+     * @param fileName Absolute path to file.
+     * @param tar Tar file from take images.
+     * @param record Record that is used for receiving image.
+     * @param tileSizeX Width of required image.
+     * @param tileSizeY Height of required image.
+     * @param drawFromX Pixel from start draw (top-left X).
+     * @param drawFromY Pixel from start draw (top-left Y).
+     */
+    public ImageRequest(String fileName, StorageTar tar, TarRecord record,
+            int tileSizeX, int tileSizeY, int drawFromX, int drawFromY) {
+        this.fileName = fileName;
+        this.tar = tar;
+        this.record = record;
+        this.tileSizeX = tileSizeX;
+        this.tileSizeY = tileSizeY;
+        this.x = drawFromX;
+        this.y = drawFromY;
+        this.image = null;
+        this.requiredTile = false;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public String toString() {
+        return "ImageRequest: [fileName: " + fileName + ", tar: " + tar + ", tileSizeX: " + tileSizeX + ", tileSizeY: " +
+                tileSizeY + ", x: " + x + ", y: " + y + "]";
+    }
 }

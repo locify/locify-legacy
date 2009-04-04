@@ -13,7 +13,6 @@
  */
 package com.locify.client.gui.screen.internal;
 
-import com.locify.client.data.FileSystem;
 import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.data.items.MultiGeoData;
@@ -29,7 +28,9 @@ import com.locify.client.locator.LocationEventListener;
 import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.MapLayer;
 import com.locify.client.maps.NetworkLinkDownloader;
+import com.locify.client.maps.TileCache;
 import com.locify.client.maps.TileMapLayer;
+import com.locify.client.maps.fileMaps.FileMapManager;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.mapItem.DescriptionMapItem;
 import com.locify.client.maps.mapItem.MapItem;
@@ -77,7 +78,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     // command
     private Command cmdZoomIn,  cmdZoomOut,  cmdChangeMapTile,  cmdChangeMapFile,  cmdMyLocation;//,  cmdSelectItem;
     private Command[] providerCommandsTile;
-    private Command[] providerCommandsFile;
     private boolean drawLock;
     private static int TOP_MARGIN = 25;
     private static int BOTTOM_MARGIN = 21;
@@ -145,7 +145,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private boolean firstCenterAfterND;
     /** show all items during panning */
     private boolean showAllDuringPanning;
+    /** is autochanging offline maps enable */
+    private boolean autochangeOfflineMap;
 
+    /** map table for caches images */
+    private static TileCache cache;
+    
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -163,21 +168,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         touchZoomOutButtonCenter = new Point2D.Int(12, getHeight() - BOTTOM_MARGIN - 44);
         touchZoomButtonRadius = 10;
 
-        mapTile = new TileMapLayer(this);
-        mapFile = new FileMapLayer(this);
-
-        boolean setMapFile = false;
-        if (!R.getSettings().isDefaultMapProviderOnline()) {
-            map = mapFile;
-            setMapFile = map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
-        }
-        if (!setMapFile) {
-            map = mapTile;
-            map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
-        }
-
-        map.setDefaultZoomLevel();
-
         cmdZoomIn = new Command(Locale.get("Zoom_in"), Command.SCREEN, 1);
         cmdZoomOut = new Command(Locale.get("Zoom_out"), Command.SCREEN, 2);
         cmdMyLocation = new Command(Locale.get("My_location"), Command.SCREEN, 3);
@@ -189,6 +179,20 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         this.addCommand(cmdZoomIn);
         this.addCommand(cmdZoomOut);
         this.addCommand(cmdMyLocation);
+
+        // set map tiles and providers
+        mapTile = new TileMapLayer(this);
+        mapFile = new FileMapLayer(this);
+
+        if (!R.getSettings().isDefaultMapProviderOnline()) {
+            map = mapFile;
+            //setMapFile = map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
+        } else {
+            mapTile.setProviderAndMode(R.getSettings().getDefaultMapProvider());
+            mapTile.setDefaultZoomLevel();
+            map = mapTile;
+            
+        }
 
         //mapTile provider commands        
         Vector providers = mapTile.getProvidersAndModes();
@@ -202,6 +206,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
         }
 
+        //#style imgSaved
+        this.addCommand(cmdChangeMapFile);
+
         //another location commands
         //#style imgWhere
         this.addCommand(Commands.cmdAnotherLocation);
@@ -213,38 +220,49 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
         nowDirectly = false;
         firstCenterAfterND = false;
-        if (R.getSettings().getPanning() == SettingsData.REPAINT_DURING)
-        {
+        if (R.getSettings().getPanning() == SettingsData.REPAINT_DURING) {
             showAllDuringPanning = true;
+        } else {
+            showAllDuringPanning = false;
         }
-        else
-        {
-        showAllDuringPanning = false;
-        }
+        autochangeOfflineMap = true;
     }
 
+    public static TileCache getTileCache() {
+        if (cache == null) {
+            cache = new TileCache();
+            cache.start();
+        }
+        return cache;
+    }
+    
     /**
      * Views map screen
      */
     public void view() {
         try {
-            TOP_MARGIN = R.getTopBar().height;
-            mapItemManager.init();
-            setFileMapProviders();
-
-            if (lastCenterPoint != null) {
-                if (map instanceof TileMapLayer) {
-                    ((TileMapLayer) map).setCenter(((TileMapLayer) map).getCenter());
-                } else {
-                    centerMap(lastCenterPoint, centerToActualLocation);
-                }
+            if (map instanceof FileMapLayer && !mapFile.isReady()) {
+                R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
+                        R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude());
             } else {
-                centerMap(R.getLocator().getLastLocation(), centerToActualLocation);
-            }
+                TOP_MARGIN = R.getTopBar().height;
+                mapItemManager.init();
+                //setFileMapProviders();
 
-            R.getMidlet().switchDisplayable(null, this);
-            selectNearestWaypointsAtCenter();
-            repaint();
+                if (lastCenterPoint != null) {
+//                    if (map instanceof TileMapLayer) {
+//                        ((TileMapLayer) map).setCenter(((TileMapLayer) map).getCenter());
+//                    } else {
+                        centerMap(lastCenterPoint, centerToActualLocation);
+//                    }
+                } else {
+                    centerMap(R.getLocator().getLastLocation(), centerToActualLocation);
+                }
+
+                R.getMidlet().switchDisplayable(null, this);
+                selectNearestWaypointsAtCenter();
+                repaint();
+            }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.view()", null);
         }
@@ -327,19 +345,14 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         return nowDirectly;
     }
 
-    private void setFileMapProviders() {
-        Vector providers = mapFile.getProvidersAndModes();
-        providerCommandsFile = new Command[providers.size()];
-        this.removeCommand(cmdChangeMapFile);
-        //#style imgSaved
-        this.addCommand(cmdChangeMapFile);
-        if (providers.size() > 0) {
-            for (int i = 0; i < providers.size(); i++) {
-                providerCommandsFile[i] = new Command((String) providers.elementAt(i), Command.SCREEN, i);
-                UiAccess.addSubCommand(providerCommandsFile[i], cmdChangeMapFile, this);
-            }
+    public void setFileMap(FileMapManager fmm, Location4D center) {
+        if (fmm != null && fmm.isReady()) {
+            //mapFile.setProviderAndMode(fmm);
+            mapFile.addNextMapManager(fmm, true, true);
+            map = mapFile;
+            centerMap(center, false);
         }
-        ;
+        view();
     }
 
     public void centerMap(Location4D newCenter, boolean centerToActualLocation) {
@@ -359,6 +372,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
     public MapLayer getActualMapLayer() {
         return map;
+    }
+
+    public FileMapLayer getFileMapLayer() {
+        return mapFile;
     }
 
     public void paint(Graphics g) {
@@ -386,6 +403,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      * location pointer etc.
      */
     private void drawMap(Graphics g) {
+        g.setColor(ColorsFonts.LIGHT_ORANGE);
+        g.fillRect(0, 0, getWidth(), getHeight());
+        
         try {
             map.drawMap(g, -1 * panMoveX, -1 * panMoveY);
         } catch (Exception e) {
@@ -601,9 +621,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 }
                 R.getURL().call("locify://mainScreen");
             } else if (cmd.equals(cmdChangeMapFile)) {
-                String mapPath = FileSystem.ROOT + FileSystem.MAP_FOLDER;
-                R.getCustomAlert().quickView(Locale.get("No_file_maps_warning", mapPath),
-                        Locale.get("Warning"), "locify://maps");
+                Location4D[] locs = getBoundingBox();
+                R.getMapOfflineChooseScreen().view(locs[0].getLatitude(),
+                                locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);
             } else if (cmd.equals(cmdZoomOut)) {
@@ -615,25 +635,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             } else {
                 for (int i = 0; i < providerCommandsTile.length; i++) {
                     if (providerCommandsTile[i].equals(cmd)) {
-                        mapFile.destroyMap();
+                        mapTile.setProviderAndMode(i);
                         map = mapTile;
-                        map.setProviderAndMode(i);
                         if (centerToActualLocation)
                             centerMap(lastCenterPoint, centerToActualLocation);
                         repaint();
                         return;
-                    }
-                }
-
-                if (providerCommandsFile != null) {
-                    for (int i = 0; i < providerCommandsFile.length; i++) {
-                        if (providerCommandsFile[i].equals(cmd)) {
-                            setFileProvider(i);
-                            if (centerToActualLocation)
-                                centerMap(lastCenterPoint, centerToActualLocation);
-                            repaint();
-                            return;
-                        }
                     }
                 }
 
@@ -650,18 +657,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.commandAction()", null);
-        }
-    }
-
-    private void setFileProvider(int provider) {
-        if (mapFile.setProviderAndMode(provider)) {
-            mapTile.destroyMap();
-            map = mapFile;
-            makeMapAction(MA_MY_LOCATION, null);
-        } else {
-            R.getCustomAlert().quickView(
-                    "  " + Locale.get("File_map_cannot_initialize") + " " + mapFile.getProviderName(),
-                    Locale.get("Info"), "locify://refresh");
         }
     }
 

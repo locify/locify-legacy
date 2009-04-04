@@ -38,6 +38,7 @@ import com.locify.client.maps.tiles.impl.VirtualEarthRoadTileFactory;
 import com.locify.client.maps.tiles.impl.YahooMapTileFactory;
 import com.locify.client.maps.tiles.impl.YahooSatelliteTileFactory;
 import com.locify.client.utils.ColorsFonts;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import javax.microedition.lcdui.Graphics;
 import java.util.Vector;
@@ -82,7 +83,6 @@ public class TileMapLayer implements MapLayer {
     private Graphics graphics; //form.graphics
     /** memory monitoring */
     private long initialMemory;
-    private TileCache tileCache;
     /**
      * An array of all the available providers.
      * The first dimension corresponds to providers: Microsoft, Google, Yahoo, etc.
@@ -136,7 +136,6 @@ public class TileMapLayer implements MapLayer {
                 k++;
             }
         }
-        createCache();
         return true;
     }
     /**
@@ -173,7 +172,7 @@ public class TileMapLayer implements MapLayer {
      * as the distance from the top and left edges of the map
      * in pixels. 
      */
-    private Point2D center = new Point2D.Double(0, 0);
+    private Point2D center;
 
     public final Point2D getCenter() {
         return center;
@@ -262,16 +261,8 @@ public class TileMapLayer implements MapLayer {
         return horizontalWrapped;
     }
 
-    private void createCache() {
-        if (tileCache == null) {
-            this.tileCache = new TileCache(256, 256);
-            this.tileCache.start();
-        }
-    }
-
     public TileMapLayer(MapScreen parent) {
         this.parent = parent;
-        createCache();
         initialMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
         tileProviders = new TileFactory[][]{
@@ -313,8 +304,8 @@ public class TileMapLayer implements MapLayer {
             numHigh = bottomRightTileY - topLeftTileY + 1;
 
             requiredTiles = new Vector();
-            requiredTiles.addElement(new ImageRequest(
-                    getTileFactory().getTile(centerTileX, centerTileY, zoom), centerTileX, centerTileY));
+            requiredTiles.addElement(new ImageRequest(centerTileX, centerTileY,
+                    getTileFactory().getTile(centerTileX, centerTileY, zoom), 256, 256));
 
             nextPos = 1;
             for (int x = 0; x < numWide; x++) {
@@ -322,27 +313,28 @@ public class TileMapLayer implements MapLayer {
                     tileX = x + topLeftTileX;
                     tileY = y + topLeftTileY;
                     if (tileX != centerTileX || tileY != centerTileY) {
-                        requiredTiles.addElement(new ImageRequest(
-                                getTileFactory().getTile(tileX, tileY, zoom), tileX, tileY));
+                        requiredTiles.addElement(new ImageRequest(tileX, tileY,
+                                getTileFactory().getTile(tileX, tileY, zoom), 256, 256));
                         nextPos++;
                     }
                 }
             }
 
             // IMPORTANT calling to tileCache !!!!
-            tileCache.newRequest(requiredTiles);
+            MapScreen.getTileCache().newRequest(requiredTiles);
 
             //fetch the tiles from the tileFactory and store them in the tiles cache
             for (int i = 0; i < requiredTiles.size(); i++) {
                 ir = (ImageRequest) requiredTiles.elementAt(i);
-
                 //only proceed if the specified tile point lies within the area being painted
                 clipBounds = new RectangleViewPort(g.getClipX(), g.getClipY(), g.getClipWidth(), g.getClipHeight());
-                tileBounds = new RectangleViewPort(ir.x * tileSize - viewportBounds.x, ir.y * tileSize - viewportBounds.y, tileSize, tileSize);
+                tileBounds = new RectangleViewPort(ir.x * tileSize - viewportBounds.x,
+                        ir.y * tileSize - viewportBounds.y, tileSize, tileSize);
                 if (clipBounds.intersects(tileBounds)) {
-
                     //start downloading
-                    tileImage = tileCache.getImage(ir.fileName);
+                    tileImage = MapScreen.getTileCache().getImage(ir.fileName,
+                            tileFactory.getTileSize(getActualZoomLevel()),
+                            tileFactory.getTileSize(getActualZoomLevel()));
                     //if the tile is off the map to the north/south, then just don't paint anything
                     if (isTileOffMap(ir.x, ir.y, mapSize)) {
                         g.setColor(ColorsFonts.GRAY);
@@ -526,21 +518,14 @@ public class TileMapLayer implements MapLayer {
         return true;
     }
 
-    public void initMap() {
-        //TODO: dodelat
-    }
-
     public void destroyMap() {
-        tileCache = null;
     }
 
     public String getMapName() {
-        //TODO: dodelat
         return "";
     }
 
     public boolean isMapReady() {
-        //TODO: dodelat
         return true;
     }
 
@@ -563,7 +548,10 @@ public class TileMapLayer implements MapLayer {
         }
 
         int oldzoom = this.zoom;
+        if (getCenter() == null)
+            setAddressLocation(R.getLocator().getLastLocation());
         Point2D oldCenter = getCenter();
+
         Dimension oldMapSize = getTileFactory().getMapSize(oldzoom);
 
         this.zoom = zoom_level;

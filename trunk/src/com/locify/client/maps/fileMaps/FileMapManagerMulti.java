@@ -13,12 +13,8 @@
  */
 package com.locify.client.maps.fileMaps;
 
-import com.locify.client.utils.Logger;
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
+import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
-import com.locify.client.utils.R;
-import java.io.IOException;
 
 /**
  * Manages loading of multiple offline maps
@@ -26,42 +22,14 @@ import java.io.IOException;
  */
 public class FileMapManagerMulti extends FileMapManager {
 
-    public FileMapManagerMulti(String mapPath, int mapCategory) {
-        super(mapPath, mapCategory);
+    public FileMapManagerMulti(String mapPath) {
+        super(mapPath);
     }
 
-    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort, int mapPanX, int mapPanY) {
-        //System.out.println("FileMapManager.drawActualMap() multi tile: " + viewPort.toString());
-        return configFile.drawImageMulti(gr, viewPort, null, mapPanX, mapPanY);
-    }
-
-    protected void loadLocalMapFiles() {
-        try {
-            FileConnection dir = (FileConnection) Connector.open(mapPathPrefix + mapPath + mapFilename);
-            if ((!dir.isDirectory() && mapFilename.indexOf(".xml") != -1) ||
-                (!dir.isDirectory() && mapFilename.indexOf(".map") != -1)){
-                try {
-                    configFile = new ConfigFileTile(mapPath + mapFilename, this);
-                } catch (Exception e) {
-                    R.getErrorScreen().view(e, "FileMapManager.scanMapFolders", mapPath);
-                }
-            } else {
-                Logger.debug("FileMapManagerMulti.loadLocalMapFiles() - unsupported map type");
-            }
-            dir.close();
-        } catch (IOException e) {
-            R.getErrorScreen().view(e, "FileMapManager.scanMapFolders", mapPath);
-        }
-    }
-
-    protected void loadHttpMapFiles() {
-        String fileValue = FileMapManager.getObtainedData();
-        if (fileValue != null) {
-            try {
-                configFile = new ConfigFileTile(fileValue, this);
-            } catch (Exception e) {
-                R.getErrorScreen().view(e, "FileMapManager.scanMapFolders", null);
-            }
-        }
+    public boolean drawActualMap(Graphics gr, FileMapViewPort viewPort,
+            Vector imageExist, Vector imageNotExist, int mapPanX, int mapPanY) {
+        //return drawImageMulti(gr, viewPort, null, mapPanX, mapPanY);
+        appendRequests(imageExist, imageNotExist, viewPort, null, mapPanX, mapPanY);
+        return true;
     }
 }
