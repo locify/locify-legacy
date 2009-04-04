@@ -54,6 +54,7 @@ public class ContentHandler {
 
                 //kml
                 if (data.indexOf("<kml xmlns=") != -1 && data.indexOf("<kml xmlns=") < 100) {
+                    System.out.println("kml content");
                     R.getGeoDataBrowser().setKml(data);
                     R.getBack().dontSave();
                     R.getURL().call("locify://geoFileBrowser");

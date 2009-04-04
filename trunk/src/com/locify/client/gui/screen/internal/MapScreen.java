@@ -157,7 +157,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         drawLock = false;
         zoomProcess = false;
         mapItemManager = R.getMapItemManager();
-        
+
         selectedMapItemWaypoints = new Vector();
         selectedMapItemIndex = -1;
         lastSelectedX = 0;
@@ -292,19 +292,23 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             Vector waypoints = new Vector();
             waypoints.addElement(waypoint);
             mapItemManager.addItem(waypoint.getName(), new PointMapItem(waypoints), MapItem.PRIORITY_MEDIUM);
-            Location4D loc = new Location4D(waypoint.getLatitude(), waypoint.getLongitude(), 0);
-            //zooming map to point and actual location pair - by destil -- yeah yeah that's goood :)) by menion
-            map.calculateZoomFrom(new Location4D[]{loc, R.getLocator().getLastLocation()});
-            mapItemManager.disableInitializeState();
-            centerMap(loc, false);
+            if (!nowDirectly) {
+                Location4D loc = new Location4D(waypoint.getLatitude(), waypoint.getLongitude(), 0);
+                //zooming map to point and actual location pair - by destil -- yeah yeah that's goood :)) by menion
+                map.calculateZoomFrom(new Location4D[]{loc, R.getLocator().getLastLocation()});
+                mapItemManager.disableInitializeState();
+                centerMap(loc, false);
+            }
         } else if (data instanceof WaypointsCloud) {
             WaypointsCloud cloud = (WaypointsCloud) data;
             if (cloud.getWaypointsCount() != 0) {
                 PointMapItem mapItem = new PointMapItem(cloud.getWaypointsCloudPoints());
                 mapItemManager.removeAll();
                 mapItemManager.addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
-                centerMap(mapItem.getItemCenter(), false);
-                objectZoomTo(mapItem);
+                if (!nowDirectly) {
+                    centerMap(mapItem.getItemCenter(), false);
+                    objectZoomTo(mapItem);
+                }
             }
         } else if (data instanceof Route) {
             Route route = (Route) data;
@@ -312,8 +316,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 RouteMapItem mapItem = new RouteMapItem(route);
                 mapItem.setStyles(route.getStyleNormal(), route.getStyleHighLight());
                 mapItemManager.addItem(route.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
-                centerMap(mapItem.getItemCenter(), false);
-                objectZoomTo(mapItem);
+                if (!nowDirectly) {
+                    centerMap(mapItem.getItemCenter(), false);
+                    objectZoomTo(mapItem);
+                }
             }
         }
 
@@ -419,7 +425,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         // draw selection circle
         g.setColor(ColorsFonts.BLACK);
         g.drawArc(getWidth() / 2 - 2, getHeight() / 2 - 2, 4, 4, 0, 360);
-        
+
         try {
             mapItemManager.drawItems(g, MapItem.PRIORITY_HIGH);
         } catch (Exception e) {
@@ -467,7 +473,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                         g.setColor(ColorsFonts.LIGHT_ORANGE);
                     }
                     g.drawRoundRect(pxMoveX - bw, pxMoveY - bh, borderW, borderH, 5, 5);
-                    
+
                     if (zoomTotalValue != 0) {
                         g.fillTriangle(pxMoveX - bw - val1, pxMoveY,
                                 pxMoveX - bw - val2, pxMoveY - 5,
@@ -538,7 +544,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapZoomButtons");
         }
-        
+
         if (!panProcess || showAllDuringPanning) {
             try {
                 mapItemManager.drawItems(g, MapItem.PRIORITY_LOW);
@@ -602,7 +608,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 //        System.out.println(" " + bbox[1].toString());
         return bbox;
     }
-    
+
     public void commandAction(Command cmd, Displayable disp) {
         try {
             if (cmd.equals(Commands.cmdBack)) {
@@ -637,8 +643,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     if (providerCommandsTile[i].equals(cmd)) {
                         mapTile.setProviderAndMode(i);
                         map = mapTile;
-                        if (centerToActualLocation)
+                        if (centerToActualLocation) {
                             centerMap(lastCenterPoint, centerToActualLocation);
+                        }
                         repaint();
                         return;
                     }
@@ -758,7 +765,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
         } catch (Exception e) {
             Logger.error("MapScreen.keyPressed() key: " + String.valueOf(key) + " Ex: " + e.toString());
-            //R.getErrorScreen().view(e, "MapScreen.keyPressed()", String.valueOf(key));
+        //R.getErrorScreen().view(e, "MapScreen.keyPressed()", String.valueOf(key));
         }
     }
 
@@ -1217,7 +1224,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
         return imageActualLocation;
     }
-
     /*********************************************/
     /*           PAN ACTION SECTION             */
     /*********************************************/
@@ -1273,7 +1279,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
         }
     }
-
     /*********************************************/
     /*           ZOOM ACTION SECTION             */
     /*********************************************/
@@ -1356,10 +1361,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     }
                 }
                 zoomProcess = false;
-                if ((pxMoveX - getWidth() / 2) != 0 || (pxMoveY - getHeight() / 2) != 0)
+                if ((pxMoveX - getWidth() / 2) != 0 || (pxMoveY - getHeight() / 2) != 0) {
                     map.pan(pxMoveX - getWidth() / 2, pxMoveY - getHeight() / 2);
-                if (zoomTotalValue != 0)
+                }
+                if (zoomTotalValue != 0) {
                     map.setZoomLevel(map.getActualZoomLevel() + zoomTotalValue);
+                }
                 mapItemManager.disableInitializeState();
                 selectNearestWaypointsAtCenter();
                 repaint();

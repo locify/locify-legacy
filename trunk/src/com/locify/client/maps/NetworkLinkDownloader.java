@@ -27,7 +27,7 @@ public class NetworkLinkDownloader implements Runnable {
     private Thread thread;
 
     public NetworkLinkDownloader(NetworkLink link) {
-        //System.out.println("creating downloder");
+        System.out.println("creating downloder");
         this.link = link;
         thread = new Thread(this);
         thread.start();
