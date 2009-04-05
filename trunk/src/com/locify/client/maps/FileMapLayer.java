@@ -25,6 +25,7 @@ import com.locify.client.maps.projection.ReferenceEllipsoid;
 import com.locify.client.maps.projection.S42Projection;
 import com.locify.client.maps.projection.UTMProjection;
 import com.locify.client.utils.ColorsFonts;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import javax.microedition.lcdui.Graphics;
 import java.util.Vector;
@@ -38,14 +39,18 @@ public class FileMapLayer implements MapLayer {
 
     /** parent screen of this layer */
     private MapScreen mapScreen;
-    /** map scale */
-    private double mapScaleW,  mapScaleH;
-//    private FileMapManager mapManager;
+    /** map scale in Width*/
+    private double mapScaleW;
+    /** map scale in Height*/
+    private double mapScaleH;
+
     private FileMapViewPort viewPort;
-    /** coeficient defined as moving change per click */
+    /** coeficient defined as moving change per click in X*/
     private double moveCoefPerPixelX = 0;
+    /** coeficient defined as moving change per click in Y*/
     private double moveCoefPerPixelY = 0;
-    /** actual selected map provider */
+    /** is autochanging offline maps enable */
+    private boolean autochangeOfflineMap;
 
     private Vector imageExist;
     private Vector imageNotExist;
@@ -58,6 +63,8 @@ public static long TIME;
         this.managers = new Vector();
         this.imageExist = new Vector();
         this.imageNotExist = new Vector();
+        
+        this.autochangeOfflineMap = true;
     }
 
     public boolean isReady() {
@@ -164,8 +171,7 @@ public static long TIME;
                     FileMapManager manager = (FileMapManager) managers.elementAt(i);
                     manager.drawActualMap(gr, viewPort, imageExist, imageNotExist, mapPanX, mapPanY);
 
-                    if ((imageExist.size() - images) == 0) {
-//Logger.log("  REMOVE: " + i);
+                    if ((imageExist.size() - images) == 0 && managers.size() > 1) {
                         manager = null;
                         managers.removeElementAt(i);
                     }
@@ -196,7 +202,7 @@ public static long TIME;
                 }
 
 //Logger.log("Step 3: " + (System.currentTimeMillis() - TIME) + " ine.size: " + imageNotExist.size());
-                if (imageNotExist.size() > 0) {
+                if (autochangeOfflineMap && imageNotExist.size() > 0) {
                     Location4D[] locs = getActualBoundingBox();
                     if (locs != null) {
                         Vector findedData = StoreManager.getMapsAroundScreen(locs[0].getLatitude(),
@@ -416,7 +422,7 @@ public static long TIME;
     public Location4D[] getActualBoundingBox() {
         if (isReady()) {
             Location4D[] loc = new Location4D[2];
-    //Logger.log("C" + viewPort.getCalibrationCorner(1).toString());
+//Logger.log("C " + viewPort.getCalibrationCorner(1).toString());
             if (managers.size() > 0) {
                 loc[0] = convertMapToGeo(getFirstManager().getFileMapConfig(),
                         viewPort.getCalibrationCorner(1).getLatitude(),

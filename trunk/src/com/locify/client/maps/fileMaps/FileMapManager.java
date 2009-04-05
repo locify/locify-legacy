@@ -222,7 +222,7 @@ public abstract class FileMapManager {
         } else if (mapPath.endsWith(".tar")) {
             try {
                 String mapPathAbsolute = "file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER + mapPath;
-//Logger.log("  FileMapManager.getMapType() - " + mapPathAbsolute);
+//Logger.debug("  FileMapManager.getMapType() - " + mapPathAbsolute);
                 FileConnection connection = (FileConnection) Connector.open(mapPathAbsolute);
                 if (connection.exists() && !connection.isDirectory()) {
                     StorageTar storageTar = new StorageTar(mapPathAbsolute);

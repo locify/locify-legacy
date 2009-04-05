@@ -111,7 +111,7 @@ public class SettingsData {
     public int getDefaultMapProvider() {
         String value = (String) settings.get("defaultMapProvider");
         if (value.startsWith("f")) {
-            return Integer.parseInt(value.substring(1));
+            return 100;
         } else {
             return Integer.parseInt(value);
         }
@@ -267,7 +267,7 @@ public class SettingsData {
 
     public void saveMapsSettings(int mapProvider, boolean fileMaps) {
         if (fileMaps) {
-            settings.put("defaultMapProvider", "f" + String.valueOf(mapProvider));
+            settings.put("defaultMapProvider", "f");
         } else {
             settings.put("defaultMapProvider", String.valueOf(mapProvider));
         }

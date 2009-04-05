@@ -145,9 +145,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private boolean firstCenterAfterND;
     /** show all items during panning */
     private boolean showAllDuringPanning;
-    /** is autochanging offline maps enable */
-    private boolean autochangeOfflineMap;
-
     /** map table for caches images */
     private static TileCache cache;
     
@@ -225,7 +222,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         } else {
             showAllDuringPanning = false;
         }
-        autochangeOfflineMap = true;
     }
 
     public static TileCache getTileCache() {
@@ -247,14 +243,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             } else {
                 TOP_MARGIN = R.getTopBar().height;
                 mapItemManager.init();
-                //setFileMapProviders();
 
                 if (lastCenterPoint != null) {
-//                    if (map instanceof TileMapLayer) {
-//                        ((TileMapLayer) map).setCenter(((TileMapLayer) map).getCenter());
-//                    } else {
-                        centerMap(lastCenterPoint, centerToActualLocation);
-//                    }
+                    centerMap(lastCenterPoint, centerToActualLocation);
                 } else {
                     centerMap(R.getLocator().getLastLocation(), centerToActualLocation);
                 }
@@ -292,20 +283,19 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             Vector waypoints = new Vector();
             waypoints.addElement(waypoint);
             mapItemManager.addItem(waypoint.getName(), new PointMapItem(waypoints), MapItem.PRIORITY_MEDIUM);
-            if (!nowDirectly) {
+            if (!nowDirectly || !firstCenterAfterND) {
                 Location4D loc = new Location4D(waypoint.getLatitude(), waypoint.getLongitude(), 0);
                 //zooming map to point and actual location pair - by destil -- yeah yeah that's goood :)) by menion
                 map.calculateZoomFrom(new Location4D[]{loc, R.getLocator().getLastLocation()});
-                mapItemManager.disableInitializeState();
                 centerMap(loc, false);
             }
         } else if (data instanceof WaypointsCloud) {
             WaypointsCloud cloud = (WaypointsCloud) data;
             if (cloud.getWaypointsCount() != 0) {
                 PointMapItem mapItem = new PointMapItem(cloud.getWaypointsCloudPoints());
-                mapItemManager.removeAll();
+                //mapItemManager.removeAll();
                 mapItemManager.addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
-                if (!nowDirectly) {
+                if (!nowDirectly || !firstCenterAfterND) {
                     centerMap(mapItem.getItemCenter(), false);
                     objectZoomTo(mapItem);
                 }
@@ -316,7 +306,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 RouteMapItem mapItem = new RouteMapItem(route);
                 mapItem.setStyles(route.getStyleNormal(), route.getStyleHighLight());
                 mapItemManager.addItem(route.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
-                if (!nowDirectly) {
+                if (!nowDirectly || !firstCenterAfterND) {
                     centerMap(mapItem.getItemCenter(), false);
                     objectZoomTo(mapItem);
                 }
@@ -345,6 +335,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         networkLinkDownloader = new NetworkLinkDownloader(link);
         view();
         nowDirectly = true;
+        firstCenterAfterND = false;
     }
 
     public boolean isNowDirectly() {
@@ -625,7 +616,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 R.getURL().call("locify://mainScreen");
             } else if (cmd.equals(cmdChangeMapFile)) {
                 Location4D[] locs = getBoundingBox();
-                R.getMapOfflineChooseScreen().view(locs[0].getLatitude(),
+                if (locs != null)
+                    R.getMapOfflineChooseScreen().view(locs[0].getLatitude(),
                                 locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);

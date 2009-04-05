@@ -34,6 +34,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
+import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import org.kxml2.io.KXmlParser;
@@ -262,7 +263,7 @@ public abstract class GeoFiles {
                 event = parser.nextToken();
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
-Logger.debug("  parseKML - tagName: " + tagName);
+//Logger.debug("  parseKML - tagName: " + tagName);
                     if (tagName.equalsIgnoreCase("Document")) {
                         try {
                             setState(STATE_DOCUMENT);
@@ -460,7 +461,7 @@ Logger.debug("  parseKML - tagName: " + tagName);
                         }
                     } else if (tagName.equalsIgnoreCase("Point")) {
                         try {
-Logger.debug("  parseKML - tagPoint");
+//Logger.debug("  parseKML - tagPoint");
                             /* sActual is always placemark but sBefore may be FOLDER
                              * (waypoint_cloud) or DOCUMENT (waypoint) */
                             if (sActual == STATE_PLACEMARK) {
@@ -469,7 +470,7 @@ Logger.debug("  parseKML - tagPoint");
                                     event = parser.nextToken();
                                     if (event == XmlPullParser.START_TAG) {
                                         tagName = parser.getName();
-Logger.debug("  parseKML - tagPoint - tagName:" + tagName);
+//Logger.debug("  parseKML - tagPoint - tagName:" + tagName);
                                         if (tagName.equalsIgnoreCase("Coordinates")) {
                                             String coordinates = parser.nextText();
                                             String[] parts = StringTokenizer.getArray(coordinates, ",");
@@ -478,9 +479,9 @@ Logger.debug("  parseKML - tagPoint - tagName:" + tagName);
                                         }
                                     } else if (event == XmlPullParser.END_TAG) {
                                         tagName = parser.getName();
-Logger.debug("  parseKML - tagPoint - tagNameEnd:" + tagName);
+//Logger.debug("  parseKML - tagPoint - tagNameEnd:" + tagName);
                                         if (tagName.equalsIgnoreCase("Placemark")) {
-Logger.debug("  parseKML - tagPoint - tagNameEnd data:" + name + " " + description);
+//Logger.debug("  parseKML - tagPoint - tagNameEnd data:" + name + " " + description);
                                             waypoint.name = name;
                                             waypoint.description = description;
                                             waypoint.styleName = styleURL;
@@ -548,12 +549,10 @@ Logger.debug("  parseKML - tagPoint - tagNameEnd data:" + name + " " + descripti
                     }
                 } else if (event == XmlPullParser.END_TAG) {
                     tagName = parser.getName();
-Logger.debug("  parseKML - tagNameEnd:" + tagName);
+//Logger.debug("  parseKML - tagNameEnd:" + tagName);
                     if (tagName.equalsIgnoreCase("Folder")) {
                         try {
                             setState(STATE_DOCUMENT);
-//                        actualGeoData.styleName = styleURL;
-//                        styleURL = null;
                             multiData.addGeoData(actualGeoData);
                         } catch (Exception e) {
                             Logger.warning("GeoFiles.parseKml() - 'Folder' endTag error!!!");
@@ -604,7 +603,7 @@ Logger.debug("  parseKML - tagNameEnd:" + tagName);
     }
 
     private static void setState(int state) {
-Logger.debug("  parseKML - setState: " + state);
+//Logger.debug("  parseKML - setState: " + state);
         sBefore = sActual;
         sActual = state;
     }
@@ -621,15 +620,15 @@ Logger.debug("  parseKML - setState: " + state);
         long fileSize = 0;
 
         try {
-Logger.debug("GeoFiles.getDataTypeFile() - " + fileName);
+//Logger.debug("GeoFiles.getDataTypeFile() - " + fileName);
             fileSize = R.getFileSystem().getFileSize(FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
             type = getDataTypeDatabase(fileName, fileSize);
 
-Logger.debug("  testFile: " + fileName + " type: " + type + " size: " + fileSize);
+//Logger.debug("  testFile: " + fileName + " type: " + type + " size: " + fileSize);
             if (type == 0) {
                 fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
                 if (!fileConnection.exists()) {
-Logger.debug("  connect to: " + ("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName) + " problem, return corrupt result");
+//Logger.debug("  connect to: " + ("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName) + " problem, return corrupt result");
                     return TYPE_CORRUPT;
                 }
 
@@ -638,7 +637,7 @@ Logger.debug("  connect to: " + ("file:///" + FileSystem.ROOT + FileSystem.FILES
                 parser.setInput(is, "utf-8");
 
                 type = getDataType(parser);
-Logger.debug("  return parser type: " + type);
+//Logger.debug("  return parser type: " + type);
             }
             return type;
         } catch (Exception e) {
@@ -695,15 +694,15 @@ Logger.debug("  return parser type: " + type);
         try {
             int event;
             String tagName;
-for (int i = 0; i < XmlPullParser.TYPES.length; i++) {
-    Logger.debug("Type: " + XmlPullParser.TYPES[i] + " (" + i + ")");
-}
+//for (int i = 0; i < XmlPullParser.TYPES.length; i++) {
+//    Logger.debug("Type: " + XmlPullParser.TYPES[i] + " (" + i + ")");
+//}
             while (true) {
                 event = parser.nextToken();
-Logger.debug("    parserTag: token: " + event);
+//Logger.debug("    parserTag: token: " + event);
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
-Logger.debug("    parserTag: " + tagName);
+//Logger.debug("    parserTag: " + tagName);
                     if (tagName.equalsIgnoreCase("linestring")) {
                         if (actualType == TYPE_CORRUPT || actualType == TYPE_ROUTE) {
                             actualType = TYPE_ROUTE;
@@ -723,7 +722,7 @@ Logger.debug("    parserTag: " + tagName);
                     }
                 } else if (event == XmlPullParser.END_TAG) {
                     tagName = parser.getName();
-Logger.debug("    parserTagEnd: " + tagName);
+//Logger.debug("    parserTagEnd: " + tagName);
                     if (tagName.equalsIgnoreCase("kml")) {
                         break;
                     }
@@ -733,7 +732,7 @@ Logger.debug("    parserTagEnd: " + tagName);
             }
 
             if (actualType == TYPE_CORRUPT) {
-Logger.debug("  almost result - containPlacemark: " + containPlacemark);
+//Logger.debug("  almost result - containPlacemark: " + containPlacemark);
                 if (containPlacemark) {
                     return TYPE_WAYPOINT;
                 } else {
@@ -756,7 +755,7 @@ Logger.debug("  almost result - containPlacemark: " + containPlacemark);
         for (int i = 0; i < geoTypeDatabase.size(); i++) {
             gft = (GeoFileType) geoTypeDatabase.elementAt(i);
             if (gft.compare(fileName, fileSize)) {
-Logger.debug("  database compare succes, type: " + gft.getType());
+//Logger.debug("  database compare succes, type: " + gft.getType());
                 return gft.getType();
             }
         }
@@ -765,17 +764,17 @@ Logger.debug("  database compare succes, type: " + gft.getType());
 
     private static void loadDataTypeDatabase() {
         if (geoTypeDatabase == null) {
-//            try {
+            try {
                 geoTypeDatabase = new Vector();
-//                RecordStore rs = RecordStore.openRecordStore(GEO_FILES_RECORD_STORE, true, RecordStore.AUTHMODE_PRIVATE, true);
-//                RecordEnumeration re = rs.enumerateRecords(null, null, false);
-//                while (re.hasNextElement()) {
-//                    geoTypeDatabase.addElement(new GeoFileType(new String(re.nextRecord())));
-//                }
-//                rs.closeRecordStore();
-//            } catch (RecordStoreException ex) {
-//                ex.printStackTrace();
-//            }
+                RecordStore rs = RecordStore.openRecordStore(GEO_FILES_RECORD_STORE, true, RecordStore.AUTHMODE_PRIVATE, true);
+                RecordEnumeration re = rs.enumerateRecords(null, null, false);
+                while (re.hasNextElement()) {
+                    geoTypeDatabase.addElement(new GeoFileType(new String(re.nextRecord())));
+                }
+                rs.closeRecordStore();
+            } catch (RecordStoreException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

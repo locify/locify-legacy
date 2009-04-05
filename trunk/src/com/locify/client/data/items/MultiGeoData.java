@@ -45,7 +45,7 @@ public class MultiGeoData {
     }
 
     public void finalizeData() {
-Logger.debug("  MultiGeoData.finalizeData() " + toString());
+//Logger.debug("  MultiGeoData.finalizeData() " + toString());
         try {
             GeoData data;
             for (int i = 0; i < geoData.size(); i++) {
@@ -143,7 +143,7 @@ Logger.debug("  MultiGeoData.finalizeData() " + toString());
      * @return GeoData object or null if not exist.
      */
     public GeoData getGeoData(int geoType, int index) {
-Logger.debug("  MultiGeoData.getGeoData " + geoType + " " + index + "  actualData: " + toString());
+//Logger.debug("  MultiGeoData.getGeoData " + geoType + " " + index + "  actualData: " + toString());
         int count = 0;
         GeoData data;
         for (int i = 0; i < geoData.size(); i++) {

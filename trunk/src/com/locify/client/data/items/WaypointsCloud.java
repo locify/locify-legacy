@@ -82,7 +82,7 @@ public class WaypointsCloud extends GeoData {
     }
 
     public void addWaypoint(Waypoint waypoint) {
-Logger.debug("  WaypointsCloud.addWaypoint() " + waypoint.toString());
+//Logger.debug("  WaypointsCloud.addWaypoint() " + waypoint.toString());
         waypoints.addElement(waypoint);
         initialized = false;
     }

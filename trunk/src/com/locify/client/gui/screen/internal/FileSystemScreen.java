@@ -82,7 +82,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
      */
     public void view(String filter, String target) {
         try {
-            Logger.debug("---------- FILESYSTEM browser view -------");
+//Logger.debug("---------- FILESYSTEM browser view -------");
             GeoFiles.fileBrowserOpened = true;
             
             this.filter = filter;
@@ -98,7 +98,7 @@ public class FileSystemScreen implements CommandListener, Comparator {
             }
 
             Enumeration files = R.getFileSystem().listFiles(FileSystem.FILES_FOLDER, "*.kml");
-            Logger.debug("enumeration="+files);
+//Logger.debug("enumeration: " + files);
             filesystemItems = new Vector();
             if (files != null) {
                 //comparing mode
@@ -109,23 +109,23 @@ public class FileSystemScreen implements CommandListener, Comparator {
                 }
 
                 //reading files
-                Logger.debug("file listing start");
+//Logger.debug("file listing start");
                 while (files.hasMoreElements()) {
                     String filename = (String) files.nextElement();
                     if (filename.endsWith(".kml")) {
                         double distance = 9999;
-                        Logger.debug("file: " + filename);
+//Logger.debug("file: " + filename);
                         int type = GeoFiles.getDataTypeFile(filename);
-                        Logger.debug("type: " + type);
+//Logger.debug("type: " + type);
                         if (type == GeoFiles.TYPE_ROUTE && (filter == null || "route".equals(filter))) {
                             String name = GeoFiles.parseKmlFile(filename, true).getName();
                             filesystemItems.addElement(new FileSystemScreenItem(
                                     filename, name, distance, GeoFiles.TYPE_ROUTE));
                         } else if (type == GeoFiles.TYPE_WAYPOINT && (filter == null || "place".equals(filter))) {
-                            Logger.debug("parsing waypoint");
+//Logger.debug("parsing waypoint");
                             Waypoint waypoint = (Waypoint) GeoFiles.parseKmlFile(filename, false).getGeoData(GeoFiles.TYPE_WAYPOINT, 0);
                             if (waypoint != null) {
-                                Logger.debug("waypoint name: " + waypoint.getName());
+//Logger.debug("waypoint name: " + waypoint.getName());
                                 if (comparingDistance) {
                                     distance = waypoint.getLocation().distanceTo(R.getLocator().getLastLocation());
                                 }

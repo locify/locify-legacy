@@ -15,7 +15,6 @@ package com.locify.client.data;
 
 import com.locify.client.utils.Capabilities;
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Enumeration;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
@@ -590,8 +589,7 @@ public class FileSystem {
             //#if !applet
             String[] folders = StringTokenizer.getArray(fileName, "/");
             String folder = "";
-            for (int i = 0; i <
-                    folders.length - 1; i++) {
+            for (int i = 0; i < folders.length - 1; i++) {
                 folder += folders[i] + "/";
                 FileConnection fileConnection =
                         (FileConnection) Connector.open("file:///" + ROOT + folder);

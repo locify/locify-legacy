@@ -39,7 +39,7 @@ import javax.microedition.lcdui.Displayable;
  */
 public class StoreManager {
 
-    private static final String MAP_FILE = "mapFileStore";
+    private static final String MAP_FILE = "_mapFileStore";
     private static byte[] tempBuffer;
     private static boolean STOP;
 
@@ -348,7 +348,7 @@ long time = System.currentTimeMillis();
         byte[] data = R.getFileSystem().loadBytes(FileSystem.CACHE_MAP_FOLDER + hashedName);
         FileMapManager manager = null;
         if (data == null) {
-//Logger.debug("    StoreManager.getInitializedOfflineMap() - no map cached ... loading new");
+//Logger.debug("    StoreManager.getInitializedOfflineMap() - no map cached ... loading new " + fileName);
             // map isn't cached ... need to load and cache
             manager = FileMapManager.getMapType(fileName);
 
@@ -384,7 +384,6 @@ long time = System.currentTimeMillis();
                 Logger.error("StoreManager.getInitializedOfflineMap() error: " + ex.toString());
                 return null;
             }
-//Logger.debug("    caching completed");
         } else {
             // map is already cached ... if needed load it and set by data from cache
 //Logger.debug("    StoreManager.getInitializedOfflineMap() - map cached ... loading new");
@@ -415,9 +414,8 @@ long time = System.currentTimeMillis();
                     ex.printStackTrace();
                 }
             }
-//Logger.debug("    loading completed");
         }
-
+//Logger.debug("    finished");
         if (justInitialize) {
             manager = null;
             return null;

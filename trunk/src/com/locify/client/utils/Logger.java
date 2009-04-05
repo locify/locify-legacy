@@ -29,6 +29,9 @@ public class Logger {
     private static String fileName;
 
     private static void log(String message, int severity, boolean breaking) {
+//        if (severity == SEVERITY_INFO)
+//            return;
+
         //TODO: test severity;
         if (breaking) {
             System.out.println();

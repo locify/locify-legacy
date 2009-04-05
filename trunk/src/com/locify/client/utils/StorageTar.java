@@ -41,7 +41,8 @@ public class StorageTar {
     private static String lastFile;
     private static int type;
 
-    private static int bufferSize = 102400;
+    /** size of skip-buffer (in bytes) */
+    private static int bufferSize = 1024 * 50;
     private static byte[] buffer = new byte[bufferSize];
     private String tarPath;
     private String imageDir;
@@ -133,15 +134,21 @@ public class StorageTar {
 
     private static void skipBytes(InputStream is, int numOfBytes) {
         try {
+//Logger.log("  StorageTar.skipBytes() " + numOfBytes);
             int actualPos = 0;
             if (!Capabilities.isWindowsMobile()) {
                 while (true) {
                     if ((actualPos + bufferSize) < numOfBytes) {
                             is.read(buffer);
+//Logger.log("Y");
+//printByteArray(buffer);
                     } else {
                         is.read(buffer, 0, numOfBytes - actualPos);
+//Logger.log("X");
+//printByteArray(buffer);
                         break;
                     }
+//Logger.log("    skipBytes() ap: " + actualPos);
                     actualPos += bufferSize;
                 }
             } else {
@@ -154,7 +161,7 @@ public class StorageTar {
 
     public void indexFile() {
         try {            
-//Logger.debug("  StorageTar.indexFile() indexing... (" + tarPath + ") " + (System.currentTimeMillis() - FileMapLayer.TIME));
+//Logger.debug("  StorageTar.indexFile() indexing... (" + tarPath + ") ");
             fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
             inputStream = fileConnection.openInputStream();
 
@@ -171,35 +178,50 @@ public class StorageTar {
                 dataPosition += 512 * (long) Math.ceil((float) fileSize / 512);
                 // 0 100 File name
                 inputStream.read(l_filenamebytes, 0, 100);
+//Logger.log("A");
+//printByteArray(l_filenamebytes);
                 actualFile = new String(l_filenamebytes, 0, 100).trim();
+//Logger.log("L " + actualFile);
                 if (actualFile.equals("")) {
                     break;
                 }
 
                 // 100 8 File mode
                 inputStream.read(l_filenamebytes, 0, 8);
+//printByteArray(l_filenamebytes);
                 // 108 8 Owner user ID
                 inputStream.read(l_filenamebytes, 0, 8);
+//printByteArray(l_filenamebytes);
                 // 116 8 Group user ID
                 inputStream.read(l_filenamebytes, 0, 8);
+//printByteArray(l_filenamebytes);
                 // 124 12 File size in bytes
                 inputStream.read(l_filenamebytes, 0, 12);
+//printByteArray(l_filenamebytes);
                 fileSize = Oct2Int(l_filenamebytes, 11);
                 // 136 12 Last modification time
                 inputStream.read(l_filenamebytes, 0, 12);
+//printByteArray(l_filenamebytes);
                 // 148 8 Check sum for header block
                 inputStream.read(l_filenamebytes, 0, 8);
+//printByteArray(l_filenamebytes);
                 // 156 1 Link indicator
                 inputStream.read(l_filenamebytes, 0, 1);
+//printByteArray(l_filenamebytes);
                 type = (char) l_filenamebytes[0];
                 // 157 100 Name of linked file
                 inputStream.read(l_filenamebytes, 0, 100);
+//printByteArray(l_filenamebytes);
                 dataPosition += 256;
+
                 // Test, zda-li nema rozsirenou hlavicku
                 inputStream.read(l_filenamebytes, 0, 6);
-                if (l_filenamebytes[0] == 'u' && l_filenamebytes[1] == 's' && l_filenamebytes[2] == 't' && l_filenamebytes[3] == 'a' && l_filenamebytes[4] == 'r') {
+//printByteArray(l_filenamebytes);
+                if (l_filenamebytes[0] == 'u' && l_filenamebytes[1] == 's' &&
+                        l_filenamebytes[2] == 't' && l_filenamebytes[3] == 'a' && l_filenamebytes[4] == 'r') {
                     dataPosition += 256;
-                    inputStream.skip(249);
+                    skipBytes(inputStream, 249);
+                    //inputStream.skip(249);
                     l_posunuti = 0;
                 } else {
                     dataPosition -= 6;
@@ -207,11 +229,12 @@ public class StorageTar {
                 }
 
                 actualFile = actualFile.replace('\\', '/');
-                if (!lastFile.equals(actualFile)) {
 //Logger.log("  StorageTar.indexFile(): try to index: " + actualFile);
+                if (!lastFile.equals(actualFile)) {
                     if (imageDir == null && actualFile.indexOf("/") != -1) {
                         imageDir = actualFile.substring(0, actualFile.indexOf("/") + 1);
                     }
+//Logger.log("1");
                     if (imagePrefix == null && imageDir != null && actualFile.startsWith(imageDir) &&
                             actualFile.length() > imageDir.length()) {
                         String imageName = actualFile.substring(imageDir.length());
@@ -239,14 +262,17 @@ public class StorageTar {
                         }
                         imageSuffixLength = imageName.substring(imageName.lastIndexOf('.')).length();
                     }
+//Logger.log("2");
                     // is image and not other file or image directory
                     if (imagePrefix != null && actualFile.startsWith(imagePrefix)) {
+//Logger.log("3");
                         imageData.addElement(
                                 new TempRecord(actualFile.substring(imagePrefix.length(), actualFile.length() - imageSuffixLength),
                                 dataPosition, fileSize));
                     // config file
                     } else if (actualFile.indexOf("/") == -1 && 
                             (actualFile.endsWith(".xml") || actualFile.endsWith(".map"))) {
+//Logger.log("4");
                         if (actualFile.endsWith(".xml"))
                             configFileType = FileMapManager.CATEGORY_XML;
                         else if (actualFile.endsWith(".map"))
@@ -258,6 +284,7 @@ public class StorageTar {
                 } else {
                     return;
                 }
+//Logger.log("5 " + imageData.size());
             }
 
             TempRecord[] imageArray = new TempRecord[imageData.size()];
@@ -303,12 +330,21 @@ public class StorageTar {
             inputStream = null;
             fileConnection.close();
             fileConnection = null;
+//Logger.debug("  StorageTar.indexFile(): stats: " + index.length);
         } catch (IOException ex) {
             Logger.error(ex.toString());
         } catch (NumberFormatException ex) {
             Logger.error(ex.toString());
         }
     }
+
+//    private static void printByteArray(byte[] array) {
+//        String text = "";
+//        for (int i = 0; i < array.length; i++) {
+//            text += "'" + ((char) array[i]) + "' ";
+//        }
+//        Logger.log("Array: '" + text + "'");
+//    }
 
     public byte[] loadFile(TarRecord record) {
 //long time = System.currentTimeMillis();

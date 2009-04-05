@@ -16,6 +16,7 @@ package com.locify.client.maps.mapItem;
 import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.maps.geometry.Point2D;
+import com.locify.client.utils.Logger;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
@@ -87,6 +88,7 @@ public class PointMapItem extends MapItem {
 
     public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
         selectedPoints.removeAllElements();
+//Logger.debug("PointMapItem.getWaypointsAtPosition() init: " + initialized + " wCount: " + items.length);
         if (initialized) {
             Waypoint tempWpt;
             for (int i = 0; i < items.length; i++) {

@@ -38,17 +38,12 @@ public class MapItemManager {
     }
 
     public void init() {
-        //default settings
-        MapItem scale = new ScaleMapItem();
-        scale.priority = MapItem.PRIORITY_HIGH;
-        scale.setEnabled(true);
-        addItemFixed(Locale.get("Scale"), scale);
-
-//        Object[] names = itemsState.keys();
-//        for (int i = 0; i < names.length; i++) {
-//            if (items.containsKey(names[i]))
-//                ((MapItem) items.get(names[i])).setEnabled(isEnabled((String) names[i]));
-//        }
+        if (!isFixed(Locale.get("Scale"))) {
+            MapItem scale = new ScaleMapItem();
+            scale.priority = MapItem.PRIORITY_HIGH;
+            scale.setEnabled(true);
+            addItemFixed(Locale.get("Scale"), scale);
+        }
     }    
 
 

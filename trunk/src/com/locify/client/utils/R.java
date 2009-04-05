@@ -58,7 +58,6 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.net.ConnectionProblem;
 import com.locify.client.net.ExternalBrowser;
 import com.locify.client.net.PostData;
-import com.locify.client.maps.fileMaps.FileMapProviders;
 
 /**
  * This class store all references to other classes in this project. It quaranties the singleton structure of classes.
@@ -112,7 +111,6 @@ public class R {
     private static UploadProgressScreen progress;
     private static SatelliteScreen satelliteScreen;
     private static ContactsScreen contactsScreen;
-    private static FileMapProviders fileMapProviders;
 
     public R(Midlet ref) {
         midlet = ref;
@@ -446,12 +444,5 @@ public class R {
             contactsScreen = new ContactsScreen();
         }
         return contactsScreen;
-    }
-
-    public static FileMapProviders getFileMapProviders() {
-        if (fileMapProviders == null) {
-            fileMapProviders = new FileMapProviders();
-        }
-        return fileMapProviders;
     }
 }
