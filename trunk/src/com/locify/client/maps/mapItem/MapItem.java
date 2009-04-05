@@ -19,6 +19,7 @@ import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.locator.Location4D;
+import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.RectangleViewPort;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.utils.R;
@@ -170,6 +171,10 @@ public abstract class MapItem {
     
     protected Point2D.Int[] initializePoints(Vector points) {
         try {
+            if (mapScreen.getActualMapLayer() instanceof FileMapLayer &&
+                    !((FileMapLayer) mapScreen.getActualMapLayer()).isReady())
+                return null;
+            
             Point2D.Int[] items = new Point2D.Int[points.size()];
             if (actualState == STATE_WAITING) {
                 actualState = STATE_INITIALIZING;

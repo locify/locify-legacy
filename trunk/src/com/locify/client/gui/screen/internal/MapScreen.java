@@ -250,6 +250,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     centerMap(R.getLocator().getLastLocation(), centerToActualLocation);
                 }
 
+                if (nowDirectly && firstCenterAfterND && !this.isShown())
+                    return;
                 R.getMidlet().switchDisplayable(null, this);
                 selectNearestWaypointsAtCenter();
                 repaint();
@@ -275,6 +277,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void view(GeoData data) {
+//Logger.debug("ADD DATA");
         if (data.getName().equals("")) {
             return;
         }
@@ -286,6 +289,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             if (!nowDirectly || !firstCenterAfterND) {
                 Location4D loc = new Location4D(waypoint.getLatitude(), waypoint.getLongitude(), 0);
                 //zooming map to point and actual location pair - by destil -- yeah yeah that's goood :)) by menion
+//Logger.debug("X");
                 map.calculateZoomFrom(new Location4D[]{loc, R.getLocator().getLastLocation()});
                 centerMap(loc, false);
             }
@@ -296,6 +300,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 //mapItemManager.removeAll();
                 mapItemManager.addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 if (!nowDirectly || !firstCenterAfterND) {
+//Logger.debug("Y");
                     centerMap(mapItem.getItemCenter(), false);
                     objectZoomTo(mapItem);
                 }
@@ -307,6 +312,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 mapItem.setStyles(route.getStyleNormal(), route.getStyleHighLight());
                 mapItemManager.addItem(route.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 if (!nowDirectly || !firstCenterAfterND) {
+//Logger.debug("Z");
                     centerMap(mapItem.getItemCenter(), false);
                     objectZoomTo(mapItem);
                 }
@@ -332,14 +338,23 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void view(NetworkLink link) {
+//Logger.debug("START ND");
         networkLinkDownloader = new NetworkLinkDownloader(link);
         view();
         nowDirectly = true;
         firstCenterAfterND = false;
+//Logger.debug("SET ND");
     }
 
     public boolean isNowDirectly() {
         return nowDirectly;
+    }
+
+    public void setOnlineMaps() {
+        mapTile.setProviderAndMode(0);
+        mapTile.setDefaultZoomLevel();
+        map = mapTile;
+        view();
     }
 
     public void setFileMap(FileMapManager fmm, Location4D center) {
@@ -353,9 +368,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void centerMap(Location4D newCenter, boolean centerToActualLocation) {
-//System.out.println(firstCenterAfterND + " " + (lastCenterPoint == null) + " " + nowDirectly);
-        if (!firstCenterAfterND || lastCenterPoint == null || !nowDirectly) {
-//System.out.println("Centering");
+//Logger.debug(firstCenterAfterND + " " + (lastCenterPoint == null) + " " + nowDirectly);
+        if (centerToActualLocation || !firstCenterAfterND || lastCenterPoint == null || !nowDirectly) {
+//Logger.debug("Centering");
             if (nowDirectly) {
                 firstCenterAfterND = true;
             }
@@ -383,7 +398,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 return;
             }
             drawLock = true;
-            System.out.println("clipheight"+g.getClipHeight()+","+g.getClipY());
+//System.out.println("clipheight"+g.getClipHeight()+","+g.getClipY());
             if (g.getClipHeight() > 40) {
                 g.setClip(0, TOP_MARGIN+2, g.getClipWidth(), getAvailableHeight());
                 drawMap(g);
@@ -659,7 +674,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void locationChanged(LocationEventGenerator sender, Location4D location) {
         try {
             if (centerToActualLocation) {
-                centerMap(location, true);
+                boolean fc = firstCenterAfterND;
+                centerMap(location, centerToActualLocation);
+                firstCenterAfterND = fc;
             }
 
             if (mapItemManager.existItemTemp(tempMapNavigationItem)) {

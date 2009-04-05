@@ -39,9 +39,10 @@ public class MapOfflineChooseScreen extends Form implements CommandListener, Ite
 
     private Command cmdSelect;
     private Command cmdSelectAndCenter;
+    private Command cmdOnlineMaps;
 
-    private Command initialize;
-    private Command searchMaps;
+    private Command cmdInitialize;
+    private Command cmdSearchMaps;
 
     public double lastLat1, lastLon1, lastLat2, lastLon2;
 
@@ -53,9 +54,10 @@ public class MapOfflineChooseScreen extends Form implements CommandListener, Ite
 
         cmdSelect = new Command(Locale.get("Select"), Command.SCREEN, 1);
         cmdSelectAndCenter = new Command(Locale.get("Select_and_center"), Command.SCREEN, 2);
+        cmdOnlineMaps = new Command(Locale.get("Change_map_tile"), Command.SCREEN, 3);
 
-        initialize = new Command(Locale.get("Initialize_maps"), Command.SCREEN, 3);
-        searchMaps = new Command(Locale.get("Find_maps"), Command.SCREEN, 4);
+        cmdInitialize = new Command(Locale.get("Initialize_maps"), Command.SCREEN, 4);
+        cmdSearchMaps = new Command(Locale.get("Find_maps"), Command.SCREEN, 5);
     }
 
     private void view() {
@@ -96,13 +98,13 @@ public class MapOfflineChooseScreen extends Form implements CommandListener, Ite
         }
 
         removeAllCommands();
-        
+        addCommand(cmdOnlineMaps);
         addCommand(Commands.cmdBack);
         //#style imgHome
         addCommand(Commands.cmdHome);
         
         //#style imgSaved
-        addCommand(initialize);
+        addCommand(cmdInitialize);
 
         if (!this.isShown())
             R.getMidlet().switchDisplayable(null, this);
@@ -114,11 +116,13 @@ public class MapOfflineChooseScreen extends Form implements CommandListener, Ite
                 R.getMapScreen().view();
             } else if (c.equals(Commands.cmdHome)) {
                 R.getURL().call("locify://mainScreen");
-            } else if (c.equals(initialize)) {
+            } else if (c.equals(cmdInitialize)) {
                 deleteAll();
                 StoreManager.initializeOfflineMaps(this);
-            } else if (c.equals(searchMaps))     {
+            } else if (c.equals(cmdSearchMaps))     {
                 view(lastLat1, lastLon1, lastLat2, lastLon2);
+            } else if (c.equals(cmdOnlineMaps)) {
+                R.getMapScreen().setOnlineMaps();
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.commandAction()", null);
