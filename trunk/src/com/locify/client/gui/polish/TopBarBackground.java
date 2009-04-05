@@ -104,7 +104,7 @@ public class TopBarBackground extends GradientVerticalBackground implements Loca
     }
 
     public void paint(int x, int y, int width, int height, Graphics g) {
-
+        g.setClip(x, y, width, height);
         this.height = height;
         try {
             super.paint(x, y, width, height, g);
@@ -123,6 +123,7 @@ public class TopBarBackground extends GradientVerticalBackground implements Loca
             if (routeStatus != RouteManager.ROUTE_STATE_NO_ACTION && routeImage != null) {
                 g.drawImage(routeImage, x + width - 66, y + 2, Graphics.TOP | Graphics.LEFT);
             }
+            g.setClip(0, 0, R.getMainScreen().getWidth(), R.getMainScreen().getHeight());
         } catch (Exception e) {
             R.getErrorScreen().view(e, "TopBarBackground.paint", null);
         }

@@ -79,7 +79,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private Command cmdZoomIn,  cmdZoomOut,  cmdChangeMapTile,  cmdChangeMapFile,  cmdMyLocation;//,  cmdSelectItem;
     private Command[] providerCommandsTile;
     private boolean drawLock;
-    private static int TOP_MARGIN = 25;
+    private static int TOP_MARGIN = 23;
     private static int BOTTOM_MARGIN = 21;
     private MapLayer map;
     /** map manager for online maps */
@@ -392,9 +392,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 return;
             }
             drawLock = true;
-
+            System.out.println("clipheight"+g.getClipHeight()+","+g.getClipY());
             if (g.getClipHeight() > 40) {
-                g.setClip(0, TOP_MARGIN, g.getClipWidth(), getAvailableHeight());
+                g.setClip(0, TOP_MARGIN+2, g.getClipWidth(), getAvailableHeight());
                 drawMap(g);
             }
 
@@ -603,9 +603,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      */
     public Location4D[] getBoundingBox() {
         Location4D[] bbox = map.getActualBoundingBox();
-//        System.out.println("Bounding box");
-//        System.out.println(" " + bbox[0].toString());
-//        System.out.println(" " + bbox[1].toString());
         return bbox;
     }
 
@@ -671,7 +668,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         try {
             if (centerToActualLocation) {
                 centerMap(location, true);
-            //System.out.println("\nMapScreen.locationChanged() setCenter: " + location.toString())
             }
 
             if (mapItemManager.existItemTemp(tempMapNavigationItem)) {

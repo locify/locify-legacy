@@ -42,7 +42,7 @@
  	 */
  	public void paint(int x, int y, int width, int height, Graphics g) {
  		g.setColor( this.color );
- 		y += height - 1;
+ 		y += height-1;
  		int endX = x + width;
  		g.drawLine( x, y, endX, y );
  		if (this.borderWidth > 1) {
