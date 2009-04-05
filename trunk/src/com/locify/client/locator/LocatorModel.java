@@ -175,7 +175,7 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
         locationProvider = null;
         providerChangeRequest = null;
     }
-    
+
     /** 
      * Starts new gps location provider
      */
@@ -369,6 +369,10 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
 
     public void setProviderSelected(boolean providerSelected) {
         this.providerSelected = providerSelected;
+    }
+
+    public boolean isSimulatedGPS() {
+        return (providerChangeRequest.equals("SimulatorLocationProvider"));
     }
 
     /** instead of using Class.forName() */

@@ -140,14 +140,14 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /** radius of touch buttons */
     private int touchZoomButtonRadius;
     /** should all the files show on map directly? */
-    private boolean nowDirectly;
+    private static boolean nowDirectly = false;
     /** is firstly centere after now directly? */
     private boolean firstCenterAfterND;
     /** show all items during panning */
     private boolean showAllDuringPanning;
     /** map table for caches images */
     private static TileCache cache;
-    
+
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -183,12 +183,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
         if (!R.getSettings().isDefaultMapProviderOnline()) {
             map = mapFile;
-            //setMapFile = map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
+        //setMapFile = map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
         } else {
             mapTile.setProviderAndMode(R.getSettings().getDefaultMapProvider());
             mapTile.setDefaultZoomLevel();
             map = mapTile;
-            
+
         }
 
         //mapTile provider commands        
@@ -231,7 +231,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
         return cache;
     }
-    
+
     /**
      * Views map screen
      */
@@ -243,18 +243,22 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             } else {
                 TOP_MARGIN = R.getTopBar().height;
                 mapItemManager.init();
-
                 if (lastCenterPoint != null) {
                     centerMap(lastCenterPoint, centerToActualLocation);
                 } else {
                     centerMap(R.getLocator().getLastLocation(), centerToActualLocation);
                 }
 
-                if (nowDirectly && firstCenterAfterND && !this.isShown())
-                    return;
+                //if (nowDirectly && firstCenterAfterND && !this.isShown()) {
+                //    return;
+                //}
                 R.getMidlet().switchDisplayable(null, this);
                 selectNearestWaypointsAtCenter();
                 repaint();
+                System.out.println("running");
+                if (networkLinkDownloader != null && networkLinkDownloader.isStopped()) {
+                    networkLinkDownloader.resume();
+                }
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.view()", null);
@@ -339,14 +343,28 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
     public void view(NetworkLink link) {
 //Logger.debug("START ND");
+        if (networkLinkDownloader != null) {
+            networkLinkDownloader.stop();
+        }
         networkLinkDownloader = new NetworkLinkDownloader(link);
+        networkLinkDownloader.start();
         view();
         nowDirectly = true;
         firstCenterAfterND = false;
 //Logger.debug("SET ND");
     }
 
-    public boolean isNowDirectly() {
+    /**
+     * It is called when something other than KML came via network link
+     */
+    public void stopNetworkLink() {
+        if (MapScreen.isNowDirectly() && networkLinkDownloader != null) {
+            networkLinkDownloader.stop();
+            R.getBack().goForward("locify://newScreen", null);
+        }
+    }
+
+    public static boolean isNowDirectly() {
         return nowDirectly;
     }
 
@@ -368,9 +386,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void centerMap(Location4D newCenter, boolean centerToActualLocation) {
-//Logger.debug(firstCenterAfterND + " " + (lastCenterPoint == null) + " " + nowDirectly);
         if (centerToActualLocation || !firstCenterAfterND || lastCenterPoint == null || !nowDirectly) {
-//Logger.debug("Centering");
+
             if (nowDirectly) {
                 firstCenterAfterND = true;
             }
@@ -400,7 +417,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             drawLock = true;
 //System.out.println("clipheight"+g.getClipHeight()+","+g.getClipY());
             if (g.getClipHeight() > 40) {
-                g.setClip(0, TOP_MARGIN+2, g.getClipWidth(), getAvailableHeight());
+                g.setClip(0, TOP_MARGIN + 2, g.getClipWidth(), getAvailableHeight());
                 drawMap(g);
             }
 
@@ -417,7 +434,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private void drawMap(Graphics g) {
         g.setColor(ColorsFonts.LIGHT_ORANGE);
         g.fillRect(0, 0, getWidth(), getHeight());
-        
+
         try {
             map.drawMap(g, -1 * panMoveX, -1 * panMoveY);
         } catch (Exception e) {
@@ -572,7 +589,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             g.drawImage(getMapIconActualLocation(), actPoint.x - panMoveX,
                     actPoint.y - panMoveY, Graphics.VCENTER | Graphics.HCENTER);
 
-            if (R.getContext().getSource() == LocationContext.GPS) {
+            if (R.getContext().getSource() == LocationContext.GPS && !R.getLocator().isSimulatedGPS()) {
                 int x1 = (int) (20.0 * Math.sin((heading - 30) / GpsUtils.RHO));
                 int y1 = (int) (20.0 * Math.cos((heading - 30) / GpsUtils.RHO));
                 int x2 = (int) (40.0 * Math.sin((heading) / GpsUtils.RHO));
@@ -621,7 +638,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     R.getContext().removeTemporaryLocation();
                 }
                 R.getBack().goBack();
-            //R.getURL().call("locify://mainScreen");
+                networkLinkDownloader.stop();
             } else if (cmd.equals(Commands.cmdHome)) {
                 //map.stop(); //stops loading tiles
                 selectNearestWaypoints(0, 0, 0, true); // deselect object selection
@@ -629,11 +646,13 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     R.getContext().removeTemporaryLocation();
                 }
                 R.getURL().call("locify://mainScreen");
+                networkLinkDownloader.stop();
             } else if (cmd.equals(cmdChangeMapFile)) {
                 Location4D[] locs = getBoundingBox();
-                if (locs != null)
+                if (locs != null) {
                     R.getMapOfflineChooseScreen().view(locs[0].getLatitude(),
-                                locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
+                            locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
+                }
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);
             } else if (cmd.equals(cmdZoomOut)) {

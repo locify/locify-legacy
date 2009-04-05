@@ -18,6 +18,8 @@ import com.locify.client.data.AudioData;
 import com.locify.client.data.CacheData;
 import com.locify.client.data.ServicesData;
 import com.locify.client.maps.fileMaps.FileMapManager;
+import com.locify.client.maps.NetworkLinkDownloader;
+import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.UTF8;
@@ -73,6 +75,7 @@ public class ContentHandler {
                         Logger.debug("adding to cache");
                         CacheData.add(response.getUrl(), data);
                     }
+                    R.getMapScreen().stopNetworkLink();
                 } //some other html or form
                 else if (data.startsWith("<?xml version=\"1.0\"?>")) {
                     FileMapManager.setObtainedData(data);
@@ -82,6 +85,7 @@ public class ContentHandler {
                         Logger.debug("adding to cache");
                         CacheData.add(response.getUrl(), data);
                     }
+                    R.getMapScreen().stopNetworkLink();
                 }
             }
         } catch (Exception e) {

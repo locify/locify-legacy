@@ -20,34 +20,37 @@ import com.locify.client.utils.R;
  * Manages automated downloading of KML inside NetworkLink
  * @author Destil
  */
-public class NetworkLinkDownloader implements Runnable {
+public class NetworkLinkDownloader extends Thread {
 
     private NetworkLink link;
     private boolean stop = false;
-    private Thread thread;
 
     public NetworkLinkDownloader(NetworkLink link) {
-        System.out.println("creating downloder");
+        System.out.println("creating downloader");
         this.link = link;
-        thread = new Thread(this);
-        thread.start();
     }
 
     public void stop() {
+        System.out.println("stopping downloader");
         stop = true;
-        thread = null;
+    }
+
+    public void resume() {
+        stop = false;
+        start();
+    }
+
+    public boolean isStopped() {
+        return stop;
     }
 
     public void run() {
+        System.out.println("running downloader");
         try {
-            //System.out.println("thread start");
             while (!stop) {
-                //System.out.println("downloading");
                 R.getHttp().start(link.getLink());
-                //System.out.println("sleep:" + (link.getRefreshInterval() * 1000));
                 Thread.sleep(link.getRefreshInterval() * 1000);
             }
-            //System.out.println("stopping");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "NetworkLinkDownloader.run", null);
         }

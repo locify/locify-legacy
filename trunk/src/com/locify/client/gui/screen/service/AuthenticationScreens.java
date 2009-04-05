@@ -153,7 +153,6 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
      */
     public void start(String url) {
         try {
-            System.out.println("auth start="+url);
             authUrl = url;
             if (url.equals("locify://authentication")) {
                 if (R.getSettings().getAutoLogin() == SettingsData.ON && !R.getSettings().getName().equals("")) {
