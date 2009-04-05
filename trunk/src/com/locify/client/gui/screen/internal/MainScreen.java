@@ -596,7 +596,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
             MainScreenItem item = (MainScreenItem) items.elementAt(i);
             data += "<item>\n";
             data += "<id>" + item.getId() + "</id>\n";
-            data += "<name>" + item.getTitle() + "</name>\n";
+            data += "<name>" + Utils.replaceString(item.getTitle(), "&", "&amp;") + "</name>\n";
             data += "<icon>" + item.getIcon() + "</icon>\n";
             data += "<ts>" + item.getTimestamp() + "</ts>\n";
             data += "</item>\n";

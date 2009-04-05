@@ -18,6 +18,7 @@ import com.locify.client.utils.R;
 import de.enough.polish.util.Locale;
 import java.io.ByteArrayInputStream;
 import com.locify.client.utils.UTF8;
+import com.locify.client.utils.Utils;
 import org.kxml2.io.KXmlParser;
 
 /**
@@ -198,8 +199,8 @@ public class ServicesData {
             data += "    <id>" + service.getId() + "</id>\n";
             data += "    <url>" + service.getFirstScreenUrl() + "</url>\n";
             data += "    <icon>" + service.getIcon() + "</icon>\n";
-            data += "    <name>" + service.getName() + "</name>\n";
-            data += "    <desc>" + service.getDescription() + "</desc>\n";
+            data += "    <name>" + Utils.replaceString(service.getName(), "&", "&amp;") + "</name>\n";
+            data += "    <desc>" + Utils.replaceString(service.getDescription(), "&", "&amp;") + "</desc>\n";
             data += "    <settings>" + service.getSettingsUrl() + "</settings>\n";
             data += "    <ts>" + service.getTimestamp() + "</ts>\n";
             data += "    <settingsts>" + service.getSettingsTimestamp() + "</settingsts>\n";

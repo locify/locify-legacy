@@ -27,6 +27,7 @@ import com.locify.client.utils.R;
 import com.locify.client.data.SettingsData;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.StringTokenizer;
+import com.locify.client.utils.Utils;
 import java.io.IOException;
 import java.util.Vector;
 
@@ -233,6 +234,7 @@ public class Http implements Runnable {
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("WWW-Authenticate")) {
                 if (httpConnection.getHeaderField(j).indexOf("Basic") != -1) {
                     String[] parts = StringTokenizer.getArray(httpConnection.getHeaderField(j), "\"");
+                    parts[1]=Utils.replaceString(parts[1],"-1067",""); //strange behaviour hack
                     R.getAuthentication().start("locify://authentication?realm=" + parts[1]);
                     return true;
                 }
