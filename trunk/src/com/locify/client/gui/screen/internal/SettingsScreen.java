@@ -45,6 +45,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
     private ChoiceGroup cgCoordinatesFormat;
     private Form frmInterface;
     private ChoiceGroup cgLanguage;
+    private ChoiceGroup cgUnits;
     private Form frmOther;
     private ChoiceGroup cgAutoLogin;
     private ChoiceGroup cgExternalClose;
@@ -55,6 +56,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
     private StringItem siAdvancedMaps;
     private Form frmAdvancedMaps;
     private ChoiceGroup cgPanning;
+    private ChoiceGroup cgAutoload;
     private TextField tfCacheSize;
     private StringItem btnSaveAdvancedMaps;
     // maps variables
@@ -121,6 +123,12 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         }
         cgLanguage.setSelectedIndex(R.getSettings().getSelectedLanguage(), true);
         frmInterface.append(cgLanguage);
+
+        cgUnits = new ChoiceGroup(Locale.get("Units"), Choice.EXCLUSIVE);
+        cgUnits.append(Locale.get("Metric"), null);
+        cgUnits.append("Imperial", null);
+        cgUnits.setSelectedIndex(R.getSettings().getUnits(), true);
+        frmInterface.append(cgUnits);
 
         btnSaveInterface = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
         btnSaveInterface.setDefaultCommand(Commands.cmdSave);
@@ -205,6 +213,12 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
     public void viewAdvancedMapSettings() {
         frmAdvancedMaps = new Form(Locale.get("Advanced_settings"));
 
+        cgAutoload = new ChoiceGroup(Locale.get("Autoload"), Choice.EXCLUSIVE);
+        cgAutoload.append(Locale.get("On"), null);
+        cgAutoload.append(Locale.get("Off"), null);
+        cgAutoload.setSelectedIndex(R.getSettings().getAutoload(), true);
+        frmAdvancedMaps.append(cgAutoload);
+
         tfCacheSize = new TextField(Locale.get("Cache_size"),String.valueOf(R.getSettings().getCacheSize()),10,TextField.NUMERIC);
         frmAdvancedMaps.append(tfCacheSize);
 
@@ -255,7 +269,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         if (item.equals(btnSaveLocation)) {
             R.getSettings().saveLocationSettings(cgPrefferedGps.getSelectedIndex(), cgCoordinatesFormat.getSelectedIndex());
         } else if (item.equals(btnSaveInterface)) {
-            R.getSettings().saveInterfaceSettings(cgLanguage.getSelectedIndex());
+            R.getSettings().saveInterfaceSettings(cgLanguage.getSelectedIndex(), cgUnits.getSelectedIndex());
         } else if (item.equals(btnSaveOther)) {
             R.getSettings().saveOtherSettings(cgAutoLogin.getSelectedIndex(), cgExternalClose.getSelectedIndex());
         } else if (item.equals(btnSaveMap)) {
@@ -270,7 +284,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
             viewAdvancedMapSettings();
         } else if (item.equals(btnSaveAdvancedMaps))
         {
-            R.getSettings().saveAdvancedMaps(Integer.parseInt(tfCacheSize.getString()),cgPanning.getSelectedIndex());
+            R.getSettings().saveAdvancedMaps(cgAutoload.getSelectedIndex(),Integer.parseInt(tfCacheSize.getString()),cgPanning.getSelectedIndex());
         }
     }
 }

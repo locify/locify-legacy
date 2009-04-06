@@ -209,6 +209,10 @@ Cache_size=Cache size (kB)
 Panning_behaviour=Panning behaviour
 Repaint_during=Repaint during
 Wait_until_end_of_panning=Wait until end of panning
+Autoload=Autoload offline maps
+Units=Units
+Metric=Metric
+Imperial=Imperial
 
 #Check version
 Download_latest=Download Latest

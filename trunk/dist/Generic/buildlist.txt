@@ -50,3 +50,13 @@ Generic/Generic	null	Locify.jar	Locify.jad	-	nullxnull
 
 Generic/Generic	null	Locify.jar	Locify.jad	-	nullxnull
 
+Generic/Generic	null	Locify.jar	Locify.jad	-	nullxnull
+
+Generic/Generic	null	Locify.jar	Locify.jad	-	nullxnull
+
+Generic/Generic	null	Locify.jar	Locify.jad	-	nullxnull
+
+Generic/Generic	null	Locify.jar	Locify.jad	-	nullxnull
+
+Generic/Generic	null	Locify.jar	Locify.jad	-	nullxnull
+

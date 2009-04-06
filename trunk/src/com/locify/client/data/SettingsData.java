@@ -53,6 +53,8 @@ public class SettingsData {
     public static final int OFF = 1;
     public static final int REPAINT_DURING = 0;
     public static final int WAIT_UNTIL_END_OF_PANNING = 1;
+    public static final int METRIC = 0;
+    public static final int IMPERIAL = 1;
     private static String language = "";
     public final String[] locales = {"en", "cs_CZ"};
     public final String[] languageNames = {Locale.get("English"), Locale.get("Czech")};    //settings
@@ -63,6 +65,10 @@ public class SettingsData {
 
     public String getName() {
         return (String) settings.get("name");
+    }
+
+    public int getUnits() {
+        return Integer.parseInt((String)settings.get("units"));
     }
 
     public String getPassword() {
@@ -128,6 +134,11 @@ public class SettingsData {
     public int getTcpPort() {
         return DEFAULT_TCP_PORT;
     }
+
+    public int getAutoload() {
+        return Integer.parseInt((String) settings.get("autoload"));
+    }
+
 
     public int getCacheSize() {
         return Integer.parseInt((String) settings.get("cacheSize"));
@@ -216,6 +227,8 @@ public class SettingsData {
             }
             settings.put("panning", String.valueOf(WAIT_UNTIL_END_OF_PANNING));
             settings.put("showIconsHelp", "1");
+            settings.put("autoload", String.valueOf(OFF));
+            settings.put("units", String.valueOf(METRIC));
 
             if (!R.getFileSystem().exists(FileSystem.SETTINGS_FILE)) {
                 saveXML();
@@ -235,7 +248,7 @@ public class SettingsData {
         R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
     }
 
-    public void saveInterfaceSettings(int selectedLanguage) {
+    public void saveInterfaceSettings(int selectedLanguage, int units) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             DataOutputStream dos = new DataOutputStream(baos);
@@ -246,6 +259,9 @@ public class SettingsData {
             RecordStore recordStore = RecordStore.openRecordStore("locify", true);
             recordStore.setRecord(1, data, 0, data.length);
             recordStore.closeRecordStore();
+
+            settings.put("units", String.valueOf(units));
+            saveXML();
             R.getCustomAlert().quickView(Locale.get("Restart_needed"), Locale.get("Info"), "locify://refresh");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "SettingsData.saveInterfaceSettings", null);
@@ -303,7 +319,8 @@ public class SettingsData {
         }
     }
 
-    public void saveAdvancedMaps(int cacheSize, int panning) {
+    public void saveAdvancedMaps(int autoload, int cacheSize, int panning) {
+        settings.put("autoload", String.valueOf(autoload));
         settings.put("cacheSize", String.valueOf(cacheSize));
         settings.put("panning", String.valueOf(panning));
         saveXML();

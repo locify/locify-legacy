@@ -209,6 +209,10 @@ Cache_size=Velikost cache (kB)
 Panning_behaviour=Chování při posouvání
 Repaint_during=Překreslovat pořád
 Wait_until_end_of_panning=Počkat na konec posouvání
+Autoload=Automaticky načítat offline mapy
+Units=Jednotky
+Metric=Metrické
+Imperial=Imperiální
 
 #Check version
 Download_latest=Aktualizovat
