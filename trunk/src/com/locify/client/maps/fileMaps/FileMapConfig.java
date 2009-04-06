@@ -211,6 +211,7 @@ public class FileMapConfig {
                 Vector token;
                 CalibrationPoint[] cal = null;
                 for (int i = 0; i < lines.size(); i++) {
+//Logger.debug("  FileMapConfig.parseDotDescriptor() line: " + String.valueOf(lines.elementAt(i)));
                     token = StringTokenizer.getVector(String.valueOf(lines.elementAt(i)), ",");
                     // Map Projection,Mercator
                     if (i == 1 && !((String) token.elementAt(0)).startsWith("Map Projection") &&
@@ -233,7 +234,11 @@ public class FileMapConfig {
                         x = GpsUtils.parseInt(token.elementAt(2));
                         y = GpsUtils.parseInt(token.elementAt(3));
                         lat = GpsUtils.parseDouble(token.elementAt(6)) + GpsUtils.parseDouble(token.elementAt(7)) / 60.0;
+                        if (lat != 0.0 && String.valueOf(token.elementAt(8)).equals("S"))
+                            lat = -1 * lat;
                         lon = GpsUtils.parseDouble(token.elementAt(9)) + GpsUtils.parseDouble(token.elementAt(10)) / 60.0;
+                        if (lon != 0.0 && String.valueOf(token.elementAt(11)).equals("W"))
+                            lon = -1 * lon;
                         latX = GpsUtils.parseDouble(token.elementAt(15));
                         lonY = GpsUtils.parseDouble(token.elementAt(14));
 
@@ -275,6 +280,7 @@ public class FileMapConfig {
                         }
                     // IWH,Map Image Width/Height,2000,2000
                     } else if (((String) token.elementAt(0)).startsWith("IWH")) {
+//Logger.debug("  FileMapConfig.parseDotDescriptor() " + token.elementAt(1) + " " + token.elementAt(2) + " " + token.elementAt(3));
                         fmc.xmax = GpsUtils.parseInt(token.elementAt(2));
                         fmc.ymax = GpsUtils.parseInt(token.elementAt(3));
                     }
@@ -288,6 +294,11 @@ public class FileMapConfig {
                                 cal[i].position.getLatitude(), cal[i].position.getLongitude());
                     }
                     cal = null;
+                } else if (fmc.calibrationPoints.size() == 2) {
+                    CalibrationPoint tl = (CalibrationPoint) fmc.calibrationPoints.elementAt(0);
+                    CalibrationPoint br = (CalibrationPoint) fmc.calibrationPoints.elementAt(1);
+                    fmc.addCalibrationPoint(br.x, tl.y, tl.position.getLatitude(), br.position.getLongitude());
+                    fmc.addCalibrationPoint(tl.x, br.y, br.position.getLatitude(), tl.position.getLongitude());
                 }
 
                 if (fmc.isSuccesfullyLoaded() && fmc.calculateViewPort()) {

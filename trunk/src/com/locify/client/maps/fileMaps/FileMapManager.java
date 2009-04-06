@@ -237,6 +237,7 @@ public abstract class FileMapManager {
                         }
                     } else if (storageTar.getConfigFileType() == FileMapManager.CATEGORY_MAP && record != null) {
                         data = new String(storageTar.loadFile(record));
+//Logger.debug("Data: rec: " + record.toString() + " data: " + data);
                         if (data != null) {
                             fmm = new FileMapManagerTar(mapPath);
                             fmm.setStorageTar(storageTar);

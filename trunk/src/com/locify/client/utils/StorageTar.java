@@ -135,7 +135,7 @@ public class StorageTar {
 
     private static void skipBytes(InputStream is, int numOfBytes) {
         try {
-Logger.log("  StorageTar.skipBytes() " + numOfBytes);
+//Logger.log("  StorageTar.skipBytes() " + numOfBytes);
             int actualPos = 0;
             if (!Capabilities.isWindowsMobile()) {
                 while (true) {
@@ -162,7 +162,7 @@ Logger.log("  StorageTar.skipBytes() " + numOfBytes);
 
     public void indexFile() {
         try {            
-Logger.debug("  StorageTar.indexFile() indexing... (" + tarPath + ") ");
+//Logger.debug("  StorageTar.indexFile() indexing... (" + tarPath + ") ");
             fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
             inputStream = fileConnection.openInputStream();
 
@@ -175,14 +175,12 @@ Logger.debug("  StorageTar.indexFile() indexing... (" + tarPath + ") ");
             int readedBytes = 0;
             byte l_filenamebytes[] = new byte[256];
             while (true) {
-inputStream.read(buffer);
-Logger.debug("XXX " + printByteArray(buffer));
                 l_posunuti += 512 * (long) Math.ceil((float) fileSize / 512);
                 skipBytes(inputStream, l_posunuti);
                 dataPosition += 512 * (long) Math.ceil((float) fileSize / 512);
                 // 0 100 File name
                 readedBytes = inputStream.read(l_filenamebytes, 0, 100);
-Logger.debug("A " + readedBytes + " " + printByteArray(l_filenamebytes));
+//System.out.println("A " + readedBytes + " " + printByteArray(l_filenamebytes));
                 actualFile = new String(l_filenamebytes, 0, 100).trim();
                 if (actualFile.equals("") || readedBytes == -1) {
                     break;
@@ -200,7 +198,7 @@ Logger.debug("A " + readedBytes + " " + printByteArray(l_filenamebytes));
                 // 124 12 File size in bytes
                 readedBytes = inputStream.read(l_filenamebytes, 0, 12);
                 fileSize = Oct2Int(l_filenamebytes, 11);
-Logger.debug("C " + readedBytes + " " + fileSize + " " + printByteArray(l_filenamebytes));
+//System.out.println("C " + readedBytes + " " + fileSize + " " + printByteArray(l_filenamebytes));
                 // 136 12 Last modification time
                 readedBytes = inputStream.read(l_filenamebytes, 0, 12);
 //printByteArray(l_filenamebytes);
@@ -218,20 +216,20 @@ Logger.debug("C " + readedBytes + " " + fileSize + " " + printByteArray(l_filena
 
                 // Test, zda-li nema rozsirenou hlavicku
                 readedBytes = inputStream.read(l_filenamebytes, 0, 6);
-Logger.debug("B " + readedBytes + " " + printByteArray(l_filenamebytes));
-                if (l_filenamebytes[0] == 'u' && l_filenamebytes[1] == 's' &&
-                        l_filenamebytes[2] == 't' && l_filenamebytes[3] == 'a' && l_filenamebytes[4] == 'r') {
+//System.out.println("B " + readedBytes + " " + printByteArray(l_filenamebytes));
+//                if (l_filenamebytes[0] == 'u' && l_filenamebytes[1] == 's' &&
+//                        l_filenamebytes[2] == 't' && l_filenamebytes[3] == 'a' && l_filenamebytes[4] == 'r') {
                     dataPosition += 256;
                     skipBytes(inputStream, 249);
                     //inputStream.skip(249);
                     l_posunuti = 0;
-                } else {
-                    dataPosition -= 6;
-                    l_posunuti = -6;
-                }
+//                } else {
+//                    dataPosition -= 6;
+//                    l_posunuti = -6;
+//                }
 
                 actualFile = actualFile.replace('\\', '/');
-Logger.log("  StorageTar.indexFile(): try to index: " + actualFile);
+//System.out.println("  StorageTar.indexFile(): try to index: " + actualFile);
                 if (!lastFile.equals(actualFile)) {
                     if (imageDir == null && actualFile.indexOf("/") != -1) {
                         imageDir = actualFile.substring(0, actualFile.indexOf("/") + 1);
@@ -332,7 +330,7 @@ Logger.log("  StorageTar.indexFile(): try to index: " + actualFile);
             inputStream = null;
             fileConnection.close();
             fileConnection = null;
-Logger.debug("  StorageTar.indexFile(): stats: " + index.length);
+//Logger.debug("  StorageTar.indexFile(): stats: " + index.length);
         } catch (IOException ex) {
             Logger.error(ex.toString());
         } catch (NumberFormatException ex) {
@@ -378,6 +376,8 @@ Logger.debug("  StorageTar.indexFile(): stats: " + index.length);
     private static int Oct2Int(byte[] a_data, int a_len) {
         int l_cislo = 0;
         for (int l_idx = 0; l_idx < a_len; l_idx++) {
+            if (((char) a_data[l_idx]) == ' ')
+                a_data[l_idx] = '0';
             l_cislo = 8 * l_cislo + a_data[l_idx] - '0';
         }
         return l_cislo;
