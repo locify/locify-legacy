@@ -272,6 +272,11 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
         }
     }
 
+    public void setAutoInstallRequest(boolean request)
+    {
+        this.autoInstallRequest = request;
+    }
+
     /**
      * Views mainscreen with services
      */

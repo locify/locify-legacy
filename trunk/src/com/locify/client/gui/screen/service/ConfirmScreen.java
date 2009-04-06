@@ -125,6 +125,10 @@ public class ConfirmScreen implements CommandListener {
                 }
 
             } else if (command == Commands.cmdNo) {
+                if (confirmAction == AUTOINSTALL_SERVICES)
+                {
+                    R.getMainScreen().setAutoInstallRequest(false);
+                }
                 R.getBack().goBack();
             }
         }

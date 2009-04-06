@@ -222,7 +222,7 @@ public class SettingsData {
             if (Capabilities.isWindowsMobile()) {
                 settings.put("cacheSize", "330"); //kB
             } else {
-                settings.put("cacheSize", "1024"); //kB
+                settings.put("cacheSize", "512"); //kB
             }
             settings.put("panning", String.valueOf(WAIT_UNTIL_END_OF_PANNING));
             settings.put("showIconsHelp", "1");
