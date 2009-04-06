@@ -89,14 +89,14 @@ public class TileCache extends Thread {
         localRefreshCalling = false;
     }
 
-    public Image getImage(String fileName, int tileSizeX, int tileSizeY) {
+    public Image getImage(String fileName) {
 //Logger.log("  TileCache.getImage() " + fileName);
         Image img = getImageFromCache(fileName);
 
         if (img != null) {
             return img;
         } else {
-            return MapScreen.getImageLoading(tileSizeX, tileSizeY);
+            return MapScreen.getImageLoading();
         }
     }
 
@@ -159,8 +159,7 @@ public class TileCache extends Thread {
                                 }
                                 runningHttpDownloaders.remove(actualRequest.fileName);
                             } else if (System.currentTimeMillis() - hid.startTime > timeOut) {
-                                actualRequest.image = MapScreen.getImageNotExisted(
-                                        actualRequest.tileSizeX, actualRequest.tileSizeY);
+                                actualRequest.image = MapScreen.getImageNotExisted();
                                 addImageToCache(actualRequest);
                                 runningHttpDownloaders.remove(actualRequest.fileName);
                             } else {
@@ -169,8 +168,7 @@ public class TileCache extends Thread {
                             }
                         } else {
                             if (runningHttpDownloaders.size() < 2) {
-                                HttpImageDownloader http = new HttpImageDownloader(actualRequest.fileName,
-                                        actualRequest.tileSizeX, actualRequest.tileSizeY);
+                                HttpImageDownloader http = new HttpImageDownloader(actualRequest.fileName);
                                 http.setPriority(Thread.MIN_PRIORITY);
                                 http.start();
                                 runningHttpDownloaders.put(actualRequest.fileName, http);
@@ -193,16 +191,14 @@ public class TileCache extends Thread {
                         try {
 //long time = System.currentTimeMillis();
 //Logger.debug("!!! Memory before - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
-//Logger.debug("TileCache.run() tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
-//Logger.debug("TileCache TAR: name - " + actualRequest.tarName + " pos: " + actualRequest.byteFromPosition);
+//Logger.debug("TileCache TAR: name - " + actualRequest.tar + " record: " + (actualRequest.record == null));
                             if (actualRequest.record == null) {
-                                actualRequest.image = MapScreen.getImageConnectionNotFound(
-                                        actualRequest.tileSizeX, actualRequest.tileSizeY);
+                                actualRequest.image = MapScreen.getImageConnectionNotFound();
                             } else {
                                 byte[] array = actualRequest.tar.loadFile(actualRequest.record);
                                 if (array == null || array.length == 0) {
-                                    actualRequest.image = MapScreen.getImageConnectionNotFound(
-                                            actualRequest.tileSizeX, actualRequest.tileSizeY);
+//Logger.debug("TileCache TAR: array: " + (array == null));
+                                    actualRequest.image = MapScreen.getImageConnectionNotFound();
                                 } else {
                                     try {
                                         actualRequest.image = Image.createImage(array, 0, array.length);
@@ -212,8 +208,7 @@ public class TileCache extends Thread {
                                         Logger.error("TileCache.run() Error: " + ex.toString());
                                     } finally {
                                         if (actualRequest.image == null)
-                                            actualRequest.image = MapScreen.getImageConnectionNotFound(
-                                                    actualRequest.tileSizeX, actualRequest.tileSizeY);
+                                            actualRequest.image = MapScreen.getImageConnectionNotFound();
                                     }
                                 }
                             }
@@ -316,7 +311,7 @@ public class TileCache extends Thread {
     }
 
     private Image makeImageFileRequest(String url, int tileSizeX, int tileSizeY) {
-        Image image = MapScreen.getImageNotExisted(tileSizeX, tileSizeY);
+        Image image = MapScreen.getImageNotExisted();
         FileConnection con = null;
         try {
             con = (FileConnection) Connector.open(url);
@@ -367,8 +362,6 @@ public class TileCache extends Thread {
         private Image image;
         private boolean imageLoaded;
         private String path;
-        private int tileSizeX;
-        private int tileSizeY;
         private long startTime;
 
         private HttpConnection connection;
@@ -376,11 +369,9 @@ public class TileCache extends Thread {
         private ByteArrayOutputStream baos;
         private DataOutputStream dos;
 
-        public HttpImageDownloader(String path, int tileSizeX, int tileSizeY) {
+        public HttpImageDownloader(String path) {
             this.imageLoaded = false;
             this.path = path;
-            this.tileSizeX = tileSizeX;
-            this.tileSizeY = tileSizeY;
             this.startTime = System.currentTimeMillis();
         }
 
@@ -401,7 +392,7 @@ public class TileCache extends Thread {
                     int length = (int) connection.getLength();
                     if (length != -1) {
                         if (length > 300000) {
-                            this.image = MapScreen.getImageTooBigSize(tileSizeX, tileSizeY);
+                            this.image = MapScreen.getImageTooBigSize();
                             return;
                         }
                         data = new byte[length];
@@ -427,7 +418,7 @@ public class TileCache extends Thread {
             } catch (IOException e) {
                 Logger.error("TileCache.HttpImageDownloader() - imageDownloadError: " + e.toString() + " tile: " + path);
                 if (e.getMessage().equals("HTTP Response Code = 404")) {
-                    this.image = MapScreen.getImageNotExisted(tileSizeX, tileSizeY);
+                    this.image = MapScreen.getImageNotExisted();
                 } else {
                     this.image = null;
                 }

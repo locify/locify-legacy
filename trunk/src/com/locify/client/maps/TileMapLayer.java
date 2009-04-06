@@ -38,7 +38,6 @@ import com.locify.client.maps.tiles.impl.VirtualEarthRoadTileFactory;
 import com.locify.client.maps.tiles.impl.YahooMapTileFactory;
 import com.locify.client.maps.tiles.impl.YahooSatelliteTileFactory;
 import com.locify.client.utils.ColorsFonts;
-import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import javax.microedition.lcdui.Graphics;
 import java.util.Vector;
@@ -332,15 +331,14 @@ public class TileMapLayer implements MapLayer {
                         ir.y * tileSize - viewportBounds.y, tileSize, tileSize);
                 if (clipBounds.intersects(tileBounds)) {
                     //start downloading
-                    tileImage = MapScreen.getTileCache().getImage(ir.fileName,
-                            tileFactory.getTileSize(getActualZoomLevel()),
-                            tileFactory.getTileSize(getActualZoomLevel()));
+                    tileImage = MapScreen.getTileCache().getImage(ir.fileName);
                     //if the tile is off the map to the north/south, then just don't paint anything
                     if (isTileOffMap(ir.x, ir.y, mapSize)) {
                         g.setColor(ColorsFonts.GRAY);
                         g.fillRect(tileBounds.x, tileBounds.y, tileBounds.width, tileBounds.height);
                     } else {
-                        g.drawImage(tileImage, tileBounds.x + mapPanX, tileBounds.y + mapPanY, Graphics.TOP | Graphics.LEFT);
+                        g.drawImage(tileImage, tileBounds.x + mapPanX + (tileSize - tileImage.getWidth()),
+                                tileBounds.y + mapPanY + (tileSize - tileImage.getHeight()), Graphics.TOP | Graphics.LEFT);
                     }
                 }
             }
@@ -556,11 +554,11 @@ public class TileMapLayer implements MapLayer {
 
         this.zoom = zoom_level;
 
-        Dimension mapSize = getTileFactory().getMapSize(zoom_level);
+        Dimension size = getTileFactory().getMapSize(zoom_level);
 
         setCenter(new Point2D.Double(
-                oldCenter.getX() * (mapSize.getWidth() / oldMapSize.getWidth()),
-                oldCenter.getY() * (mapSize.getHeight() / oldMapSize.getHeight())));
+                oldCenter.getX() * (size.getWidth() / oldMapSize.getWidth()),
+                oldCenter.getY() * (size.getHeight() / oldMapSize.getHeight())));
     }
 
     public void setDefaultZoomLevel() {

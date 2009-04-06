@@ -181,20 +181,22 @@ public static long TIME;
                 ImageRequest ir;
                 for (int i = 0; i < imageNotExist.size(); i++) {
                     ir = (ImageRequest) imageNotExist.elementAt(i);
-                    image = MapScreen.getImageNotExisted(ir.tileSizeX, ir.tileSizeY);
+                    image = MapScreen.getImageNotExisted();
                     if (image != null) {
 //Logger.log("  FileMapLayer.drawImages() NotExist: x: " + ir.x + " y: " + ir.y);
-                        gr.drawImage(image, ir.x, ir.y, Graphics.LEFT | Graphics.TOP);
+                        gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()),
+                                ir.y + (ir.tileSizeY - image.getHeight()), Graphics.LEFT | Graphics.TOP);
                     }
                 }
 
 //Logger.log("Step 2: " + (System.currentTimeMillis() - TIME));
                 for (int i = 0; i < imageExist.size(); i++) {
                     ir = (ImageRequest) imageExist.elementAt(i);
-                    image = MapScreen.getTileCache().getImage(ir.fileName, ir.tileSizeX, ir.tileSizeY);
+                    image = MapScreen.getTileCache().getImage(ir.fileName);
                     if (image != null) {
 //Logger.log("  FileMapLayer.drawImages() Exist: name: " + ir.fileName + " x: " + ir.x + " y: " + ir.y);
-                        gr.drawImage(image, ir.x, ir.y, Graphics.LEFT | Graphics.TOP);
+                        gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()),
+                                ir.y + (ir.tileSizeY - image.getHeight()), Graphics.LEFT | Graphics.TOP);
                     }
                 }
 

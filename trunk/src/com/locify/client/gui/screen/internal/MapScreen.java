@@ -1122,11 +1122,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /****************************************************/
     /*           IMAGE MANIPULATION SECTION             */
     /****************************************************/
-    public static Image getImageNotExisted(int tileSizeX, int tileSizeY) {
+    public static Image getImageNotExisted() {
         try {
-            if (imageNotExisted == null ||
-                    (imageNotExisted.getWidth() != tileSizeX && imageNotExisted.getHeight() != tileSizeY)) {
-                imageNotExisted = getImageVarious(tileSizeX, tileSizeY, Locale.get("File_map_tile_not_exist"));
+            if (imageNotExisted == null) {
+                imageNotExisted = getImageVarious(Locale.get("File_map_tile_not_exist"));
             }
             return imageNotExisted;
         } catch (Exception e) {
@@ -1135,11 +1134,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
     }
 
-    public static Image getImageLoading(int tileSizeX, int tileSizeY) {
+    public static Image getImageLoading() {
         try {
-            if (imageLoading == null ||
-                    (imageLoading.getWidth() != tileSizeX && imageLoading.getHeight() != tileSizeY)) {
-                imageLoading = getImageVarious(tileSizeX, tileSizeY, Locale.get("File_map_tile_loading"));
+            if (imageLoading == null) {
+                imageLoading = getImageVarious(Locale.get("File_map_tile_loading"));
             }
             return imageLoading;
         } catch (Exception e) {
@@ -1148,12 +1146,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
     }
 
-    public static Image getImageConnectionNotFound(int tileSizeX, int tileSizeY) {
+    public static Image getImageConnectionNotFound() {
         try {
-            if (imageConnectionNotFound == null ||
-                    (imageConnectionNotFound.getWidth() != tileSizeX &&
-                    imageConnectionNotFound.getHeight() != tileSizeY)) {
-                imageConnectionNotFound = getImageVarious(tileSizeX, tileSizeY, Locale.get("Connection_failed"));
+            if (imageConnectionNotFound == null) {
+                imageConnectionNotFound = getImageVarious(Locale.get("Connection_failed"));
             }
             return imageConnectionNotFound;
         } catch (Exception e) {
@@ -1162,11 +1158,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
     }
 
-    public static Image getImageTooBigSize(int tileSizeX, int tileSizeY) {
+    public static Image getImageTooBigSize() {
         try {
-            if (imageTooBigSize == null ||
-                    (imageTooBigSize.getWidth() != tileSizeX && imageTooBigSize.getHeight() != tileSizeY)) {
-                imageTooBigSize = getImageVarious(tileSizeX, tileSizeY, Locale.get("Image_too_big"));
+            if (imageTooBigSize == null) {
+                imageTooBigSize = getImageVarious(Locale.get("Image_too_big"));
             }
             return imageTooBigSize;
         } catch (Exception e) {
@@ -1186,36 +1181,17 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         return loadingImage;
     }
 
-    private static Image getImageVarious(int tileSizeX, int tileSizeY, String tileText) {
-        Image image = Image.createImage(tileSizeX, tileSizeY);
+    private static Image getImageVarious(String tileText) {
+        Image image = Image.createImage(64, 64);
         Graphics g = image.getGraphics();
 
-        // draw background
-        g.setColor(ColorsFonts.PINK);
-        g.fillRect(0, 0, tileSizeX, tileSizeY);
-        g.setColor(ColorsFonts.MAP_BG_COLOR);
-        g.fillRect(1, 1, tileSizeX - 1, tileSizeY - 1);
-
-        // draw emptyImage on background
-        Image img = Image.createImage(getLoadingImage().getWidth() - 2, getLoadingImage().getHeight() - 2);
-        Graphics gImg = img.getGraphics();
-        gImg.drawRegion(getLoadingImage(),
-                1, 1,
-                getLoadingImage().getWidth() - 2,
-                getLoadingImage().getHeight() - 2,
-                Sprite.TRANS_NONE,
-                0, 0,
-                Graphics.TOP | Graphics.LEFT);
+        g.drawImage(getLoadingImage(), 0, 0, Graphics.TOP | Graphics.LEFT);
 
         BitMapFontViewer viewer = ColorsFonts.BMF_ARIAL_10_BLACK.getViewer(tileText);
         viewer.layout(0, 0, 0, Graphics.TOP | Graphics.LEFT);
-        viewer.paint((getLoadingImage().getWidth() - viewer.getWidth()) / 2,
-                (getLoadingImage().getHeight() - viewer.getHeight()) / 2, gImg);
+        viewer.paint((64 - viewer.getWidth()) / 2,
+                (64 - viewer.getHeight()) / 2, g);
 
-        g.drawImage(img,
-                (tileSizeX - img.getWidth()) / 2,
-                (tileSizeY - img.getHeight()) / 2,
-                Graphics.TOP | Graphics.LEFT);
         return image;
     }
 
