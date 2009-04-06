@@ -208,7 +208,7 @@ public static long TIME;
 //Logger.log("Step 4: " + (System.currentTimeMillis() - TIME));
                         for (int i = 0; i < findedData.size(); i++) {
                             StoreManagerMapInfo smmi = (StoreManagerMapInfo) findedData.elementAt(i);
-                            if (smmi.mapZoom == getActualZoomLevel()) {
+                            if (smmi.mapZoom == getActualZoomLevel() && smmi.mapZoom != 0) {
 //Logger.log("Add: " + smmi.mapName);
                                 addNextMapManager(StoreManager.getInitializedOfflineMap(smmi.mapName, false),
                                         false, false);

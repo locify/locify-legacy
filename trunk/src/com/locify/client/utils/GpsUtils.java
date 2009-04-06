@@ -144,7 +144,7 @@ public class GpsUtils {
                     return formatDouble(mi, 1) + " mi";
                 }
             } else {
-                return formatDouble(dist, 0) + " yd";
+                return formatDouble(dist / 0.9144, 0) + " yd";
             }
         }
     }
