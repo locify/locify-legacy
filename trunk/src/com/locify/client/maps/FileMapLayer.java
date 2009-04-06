@@ -183,9 +183,9 @@ public static long TIME;
                     ir = (ImageRequest) imageNotExist.elementAt(i);
                     image = MapScreen.getImageNotExisted();
                     if (image != null) {
-//Logger.log("  FileMapLayer.drawImages() NotExist: x: " + ir.x + " y: " + ir.y);
-                        gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()),
-                                ir.y + (ir.tileSizeY - image.getHeight()), Graphics.LEFT | Graphics.TOP);
+//Logger.log("  FileMapLayer.drawImages() NotExist: x: " + ir.x + " y: " + ir.y + " wi: " + image.getWidth() + " he: " + image.getHeight());
+                        gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()) / 2,
+                                ir.y + (ir.tileSizeY - image.getHeight()) / 2, Graphics.LEFT | Graphics.TOP);
                     }
                 }
 
@@ -194,9 +194,8 @@ public static long TIME;
                     ir = (ImageRequest) imageExist.elementAt(i);
                     image = MapScreen.getTileCache().getImage(ir.fileName);
                     if (image != null) {
-//Logger.log("  FileMapLayer.drawImages() Exist: name: " + ir.fileName + " x: " + ir.x + " y: " + ir.y);
-                        gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()),
-                                ir.y + (ir.tileSizeY - image.getHeight()), Graphics.LEFT | Graphics.TOP);
+//Logger.log("  FileMapLayer.drawImages() Exist: x: " + ir.x + " y: " + ir.y + " wi: " + image.getWidth() + " he: " + image.getHeight());
+                        gr.drawImage(image, ir.x, ir.y, Graphics.LEFT | Graphics.TOP);
                     }
                 }
 
@@ -218,6 +217,7 @@ public static long TIME;
                     }
                 }
 
+/*                // RED END MAP LINE
                 for (int i = managers.size() - 1; i >= 0; i--) {
                     FileMapManager manager = (FileMapManager) managers.elementAt(i);
 
@@ -235,13 +235,9 @@ public static long TIME;
                         p2.x = -5;
                     if (p2.y < 0)
                         p2.y = -5;
-//Logger.log("Draw: " + p1.x + " " + p1.y + " " + p2.x + " " + p2.y);
                     gr.setColor(ColorsFonts.RED);
-//                    gr.drawRect(p1.x-1, p1.y-1, p2.x+1, p2.y+1);
-//                    gr.drawRect(p1.x+1, p1.y+1, p2.x-1, p2.y-1);
-//                    gr.setColor(ColorsFonts.WHITE);
                     gr.drawRect(p1.x, p1.y, p2.x, p2.y);
-                }
+                }*/
 //Logger.log("Step 5: " + (System.currentTimeMillis() - TIME));
                 return true;
             }

@@ -415,6 +415,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
             drawLock = true;
 //System.out.println("clipheight"+g.getClipHeight()+","+g.getClipY());
+//System.out.println("draw");
             if (g.getClipHeight() > 40) {
                 g.setClip(0, TOP_MARGIN + 2, g.getClipWidth(), getAvailableHeight());
                 drawMap(g);

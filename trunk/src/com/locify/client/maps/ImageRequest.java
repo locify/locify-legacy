@@ -39,10 +39,18 @@ public class ImageRequest {
      */
     protected int y;
 
-    // for all maps tileSize
+    /**
+     * TileSize X
+     */
     protected int tileSizeX;
+    /**
+     * TileSize Y
+     */
     protected int tileSizeY;
 
+    /**
+     * State variables for helping cache work.
+     */
     protected boolean requiredTile;
 
     /**
