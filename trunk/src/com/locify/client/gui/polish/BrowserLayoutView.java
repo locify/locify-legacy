@@ -128,9 +128,6 @@ public class BrowserLayoutView
         } else {
             this.isExpandRightLayout = false;
         }
-
-        //#debug
-        System.out.println("MIDP2LayoutView: finished initContent: hasFocusableItem=" + hasFocusableItem + ", focusedItem=" + this.focusedItem + ", focusedIndex=" + this.focusedIndex + ", size=" + myItems.length);
     }
 
     /*

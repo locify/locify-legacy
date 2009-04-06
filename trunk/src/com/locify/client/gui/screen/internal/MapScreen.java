@@ -255,7 +255,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 R.getMidlet().switchDisplayable(null, this);
                 selectNearestWaypointsAtCenter();
                 repaint();
-                System.out.println("running");
                 if (networkLinkDownloader != null && networkLinkDownloader.isStopped()) {
                     networkLinkDownloader.resume();
                 }

@@ -135,7 +135,6 @@ public class Route extends GeoData {
 
                 } else if (trash.startsWith(RouteVariables.DESC_TRAVEL_TIME)) {
                     try {
-                        System.out.println("Time: " + trash.substring(RouteVariables.DESC_TRAVEL_TIME.length()));
                         routeTime = Long.parseLong(
                                 trash.substring(RouteVariables.DESC_TRAVEL_TIME.length()).trim());
                     } catch (Exception e) {

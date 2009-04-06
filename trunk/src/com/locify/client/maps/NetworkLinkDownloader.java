@@ -26,12 +26,10 @@ public class NetworkLinkDownloader extends Thread {
     private boolean stop = false;
 
     public NetworkLinkDownloader(NetworkLink link) {
-        System.out.println("creating downloader");
         this.link = link;
     }
 
     public void stop() {
-        System.out.println("stopping downloader");
         stop = true;
     }
 
@@ -45,7 +43,6 @@ public class NetworkLinkDownloader extends Thread {
     }
 
     public void run() {
-        System.out.println("running downloader");
         try {
             while (!stop) {
                 R.getHttp().start(link.getLink());

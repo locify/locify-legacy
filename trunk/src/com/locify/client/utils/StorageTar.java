@@ -85,7 +85,7 @@ public class StorageTar {
                 indexFile();
             }
         } catch (Exception ex) {
-            R.getErrorScreen().view(ex, ex.getMessage(), "StorageTar constructor");
+            R.getErrorScreen().view(ex, "StorageTar constructor", tarPath);
         }
     }
 

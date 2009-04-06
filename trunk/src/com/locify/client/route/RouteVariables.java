@@ -331,7 +331,7 @@ public class RouteVariables {
             }
             return this;
         } catch (Exception ex) {
-            Logger.log("RouteVariables.loadRouteVariables()");
+            Logger.error("RouteVariables.loadRouteVariables()");
             return null;
         }
     }

@@ -96,7 +96,7 @@ public class MultiGeoData {
                 }
             }
         } catch (Exception e) {
-            Logger.log("MultiGeoData.finalize()");
+            Logger.error("MultiGeoData.finalize()");
         }
     }
 

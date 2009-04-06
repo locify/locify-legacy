@@ -111,7 +111,7 @@ public class ContactsScreen implements CommandListener {
             }
             R.getMidlet().switchDisplayable(null, lstView);
         } catch (Exception ex) {
-            Logger.log("PIMScreen.viewFiltered(): " + ex.toString());
+            Logger.error("PIMScreen.viewFiltered(): " + ex.toString());
         }
     }
 
@@ -162,7 +162,7 @@ public class ContactsScreen implements CommandListener {
                     lstView.append(createName(firstName, lastName, otherName) + "\n   " + tel, null);
                 }
             } catch (Exception e) {
-                Logger.log("PIMScreen.addContacts(): " + e.toString());
+                Logger.error("PIMScreen.addContacts(): " + e.toString());
             }
         }
 

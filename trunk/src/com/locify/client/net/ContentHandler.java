@@ -68,11 +68,8 @@ public class ContentHandler {
                     Geocoding.error();
                 } //special Locify xhtml
                 else if (data.indexOf("<body class=\"alert\">") != -1 || data.indexOf("<body class=\"list\">") != -1 || data.indexOf("<body class=\"serviceInfo\">") != -1 || data.indexOf("<body class=\"confirmation\">") != -1 || data.indexOf("<body class=\"update\">") != -1 || data.indexOf("<meta http-equiv=\"refresh\"") != -1 || data.indexOf("<locify:call") != -1 || data.indexOf("<sync>") != -1) {
-                    Logger.debug("Parsing special XHTML: ");
                     boolean shouldCache = R.getXmlParser().parseLocifyXHTML(data);
-                    Logger.debug("shouldCache=" + shouldCache + ", pragmra=" + response.isDisabledCaching());
                     if (!response.isDisabledCaching() && shouldCache) {
-                        Logger.debug("adding to cache");
                         CacheData.add(response.getUrl(), data);
                     }
                     R.getMapScreen().stopNetworkLink();
@@ -82,7 +79,6 @@ public class ContentHandler {
                 } else {
                     R.getHTMLScreen().view(data);
                     if (!response.isDisabledCaching()) {
-                        Logger.debug("adding to cache");
                         CacheData.add(response.getUrl(), data);
                     }
                     R.getMapScreen().stopNetworkLink();

@@ -64,7 +64,6 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
 
     private void viewLogin(String loginTo, String savedLogin, String savedPassword) {
         try {
-            System.out.println("login to"+loginTo);
             frmLogin = new Form(Locale.get("Login"));
             StringItem siLoginTo = new StringItem("", Locale.get("Credentials_to") + " " + loginTo + ":");
             frmLogin.append(siLoginTo);

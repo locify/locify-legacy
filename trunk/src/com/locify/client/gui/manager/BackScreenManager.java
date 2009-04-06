@@ -47,7 +47,6 @@ public class BackScreenManager {
      */
     public void goForward(String url, String postData) {
         try {
-            System.out.println("go forward:"+url);
             //is this a forbidden url?
             for (int i = 0; i < noBack.length; i++) {
                 if (url.startsWith(noBack[i])) {
@@ -71,7 +70,6 @@ public class BackScreenManager {
                     }
                 }
                 if (!iWasThere) {
-                    System.out.println("adding to back:"+url);
                     screens.addElement(url + " " + postData);
                 }
             }

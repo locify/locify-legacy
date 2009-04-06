@@ -106,7 +106,6 @@ public class JSR179LocationProvider extends com.locify.client.locator.LocationPr
     }
 
     public void stopProvider() {
-        System.out.println("stopping provider");
         super.stopProvider();
         internalProvider.setLocationListener(null, 0, 0, 0);
         R.getLocator().setProviderStopped(true);
