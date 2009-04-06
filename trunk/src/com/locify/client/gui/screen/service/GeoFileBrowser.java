@@ -21,6 +21,7 @@ import com.locify.client.data.items.NetworkLink;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.WaypointsCloud;
+import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
@@ -84,7 +85,7 @@ public class GeoFileBrowser implements CommandListener {
      * @param kml kml data
      */
     public void setKml(String kml) {
-        kml = GeoFiles.correctStringData(kml);
+//        kml = GeoFiles.correctStringData(kml);
         int type = GeoFiles.getDataTypeString(kml);
         multiData = GeoFiles.parseKmlString(kml, false);
         if (multiData != null && multiData.getDataSize() > 0) {
@@ -140,7 +141,7 @@ public class GeoFileBrowser implements CommandListener {
                 if (dataType == GeoFiles.TYPE_NETWORKLINK)
                     R.getMapScreen().view(networkLink);
 
-                if (R.getMapScreen().isNowDirectly()) {
+                if (MapScreen.isNowDirectly()) {
                     if (dataType == GeoFiles.TYPE_MULTI)
                         R.getMapScreen().view(multiData);
                     else if (dataType == GeoFiles.TYPE_WAYPOINT)

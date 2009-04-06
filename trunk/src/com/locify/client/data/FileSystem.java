@@ -684,7 +684,7 @@ public class FileSystem {
                         else {
                             OutputStreamWriter osw = new OutputStreamWriter(os);
                             String text = new String(dataToWrite);
-//System.out.println("Write: " + text);
+//System.out.println("Write: " + text + " bp " + bytePos);
                             osw.write(text);
                             osw.flush();
                             osw.close();

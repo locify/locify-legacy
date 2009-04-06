@@ -316,7 +316,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 mapItem.setStyles(route.getStyleNormal(), route.getStyleHighLight());
                 mapItemManager.addItem(route.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 if (!nowDirectly || !firstCenterAfterND) {
-//Logger.debug("Z");
+//Logger.debug("Z " + mapItem.getItemCenter().toString());
                     centerMap(mapItem.getItemCenter(), false);
                     objectZoomTo(mapItem);
                 }

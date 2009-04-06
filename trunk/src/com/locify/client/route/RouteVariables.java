@@ -189,9 +189,9 @@ public class RouteVariables {
                     "      <LineString>" + linSe +
                     "        <coordinates>" + linSe);
         dataToSave.append("          " +
-                point.getLongitude() + "," +
-                point.getLatitude() + "," +
-                point.getAltitude() + linSe);
+                GpsUtils.formatDouble(point.getLongitude(), 6) + "," +
+                GpsUtils.formatDouble(point.getLatitude(), 6) + "," +
+                GpsUtils.formatDouble(point.getAltitude(), 2) + linSe);
         canSeparate = true;
     }
 
@@ -246,7 +246,8 @@ public class RouteVariables {
                 routeDist + ";" + speedMax + ";" + speedActual + ";" + speedAverage + "\n");
         data.append(locationActual.getLatitude() + ";" + locationActual.getLongitude() + ";" + locationActual.getAltitude() + ";" + locationActual.getTime() + ";" +
                 locationLastSaved.getLatitude() + ";" + locationLastSaved.getLongitude() + ";" + locationLastSaved.getAltitude() + ";" + locationLastSaved.getTime() + "\n");
-        data.append(numOfNewlocation + ";" + hdop + ";" + vdop + ";" + paused + ";" + newData + ";" + pointsCount + ";" + state + "\n");
+        data.append(numOfNewlocation + ";" + hdop + ";" + vdop + ";" + paused + ";" +
+                newData + ";" + pointsCount + ";" + state + ";" + bytesToSkipAtBegin + "\n");
 
         Location4D act;
         for (int i = 0; i < routePoints.size(); i++) {
@@ -307,6 +308,7 @@ public class RouteVariables {
                 newData = (String.valueOf(token.elementAt(4)).equals("true"));
                 pointsCount = Integer.parseInt(String.valueOf(token.elementAt(5)));
                 state = Integer.parseInt(String.valueOf(token.elementAt(6)));
+                bytesToSkipAtBegin = Integer.parseInt(String.valueOf(token.elementAt(7)));
 
                 token = StringTokenizer.getVector(String.valueOf(lines.elementAt(3)), ";");
                 for (int i = 0; i < token.size(); i = i + 4) {

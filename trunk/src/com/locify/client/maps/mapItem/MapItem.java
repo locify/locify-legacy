@@ -191,10 +191,10 @@ public abstract class MapItem {
                 int bottom = Integer.MIN_VALUE;
                 int left = Integer.MAX_VALUE;
                 int right = Integer.MIN_VALUE;
-                double topLat = Double.MIN_VALUE;
-                double bottomLat = Double.MAX_VALUE;
-                double leftLon = Double.MAX_VALUE;
-                double rightLon =  Double.MIN_VALUE;
+                double topLat = Double.NEGATIVE_INFINITY;
+                double bottomLat = Double.POSITIVE_INFINITY;
+                double leftLon = Double.POSITIVE_INFINITY;
+                double rightLon =  Double.NEGATIVE_INFINITY;
 
                 Waypoint tempWpt;
                 Location4D tempLoc4D;
