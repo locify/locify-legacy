@@ -24,6 +24,7 @@ import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
 import com.locify.client.route.RouteManager;
 import com.locify.client.utils.ColorsFonts;
+import com.locify.client.utils.Logger;
 import javax.microedition.lcdui.Font;
 
 /**
@@ -115,15 +116,15 @@ public class TopBarBackground extends GradientVerticalBackground implements Loca
             }
 
             if (httpStatus != UNDEFINED && httpImage != null) {
-                g.drawImage(httpImage, x + width - 45, y + 2, Graphics.TOP | Graphics.LEFT);
+                g.drawImage(httpImage, x + width - 44, y + 1, Graphics.TOP | Graphics.LEFT);
             }
             if (gpsStatus != UNDEFINED && gpsImage != null) {
-                g.drawImage(gpsImage, x + width - 24, y + 2, Graphics.TOP | Graphics.LEFT);
+                g.drawImage(gpsImage, x + width - 22, y + 1, Graphics.TOP | Graphics.LEFT);
             }
             if (routeStatus != RouteManager.ROUTE_STATE_NO_ACTION && routeImage != null) {
-                g.drawImage(routeImage, x + width - 66, y + 2, Graphics.TOP | Graphics.LEFT);
+                g.drawImage(routeImage, x + width - 66, y + 1, Graphics.TOP | Graphics.LEFT);
             }
-            g.setClip(0, 0, R.getMainScreen().getWidth(), R.getMainScreen().getHeight());
+            g.setClip(0, 0, R.getMainScreen().getWidth(), R.getMainScreen().getHeight()+2*height+10);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "TopBarBackground.paint", null);
         }
