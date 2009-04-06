@@ -112,9 +112,9 @@ public class GpsUtils {
      */
     public static String formatSpeed(double speed) {
         if (R.getSettings().getUnits() == SettingsData.METRIC) {
-            return formatDouble(speed * 3.6, 1) + " km/h";
+            return formatDouble(speed * 3.6, 1) + " kph";
         } else {
-            return formatDouble(speed * 2.237, 1) + " mi/h";
+            return formatDouble(speed * 2.237, 1) + " mph";
         }
     }
 
@@ -136,7 +136,7 @@ public class GpsUtils {
                 return formatDouble(dist, 0) + " m";
             }
         } else {
-            if (dist > 1609) {
+            if (dist > 1609.3) {
                 double mi = dist / 1609.3;
                 if (mi > 100) {
                     return formatDouble(mi, 0) + " mi";
@@ -144,7 +144,7 @@ public class GpsUtils {
                     return formatDouble(mi, 1) + " mi";
                 }
             } else {
-                return formatDouble(dist / 0.9144, 0) + " yd";
+                return formatDouble(dist, 0) + " yd";
             }
         }
     }
