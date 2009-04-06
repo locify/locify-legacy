@@ -783,8 +783,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     case KEY_NUM0:
                         makeMapAction(MA_MY_LOCATION, null);
                         break;
-                    case KEY_NUM7:
-                        //makeMapAction("select", null);
+                    case KEY_NUM9:
+                        commandAction(cmdChangeMapFile,this);
                         break;
                     default:
                         break;

@@ -153,7 +153,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
             cgMapProvider.append((String) providers.elementAt(i), IconData.get("locify://icons/online.png"));
         }
 
-        cgMapProvider.append(Locale.get("Change_map_file"), IconData.get("locify://icons/saved.png"));
+        cgMapProvider.append(Locale.get("Offline_maps"), IconData.get("locify://icons/saved.png"));
 
         if (R.getSettings().isDefaultMapProviderOnline()) {
             cgMapProvider.setSelectedIndex(R.getSettings().getDefaultMapProvider(), true);

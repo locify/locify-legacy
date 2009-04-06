@@ -274,8 +274,10 @@ Navi-accuracy=±
 Navi-course=Směr
 
 #Map screen
-Change_map_tile=Online mapy
-Change_map_file=Offline mapy
+Change_map_tile=Online mapy (*#)
+Change_map_file=Offline mapy (9)
+Online_maps=Online mapy
+Offline_maps=Offline mapy
 Zoom_in=Přiblížit (3)
 Zoom_out=Oddálit (1)
 My_location=Moje poloha (0)
@@ -296,6 +298,7 @@ Unsupported=Nepodporovaná
 Process_stopped=Proces zastaven
 Completed=Dokončeno...
 No_files=Soubory s mapou nenalezeny
+Maps_in_area=Mapy na tomto místě:
 
 #J2ME Polish texts
 polish.command.mark=Označit

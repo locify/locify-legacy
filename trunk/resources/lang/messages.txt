@@ -274,8 +274,10 @@ Navi-accuracy=±
 Navi-course=Course
 
 #Map screen
-Change_map_tile=Online maps
-Change_map_file=Offline maps
+Change_map_tile=Online maps (*#)
+Change_map_file=Offline maps (9)
+Online_maps=Online maps
+Offline_maps=Offline maps
 Zoom_in=Zoom in (3)
 Zoom_out=Zoom out (1)
 My_location=My Location (0)
@@ -295,6 +297,7 @@ Unsupported=Unsupported
 Process_stopped=Process stopped
 Completed=Completed...
 No_files=No map files in map directory
+Maps_in_area=Maps in this area:
 
 #J2ME Polish texts
 polish.command.mark=Mark
