@@ -249,6 +249,7 @@ public class SettingsData {
 
     public void saveInterfaceSettings(int selectedLanguage, int units) {
         try {
+            language = locales[selectedLanguage];
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             DataOutputStream dos = new DataOutputStream(baos);
             dos.writeUTF(R.getFileSystem().getRoot());
