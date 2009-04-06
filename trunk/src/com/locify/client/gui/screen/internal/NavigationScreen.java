@@ -542,8 +542,8 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         dAngle = angleD;
 
         actualizeItem(ITEM_ACCURACY, GpsUtils.formatDouble(R.getLocator().getAccuracyHorizontal(), 1));
-        actualizeItem(ITEM_SPEED, GpsUtils.formatDouble(R.getLocator().getSpeed() * 3.6, 1) + " km/h");
-        actualizeItem(ITEM_ALTITUDE, GpsUtils.formatDouble(R.getLocator().getLastLocation().getAltitude(), 0) + "m");
+        actualizeItem(ITEM_SPEED, GpsUtils.formatSpeed(R.getLocator().getSpeed()));
+        actualizeItem(ITEM_ALTITUDE, GpsUtils.formatDouble(R.getLocator().getLastLocation().getAltitude(), 1) + "m");
         actualizeItem(ITEM_LATITUDE, GpsUtils.formatLatitude(
                 R.getLocator().getLastLocation().getLatitude(), R.getSettings().getCoordsFormat()));
         actualizeItem(ITEM_LONGITUDE, GpsUtils.formatLongitude(

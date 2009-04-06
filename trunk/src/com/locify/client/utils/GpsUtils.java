@@ -13,6 +13,7 @@
  */
 package com.locify.client.utils;
 
+import com.locify.client.data.SettingsData;
 import com.locify.client.locator.Location4D;
 import com.locify.client.utils.math.LMath;
 import de.enough.polish.util.Locale;
@@ -104,17 +105,47 @@ public class GpsUtils {
         return formatDouble(d, precision);
     }
 
-    /* formatuje vzdalenost v m */
+    /**
+     * Format speed to correct format.
+     * @param Speed Speed in m/s.
+     * @return Formated speed in apropriate units.
+     */
+    public static String formatSpeed(double speed) {
+        if (R.getSettings().getUnits() == SettingsData.METRIC) {
+            return formatDouble(speed * 3.6, 1) + " km/h";
+        } else {
+            return formatDouble(speed * 2.237, 1) + " mi/h";
+        }
+    }
+
+    /**
+     * Format distance in metres.
+     * @param dist Distance in metres.
+     * @return Formated distance in apropriate units.
+     */
     public static String formatDistance(double dist) {
-        if (dist > 1000) {
-            double km = dist / 1000.0;
-            if (km > 100) {
-                return formatDouble(km, 0) + " km";
+        if (R.getSettings().getUnits() == SettingsData.METRIC) {
+            if (dist > 1000) {
+                double km = dist / 1000.0;
+                if (km > 100) {
+                    return formatDouble(km, 0) + " km";
+                } else {
+                    return formatDouble(km, 1) + " km";
+                }
             } else {
-                return formatDouble(km, 1) + " km";
+                return formatDouble(dist, 0) + " m";
             }
         } else {
-            return formatDouble(dist, 0) + " m";
+            if (dist > 1609) {
+                double mi = dist / 1609.3;
+                if (mi > 100) {
+                    return formatDouble(mi, 0) + " mi";
+                } else {
+                    return formatDouble(mi, 1) + " mi";
+                }
+            } else {
+                return formatDouble(dist / 0.9144, 0) + " yd";
+            }
         }
     }
     //doplni na minlen nulami zleva. TODO: nebude to blbnout u zapornych cisel.

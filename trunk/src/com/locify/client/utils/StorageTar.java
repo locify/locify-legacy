@@ -14,6 +14,7 @@
 package com.locify.client.utils;
 
 import com.locify.client.maps.fileMaps.FileMapManager;
+import com.locify.client.utils.math.LMath;
 import de.enough.polish.util.Arrays;
 import de.enough.polish.util.Comparator;
 import java.io.ByteArrayOutputStream;
@@ -134,7 +135,7 @@ public class StorageTar {
 
     private static void skipBytes(InputStream is, int numOfBytes) {
         try {
-//Logger.log("  StorageTar.skipBytes() " + numOfBytes);
+Logger.log("  StorageTar.skipBytes() " + numOfBytes);
             int actualPos = 0;
             if (!Capabilities.isWindowsMobile()) {
                 while (true) {
@@ -161,7 +162,7 @@ public class StorageTar {
 
     public void indexFile() {
         try {            
-//Logger.debug("  StorageTar.indexFile() indexing... (" + tarPath + ") ");
+Logger.debug("  StorageTar.indexFile() indexing... (" + tarPath + ") ");
             fileConnection = (FileConnection) Connector.open(tarPath, Connector.READ);
             inputStream = fileConnection.openInputStream();
 
@@ -171,52 +172,53 @@ public class StorageTar {
             Vector imageData = new Vector();
             
             int l_posunuti = 0;
+            int readedBytes = 0;
             byte l_filenamebytes[] = new byte[256];
             while (true) {
+inputStream.read(buffer);
+Logger.debug("XXX " + printByteArray(buffer));
                 l_posunuti += 512 * (long) Math.ceil((float) fileSize / 512);
                 skipBytes(inputStream, l_posunuti);
                 dataPosition += 512 * (long) Math.ceil((float) fileSize / 512);
                 // 0 100 File name
-                inputStream.read(l_filenamebytes, 0, 100);
-//Logger.log("A");
-//printByteArray(l_filenamebytes);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 100);
+Logger.debug("A " + readedBytes + " " + printByteArray(l_filenamebytes));
                 actualFile = new String(l_filenamebytes, 0, 100).trim();
-//Logger.log("L " + actualFile);
-                if (actualFile.equals("")) {
+                if (actualFile.equals("") || readedBytes == -1) {
                     break;
                 }
 
                 // 100 8 File mode
-                inputStream.read(l_filenamebytes, 0, 8);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 8);
 //printByteArray(l_filenamebytes);
                 // 108 8 Owner user ID
-                inputStream.read(l_filenamebytes, 0, 8);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 8);
 //printByteArray(l_filenamebytes);
                 // 116 8 Group user ID
-                inputStream.read(l_filenamebytes, 0, 8);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 8);
 //printByteArray(l_filenamebytes);
                 // 124 12 File size in bytes
-                inputStream.read(l_filenamebytes, 0, 12);
-//printByteArray(l_filenamebytes);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 12);
                 fileSize = Oct2Int(l_filenamebytes, 11);
+Logger.debug("C " + readedBytes + " " + fileSize + " " + printByteArray(l_filenamebytes));
                 // 136 12 Last modification time
-                inputStream.read(l_filenamebytes, 0, 12);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 12);
 //printByteArray(l_filenamebytes);
                 // 148 8 Check sum for header block
-                inputStream.read(l_filenamebytes, 0, 8);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 8);
 //printByteArray(l_filenamebytes);
                 // 156 1 Link indicator
-                inputStream.read(l_filenamebytes, 0, 1);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 1);
 //printByteArray(l_filenamebytes);
                 type = (char) l_filenamebytes[0];
                 // 157 100 Name of linked file
-                inputStream.read(l_filenamebytes, 0, 100);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 100);
 //printByteArray(l_filenamebytes);
                 dataPosition += 256;
 
                 // Test, zda-li nema rozsirenou hlavicku
-                inputStream.read(l_filenamebytes, 0, 6);
-//printByteArray(l_filenamebytes);
+                readedBytes = inputStream.read(l_filenamebytes, 0, 6);
+Logger.debug("B " + readedBytes + " " + printByteArray(l_filenamebytes));
                 if (l_filenamebytes[0] == 'u' && l_filenamebytes[1] == 's' &&
                         l_filenamebytes[2] == 't' && l_filenamebytes[3] == 'a' && l_filenamebytes[4] == 'r') {
                     dataPosition += 256;
@@ -229,7 +231,7 @@ public class StorageTar {
                 }
 
                 actualFile = actualFile.replace('\\', '/');
-//Logger.log("  StorageTar.indexFile(): try to index: " + actualFile);
+Logger.log("  StorageTar.indexFile(): try to index: " + actualFile);
                 if (!lastFile.equals(actualFile)) {
                     if (imageDir == null && actualFile.indexOf("/") != -1) {
                         imageDir = actualFile.substring(0, actualFile.indexOf("/") + 1);
@@ -330,7 +332,7 @@ public class StorageTar {
             inputStream = null;
             fileConnection.close();
             fileConnection = null;
-//Logger.debug("  StorageTar.indexFile(): stats: " + index.length);
+Logger.debug("  StorageTar.indexFile(): stats: " + index.length);
         } catch (IOException ex) {
             Logger.error(ex.toString());
         } catch (NumberFormatException ex) {
@@ -338,13 +340,13 @@ public class StorageTar {
         }
     }
 
-//    private static void printByteArray(byte[] array) {
-//        String text = "";
-//        for (int i = 0; i < array.length; i++) {
-//            text += "'" + ((char) array[i]) + "' ";
-//        }
-//        Logger.log("Array: '" + text + "'");
-//    }
+    private static String printByteArray(byte[] array) {
+        String text = "";
+        for (int i = 0; i < array.length; i++) {
+            text += "'" + ((char) array[i]) + "' ";
+        }
+        return text;
+    }
 
     public byte[] loadFile(TarRecord record) {
 //long time = System.currentTimeMillis();
@@ -380,6 +382,16 @@ public class StorageTar {
         }
         return l_cislo;
     }
+
+//    private static int Oct2Int(byte[] a_data, int a_len) {
+//        int l_cislo = 0;
+//        int max = (int) LMath.pow(8, a_len) * 8;
+//        for (int l_idx = 0; l_idx < a_len; l_idx++) {
+//            l_cislo += ((max / 8) * a_data[l_idx]);
+//            l_cislo = 8 * l_cislo + a_data[l_idx] - '0';
+//        }
+//        return l_cislo;
+//    }
 
     public static StorageTar loadStorageTar(DataInputStream dis) {
         StorageTar storageTar = new StorageTar();

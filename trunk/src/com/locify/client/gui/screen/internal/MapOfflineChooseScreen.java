@@ -14,6 +14,7 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.FileSystem;
+import com.locify.client.data.IconData;
 import com.locify.client.locator.Location4D;
 import com.locify.client.maps.fileMaps.FileMapManager;
 import com.locify.client.maps.fileMaps.StoreManager;
@@ -21,9 +22,8 @@ import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.fileMaps.StoreManagerMapInfo;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
-import de.enough.polish.ui.Form;
 import de.enough.polish.ui.Item;
-import de.enough.polish.ui.ItemCommandListener;
+import de.enough.polish.ui.List;
 import de.enough.polish.ui.StringItem;
 import de.enough.polish.util.Locale;
 import java.util.Vector;
@@ -35,21 +35,18 @@ import javax.microedition.lcdui.Displayable;
  *
  * @author menion
  */
-public class MapOfflineChooseScreen extends Form implements CommandListener, ItemCommandListener {
+public class MapOfflineChooseScreen extends List implements CommandListener {
 
     private Command cmdSelect;
     private Command cmdSelectAndCenter;
     private Command cmdOnlineMaps;
-
     private Command cmdInitialize;
     private Command cmdSearchMaps;
-
-    public double lastLat1, lastLon1, lastLat2, lastLon2;
-
+    public double lastLat1,  lastLon1,  lastLat2,  lastLon2;
     private Vector findedData;
-    
+
     public MapOfflineChooseScreen() {
-        super(Locale.get("Change_map_file"));
+        super(Locale.get("Change_map_file"), List.IMPLICIT);
         setCommandListener(this);
 
         cmdSelect = new Command(Locale.get("Select"), Command.SCREEN, 1);
@@ -65,8 +62,9 @@ public class MapOfflineChooseScreen extends Form implements CommandListener, Ite
         append(Locale.get("Searching"), null);
         if (!this.isShown()) {
             R.getMidlet().switchDisplayable(null, this);
-            if (StoreManager.form != null)
+            if (StoreManager.form != null) {
                 StoreManager.form = null;
+            }
         }
     }
 
@@ -81,33 +79,30 @@ public class MapOfflineChooseScreen extends Form implements CommandListener, Ite
 
         findedData = StoreManager.getMapsAroundScreen(lat1, lon1, lat2, lon2);
         deleteAll();
+        removeAllCommands();
         if (findedData.size() == 0) {
             String path = FileSystem.ROOT + FileSystem.MAP_FOLDER;
             append(Locale.get("No_file_maps_warning", path), null);
         } else {
             for (int i = 0; i < findedData.size(); i++) {
                 StoreManagerMapInfo smmi = (StoreManagerMapInfo) findedData.elementAt(i);
-                StringItem item = new StringItem("", smmi.mapName, StringItem.BUTTON);
-                item.addCommand(cmdSelectAndCenter);
-                item.setDefaultCommand(cmdSelect);
-
-                item.setItemCommandListener(this);
-
-                append(item);
+                append(smmi.mapName, IconData.get("locify://icons/saved.png"));
             }
+            addCommand(cmdSelect);
+            addCommand(cmdSelectAndCenter);
         }
 
-        removeAllCommands();
         addCommand(cmdOnlineMaps);
         addCommand(Commands.cmdBack);
         //#style imgHome
         addCommand(Commands.cmdHome);
-        
+
         //#style imgSaved
         addCommand(cmdInitialize);
 
-        if (!this.isShown())
+        if (!this.isShown()) {
             R.getMidlet().switchDisplayable(null, this);
+        }
     }
 
     public void commandAction(Command c, Displayable d) {
@@ -116,36 +111,31 @@ public class MapOfflineChooseScreen extends Form implements CommandListener, Ite
                 R.getMapScreen().view();
             } else if (c.equals(Commands.cmdHome)) {
                 R.getURL().call("locify://mainScreen");
-            } else if (c.equals(cmdInitialize)) {
+            } else if (c.equals(cmdInitialize) || (c == List.SELECT_COMMAND && findedData.size() == 0)) {
                 deleteAll();
                 StoreManager.initializeOfflineMaps(this);
-            } else if (c.equals(cmdSearchMaps))     {
+            } else if (c.equals(cmdSearchMaps)) {
                 view(lastLat1, lastLon1, lastLat2, lastLon2);
             } else if (c.equals(cmdOnlineMaps)) {
                 R.getMapScreen().setOnlineMaps();
+            } else if (c == List.SELECT_COMMAND || c.equals(cmdSelect) || c.equals(cmdSelectAndCenter) && findedData.size() > 0) {
+                StoreManagerMapInfo smmi = (StoreManagerMapInfo) findedData.elementAt(this.getSelectedIndex());
+                FileMapManager fmm = StoreManager.getInitializedOfflineMap(smmi.mapName, false);
+                if (c.equals(cmdSelect) || c == List.SELECT_COMMAND) {
+                    if (fmm != null) {
+                        R.getMapScreen().setFileMap(fmm, new Location4D((lastLat1 + lastLat2) / 2,
+                                (lastLon1 + lastLon2) / 2, 0.0f));
+                    }
+                } else if (c.equals(cmdSelectAndCenter)) {
+                    if (fmm != null) {
+                        Location4D center = fmm.getFileMapConfig().getMapViewPort().getCenter();
+                        R.getMapScreen().setFileMap(fmm,
+                                FileMapLayer.convertMapToGeo(fmm.getFileMapConfig(), center.getLatitude(), center.getLongitude()));
+                    }
+                }
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.commandAction()", null);
-        }
-    }
-
-    public void commandAction(Command c, Item item) {
-        if (item instanceof StringItem) {
-            FileMapManager fmm = StoreManager.getInitializedOfflineMap(((StringItem) item).getText(), false);
-//Logger.debug("  setMap: " + ((StringItem) item).getText() + " and is ready? " + (fmm == null));
-            if (fmm != null) {
-                if (c.equals(cmdSelectAndCenter)) {
-                    Location4D center = fmm.getFileMapConfig().getMapViewPort().getCenter();
-                    R.getMapScreen().setFileMap(fmm,
-                            FileMapLayer.convertMapToGeo(fmm.getFileMapConfig(), center.getLatitude(), center.getLongitude()));
-                } else {
-                    R.getMapScreen().setFileMap(fmm, new Location4D((lastLat1 + lastLat2) / 2,
-                            (lastLon1 + lastLon2) / 2, 0.0f));
-                }
-            } else {
-                deleteAll();
-                append(Locale.get("Creating_warning"), null);
-            }
         }
     }
 }

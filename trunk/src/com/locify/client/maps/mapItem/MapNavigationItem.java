@@ -72,7 +72,9 @@ public class MapNavigationItem extends MapItem {
     }
     
     public void actualizeActualPosition(Location4D location) {
+        waypoints.removeElementAt(0);
         waypoints.insertElementAt(new Waypoint(location.getLatitude(), location.getLongitude(), "", ""), 0);
+        initialize();
     }
 
     public boolean touchInside(int x, int y) {

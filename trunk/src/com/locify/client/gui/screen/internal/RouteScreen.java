@@ -231,12 +231,10 @@ public class RouteScreen extends Form implements CommandListener {
             items.add(button09);
             // ITEM_GRAPH_ALTITUDE_BY_DIST
             GraphItem button10 = new GraphItem("Altitude / distance", GraphItem.VALUE_X_TOTAL_DIST, GraphItem.VALUE_Y_ALTITUDE, 1000.0);
-            //button10.setColors(ColorsFonts.RED, ColorsFonts.BLACK, ColorsFonts.LIGHT_GRAY, ColorsFonts.RED, ColorsFonts.BLUE);
             button10.setAlignment(Item.ALIGN_RIGHT, Item.ALIGN_TOP);
             items.add(button10);
             // ITEM_GRAPH_ALTITUDE_BY_TIME
             GraphItem button11 = new GraphItem("Altitude / time", GraphItem.VALUE_X_TOTAL_TIME, GraphItem.VALUE_Y_ALTITUDE, 300.0);
-            //button11.setColors(ColorsFonts.RED, ColorsFonts.BLACK, ColorsFonts.RED, ColorsFonts.BLUE, ColorsFonts.GREEN);
             button11.setAlignment(Item.ALIGN_RIGHT, Item.ALIGN_TOP);
             items.add(button11);
 
@@ -291,16 +289,16 @@ public class RouteScreen extends Form implements CommandListener {
                 routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getAltitude(), 0) + " m");
 
                 routeItem = (ScreenItem) items.get(ITEM_SPEED_ACTUAL);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getSpeed() * 3.6, 1) + " km/h");
+                routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeed()));
 
                 routeItem = (ScreenItem) items.get(ITEM_ROUTE_DIST);
                 routeItem.setTextValue(GpsUtils.formatDistance(routeManager.getRouteDist()));
 
                 routeItem = (ScreenItem) items.get(ITEM_SPEED_AVERAGE);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getSpeedAverage() * 3.6, 1) + " km/h");
+                routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeedAverage()));
 
                 routeItem = (ScreenItem) items.get(ITEM_SPEED_MAX);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getSpeedMax() * 3.6, 1) + " km/h");
+                routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeedMax()));
 
                 routeManager.setNewData(false);
             }
@@ -372,10 +370,6 @@ public class RouteScreen extends Form implements CommandListener {
             routePause(false);
         } else if (cmd.equals(cmdActionResume)) {
             routeStart();
-//        } else if (cmd.equals(cmdManageLoad)) {
-//            routeLoad();
-//        } else if (cmd.equals(cmdManageSave)) {
-//            Save_last_route();
         }
     }
 
@@ -395,7 +389,6 @@ public class RouteScreen extends Form implements CommandListener {
                     setNextEnabled();
                     repaint();
                     break;
-                //vybrání položky
                 case Canvas.FIRE:
                     selectedAction();
                     repaint();

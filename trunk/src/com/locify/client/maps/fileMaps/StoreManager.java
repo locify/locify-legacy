@@ -348,7 +348,7 @@ long time = System.currentTimeMillis();
         byte[] data = R.getFileSystem().loadBytes(FileSystem.CACHE_MAP_FOLDER + hashedName);
         FileMapManager manager = null;
         if (data == null) {
-//Logger.debug("    StoreManager.getInitializedOfflineMap() - no map cached ... loading new " + fileName);
+Logger.debug("    StoreManager.getInitializedOfflineMap() - no map cached ... loading new " + fileName);
             // map isn't cached ... need to load and cache
             manager = FileMapManager.getMapType(fileName);
 
@@ -386,7 +386,7 @@ long time = System.currentTimeMillis();
             }
         } else {
             // map is already cached ... if needed load it and set by data from cache
-//Logger.debug("    StoreManager.getInitializedOfflineMap() - map cached ... loading new");
+Logger.debug("    StoreManager.getInitializedOfflineMap() - map cached ... loading new");
             if (!justInitialize) {
                 try {
                     ByteArrayInputStream bais = new ByteArrayInputStream(data);

@@ -23,7 +23,6 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
-import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import de.enough.polish.util.Arrays;
 import de.enough.polish.util.Comparator;

@@ -213,7 +213,7 @@ public class RouteVariables {
         dataToSave.append(
                 "    </MultiGeometry>" + linSe +
                 "    <description>" + linSe +
-                "      " + DESC_LENGTH + " " + GpsUtils.formatDouble(routeDist, 0) + linSe +
+                "      " + DESC_LENGTH + " " + GpsUtils.formatDistance(routeDist) + linSe +
                 "      " + DESC_TRAVEL_TIME + " " + GpsUtils.formatDouble(routeTime / 1000, 0) + linSe +
                 "      " + DESC_POINTS + " " + pointsCount + linSe +
                 description + linSe +

@@ -105,6 +105,7 @@ public class ScreenItem extends Item {
      */
     public void setSize(int width, int height) {
         super.setSize(width, height);
+        this.backgroundImage = null;
         setTextValue(textValue);
     }
     

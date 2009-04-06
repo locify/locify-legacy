@@ -13,6 +13,7 @@
  */
 package com.locify.client.maps;
 
+import com.locify.client.data.SettingsData;
 import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.maps.fileMaps.FileMapViewPort;
 import com.locify.client.maps.fileMaps.FileMapManager;
@@ -49,8 +50,6 @@ public class FileMapLayer implements MapLayer {
     private double moveCoefPerPixelX = 0;
     /** coeficient defined as moving change per click in Y*/
     private double moveCoefPerPixelY = 0;
-    /** is autochanging offline maps enable */
-    private boolean autochangeOfflineMap;
 
     private Vector imageExist;
     private Vector imageNotExist;
@@ -63,8 +62,6 @@ public static long TIME;
         this.managers = new Vector();
         this.imageExist = new Vector();
         this.imageNotExist = new Vector();
-        
-        this.autochangeOfflineMap = true;
     }
 
     public boolean isReady() {
@@ -202,7 +199,7 @@ public static long TIME;
                 }
 
 //Logger.log("Step 3: " + (System.currentTimeMillis() - TIME) + " ine.size: " + imageNotExist.size());
-                if (autochangeOfflineMap && imageNotExist.size() > 0) {
+                if (R.getSettings().getAutoload() == SettingsData.ON && imageNotExist.size() > 0) {
                     Location4D[] locs = getActualBoundingBox();
                     if (locs != null) {
                         Vector findedData = StoreManager.getMapsAroundScreen(locs[0].getLatitude(),

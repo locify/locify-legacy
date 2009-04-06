@@ -139,7 +139,6 @@ public class SettingsData {
         return Integer.parseInt((String) settings.get("autoload"));
     }
 
-
     public int getCacheSize() {
         return Integer.parseInt((String) settings.get("cacheSize"));
     }
