@@ -638,7 +638,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     R.getContext().removeTemporaryLocation();
                 }
                 R.getBack().goBack();
-                networkLinkDownloader.stop();
+                if (networkLinkDownloader != null) {
+                    networkLinkDownloader.stop();
+                }
             } else if (cmd.equals(Commands.cmdHome)) {
                 //map.stop(); //stops loading tiles
                 selectNearestWaypoints(0, 0, 0, true); // deselect object selection
@@ -646,7 +648,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     R.getContext().removeTemporaryLocation();
                 }
                 R.getURL().call("locify://mainScreen");
-                networkLinkDownloader.stop();
+                if (networkLinkDownloader != null) {
+                    networkLinkDownloader.stop();
+                }
             } else if (cmd.equals(cmdChangeMapFile)) {
                 Location4D[] locs = getBoundingBox();
                 if (locs != null) {
