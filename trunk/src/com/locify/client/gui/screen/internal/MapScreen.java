@@ -79,8 +79,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private Command cmdZoomIn,  cmdZoomOut,  cmdChangeMapTile,  cmdChangeMapFile,  cmdMyLocation;//,  cmdSelectItem;
     private Command[] providerCommandsTile;
     private boolean drawLock;
-    private static int TOP_MARGIN = 23;
-    private static int BOTTOM_MARGIN = 21;
+    private static int TOP_MARGIN = R.getTopBar().height;
+    private static int BOTTOM_MARGIN =R.getTopBar().height;
     private MapLayer map;
     /** map manager for online maps */
     private TileMapLayer mapTile;
@@ -408,19 +408,21 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
     public void paint(Graphics g) {
         try {
+            if (g.getClipHeight()<40)
+            {
+                g.setClip(0, 0, g.getClipWidth(), TOP_MARGIN+2);
+            }
             super.paint(g);
 
             if (drawLock || isMenuOpened()) {
                 return;
             }
             drawLock = true;
-//System.out.println("clipheight"+g.getClipHeight()+","+g.getClipY());
 //System.out.println("draw");
             if (g.getClipHeight() > 40) {
-                g.setClip(0, TOP_MARGIN + 2, g.getClipWidth(), getAvailableHeight());
+                g.setClip(0, TOP_MARGIN+2, g.getClipWidth(), getAvailableHeight());
                 drawMap(g);
             }
-
             drawLock = false;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.paint()", null);
