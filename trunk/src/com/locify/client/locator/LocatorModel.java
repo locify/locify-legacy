@@ -197,8 +197,8 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
                 }
             }
             if (oldProvider == null || !providerChangeRequest.equals(oldProvider)) {
-                locationProvider = this.getLocationProviderInstance(providerChangeRequest);
                 providerStopped = false;
+                locationProvider = this.getLocationProviderInstance(providerChangeRequest);
             }
             if (!providerStopped) {
                 R.getContext().setLocation(null, LocationContext.GPS, null);

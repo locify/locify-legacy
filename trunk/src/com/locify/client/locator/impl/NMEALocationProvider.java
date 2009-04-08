@@ -290,6 +290,7 @@ public class NMEALocationProvider extends LocationProvider {
 
     public void stopProvider() {
         try {
+            R.getLocator().setProviderStopped(true);
             if (parser != null) {
                 parser.stop();
             }
@@ -301,7 +302,6 @@ public class NMEALocationProvider extends LocationProvider {
                     ex.printStackTrace();
                 }
             }
-            R.getLocator().setProviderStopped(true);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "NMEALocationProvider.stopProvider", null);
         }

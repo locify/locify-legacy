@@ -125,7 +125,9 @@ public class MapOfflineChooseScreen implements CommandListener, ItemCommandListe
             } else if (c.equals(Commands.cmdHome)) {
                 R.getURL().call("locify://mainScreen");
             } else if (c.equals(cmdInitialize)) {
+                //#if !applet
                 StoreManager.initializeOfflineMaps(this);
+            //#endif
             } else if (c.equals(cmdSearchMaps)) {
                 view(lastLat1, lastLon1, lastLat2, lastLon2);
             } else if (c.equals(cmdOnlineMaps)) {
@@ -153,7 +155,9 @@ public class MapOfflineChooseScreen implements CommandListener, ItemCommandListe
 
     public void commandAction(Command c, Item item) {
         if (c == cmdInitialize) {
+            //#if !applet
             StoreManager.initializeOfflineMaps(this);
+            //#endif
         }
     }
 }
