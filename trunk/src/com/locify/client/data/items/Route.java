@@ -121,33 +121,19 @@ public class Route extends GeoData {
     public void finalizeData() {
         if (description != null && description.length() > 0) {
             String trash;
-            de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(description, "\n");
+            de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(description.trim(), "\n");
             description = "";
             while (token.hasMoreTokens()) {
                 trash = token.nextToken().trim();
-                if (trash.startsWith(RouteVariables.DESC_LENGTH)) {
-                    try {
-                        routeDist = Double.parseDouble(
-                                trash.substring(RouteVariables.DESC_LENGTH.length()).trim());
-                    } catch (Exception e) {
-                        routeDist = 0;
-                    }
-
-                } else if (trash.startsWith(RouteVariables.DESC_TRAVEL_TIME)) {
-                    try {
-                        routeTime = Long.parseLong(
-                                trash.substring(RouteVariables.DESC_TRAVEL_TIME.length()).trim());
-                    } catch (Exception e) {
-                        routeTime = 0;
-                    }
-
+                if (trash.startsWith(RouteVariables.DESC_LENGTH) && trash.length() > RouteVariables.DESC_LENGTH.length() + 3) {
+                    routeDist = com.locify.client.utils.GpsUtils.parseDouble(
+                            trash.substring(RouteVariables.DESC_LENGTH.length(), trash.length() - 2).trim());
+                } else if (trash.startsWith(RouteVariables.DESC_TRAVEL_TIME) && trash.length() > RouteVariables.DESC_TRAVEL_TIME.length() + 5) {
+                    routeTime = com.locify.client.utils.GpsUtils.parseLong(
+                            trash.substring(RouteVariables.DESC_TRAVEL_TIME.length(), trash.length() - 3).trim());
                 } else if (trash.startsWith(RouteVariables.DESC_POINTS)) {
-                    try {
-                        pointCount = Integer.parseInt(
-                                trash.substring(RouteVariables.DESC_POINTS.length()).trim());
-                    } catch (Exception e) {
-                        pointCount = 0;
-                    }
+                    pointCount = com.locify.client.utils.GpsUtils.parseInt(
+                            trash.substring(RouteVariables.DESC_POINTS.length()).trim());
                 } else {
                     description += trash + "\n";
                 }

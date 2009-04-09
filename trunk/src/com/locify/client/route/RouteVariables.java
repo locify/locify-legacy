@@ -214,10 +214,13 @@ public class RouteVariables {
                 "    </MultiGeometry>" + linSe +
                 "    <description>" + linSe +
                 "      " + DESC_LENGTH + " " + GpsUtils.formatDistance(routeDist) + linSe +
-                "      " + DESC_TRAVEL_TIME + " " + GpsUtils.formatDouble(routeTime / 1000, 0) + linSe +
-                "      " + DESC_POINTS + " " + pointsCount + linSe +
-                description + linSe +
-                "    </description>" + linSe +
+                //"      " + DESC_TRAVEL_TIME + " " + GpsUtils.formatDouble(routeTime / 1000.0, 0) + linSe +
+                "      " + DESC_TRAVEL_TIME + " " + routeTime + " ms" + linSe +
+                "      " + DESC_POINTS + " " + pointsCount + linSe);
+        if (!description.equals(""))
+            dataToSave.append(description + linSe);
+
+        dataToSave.append("    </description>" + linSe +
                 "  </Placemark>" + linSe +
                 "</kml>");
 
