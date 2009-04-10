@@ -222,9 +222,17 @@ public class SettingsData {
             if (Capabilities.isWindowsMobile()) {
                 settings.put("cacheSize", "330"); //kB
             } else {
+                //#if applet
+//#                 settings.put("cacheSize", "1024");
+                //#else
                 settings.put("cacheSize", "512"); //kB
+                //#endif
             }
+            //#if applet
+//#             settings.put("panning", String.valueOf(REPAINT_DURING));
+            //#else
             settings.put("panning", String.valueOf(WAIT_UNTIL_END_OF_PANNING));
+            //#endif
             settings.put("showIconsHelp", "1");
             settings.put("autoload", String.valueOf(OFF));
             settings.put("units", String.valueOf(METRIC));

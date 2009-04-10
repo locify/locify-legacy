@@ -17,43 +17,55 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.locator.Navigator;
 
 import com.locify.client.data.items.Waypoint;
+
 /**
  * Navigator to waypoint.
  * @author Jiri
  */
 public class WaypointNavigatorModel implements Navigator {
-	
-	private Location4D target;
-	private String targetName;
 
-        /** 
-         * Creates new waypoint navigator
-         * @param target 
-         * @param name
-         */
-        public WaypointNavigatorModel(Location4D target, String name) {
-            this.target = target;
-            this.targetName = name;
-        }
-	
-	public WaypointNavigatorModel(Waypoint waypoint){
-		this.targetName=waypoint.getName();
-		this.target=waypoint.getLocation();
+    private Location4D target;
+    private String targetName;
+    private String id;
+
+    /**
+     * Creates new waypoint navigator
+     * @param target
+     * @param name
+     */
+    public WaypointNavigatorModel(Location4D target, String name) {
+        this.target = target;
+        this.targetName = name;
     }
 
-	public double getAzimuthToTaget(Location4D actualPos) {
-		return actualPos.azimutTo(target);
-	}
+    public WaypointNavigatorModel(Waypoint waypoint) {
+        this.targetName = waypoint.getName();
+        this.target = waypoint.getLocation();
+        this.id = waypoint.id;
+    }
 
-	public double getDistanceToTarget(Location4D actualPos) {
-		return actualPos.distanceTo(target);
-	}
-	
-	public String getToName() {
-		return targetName;
-	}
-        
-        public String getMessage(){
-            return ""; //follow the heading
-        }
+    public void updateWaypoint(Waypoint waypoint) {
+        this.targetName = waypoint.getName();
+        this.target = waypoint.getLocation();
+    }
+
+    public double getAzimuthToTaget(Location4D actualPos) {
+        return actualPos.azimutTo(target);
+    }
+
+    public double getDistanceToTarget(Location4D actualPos) {
+        return actualPos.distanceTo(target);
+    }
+
+    public String getToName() {
+        return targetName;
+    }
+
+    public String getMessage() {
+        return ""; //follow the heading
+    }
+
+    public String getId() {
+        return id;
+    }
 } 

@@ -80,7 +80,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private Command[] providerCommandsTile;
     private boolean drawLock;
     private static int TOP_MARGIN = R.getTopBar().height;
-    private static int BOTTOM_MARGIN =R.getTopBar().height;
+    private static int BOTTOM_MARGIN = R.getTopBar().height;
     private MapLayer map;
     /** map manager for online maps */
     private TileMapLayer mapTile;
@@ -321,8 +321,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 }
             }
         }
-
-        view();
+        if (!R.getNavigationScreen().hasNetworkLinkLock()) {
+            view();
+        }
     }
 
     /**
@@ -408,9 +409,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
     public void paint(Graphics g) {
         try {
-            if (g.getClipHeight()<40)
-            {
-                g.setClip(0, 0, g.getClipWidth(), TOP_MARGIN+2);
+            if (g.getClipHeight() < 40) {
+                g.setClip(0, 0, g.getClipWidth(), TOP_MARGIN + 2);
             }
             super.paint(g);
 
@@ -418,9 +418,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 return;
             }
             drawLock = true;
-//System.out.println("draw");
             if (g.getClipHeight() > 40) {
-                g.setClip(0, TOP_MARGIN+2, g.getClipWidth(), getAvailableHeight());
+                g.setClip(0, TOP_MARGIN + 2, g.getClipWidth(), getAvailableHeight());
                 drawMap(g);
             }
             drawLock = false;
@@ -713,8 +712,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
     }
 
-    public boolean isMapNavigationRunning()
-    {
+    public boolean isMapNavigationRunning() {
         return mapItemManager.existItemTemp(tempMapNavigationItem);
     }
 
@@ -792,7 +790,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                         makeMapAction(MA_MY_LOCATION, null);
                         break;
                     case KEY_NUM9:
-                        commandAction(cmdChangeMapFile,this);
+                        commandAction(cmdChangeMapFile, this);
                         break;
                     default:
                         break;
@@ -1434,10 +1432,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 case DescriptionMapItem.BUTTON_NAVIGATE:
                     mapItemManager.removeItemTemp(tempMapNavigationItem);
                     mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
-                    R.getURL().call("locify://navigation" +
-                            "?lat=" + item.getSelectedWaypoint().getLatitude() +
-                            "&lon=" + item.getSelectedWaypoint().getLongitude() +
-                            "&name=" + item.getSelectedWaypoint().getName());
+                    R.getNavigationScreen().setNetworkLinkLock(true);
+                    R.getNavigationScreen().updateWaypoint(item.getSelectedWaypoint());
+                    R.getURL().call("locify://navigation");
                     break;
                 case DescriptionMapItem.BUTTON_NAVIGATE_ON_MAP:
                     mapItemManager.addItemTemp(tempMapNavigationItem,

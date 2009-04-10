@@ -30,6 +30,7 @@ public class NetworkLinkDownloader extends Thread {
     }
 
     public void stop() {
+        System.out.println("stopping networklink downloader");
         stop = true;
     }
 

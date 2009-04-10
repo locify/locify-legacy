@@ -79,6 +79,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     // compas radius
     private int radius;
     private boolean smallRadius;
+    private boolean networkLinkLock = false;
     private static int BOTTOM_MARGIN;
     private static int TOP_MARGIN;
 
@@ -142,8 +143,8 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             if (radius == 0) {
                 setMode(VIEW_MODE_LESS);
             }
-            locationChanged(null, location);
             R.getMidlet().switchDisplayable(null, this);
+            locationChanged(null, location);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "NavigationScreen.view", null);
         }
@@ -242,13 +243,28 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         view();
     }
 
+    public void updateWaypoint(Waypoint waypoint)
+    {
+        if (navigator == null)
+        {
+            navigator = new WaypointNavigatorModel(waypoint);
+        }
+        else if (navigator instanceof WaypointNavigatorModel)
+        {
+            ((WaypointNavigatorModel)navigator).updateWaypoint(waypoint);
+            locationChanged(null, location);
+        }
+    }
+
     public void commandAction(Command cmd, Displayable screen) {
         if (cmd.equals(Commands.cmdBack)) {
+            networkLinkLock = false;
             if (R.getContext().isTemporary()) {
                 R.getContext().removeTemporaryLocation();
             }
             R.getBack().goBack();
         } else if (cmd.equals(Commands.cmdHome)) {
+            networkLinkLock = false;
             if (R.getContext().isTemporary()) {
                 R.getContext().removeTemporaryLocation();
             }
@@ -527,7 +543,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     }
 
     public void locationChanged(LocationEventGenerator sender, Location4D location) {
-        if (this.isShown()) {
+        if (this.isShown() || sender == null) {
             this.location = location;
 
             double angleN = R.getLocator().getHeading();
@@ -571,5 +587,22 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
 
     public static boolean isRunning() {
         return !(navigator == null);
+    }
+
+    public void setNetworkLinkLock(boolean networkLinkLock) {
+        this.networkLinkLock = networkLinkLock;
+    }
+
+    public boolean hasNetworkLinkLock() {
+        return networkLinkLock;
+    }
+
+    public String getWaypointId()
+    {
+        if (navigator != null & navigator instanceof WaypointNavigatorModel)
+        {
+            return ((WaypointNavigatorModel)navigator).getId();
+        }
+        return null;
     }
 }

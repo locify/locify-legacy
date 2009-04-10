@@ -32,7 +32,6 @@ public class MapItemManager {
     /** hashmap contains itemName and MapItem, always visible */
     private Hashtable itemsTemp;
 
-
     public MapItemManager() {
         this.items = new Hashtable();
         this.itemsTemp = new Hashtable();
@@ -45,8 +44,7 @@ public class MapItemManager {
             scale.setEnabled(true);
             addItemFixed(Locale.get("Scale"), scale);
         }
-    }    
-
+    }
 
     /**
      * Add item to manager as fixed. Fixed item cannot be overwritten, cannot be selected.
@@ -65,12 +63,13 @@ public class MapItemManager {
 
     private boolean isFixed(String name) {
         MapItem item = (MapItem) items.get(name);
-        if (item == null)
+        if (item == null) {
             return false;
-        else
+        } else {
             return item.fixed;
+        }
     }
-    
+
     /**
      * Add item to manager, if item of same name exist, overwrite it !!!
      * @param itemName name of item
@@ -79,13 +78,19 @@ public class MapItemManager {
      */
     public void addItem(String itemName, MapItem item, int priority) {
         /* change navigation along the map while new waypoint is coming from network link */
-        if (MapScreen.isNowDirectly() && R.getMapScreen().isMapNavigationRunning() && item instanceof PointMapItem)
-        {
-            MapNavigationItem navItem = (MapNavigationItem) getItemTemp("navigationItem");
-            String navId = navItem.getTargetWaypoint().id;
-            if (navId != null)
-            {
-                navItem.setTargetWaypoint(((PointMapItem)item).getWaypointById(navId));
+        if (MapScreen.isNowDirectly() && item instanceof PointMapItem) {
+            if (R.getMapScreen().isMapNavigationRunning()) {
+                MapNavigationItem navItem = (MapNavigationItem) getItemTemp("navigationItem");
+                String navId = navItem.getTargetWaypoint().id;
+                if (navId != null) {
+                    navItem.setTargetWaypoint(((PointMapItem) item).getWaypointById(navId));
+                }
+            }
+            if (R.getNavigationScreen().hasNetworkLinkLock()) {
+                String navId = R.getNavigationScreen().getWaypointId();
+                if (navId != null) {
+                    R.getNavigationScreen().updateWaypoint(((PointMapItem) item).getWaypointById(navId));
+                }
             }
         }
         item.priority = priority;
@@ -99,8 +104,9 @@ public class MapItemManager {
     public MapItem getItem(int index) {
         if (index < items.size()) {
             return (MapItem) items.get(getItemName(index));
-        } else
+        } else {
             return null;
+        }
     }
 
     public String getItemName(int i) {
@@ -108,8 +114,9 @@ public class MapItemManager {
             Enumeration enu = items.keys();
             int counter = 0;
             while (enu.hasMoreElements()) {
-                if (counter == i)
+                if (counter == i) {
                     return (String) enu.nextElement();
+                }
 
                 enu.nextElement();
                 counter++;
@@ -131,7 +138,7 @@ public class MapItemManager {
     public int getItemCount() {
         return items.size();
     }
-    
+
     /**
      * Add temp items do mapItemManager. Items are always visible and when new item
      * with same name comes, it automatically overwrite old one.
@@ -154,7 +161,7 @@ public class MapItemManager {
     public boolean existItemTemp(String itemName) {
         return itemsTemp.containsKey(itemName);
     }
-    
+
     /**
      * Removes all elements excluding scale
      */
@@ -185,23 +192,23 @@ public class MapItemManager {
         return false;
     }
 
-
-    
     public void drawItems(Graphics g, int priority) {
         try {
             Enumeration enu = items.keys();
             MapItem item;
             while (enu.hasMoreElements()) {
                 item = (MapItem) items.get(enu.nextElement());
-                if (item.priority == priority)
+                if (item.priority == priority) {
                     item.drawItem(g);
+                }
             }
 
             enu = itemsTemp.keys();
             while (enu.hasMoreElements()) {
                 item = (MapItem) itemsTemp.get(enu.nextElement());
-                if (item.priority == priority)
+                if (item.priority == priority) {
                     item.drawItem(g);
+                }
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapItemManager.drawItems()", "priority: " + priority);
@@ -221,7 +228,7 @@ public class MapItemManager {
             item.disableInitializeState();
         }
     }
-    
+
     public void panItem(int x, int y) {
         Enumeration enu = items.elements();
         MapItem item;
@@ -235,7 +242,7 @@ public class MapItemManager {
             item.panItem(x, y);
         }
     }
-    
+
     public String printItems() {
 //        String data = "";
 //
@@ -245,7 +252,7 @@ public class MapItemManager {
 //        return data;
         return "";
     }
-    
+
     public Vector getWaypointsAtPosition(int x, int y, int radiusSquare) {
         Vector wayPoints = new Vector();
         Enumeration enu = items.keys();
@@ -270,5 +277,4 @@ public class MapItemManager {
 //        }
 //        return null;
 //    }
-
 }
