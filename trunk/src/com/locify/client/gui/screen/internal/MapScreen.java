@@ -358,7 +358,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      * It is called when something other than KML came via network link
      */
     public void stopNetworkLink() {
-        if (MapScreen.isNowDirectly() && networkLinkDownloader != null) {
+        if (MapScreen.isNowDirectly() && networkLinkDownloader != null && !networkLinkDownloader.isStopped()) {
             networkLinkDownloader.stop();
             R.getBack().goForward("locify://newScreen", null);
         }
@@ -638,10 +638,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 if (R.getContext().isTemporary()) {
                     R.getContext().removeTemporaryLocation();
                 }
-                R.getBack().goBack();
                 if (networkLinkDownloader != null) {
                     networkLinkDownloader.stop();
                 }
+                R.getBack().goBack();
             } else if (cmd.equals(Commands.cmdHome)) {
                 //map.stop(); //stops loading tiles
                 selectNearestWaypoints(0, 0, 0, true); // deselect object selection
