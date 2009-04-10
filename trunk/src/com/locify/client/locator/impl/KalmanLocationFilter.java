@@ -44,7 +44,7 @@ public class KalmanLocationFilter implements LocationFilter {
     private double lastMeasLon = 0.0;
     
     /* variables for debugging mode */
-    private boolean debugMode = true;
+    private boolean debugMode = false;
     private int numOfTest = 100;
     int index1 = 1000;
     private String linSe = "\n";
@@ -131,6 +131,7 @@ if (debugMode) {
 
             /* error distance ... not perfectly but enough precise */
             float lastMaxErrorDist = (float) Math.sqrt((fHdop1 + fHdop2) / 4);
+            //lastMaxErrorDist /= 10;
             lastMaxErrorDist /= 5;
 
 if (debugMode) {
