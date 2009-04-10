@@ -105,6 +105,19 @@ public class PointMapItem extends MapItem {
         }
     }
 
+    public Waypoint getWaypointById(String id)
+    {
+        for (int i=0;i<waypoints.size();i++)
+        {
+            Waypoint wpt = (Waypoint) waypoints.elementAt(i);
+            if (wpt.id != null && wpt.id.equals(id))
+            {
+                return wpt;
+            }
+        }
+        return null;
+    }
+
     public boolean touchInside(int x, int y) {
         return false;
     }

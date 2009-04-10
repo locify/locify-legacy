@@ -11,7 +11,6 @@
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
-
 package com.locify.client.data.items;
 
 import com.locify.client.locator.Location4D;
@@ -23,27 +22,28 @@ import javax.microedition.lcdui.Graphics;
  * @author Destil
  */
 public class Waypoint extends GeoData {
-    
+
     /** normal state */
     public static final int STATE_NONE = 0;
     /** item is hightlighted */
     public static final int STATE_HIGHLIGHT = 1;
     /** selected item showing info */
     public static final int STATE_SELECTED = 2;
-
     private Location4D location;
     public int state;
-    
-    public Waypoint(double latitude, double longitude, String name, String description) {
+    public String id;
+
+    public Waypoint(double latitude, double longitude, String name, String description, String id) {
         super();
         this.latitude = latitude;
         this.longitude = longitude;
         this.name = name;
         this.description = description;
         this.state = STATE_NONE;
+        this.id = id;
     }
 
-    public Waypoint(double latitude, double longitude, String name, String description,
+    public Waypoint(double latitude, double longitude, String name, String description, String id,
             GeoFileStyle styleNormal, GeoFileStyle styleHightLight) {
         super();
         this.latitude = latitude;
@@ -53,13 +53,14 @@ public class Waypoint extends GeoData {
 
         this.styleNormal = styleNormal;
         this.styleHighlight = styleHightLight;
-        
+
         this.state = STATE_NONE;
+        this.id = id;
     }
-    
+
     /** returns Location4D instance of this wp */
-    public Location4D getLocation(){
-        if (location==null){
+    public Location4D getLocation() {
+        if (location == null) {
             location = new Location4D(latitude, longitude, 0);
         }
         return location;

@@ -245,6 +245,7 @@ public abstract class GeoFiles {
         try {
             String name = "";
             String description = "";
+            String id = null;
 
             Waypoint waypoint = null;
             Hashtable styles = null;
@@ -456,6 +457,7 @@ public abstract class GeoFiles {
                     } else if (tagName.equalsIgnoreCase("Placemark")) {
                         try {
                             setState(STATE_PLACEMARK);
+                            id = parser.getAttributeValue(null, "id");
                         } catch (Exception e) {
                             Logger.warning("GeoFiles.parseKml() - 'Placemark' tag error!!!");
                         }
@@ -465,7 +467,7 @@ public abstract class GeoFiles {
                             /* sActual is always placemark but sBefore may be FOLDER
                              * (waypoint_cloud) or DOCUMENT (waypoint) */
                             if (sActual == STATE_PLACEMARK) {
-                                waypoint = new Waypoint(0.0, 0.0, "", "");
+                                waypoint = new Waypoint(0.0, 0.0, "", "", null);
                                 while (true) {
                                     event = parser.nextToken();
                                     if (event == XmlPullParser.START_TAG) {
@@ -485,6 +487,7 @@ public abstract class GeoFiles {
                                             waypoint.name = name;
                                             waypoint.description = description;
                                             waypoint.styleName = styleURL;
+                                            waypoint.id = id;
                                             styleURL = null;
                                             if (sBefore == STATE_FOLDER || sBefore == STATE_PLACEMARK) {
                                                 ((WaypointsCloud) actualGeoData).addWaypoint(waypoint);

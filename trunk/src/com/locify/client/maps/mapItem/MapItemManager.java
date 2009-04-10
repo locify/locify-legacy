@@ -13,6 +13,7 @@
  */
 package com.locify.client.maps.mapItem;
 
+import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.utils.R;
 import de.enough.polish.util.Locale;
 import java.util.Enumeration;
@@ -74,9 +75,19 @@ public class MapItemManager {
      * Add item to manager, if item of same name exist, overwrite it !!!
      * @param itemName name of item
      * @param item MapItem to show
-     * @return true if added, falsee if same name already exist
+     * @param priority
      */
     public void addItem(String itemName, MapItem item, int priority) {
+        /* change navigation along the map while new waypoint is coming from network link */
+        if (MapScreen.isNowDirectly() && R.getMapScreen().isMapNavigationRunning() && item instanceof PointMapItem)
+        {
+            MapNavigationItem navItem = (MapNavigationItem) getItemTemp("navigationItem");
+            String navId = navItem.getTargetWaypoint().id;
+            if (navId != null)
+            {
+                navItem.setTargetWaypoint(((PointMapItem)item).getWaypointById(navId));
+            }
+        }
         item.priority = priority;
         items.put(itemName, item);
     }

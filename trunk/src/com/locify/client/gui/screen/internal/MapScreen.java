@@ -273,7 +273,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      */
     public void view(double lat, double lon, String name, String desc) {
         Vector waypoints = new Vector();
-        waypoints.addElement(new Waypoint(lat, lon, name, desc));
+        waypoints.addElement(new Waypoint(lat, lon, name, desc, null));
         mapItemManager.addItem(name, new PointMapItem(waypoints), MapItem.PRIORITY_MEDIUM);
         centerMap(new Location4D(lat, lon, 0f), false);
         view();
@@ -704,13 +704,18 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 firstCenterAfterND = fc;
             }
 
-            if (mapItemManager.existItemTemp(tempMapNavigationItem)) {
+            if (isMapNavigationRunning()) {
                 ((MapNavigationItem) mapItemManager.getItemTemp(tempMapNavigationItem)).actualizeActualPosition(location);
             }
             repaint();
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.locationChanged()", null);
         }
+    }
+
+    public boolean isMapNavigationRunning()
+    {
+        return mapItemManager.existItemTemp(tempMapNavigationItem);
     }
 
     public void stateChanged(LocationEventGenerator sender, int state) {
@@ -1438,7 +1443,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     mapItemManager.addItemTemp(tempMapNavigationItem,
                             new MapNavigationItem(
                             new Waypoint(R.getLocator().getLastLocation().getLatitude(),
-                            R.getLocator().getLastLocation().getLongitude(), " ", " "),
+                            R.getLocator().getLastLocation().getLongitude(), " ", " ", null),
                             item.getSelectedWaypoint()), MapItem.PRIORITY_MEDIUM);
                     mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
                     selectNearestWaypointsAtCenter();

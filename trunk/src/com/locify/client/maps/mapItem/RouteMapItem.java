@@ -124,7 +124,7 @@ public class RouteMapItem extends MapItem {
                     tempWpt = new Waypoint(
                                 ((Location4D) points.elementAt(i)).getLatitude(),
                                 ((Location4D) points.elementAt(i)).getLongitude(),
-                                "Route waypoint", "waypoint " + (i + 1), styleNormal, styleHightLight);
+                                "Route waypoint", "waypoint " + (i + 1), null, styleNormal, styleHightLight);
                     tempWpt.state = Waypoint.STATE_HIGHLIGHT;
                     data.addElement(tempWpt);
                     selectedPoints.addElement(new Integer(i));

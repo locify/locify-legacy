@@ -43,6 +43,17 @@ public class MapNavigationItem extends MapItem {
         initialize();
     }
 
+    public Waypoint getTargetWaypoint()
+    {
+        return (Waypoint) waypoints.elementAt(1);
+    }
+
+    public void setTargetWaypoint(Waypoint waypoint)
+    {
+        waypoints.setElementAt(waypoint, 1);
+        initialize();
+    }
+
     public void initialize() {
         items = initializePoints(waypoints);
     }
@@ -73,7 +84,7 @@ public class MapNavigationItem extends MapItem {
     
     public void actualizeActualPosition(Location4D location) {
         waypoints.removeElementAt(0);
-        waypoints.insertElementAt(new Waypoint(location.getLatitude(), location.getLongitude(), "", ""), 0);
+        waypoints.insertElementAt(new Waypoint(location.getLatitude(), location.getLongitude(), "", "", null), 0);
         initialize();
     }
 

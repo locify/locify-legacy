@@ -81,7 +81,7 @@ public class Route extends GeoData {
     }
 
     public Waypoint getFirstWaypoint() {
-        return new Waypoint(latitude, longitude, "waypoint 01", "");
+        return new Waypoint(latitude, longitude, "waypoint 01", "", null);
     }
 
     public Location4D getLastPoint() {
@@ -96,7 +96,7 @@ public class Route extends GeoData {
         Location4D last = getLastPoint();
         if (last != null) {
         return new Waypoint(last.getLatitude(),
-                last.getLongitude(), "waypoint " + pointCount, "");
+                last.getLongitude(), "waypoint " + pointCount, "", null);
         } else {
             return null;
         }

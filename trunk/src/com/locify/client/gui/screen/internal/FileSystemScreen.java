@@ -287,11 +287,11 @@ public class FileSystemScreen implements CommandListener, Comparator {
                     waypoint = new Waypoint(
                             route.getFirstPoint().getLatitude(),
                             route.getFirstPoint().getLongitude(),
-                            "", "");
+                            "", "", null);
                 } else if (fileType == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
                     WaypointsCloud cloud = (WaypointsCloud) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_WAYPOINTS_CLOUD, 0);
                     waypoint = new Waypoint(cloud.getCenterLocation().getLatitude(),
-                            cloud.getCenterLocation().getLongitude(), "", "");
+                            cloud.getCenterLocation().getLongitude(), "", "", null);
                 }
                 if (waypoint != null) {
                     R.getContext().setLocation(new Location4D(waypoint.getLatitude(), waypoint.getLongitude(), 0), LocationContext.SAVED_LOCATION, waypoint.getName());
