@@ -48,7 +48,7 @@ public class Route extends GeoData {
     }
 
     public String toString() {
-        return "Route: " + super.toString() + " points: " + points.size();
+        return "Route: " + super.toString() + " points: " + points.size() + " style: " + styleName;
     }
 
     /**

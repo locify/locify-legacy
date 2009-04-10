@@ -41,6 +41,7 @@ public class MultiGeoData {
     }
 
     public void addGeoData(GeoData actualGeoData) {
+//Logger.log("Add data: " + actualGeoData.toString());
         geoData.add(actualGeoData);
     }
 
@@ -50,7 +51,7 @@ public class MultiGeoData {
             GeoData data;
             for (int i = 0; i < geoData.size(); i++) {
                 data = (GeoData) geoData.get(i);
-
+//Logger.log(data.toString());
                 // first finalize GeoFileStyleMap
                 if (stylesMap != null) {
                     Enumeration enu = stylesMap.elements();

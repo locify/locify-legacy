@@ -70,7 +70,7 @@ public class Waypoint extends GeoData {
     }
 
     public String toString() {
-        return super.toString();
+        return "Waypoint: " + super.toString();
     }
 
     public void paint(Graphics g, int x, int y) {

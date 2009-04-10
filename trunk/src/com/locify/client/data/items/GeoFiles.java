@@ -553,19 +553,24 @@ public abstract class GeoFiles {
                     if (tagName.equalsIgnoreCase("Folder")) {
                         try {
                             setState(STATE_DOCUMENT);
-                            multiData.addGeoData(actualGeoData);
+                            if (actualGeoData != null && actualGeoData instanceof WaypointsCloud &&
+                                    ((WaypointsCloud) actualGeoData).getWaypointsCount() > 0) {
+                                multiData.addGeoData(actualGeoData);
+                                actualGeoData = null;
+                            }
                         } catch (Exception e) {
                             Logger.warning("GeoFiles.parseKml() - 'Folder' endTag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("Placemark")) {
                         try {
-                            if (actualGeoData instanceof Route) {
+                            if (actualGeoData != null && actualGeoData instanceof Route) {
                                 actualGeoData.name = name;
                                 actualGeoData.description = description;
                                 actualGeoData.styleName = styleURL;
                                 styleURL = null;
                                 ((Route) actualGeoData).routeOnlyInfo = firstNameOnly;
                                 multiData.addGeoData(actualGeoData);
+                                actualGeoData = null;
                             }
                         } catch (Exception e) {
                             Logger.warning("GeoFiles.parseKml() - 'Placemark' endTag error!!!");

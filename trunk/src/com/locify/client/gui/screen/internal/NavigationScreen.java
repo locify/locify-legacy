@@ -313,7 +313,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
                 continue;
             }
 
-            a = (i * 10 + nAngle) / GpsUtils.RHO;
+            a = (i * 10 - nAngle) / GpsUtils.RHO;
 
             double aSin = Math.sin(a);
             double aCos = Math.cos(a);
@@ -450,7 +450,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
      */
     public void moveAngles(final double nAngle, final double dAngle) {
         boolean move = false;
-
+//Logger.log("nAngle: " + nAngle + " dAngle: " + dAngle);
         if (move) {
             final double nDiff = getDiffAngle(NavigationScreen.nAngle, nAngle);
             final double dDiff = getDiffAngle(NavigationScreen.dAngle, dAngle);
@@ -527,29 +527,31 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     }
 
     public void locationChanged(LocationEventGenerator sender, Location4D location) {
-        this.location = location;
+        if (this.isShown()) {
+            this.location = location;
 
-        double angleN = R.getLocator().getHeading();
-        double angleD = 0;
-        if (navigator != null) {
-            setTitle(navigator.getToName());
-            angleD = navigator.getAzimuthToTaget(location) - angleN;
-            actualizeItem(ITEM_DISTANCE, GpsUtils.formatDistance(navigator.getDistanceToTarget(location)));
+            double angleN = R.getLocator().getHeading();
+            double angleD = 0;
+            if (navigator != null) {
+                setTitle(navigator.getToName());
+                angleD = navigator.getAzimuthToTaget(location) - angleN;
+                actualizeItem(ITEM_DISTANCE, GpsUtils.formatDistance(navigator.getDistanceToTarget(location)));
+            }
+            moveAngles(angleN, angleD);
+
+            nAngle = angleN;
+            dAngle = angleD;
+
+            actualizeItem(ITEM_ACCURACY, GpsUtils.formatDouble(R.getLocator().getAccuracyHorizontal(), 1));
+            actualizeItem(ITEM_SPEED, GpsUtils.formatSpeed(R.getLocator().getSpeed()));
+            actualizeItem(ITEM_ALTITUDE, GpsUtils.formatDouble(R.getLocator().getLastLocation().getAltitude(), 1) + "m");
+            actualizeItem(ITEM_LATITUDE, GpsUtils.formatLatitude(
+                    R.getLocator().getLastLocation().getLatitude(), R.getSettings().getCoordsFormat()));
+            actualizeItem(ITEM_LONGITUDE, GpsUtils.formatLongitude(
+                    R.getLocator().getLastLocation().getLongitude(), R.getSettings().getCoordsFormat()));
+
+            repaint();
         }
-        moveAngles(angleN, angleD);
-
-        nAngle = angleN;
-        dAngle = angleD;
-
-        actualizeItem(ITEM_ACCURACY, GpsUtils.formatDouble(R.getLocator().getAccuracyHorizontal(), 1));
-        actualizeItem(ITEM_SPEED, GpsUtils.formatSpeed(R.getLocator().getSpeed()));
-        actualizeItem(ITEM_ALTITUDE, GpsUtils.formatDouble(R.getLocator().getLastLocation().getAltitude(), 1) + "m");
-        actualizeItem(ITEM_LATITUDE, GpsUtils.formatLatitude(
-                R.getLocator().getLastLocation().getLatitude(), R.getSettings().getCoordsFormat()));
-        actualizeItem(ITEM_LONGITUDE, GpsUtils.formatLongitude(
-                R.getLocator().getLastLocation().getLongitude(), R.getSettings().getCoordsFormat()));
-
-        repaint();
     }
 
     private void actualizeItem(int item, String value) {
