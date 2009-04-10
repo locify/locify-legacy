@@ -36,7 +36,10 @@ public class NetworkLinkDownloader extends Thread {
 
     public void resume() {
         stop = false;
-        start();
+        try {
+            start();
+        } catch (IllegalThreadStateException e) {
+        }
     }
 
     public boolean isStopped() {

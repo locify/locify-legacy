@@ -141,6 +141,10 @@ public class GeoFileBrowser implements CommandListener {
             if (multiData != null) {
                 if (dataType == GeoFiles.TYPE_NETWORKLINK) {
                     R.getMapScreen().view(networkLink);
+                    //change the back screens
+                    R.getBack().deleteLast();
+                    R.getBack().goForward("locify://maps", null);
+                    return;
                 }
 
                 if (MapScreen.isNowDirectly()) {
