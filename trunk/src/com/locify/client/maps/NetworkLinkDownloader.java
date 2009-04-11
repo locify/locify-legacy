@@ -30,16 +30,11 @@ public class NetworkLinkDownloader extends Thread {
     }
 
     public void stop() {
-        System.out.println("stopping networklink downloader");
         stop = true;
     }
 
     public void resume() {
         stop = false;
-        try {
-            start();
-        } catch (IllegalThreadStateException e) {
-        }
     }
 
     public boolean isStopped() {
@@ -48,8 +43,10 @@ public class NetworkLinkDownloader extends Thread {
 
     public void run() {
         try {
-            while (!stop) {
-                R.getHttp().start(link.getLink());
+            while (true) {
+                if (!stop) {
+                    R.getHttp().start(link.getLink());
+                }
                 Thread.sleep(link.getRefreshInterval() * 1000);
             }
         } catch (Exception e) {

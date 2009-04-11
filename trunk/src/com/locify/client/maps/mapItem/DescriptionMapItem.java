@@ -63,6 +63,17 @@ public class DescriptionMapItem extends MapItem {
         selectedButton = 0;
         initialize();
     }
+
+    public void updateWaypoint(Waypoint waypoint)
+    {
+        this.item = waypoint;
+        initialize();
+    }
+
+    public Waypoint getWaypoint()
+    {
+        return item;
+    }
     
     public void initialize() {
         if (actualState == STATE_WAITING) {

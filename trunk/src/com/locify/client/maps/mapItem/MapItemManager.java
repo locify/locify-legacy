@@ -79,6 +79,7 @@ public class MapItemManager {
     public void addItem(String itemName, MapItem item, int priority) {
         /* change navigation along the map while new waypoint is coming from network link */
         if (MapScreen.isNowDirectly() && item instanceof PointMapItem) {
+            //update map navigation
             if (R.getMapScreen().isMapNavigationRunning()) {
                 MapNavigationItem navItem = (MapNavigationItem) getItemTemp("navigationItem");
                 String navId = navItem.getTargetWaypoint().id;
@@ -86,10 +87,20 @@ public class MapItemManager {
                     navItem.setTargetWaypoint(((PointMapItem) item).getWaypointById(navId));
                 }
             }
+            //update compass navigation
             if (R.getNavigationScreen().hasNetworkLinkLock()) {
                 String navId = R.getNavigationScreen().getWaypointId();
                 if (navId != null) {
                     R.getNavigationScreen().updateWaypoint(((PointMapItem) item).getWaypointById(navId));
+                }
+            }
+            //update selected item
+            if (getItemTemp("selectedItem")!=null)
+            {
+                DescriptionMapItem navItem = (DescriptionMapItem) getItemTemp("selectedItem");
+                String navId = navItem.getWaypoint().id;
+                if (navId != null) {
+                    navItem.updateWaypoint(((PointMapItem) item).getWaypointById(navId));
                 }
             }
         }
