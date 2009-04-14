@@ -45,6 +45,7 @@ public class ConfirmScreen implements CommandListener {
     private static final int OPEN_URL = 1;
     private static final int SET_ADDRESS_LOCATION = 2;
     public static final int AUTOINSTALL_SERVICES = 3;
+    public static final int EXIT = 4;
 
     public ConfirmScreen() {
     }
@@ -121,6 +122,9 @@ public class ConfirmScreen implements CommandListener {
                         break;
                     case AUTOINSTALL_SERVICES:
                         R.getMainScreen().autoInstall();
+                        break;
+                    case EXIT:
+                        R.getMidlet().exitMIDlet();
                         break;
                 }
 

@@ -56,7 +56,6 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
-
 /**
  * Screen for viewing all maps and items on map
  * @author Jiri & Menion

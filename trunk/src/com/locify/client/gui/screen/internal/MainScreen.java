@@ -625,7 +625,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
         if (c == Commands.cmdSelect) {
             handleSelect(this.getActiveTab(), ((ChoiceGroup) this.getCurrentItem()).getFocusedIndex());
         } else if (c == cmdExit) {
-            R.getURL().call("locify://exit");
+            R.getConfirmScreen().view(Locale.get("Really_exit"), ConfirmScreen.EXIT);
         } else if (c == cmdMoreInfo) {
             R.getURL().call("locify://serviceInfo");
         } else if (c == cmdServiceSettings) {

@@ -50,6 +50,7 @@ Settings=Settings
 Check_version=Check Version
 Help=Help
 Logger=Logger
+Really_exit=Do you really want to exit Locify?
 
 #Main screen context menu
 Service=Service

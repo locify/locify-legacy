@@ -50,6 +50,7 @@ Settings=Nastavení
 Check_version=Kontrola verze
 Help=Nápověda
 Logger=Logovací konzole
+Really_exit=Opravdu chcete ukončit Locify?
 
 #Main screen context menu
 Service=Služba
