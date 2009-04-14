@@ -99,7 +99,6 @@ public class SatelliteScreen extends Form implements CommandListener, LocationEv
         try {
             R.getLocator().setSatScreenActive(true);
             R.getMidlet().switchDisplayable(null, this);
-
         } catch (Exception e) {
             R.getErrorScreen().view(e, "NavigationScreen.view", null);
         }
@@ -108,45 +107,50 @@ public class SatelliteScreen extends Form implements CommandListener, LocationEv
     public void paint(Graphics g) {
         super.paint(g);
         satInRow = 0;
-        Hashtable sat = R.getLocator().getSatInView();
-        g.setColor(ColorsFonts.WHITE);
-        g.fillArc(spX - radius, spY - radius, 2 * radius, 2 * radius, 0, 360);
-        g.setColor(ColorsFonts.BLACK);
-        g.drawArc(spX - radius, spY - radius, 2 * radius, 2 * radius, 0, 360);
-
-        // draw lines
         int x, y, angle, dist;
-        g.setColor(ColorsFonts.GRAY);
-        for (int i = 0; i < 360; i = i + 45) {
-            x = (int) (spX + radius * Math.sin(i / GpsUtils.RHO));
-            y = (int) (spY + radius * Math.cos(i / GpsUtils.RHO));
-
-            g.drawLine(spX, spY, x, y);
-        }
-
+        Hashtable sat = R.getLocator().getSatInView();
         Enumeration enu = sat.keys();
-        g.setColor(ColorsFonts.BLACK);
-        g.setFont(ColorsFonts.FONT_PLAIN_SMALL);
-        while (enu.hasMoreElements()) {
-            Integer prn = (Integer) enu.nextElement();
-            SatellitePosition satel = (SatellitePosition) sat.get(prn);
 
-            g.drawString((prn.intValue() < 10 ? "0" : "") + prn, satInRow * lineWidth + space + 2, TOP_MARGIN + space,
-                    Graphics.TOP | Graphics.LEFT);
-            g.drawRoundRect(satInRow * lineWidth + space, TOP_MARGIN + prnHeight + space,
-                    snrWidth, snrHeight, 5, 5);
-            int height = (int) (satel.getSnr() / 100.0 * snrHeight);
-            g.fillRoundRect(satInRow * lineWidth + space, TOP_MARGIN + prnHeight + space + (snrHeight - height),
-                    snrWidth, height, 5, 5);
+        if (enu.hasMoreElements()) {
+            g.setColor(ColorsFonts.WHITE);
+            g.fillArc(spX - radius, spY - radius, 2 * radius, 2 * radius, 0, 360);
+            g.setColor(ColorsFonts.BLACK);
+            g.drawArc(spX - radius, spY - radius, 2 * radius, 2 * radius, 0, 360);
 
-            angle = (int) satel.getAzimuth();
-            dist = (int) (radius - satel.getElevation() * radius / 90.0);
-            x = (int) (spX + dist * Math.sin(angle / GpsUtils.RHO));
-            y = (int) (spY + dist * Math.cos(angle / GpsUtils.RHO));
+            // draw lines
+            g.setColor(ColorsFonts.GRAY);
+            for (int i = 0; i < 360; i = i + 45) {
+                x = (int) (spX + radius * Math.sin(i / GpsUtils.RHO));
+                y = (int) (spY + radius * Math.cos(i / GpsUtils.RHO));
 
-            g.drawString("" + prn, x - 4, y - 25, Graphics.TOP | Graphics.LEFT);
-            g.drawImage(getSatImage(satel.getSnr()), x, y, Graphics.VCENTER | Graphics.HCENTER);
-            satInRow++;
+                g.drawLine(spX, spY, x, y);
+            }
+        
+            g.setColor(ColorsFonts.BLACK);
+            g.setFont(ColorsFonts.FONT_PLAIN_SMALL);
+            while (enu.hasMoreElements()) {
+                Integer prn = (Integer) enu.nextElement();
+                SatellitePosition satel = (SatellitePosition) sat.get(prn);
+
+                g.drawString((prn.intValue() < 10 ? "0" : "") + prn, satInRow * lineWidth + space + 2, TOP_MARGIN + space,
+                        Graphics.TOP | Graphics.LEFT);
+                g.drawRoundRect(satInRow * lineWidth + space, TOP_MARGIN + prnHeight + space,
+                        snrWidth, snrHeight, 5, 5);
+                int height = (int) (satel.getSnr() / 100.0 * snrHeight);
+                g.fillRoundRect(satInRow * lineWidth + space, TOP_MARGIN + prnHeight + space + (snrHeight - height),
+                        snrWidth, height, 5, 5);
+
+                angle = (int) satel.getAzimuth();
+                dist = (int) (radius - satel.getElevation() * radius / 90.0);
+                x = (int) (spX + dist * Math.sin(angle / GpsUtils.RHO));
+                y = (int) (spY + dist * Math.cos(angle / GpsUtils.RHO));
+
+                g.drawString("" + prn, x - 4, y - 25, Graphics.TOP | Graphics.LEFT);
+                g.drawImage(getSatImage(satel.getSnr()), x, y, Graphics.VCENTER | Graphics.HCENTER);
+                satInRow++;
+            }
+        } else {
+            g.drawString(Locale.get("No_satellites"), 10, 50, Graphics.TOP | Graphics.LEFT);
         }
     }
 

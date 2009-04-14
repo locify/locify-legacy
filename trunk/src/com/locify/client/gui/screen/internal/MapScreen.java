@@ -56,7 +56,6 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
-import javax.microedition.lcdui.game.Sprite;
 
 /**
  * Screen for viewing all maps and items on map
@@ -161,9 +160,15 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         lastSelectedY = 0;
 
         //hasPointerSupport = true;
-        touchZoomInButtonCenter = new Point2D.Int(12, TOP_MARGIN + 14);
-        touchZoomOutButtonCenter = new Point2D.Int(12, getHeight() - BOTTOM_MARGIN - 44);
-        touchZoomButtonRadius = 10;
+        //#if polish.Vendor == WM-big
+        touchZoomInButtonCenter = new Point2D.Int(22, TOP_MARGIN + 28);
+        touchZoomOutButtonCenter = new Point2D.Int(22, getHeight() - BOTTOM_MARGIN - 50);
+        touchZoomButtonRadius = 20;
+        //#else
+//#         touchZoomInButtonCenter = new Point2D.Int(12, TOP_MARGIN + 14);
+//#         touchZoomOutButtonCenter = new Point2D.Int(12, getHeight() - BOTTOM_MARGIN - 44);
+//#         touchZoomButtonRadius = 10;
+        //#endif
 
         cmdZoomIn = new Command(Locale.get("Zoom_in"), Command.SCREEN, 1);
         cmdZoomOut = new Command(Locale.get("Zoom_out"), Command.SCREEN, 2);

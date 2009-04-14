@@ -39,6 +39,8 @@ public class RouteVariables {
     public static final int SAVED_COUNT_LOCATION = 1;
     /** save route point every x metres */
     public static final double MIN_STEP_DISTANCE = 10;
+    /** max distance beetwen two stepas */
+    public static final double MAX_STEP_DISTANCE = 10000;
     /** number of points and distances holded in memory */
     public static final int MAX_PAD = 30;
 

@@ -5,6 +5,11 @@
 
 /* ----------------------------- DEFINITIONS --------------------------- */
 
+/* WM-big used fonts 
+arial_20_bold
+arial_20
+arial_16_black */
+
 /* Colors definition */
 colors {
     fontColor: black;
@@ -94,7 +99,7 @@ title {
     layout: left | horizontal-expand;
     text-wrap:false;
     //#if polish.name == WM-big
-      font-bitmap:arial_20_bold;
+      font-bitmap:arial_24_bold;
     //#endif
 }
 
@@ -108,7 +113,7 @@ title {
     border: bottomBorder;
     layout: left | horizontal-expand;
     //#if polish.name == WM-big
-      font-bitmap:arial_20_bold;
+      font-bitmap:arial_24_bold;
     //#endif
 }
 
@@ -188,7 +193,7 @@ listitem {
     radiobox-selected:none;
     border:originalBottomBorder;
     //#if polish.name == WM-big
-      font-bitmap:arial_20;
+      font-bitmap:arial_24;
     //#endif
 }
 
@@ -208,7 +213,7 @@ form {
 label {
     font-style: bold;
     //#if polish.name == WM-big
-      font-bitmap:arial_20_bold;
+      font-bitmap:arial_24_bold;
     //#endif
 }
 
@@ -221,7 +226,7 @@ textfield {
     min-width:60;
     layout:newline-after;
     //#if polish.name == WM-big
-      font-bitmap:arial_20;
+      font-bitmap:arial_24;
     //#endif
 }
 
@@ -248,7 +253,7 @@ choicegroup {
     padding:0;
     border:none;
     //#if polish.name == WM-big
-      font-bitmap:arial_20;
+      font-bitmap:arial_24;
     //#endif
 }
 
@@ -275,7 +280,7 @@ radiobox
     radiobox-selected:url(radio-selected.png);
     focused-style:.radioboxFocused;
     //#if polish.name == WM-big
-      font-bitmap:arial_20;
+      font-bitmap:arial_24;
     //#endif
 }
 
@@ -292,7 +297,7 @@ checkbox
     checkbox-selected:url(checkbox-checked.png);
     focused-style:.checkboxFocused;
     //#if polish.name == WM-big
-      font-bitmap:arial_20;
+      font-bitmap:arial_24;
     //#endif
 }
 
@@ -312,7 +317,7 @@ button extends textfield {
     margin:5;
     focused-style:.buttonFocused;
     //#if polish.name == WM-big
-      font-bitmap:arial_20_bold;
+      font-bitmap:arial_24_bold;
     //#endif
 }
 
@@ -325,7 +330,7 @@ a {
     font-style:bold;
     font-color:blue;
     //#if polish.name == WM-big
-      font-bitmap:arial_20_bold;
+      font-bitmap:arial_24_bold;
     //#endif
 }
 a:hover extends a {
@@ -341,13 +346,13 @@ a:hover extends a {
 
 .browserText {
     //#if polish.name == WM-big
-      font-bitmap:arial_20;
+      font-bitmap:arial_24;
     //#endif
 }
 
 p {
     //#if polish.name == WM-big
-      font-bitmap:arial_20;
+      font-bitmap:arial_24;
     //#endif
 }
 
@@ -376,7 +381,7 @@ p {
     max-width:65;
     font-size:small;
     //#if polish.name == WM-big
-      font-bitmap:arial_16_black;
+      font-bitmap:arial_20;
     //#endif
 }
 
@@ -396,7 +401,7 @@ p {
     max-width:85;
     font-size:small;
     //#if polish.name == WM-big
-      font-bitmap:arial_16_black;
+      font-bitmap:arial_20;
     //#endif
 }
 
@@ -410,7 +415,7 @@ p {
     min-width:0;
     focused-style:.contextButtonFocused;
     //#if polish.name == WM-big
-      font-bitmap:arial_20_bold;
+      font-bitmap:arial_24_bold;
     //#endif
 }
 
@@ -501,7 +506,7 @@ leftcommand
     font-style: bold;
     layout: left;
     //#if polish.name == WM-big
-      font-bitmap:arial_20_bold;
+      font-bitmap:arial_24_bold;
     //#endif
 }
 
@@ -549,7 +554,7 @@ menuItem {
     command-child-indicator-width: 8;
     command-child-indicator-height: 10;
     //#if polish.name == WM-big
-      font-bitmap:arial_20;
+      font-bitmap:arial_24;
     //#endif
 }
 

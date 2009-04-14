@@ -257,53 +257,55 @@ public class RouteScreen extends Form implements CommandListener {
     }
 
     private void actualizeItems() {
-        if (actualStyleScreen instanceof RouteStyleGraph) {
-            graphItem = (GraphItem) items.get(ITEM_GRAPH_ALTITUDE_BY_DIST);
-            graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION *
-                    routeManager.getSpeedAverage());
-            graphItem.refreshGraph(routeManager.getRouteVariables());
+        if (this.isShown()) {
+            if (actualStyleScreen instanceof RouteStyleGraph) {
+                graphItem = (GraphItem) items.get(ITEM_GRAPH_ALTITUDE_BY_DIST);
+                graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION *
+                        routeManager.getSpeedAverage());
+                graphItem.refreshGraph(routeManager.getRouteVariables());
 
-            graphItem = (GraphItem) items.get(ITEM_GRAPH_ALTITUDE_BY_TIME);
-            graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION);
-            graphItem.refreshGraph(routeManager.getRouteVariables());
-        } else {
-            routeItem = (ScreenItem) items.get(ITEM_ROUTE_TIME);
-            routeItem.setTextValue(GpsUtils.formatTimeShort(routeManager.getRouteTime()));
-            
-            if (routeManager.isNewData()) {
-                routeItem = (ScreenItem) items.get(ITEM_HDOP);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getHdop(), 1));
+                graphItem = (GraphItem) items.get(ITEM_GRAPH_ALTITUDE_BY_TIME);
+                graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION);
+                graphItem.refreshGraph(routeManager.getRouteVariables());
+            } else {
+                routeItem = (ScreenItem) items.get(ITEM_ROUTE_TIME);
+                routeItem.setTextValue(GpsUtils.formatTimeShort(routeManager.getRouteTime()));
 
-                routeItem = (ScreenItem) items.get(ITEM_VDOP);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getVdop(), 1));
+                if (routeManager.isNewData()) {
+                    routeItem = (ScreenItem) items.get(ITEM_HDOP);
+                    routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getHdop(), 1));
 
-                routeItem = (ScreenItem) items.get(ITEM_LATITUDE);
-                routeItem.setTextValue(
-                        GpsUtils.formatLatitude(routeManager.getLatitude(), R.getSettings().getCoordsFormat()));
+                    routeItem = (ScreenItem) items.get(ITEM_VDOP);
+                    routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getVdop(), 1));
 
-                routeItem = (ScreenItem) items.get(ITEM_LONGITUDE);
-                routeItem.setTextValue(
-                        GpsUtils.formatLongitude(routeManager.getLongitude(), R.getSettings().getCoordsFormat()));
+                    routeItem = (ScreenItem) items.get(ITEM_LATITUDE);
+                    routeItem.setTextValue(
+                            GpsUtils.formatLatitude(routeManager.getLatitude(), R.getSettings().getCoordsFormat()));
 
-                routeItem = (ScreenItem) items.get(ITEM_ALTITUDE);
-                routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getAltitude(), 0) + " m");
+                    routeItem = (ScreenItem) items.get(ITEM_LONGITUDE);
+                    routeItem.setTextValue(
+                            GpsUtils.formatLongitude(routeManager.getLongitude(), R.getSettings().getCoordsFormat()));
 
-                routeItem = (ScreenItem) items.get(ITEM_SPEED_ACTUAL);
-                routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeed()));
+                    routeItem = (ScreenItem) items.get(ITEM_ALTITUDE);
+                    routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getAltitude(), 0) + " m");
 
-                routeItem = (ScreenItem) items.get(ITEM_ROUTE_DIST);
-                routeItem.setTextValue(GpsUtils.formatDistance(routeManager.getRouteDist()));
+                    routeItem = (ScreenItem) items.get(ITEM_SPEED_ACTUAL);
+                    routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeed()));
 
-                routeItem = (ScreenItem) items.get(ITEM_SPEED_AVERAGE);
-                routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeedAverage()));
+                    routeItem = (ScreenItem) items.get(ITEM_ROUTE_DIST);
+                    routeItem.setTextValue(GpsUtils.formatDistance(routeManager.getRouteDist()));
 
-                routeItem = (ScreenItem) items.get(ITEM_SPEED_MAX);
-                routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeedMax()));
+                    routeItem = (ScreenItem) items.get(ITEM_SPEED_AVERAGE);
+                    routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeedAverage()));
 
-                routeManager.setNewData(false);
+                    routeItem = (ScreenItem) items.get(ITEM_SPEED_MAX);
+                    routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeedMax()));
+
+                    routeManager.setNewData(false);
+                }
             }
+            repaint();
         }
-        repaint();
     }
 
     private void calculateBySize(int minItemWidth, int minItemHeight) {

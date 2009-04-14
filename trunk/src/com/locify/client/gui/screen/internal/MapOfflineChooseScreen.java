@@ -56,19 +56,21 @@ public class MapOfflineChooseScreen implements CommandListener, ItemCommandListe
         cmdSearchMaps = new Command(Locale.get("Find_maps"), Command.SCREEN, 5);
     }
 
-    private void viewNoMapsInfo() {
-        frmMapsInfo = new Form(Locale.get("Maps_in_area"));
-        frmMapsInfo.setCommandListener(this);
-        String path = FileSystem.ROOT + FileSystem.MAP_FOLDER;
-        frmMapsInfo.append(Locale.get("No_file_maps_warning", path));
-        StringItem btnInitialize = new StringItem("", Locale.get("Initialize_maps"), StringItem.BUTTON);
-        btnInitialize.setDefaultCommand(cmdInitialize);
-        btnInitialize.setItemCommandListener(this);
-        frmMapsInfo.append(btnInitialize);
-        //#style imgHome
-        frmMapsInfo.addCommand(Commands.cmdHome);
-        frmMapsInfo.addCommand(Commands.cmdBack);
-        R.getMidlet().switchDisplayable(null, frmMapsInfo);
+    public void view(double lat1, double lon1, double lat2, double lon2) {
+//Logger.debug("MapOfflineChooseScreen.view(" + lat1 + ", " + lon1 + ", " + lat2 + ", " + lon2 + ")");
+        this.lastLat1 = lat1;
+        this.lastLon1 = lon1;
+        this.lastLat2 = lat2;
+        this.lastLon2 = lon2;
+
+        view();
+
+        findedData = StoreManager.getMapsAroundScreen(lat1, lon1, lat2, lon2);
+        if (findedData.size() == 0) {
+            viewNoMapsInfo();
+        } else {
+            viewAvailable();
+        }
     }
 
     private void view() {
@@ -85,6 +87,23 @@ public class MapOfflineChooseScreen implements CommandListener, ItemCommandListe
         lstAvailableMaps.addCommand(Commands.cmdBack);
     }
 
+    private void viewNoMapsInfo() {
+        frmMapsInfo = new Form(Locale.get("Maps_in_area"));
+        frmMapsInfo.setCommandListener(this);
+        String path = FileSystem.ROOT + FileSystem.MAP_FOLDER;
+        frmMapsInfo.append(Locale.get("No_file_maps_warning", path));
+        StringItem btnInitialize = new StringItem("", Locale.get("Initialize_maps"), StringItem.BUTTON);
+        btnInitialize.setDefaultCommand(cmdInitialize);
+        btnInitialize.setItemCommandListener(this);
+        frmMapsInfo.append(btnInitialize);
+        //#style imgOnlineMap
+        frmMapsInfo.addCommand(cmdOnlineMaps);
+        //#style imgHome
+        frmMapsInfo.addCommand(Commands.cmdHome);
+        frmMapsInfo.addCommand(Commands.cmdBack);
+        R.getMidlet().switchDisplayable(null, frmMapsInfo);
+    }
+
     private void viewAvailable() {
         lstAvailableMaps.deleteAll();
         for (int i = 0; i < findedData.size(); i++) {
@@ -99,23 +118,6 @@ public class MapOfflineChooseScreen implements CommandListener, ItemCommandListe
         lstAvailableMaps.addCommand(Commands.cmdHome);
         //#style imgSaved
         lstAvailableMaps.addCommand(cmdInitialize);
-    }
-
-    public void view(double lat1, double lon1, double lat2, double lon2) {
-//Logger.debug("MapOfflineChooseScreen.view(" + lat1 + ", " + lon1 + ", " + lat2 + ", " + lon2 + ")");
-        this.lastLat1 = lat1;
-        this.lastLon1 = lon1;
-        this.lastLat2 = lat2;
-        this.lastLon2 = lon2;
-
-        view();
-
-        findedData = StoreManager.getMapsAroundScreen(lat1, lon1, lat2, lon2);
-        if (findedData.size() == 0) {
-            viewNoMapsInfo();
-        } else {
-            viewAvailable();
-        }
     }
 
     public void commandAction(Command c, Displayable d) {

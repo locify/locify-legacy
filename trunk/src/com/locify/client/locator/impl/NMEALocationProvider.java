@@ -81,11 +81,11 @@ public class NMEALocationProvider extends LocationProvider {
             setState(CONNECTING);
             parent.gpsAlive = 0;
 
+            StringBuffer s = new StringBuffer();
             while (!stopRequest) {
                 if (inputStream != null) {
-
                     try {
-                        StringBuffer s = new StringBuffer();
+                        s.delete(0, s.length());
                         int ch = 0;
                         //cteni dat
                         while (((ch = inputStream.read()) != '\n') && (ch != -1)) {
@@ -120,7 +120,7 @@ public class NMEALocationProvider extends LocationProvider {
                         } else {
                             setState(READY);
                         }
-//
+
                     } catch (Exception e) {
                         stop();
                     }
@@ -150,7 +150,7 @@ public class NMEALocationProvider extends LocationProvider {
          * Parses NMEA message
          * @param nmea nmea string to be parsed
          */
-        protected void receiveNmea(String nmea) {
+        private void receiveNmea(String nmea) {
             try {
                 int starIndex = nmea.indexOf('*');
                 if (starIndex == -1) {

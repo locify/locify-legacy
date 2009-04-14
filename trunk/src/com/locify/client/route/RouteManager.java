@@ -186,6 +186,9 @@ public class RouteManager implements LocationEventListener {
 
     public void locationChanged(LocationEventGenerator sender, Location4D location) {
 //System.out.println("RouteManager - locationChanged() " + location.toString());
+        if (location.getLatitude() == 0.0 || location.getLongitude() == 0.0)
+            return;
+
         rv.hdop = R.getLocator().getAccuracyHorizontal();
         rv.vdop = R.getLocator().getAccuracyVertical();
         rv.speedActual = R.getLocator().getSpeed();
@@ -194,7 +197,8 @@ public class RouteManager implements LocationEventListener {
             if (rv.locationActual != null) {
                 stepDistance = rv.locationActual.distanceTo(location);
 //System.out.println("RouteManager - locationChanged() stepDistance: " + stepDistance);
-                if (stepDistance > RouteVariables.MIN_STEP_DISTANCE) {
+                if (stepDistance > RouteVariables.MIN_STEP_DISTANCE &&
+                        stepDistance < RouteVariables.MAX_STEP_DISTANCE) {
                     rv.locationActual = location.getLocation4DCopy();
 
                     rv.routeDist = rv.routeDist + stepDistance;

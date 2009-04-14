@@ -360,6 +360,7 @@ Image_too_big=Image too big
 Try_again=Try again
 Invalid_address=Your address appears to be invalid. Try different input.
 Wrong_file=File is damaged, repair it or send to support@locify.com to analyse.
+No_satellites=No satellites in actual view or wrong data.
 
 #Route screen
 Route_screen=Record route
