@@ -131,6 +131,9 @@ public class InternalURLManager {
                     }
                 } else if (parameters.containsKey("file")) {
                     R.getNavigationScreen().view((String) parameters.get("file"));
+                } else if (parameters.containsKey("id"))
+                {
+                    R.getNavigationScreen().view((String)parameters.get("id"), true);
                 }
             } else if (url.startsWith("locify://maps")) {
                 R.getMapScreen().view();
@@ -292,6 +295,9 @@ public class InternalURLManager {
             } else if (url.startsWith("locify://sms")) {
                 //sms sending
                 Sms.send((String) parameters.get("number"), (String) parameters.get("text"));
+            } else if (url.startsWith("locify://mapNavigation")) {
+                R.getBack().deleteLast();
+                R.getMapScreen().startMapNavigation(R.getMapItemManager().getWaypointById((String)parameters.get("id")));
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "InternalURLManager.call", url);

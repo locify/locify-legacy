@@ -213,7 +213,7 @@ public class SettingsData {
                     break;
             }
             settings.put("locationSource", "4");
-            settings.put("locationInfo", "");
+            settings.put("locationInfo", Locale.get("Unknown_location"));
             settings.put("externalClose", String.valueOf(ASK));
             settings.put("coordsFormat", String.valueOf(FORMAT_WGS84_MIN));
             settings.put("autoLogin", String.valueOf(OFF));

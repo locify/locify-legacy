@@ -10,7 +10,6 @@
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
-
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.items.GeoData;
@@ -184,9 +183,9 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
                 tempItem.setTextValue(" ");
                 //#if polish.Vendor == WM-big
                 tempItem.setFont(ColorsFonts.BMF_ARIAL_14_BLACK, ColorsFonts.BMF_ARIAL_14_BLACK);
-                //#else
+            //#else
 //#                 tempItem.setFont(ColorsFonts.BMF_ARIAL_10_BLACK, ColorsFonts.BMF_ARIAL_10_BLACK);
-                //#endif
+            //#endif
             }
         }
     }
@@ -215,19 +214,26 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         for (int i = 0; i < mgd.getDataSize(); i++) {
             view(mgd.getGeoData(i));
         }
-//        int type = GeoFiles.getDataTypeFile(fileName);
-//        if (type == GeoFiles.TYPE_WAYPOINT) {
-//            view(GeoFiles.loadWaypointFile(fileName));
-//        } else if (type == GeoFiles.TYPE_WAYPOINTS_CLOUD) {
-//            view(GeoFiles.loadWaypointsCloudFile(fileName));
-//        } else if (type == GeoFiles.TYPE_ROUTE) {
-//            view(GeoFiles.loadRouteFile(fileName, false));
-//        }
+    }
+
+    /**
+     * Used when ID of waypoint in map is used
+     * @param id
+     * @param idc
+     */
+    public void view(String id, boolean idc) {
+        if (R.getMapItemManager().getWaypointById(id) != null) {
+            navigator = new WaypointNavigatorModel(R.getMapItemManager().getWaypointById(id));
+            setNetworkLinkLock(true);
+            R.getMapScreen().resumeNetworkLink();
+            R.getBack().deleteLast();
+            view();
+        }
     }
 
     /**
      * Determines file type and start navigation to it
-     * @param fileName
+     * @param data
      */
     public void view(GeoData data) {
         if (data instanceof Waypoint) {
@@ -243,15 +249,11 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         view();
     }
 
-    public void updateWaypoint(Waypoint waypoint)
-    {
-        if (navigator == null)
-        {
+    public void updateWaypoint(Waypoint waypoint) {
+        if (navigator == null) {
             navigator = new WaypointNavigatorModel(waypoint);
-        }
-        else if (navigator instanceof WaypointNavigatorModel)
-        {
-            ((WaypointNavigatorModel)navigator).updateWaypoint(waypoint);
+        } else if (navigator instanceof WaypointNavigatorModel) {
+            ((WaypointNavigatorModel) navigator).updateWaypoint(waypoint);
             locationChanged(null, location);
         }
     }
@@ -597,11 +599,9 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         return networkLinkLock;
     }
 
-    public String getWaypointId()
-    {
-        if (navigator != null & navigator instanceof WaypointNavigatorModel)
-        {
-            return ((WaypointNavigatorModel)navigator).getId();
+    public String getWaypointId() {
+        if (navigator != null & navigator instanceof WaypointNavigatorModel) {
+            return ((WaypointNavigatorModel) navigator).getId();
         }
         return null;
     }

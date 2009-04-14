@@ -422,6 +422,10 @@ p {
     view-type:midp2;
 }
 
+.breakline {
+    layout:newline-after;
+}
+
 /* Alert */
 .alertForm
 {

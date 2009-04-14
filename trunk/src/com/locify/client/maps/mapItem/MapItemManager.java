@@ -15,6 +15,7 @@ package com.locify.client.maps.mapItem;
 
 import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.utils.R;
+import com.locify.client.data.items.Waypoint;
 import de.enough.polish.util.Locale;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -278,6 +279,20 @@ public class MapItemManager {
             }
         }
         return wayPoints;
+    }
+
+    public Waypoint getWaypointById(String id)
+    {
+        Enumeration enu = items.elements();
+        MapItem item;
+        while (enu.hasMoreElements()) {
+            item = (MapItem) enu.nextElement();
+            if (item instanceof PointMapItem)
+            {
+                return ((PointMapItem)item).getWaypointById(id);
+            }
+        }
+        return null;
     }
 
 //    public MapItem touchAtPosition(int x, int y) {

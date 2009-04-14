@@ -409,6 +409,7 @@ Unable_to_search_service=149
 Unexpected_problem=445
 Units=504
 Unknown_bt_device=150
+Unknown_location=507
 Unsupported=500
 Update_screen=151
 Update_service=217

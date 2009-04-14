@@ -383,13 +383,13 @@ public class XHTMLTagHandler
                     return true;
                 } else if (TAG_BR.equals(tagName)) {
                     // TODO: Can we do this without adding a dummy StringItem?
+                    //#style breakline
                     StringItem stringItem = new StringItem(null, null);
-                    stringItem.setLayout(Item.LAYOUT_NEWLINE_AFTER);
                     add(stringItem);
                     return true;
                 } else if (TAG_P.equals(tagName)) {
+                    //#style breakline
                     StringItem stringItem = new StringItem(null, null);
-                    stringItem.setLayout(Item.LAYOUT_NEWLINE_AFTER);
                     add(stringItem);
                     if (opening) {
                         this.textStyle = style;

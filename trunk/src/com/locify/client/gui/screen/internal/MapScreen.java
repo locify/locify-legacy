@@ -255,9 +255,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 R.getMidlet().switchDisplayable(null, this);
                 selectNearestWaypointsAtCenter();
                 repaint();
-                if (networkLinkDownloader != null && networkLinkDownloader.isStopped()) {
-                    networkLinkDownloader.resume();
-                }
+                resumeNetworkLink();
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.view()", null);
@@ -1437,14 +1435,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     R.getURL().call("locify://navigation");
                     break;
                 case DescriptionMapItem.BUTTON_NAVIGATE_ON_MAP:
-                    mapItemManager.addItemTemp(tempMapNavigationItem,
-                            new MapNavigationItem(
-                            new Waypoint(R.getLocator().getLastLocation().getLatitude(),
-                            R.getLocator().getLastLocation().getLongitude(), " ", " ", null),
-                            item.getSelectedWaypoint()), MapItem.PRIORITY_MEDIUM);
-                    mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
-                    selectNearestWaypointsAtCenter();
-                    repaint();
+                    startMapNavigation(item.getSelectedWaypoint());
                     break;
                 case DescriptionMapItem.BUTTON_CLOSE:
                     mapItemManager.removeItemTemp(tempMapNavigationItem);
@@ -1454,6 +1445,23 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     repaint();
                     break;
             }
+        }
+    }
+
+    public void startMapNavigation(Waypoint waypoint) {
+        mapItemManager.addItemTemp(tempMapNavigationItem,
+                new MapNavigationItem(
+                new Waypoint(R.getLocator().getLastLocation().getLatitude(),
+                R.getLocator().getLastLocation().getLongitude(), " ", " ", null),
+                waypoint), MapItem.PRIORITY_MEDIUM);
+        mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
+        selectNearestWaypointsAtCenter();
+        view();
+    }
+
+    public void resumeNetworkLink() {
+        if (networkLinkDownloader != null && networkLinkDownloader.isStopped()) {
+            networkLinkDownloader.resume();
         }
     }
 }
