@@ -1432,7 +1432,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         if (item != null) {
             switch (item.getSelectedType()) {
                 case DescriptionMapItem.BUTTON_NAVIGATE:
-                    mapItemManager.removeItemTemp(tempMapNavigationItem);
                     mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
                     R.getNavigationScreen().setNetworkLinkLock(true);
                     R.getNavigationScreen().updateWaypoint(item.getSelectedWaypoint());
@@ -1442,7 +1441,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     startMapNavigation(item.getSelectedWaypoint());
                     break;
                 case DescriptionMapItem.BUTTON_CLOSE:
-                    mapItemManager.removeItemTemp(tempMapNavigationItem);
                     mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
                     ((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)).state = Waypoint.STATE_HIGHLIGHT;
                     selectedMapItemIndex = -1;

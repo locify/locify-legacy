@@ -13,7 +13,6 @@
  */
 package com.locify.client.locator;
 
-import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import de.enough.polish.util.Locale;
 import javax.microedition.lcdui.Command;

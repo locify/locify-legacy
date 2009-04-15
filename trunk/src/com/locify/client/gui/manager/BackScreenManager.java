@@ -112,7 +112,6 @@ public class BackScreenManager {
             if (parts.length == 2) {
                 R.getPostData().setRaw(parts[1], true);
             }
-            Logger.debug("Going back to:");
             R.getURL().call(parts[0]);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "BackScreenManager.goBack", null);
