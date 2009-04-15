@@ -84,6 +84,7 @@ public class LocationContext implements LocationEventGenerator {
             } else {
                 R.getURL().call("locify://mainScreen");
             }
+            back = false;
         }
     }
 
