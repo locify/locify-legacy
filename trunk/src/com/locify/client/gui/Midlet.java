@@ -24,8 +24,8 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
-import com.locify.client.maps.fileMaps.StoreManager;
 import com.locify.client.utils.Capabilities;
+import com.locify.client.utils.Logger;
 
 /**
  * Controls main MIDlet lifecycle

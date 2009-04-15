@@ -749,7 +749,6 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                             R.getURL().call("locify://savePlace");
                             break;
                         case 1:
-                            R.getContext().setBackScreen("locify://recordRoute");
                             R.getURL().call("locify://recordRoute");
                             break;
                         case 2:

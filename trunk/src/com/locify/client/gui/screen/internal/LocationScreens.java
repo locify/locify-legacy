@@ -160,7 +160,8 @@ public class LocationScreens implements CommandListener, ItemCommandListener {
             GeocodeResult result = (GeocodeResult) Geocoding.getResults().elementAt(selected);
             R.getContext().setLocation(new Location4D(result.getLatitude(), result.getLongitude(),0), LocationContext.ADDRESS, result.getReducedAddress());
         } else if (displayable == frmGpsRequest && command == Commands.cmdYes) {
-            R.getURL().call(R.getContext().actions[0]);
+            R.getContext().setBackScreen("locify://recordRoute");
+            R.getURL().call("locify://gps");
         } else if (displayable == frmGpsRequest && command == Commands.cmdNo) {
             R.getURL().call("locify://mainScreen");
         }
