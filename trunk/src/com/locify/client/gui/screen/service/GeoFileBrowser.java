@@ -16,6 +16,7 @@ package com.locify.client.gui.screen.service;
 import com.locify.client.data.LandmarksExport;
 import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
+import com.locify.client.data.ServicesData;
 import com.locify.client.data.items.MultiGeoData;
 import com.locify.client.data.items.NetworkLink;
 import com.locify.client.data.items.Route;
@@ -25,7 +26,9 @@ import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
+import com.locify.client.utils.UTF8;
 import com.locify.client.utils.R;
+import com.locify.client.net.XHTMLBrowser;
 import de.enough.polish.ui.ChoiceGroup;
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.Screen;
@@ -65,6 +68,8 @@ public class GeoFileBrowser implements CommandListener {
     private Command cmdNavigateToNearest;
     private Command cmdExportFirst;
     private Command cmdExportLast;
+    private XHTMLBrowser htmlBrowser;
+    private boolean online = false;
 
     public GeoFileBrowser() {
         dataType = GeoFiles.TYPE_CORRUPT;
@@ -94,6 +99,7 @@ public class GeoFileBrowser implements CommandListener {
         } else {
             multiData = null;
         }
+        online = true;
     }
 
     /**
@@ -110,6 +116,7 @@ public class GeoFileBrowser implements CommandListener {
         } else {
             multiData = null;
         }
+        online = false;
         view();
     }
 
@@ -223,11 +230,9 @@ public class GeoFileBrowser implements CommandListener {
 
     private void viewDataWaypoint() {
         formWaypoint = new Form(waypoint.getName());
+        addDescription(formWaypoint, waypoint);
         formWaypoint.append(new StringItem(Locale.get("Latitude"), GpsUtils.formatLatitude(waypoint.getLatitude(), R.getSettings().getCoordsFormat())));
         formWaypoint.append(new StringItem(Locale.get("Longitude"), GpsUtils.formatLongitude(waypoint.getLongitude(), R.getSettings().getCoordsFormat())));
-
-        addDescription(formWaypoint, waypoint);
-
         //#style imgNavigate
         formWaypoint.addCommand(Commands.cmdNavigate);
 
@@ -236,6 +241,7 @@ public class GeoFileBrowser implements CommandListener {
         }
 
         addCommands(formWaypoint);
+        ServicesData.setCurrent(waypoint.getService());
         R.getMidlet().switchDisplayable(null, formWaypoint);
     }
 
@@ -264,8 +270,13 @@ public class GeoFileBrowser implements CommandListener {
 
     private void addDescription(Form form, GeoData data) {
         if (data.getDescription().length() > 0) {
-            form.append(new StringItem("\n  " + Locale.get("Description"), ""));
-            form.append(new StringItem("", data.getDescription()));
+            htmlBrowser = new XHTMLBrowser();
+            if (online) {
+                htmlBrowser.loadPage(UTF8.decode(data.getDescription().getBytes(), 0, data.getDescription().getBytes().length));
+            } else {
+                htmlBrowser.loadPage(data.getDescription());
+            }
+            form.append(htmlBrowser);
         }
     }
 

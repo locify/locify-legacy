@@ -18,8 +18,6 @@ import com.locify.client.data.AudioData;
 import com.locify.client.data.CacheData;
 import com.locify.client.data.ServicesData;
 import com.locify.client.maps.fileMaps.FileMapManager;
-import com.locify.client.maps.NetworkLinkDownloader;
-import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.UTF8;

@@ -27,6 +27,7 @@ import com.locify.client.utils.R;
 import com.locify.client.data.SettingsData;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.StringTokenizer;
+import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
 import java.io.IOException;
 import java.util.Vector;
@@ -61,7 +62,7 @@ public class Http implements Runnable {
      * @param url
      */
     public void start(String url) {
-        start(new HttpRequest(url, R.getPostData().getUrlEncoded(), R.getPostData().isUrlEncoded(), CookieData.getHeaderData(url)));
+        start(new HttpRequest(url, R.getPostData().getUrlEncoded(), R.getPostData().isUrlEncoded(), CookieData.getHeaderData(url), true));
     }
 
     /***
@@ -140,9 +141,10 @@ public class Http implements Runnable {
                         readData();
 
                     } catch (ConnectionNotFoundException e) {
-                        R.getConnectionProblem().occured();
+                        R.getConnectionProblem().view();
                     } catch (IOException e) {
-                        R.getConnectionProblem().occured();
+                        Logger.debug("IO Exception HTTP");
+                        R.getConnectionProblem().view();
                     } catch (Exception e) {
                         R.getErrorScreen().view(e, "Http.run.request", request.getUrl());
                     } finally {
@@ -150,7 +152,15 @@ public class Http implements Runnable {
                     }
                 }
                 //process content
-                ContentHandler.handle(response);
+                if (response.getData() != null) {
+                    if (request.shouldDisplay()) {
+                        ContentHandler.handle(response);
+                    } else //dont display, save to cache instead
+                    {
+                        Logger.log("Saving straight into cache");
+                        CacheData.add(response.getUrl(), new String(UTF8.decode(response.getData(), 0, response.getData().length)));
+                    }
+                }
                 //remove request from the queue
                 requestQueue.removeElementAt(0);
             }
@@ -200,8 +210,7 @@ public class Http implements Runnable {
         int j = 0;
         while (httpConnection.getHeaderField(j) != null) {
             //Logger.log("input header " + j + ": " + httpConnection.getHeaderFieldKey(j) + "=" + httpConnection.getHeaderField(j));
-            if (httpConnection.getHeaderFieldKey(j)==null)
-            {
+            if (httpConnection.getHeaderFieldKey(j) == null) {
                 j++;
                 continue;
             }
@@ -234,9 +243,15 @@ public class Http implements Runnable {
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("WWW-Authenticate")) {
                 if (httpConnection.getHeaderField(j).indexOf("Basic") != -1) {
                     String[] parts = StringTokenizer.getArray(httpConnection.getHeaderField(j), "\"");
-                    parts[1]=Utils.replaceString(parts[1],"-1067",""); //strange behaviour hack
+                    parts[1] = Utils.replaceString(parts[1], "-1067", ""); //strange behaviour hack
                     R.getAuthentication().start("locify://authentication?realm=" + parts[1]);
                     return true;
+                }
+            }//header for downloading multiple pages straith into cache
+            else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("X-Cache-Store")) {
+                String[] parts = StringTokenizer.getArray(httpConnection.getHeaderField(j), " ");
+                for (int i = 0; i < parts.length; i++) {
+                    start(new HttpRequest(parts[i], null, false, CookieData.getHeaderData(parts[i]), false));
                 }
             }
             j++;
@@ -324,12 +339,14 @@ class HttpRequest {
     private boolean postDataUrlEncoded;
     private String cookies;
     private String httpBasicResponse;
+    private boolean display; //used for automated cache saving
 
-    public HttpRequest(String url, String postData, boolean postDataUrlEncoded, String cookies) {
+    public HttpRequest(String url, String postData, boolean postDataUrlEncoded, String cookies, boolean display) {
         this.url = url;
         this.postData = postData;
         this.postDataUrlEncoded = postDataUrlEncoded;
         this.cookies = cookies;
+        this.display = display;
     }
 
     public String getPostData() {
@@ -342,6 +359,10 @@ class HttpRequest {
 
     public String getUrl() {
         return url;
+    }
+
+    public boolean shouldDisplay() {
+        return display;
     }
 
     public String getCookies() {

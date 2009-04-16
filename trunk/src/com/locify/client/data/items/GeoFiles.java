@@ -122,7 +122,7 @@ public abstract class GeoFiles {
                 baos.write(i);
             }
             lastI = i;
-            //System.out.println(i + " " + ((char) i));
+        //System.out.println(i + " " + ((char) i));
         }
         return baos.toString();
     }
@@ -280,7 +280,7 @@ public abstract class GeoFiles {
                                 description = parser.nextText();
                             }
                         } catch (Exception e) {
-                            Logger.warning("GeoFiles.parseKml() - 'Description' tag error: "+e.toString());
+                            Logger.warning("GeoFiles.parseKml() - 'Description' tag error: " + e.toString());
                         }
                     /* it will be only cloud and containts only placemark tags */
                     } else if (tagName.equalsIgnoreCase("Folder")) {
@@ -478,6 +478,10 @@ public abstract class GeoFiles {
                                             String[] parts = StringTokenizer.getArray(coordinates, ",");
                                             waypoint.longitude = Double.parseDouble(parts[0]);
                                             waypoint.latitude = Double.parseDouble(parts[1]);
+                                        } else if (tagName.equalsIgnoreCase("value")) {
+                                            //this is little stupid, because <value> has to be inside <data name="service"> and <extendedData>.
+                                            //but we don't use it value anywhere else in KML, so for now it's enough
+                                            waypoint.service = parser.nextText();
                                         }
                                     } else if (event == XmlPullParser.END_TAG) {
                                         tagName = parser.getName();
@@ -810,7 +814,7 @@ public abstract class GeoFiles {
                     }
                 }
                 rs.closeRecordStore();
-                //Logger.log("GeoFiles.saveDataTypeDatabase() succesfully saved!");
+            //Logger.log("GeoFiles.saveDataTypeDatabase() succesfully saved!");
             } catch (RecordStoreException ex) {
                 ex.printStackTrace();
             }

@@ -22,6 +22,7 @@ public abstract class GeoData {
     
     protected String name;
     protected String description;
+    protected String service;
     protected double latitude;
     protected double longitude;
     protected String styleName;
@@ -31,6 +32,7 @@ public abstract class GeoData {
     public GeoData() {
         this.name = "";
         this.description = "";
+        this.service = "";
         this.latitude = 0.0;
         this.longitude = 0.0;
         this.styleName = null;
@@ -43,6 +45,10 @@ public abstract class GeoData {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getService() {
+        return service;
     }
     
     public double getLatitude() {
