@@ -13,6 +13,7 @@
  */
 package com.locify.client.data;
 
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
 
@@ -31,6 +32,7 @@ public class CacheData {
     public static byte[] get(String url) {
         try {
             url = FileSystem.CACHE_FOLDER + FileSystem.hashFileName(ServicesData.getCurrent()) + "/" + FileSystem.hashFileName(url) + ".html";
+            Logger.debug("cache url:"+url);
             return R.getFileSystem().loadBytes(url);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "CacheData.get", url);

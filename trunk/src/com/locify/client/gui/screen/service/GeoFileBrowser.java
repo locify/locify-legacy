@@ -241,7 +241,9 @@ public class GeoFileBrowser implements CommandListener {
         }
 
         addCommands(formWaypoint);
-        ServicesData.setCurrent(waypoint.getService());
+        if (!waypoint.getService().equals("")) {
+            ServicesData.setCurrent(waypoint.getService());
+        }
         R.getMidlet().switchDisplayable(null, formWaypoint);
     }
 
