@@ -35,7 +35,7 @@ import com.locify.client.locator.impl.WaypointNavigatorModel;
 import com.locify.client.locator.impl.WaypointRouteNavigatorModel;
 import com.locify.client.route.ScreenItem;
 import com.locify.client.utils.ColorsFonts;
-import com.locify.client.utils.Logger;
+import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import de.enough.polish.util.Locale;
 import com.locify.client.utils.R;
@@ -43,6 +43,7 @@ import de.enough.polish.ui.Form;
 import de.enough.polish.ui.UiAccess;
 import de.enough.polish.util.ArrayList;
 import javax.microedition.lcdui.Image;
+
 
 /** 
  * Screen shows compas, GPS infomation, speed. In case of navigation displays navigation arrow
@@ -392,14 +393,14 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
 
     private void setMode(int mode) {
         view_mode = mode;
-        cX = getWidth() / 2;
+        cX = Capabilities.getWidth() / 2;
 
         for (int i = 0; i < items.size(); i++) {
             ((ScreenItem) items.get(i)).setVisible(false);
         }
 
         if (view_mode == VIEW_MODE_LESS) {
-            cY = (getHeight() - 60 - TOP_MARGIN - BOTTOM_MARGIN) / 2;
+            cY = (Capabilities.getHeight() - 60 - TOP_MARGIN - BOTTOM_MARGIN) / 2;
             radius = Math.min(cX, cY) - 5;
             cY = cY + TOP_MARGIN + 10;
 
@@ -409,32 +410,32 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             //#else
 //#             tempItem.setFont(ColorsFonts.BMF_ARIAL_10_BLACK, ColorsFonts.BMF_ARIAL_18_BLACK);
             //#endif
-            tempItem.setSizePos(10, getHeight() - 45 - BOTTOM_MARGIN,
-                    getWidth() - 20, 35);
+            tempItem.setSizePos(10, Capabilities.getHeight() - 45 - BOTTOM_MARGIN,
+                    Capabilities.getWidth() - 20, 35);
             tempItem.setVisible(true);
         } else if (view_mode == VIEW_MODE_MORE) {
-            cY = (getHeight() - 100 - TOP_MARGIN - BOTTOM_MARGIN) / 2;
+            cY = (Capabilities.getHeight() - 100 - TOP_MARGIN - BOTTOM_MARGIN) / 2;
             radius = Math.min(cX, cY) - 5;
             cY = cY + TOP_MARGIN + 10;
 
             int space = 5;
-            int sizeX = (getWidth() - 4 * space) / 3;
+            int sizeX = (Capabilities.getWidth() - 4 * space) / 3;
 
             if (radius < 50) {
-                cY = (getHeight() - 60 - TOP_MARGIN - BOTTOM_MARGIN) / 2;
+                cY = (Capabilities.getHeight() - 60 - TOP_MARGIN - BOTTOM_MARGIN) / 2;
                 radius = Math.min(cX, cY) - 5;
                 cY = cY + TOP_MARGIN + 10;
 
-                ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
             } else {
-                ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_LATITUDE)).setSizePos(space, getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_LONGITUDE)).setSizePos(2 * space + sizeX, getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_ALTITUDE)).setSizePos(3 * space + 2 * sizeX, getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, Capabilities.getWidth() - 80 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, Capabilities.getWidth() - 80 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getWidth() - 80 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_LATITUDE)).setSizePos(space, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_LONGITUDE)).setSizePos(2 * space + sizeX, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_ALTITUDE)).setSizePos(3 * space + 2 * sizeX, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
             }
 
             //#if polish.Vendor == WM-big

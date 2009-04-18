@@ -19,6 +19,7 @@ import com.locify.client.locator.LocationEventListener;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
+import com.locify.client.utils.Capabilities;
 import com.locify.client.data.IconData;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.locator.LocationProvider;
@@ -72,15 +73,15 @@ public class SatelliteScreen extends Form implements CommandListener, LocationEv
             BOTTOM_MARGIN = R.getTopBar().height + space;
             topPanelHeigh = 80;
 
-            lineWidth = (getWidth() - 2 * space) / 12;
+            lineWidth = (Capabilities.getWidth() - 2 * space) / 12;
             prnHeight = 15;
             snrWidth = lineWidth - 6;
             snrHeight = topPanelHeigh - prnHeight - space;
 
-            spX = (getWidth() - 2 * space) / 2;
-            spY = (getHeight() - TOP_MARGIN - topPanelHeigh - space - BOTTOM_MARGIN) / 2;
+            spX = (Capabilities.getWidth() - 2 * space) / 2;
+            spY = (Capabilities.getHeight() - TOP_MARGIN - topPanelHeigh - space - BOTTOM_MARGIN) / 2;
             radius = Math.min(spX, spY);
-            spX = getWidth() / 2;
+            spX = Capabilities.getWidth() / 2;
             spY = TOP_MARGIN + topPanelHeigh + space + radius;
 
             satImageNoSignal = IconData.get("locify://icons/status_nosignal.png");

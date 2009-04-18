@@ -24,6 +24,7 @@ import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
+import com.locify.client.utils.Capabilities;
 import de.enough.polish.ui.Form;
 import de.enough.polish.util.ArrayList;
 import de.enough.polish.util.Locale;
@@ -170,13 +171,13 @@ public class RouteScreen extends Form implements CommandListener {
     }
 
     private void initializeMainButtons() {
-        int width = (getWidth() - 3 * itemBetweenSpace) / 2;
+        int width = (Capabilities.getWidth() - 3 * itemBetweenSpace) / 2;
 
         // ITEM_BUTTON_START
         buttonStart = new ScreenItem(Locale.get("Start_route"));
         buttonStart.setFont(ColorsFonts.BMF_ARIAL_18_WHITE_BIG_BOLD_LETTERS_ONLY, ColorsFonts.BMF_ARIAL_18_WHITE_BIG_BOLD_LETTERS_ONLY);
         buttonStart.setSelectable(true);
-        buttonStart.setSizePos(itemBetweenSpace, getHeight() - BOTTOM_MARGIN,
+        buttonStart.setSizePos(itemBetweenSpace, Capabilities.getHeight() - BOTTOM_MARGIN,
                 width, MAIN_BUTTON_HEIGHT);
         buttonStart.setColors(ColorsFonts.DARK_GRAY, ColorsFonts.LIGHT_GRAY, ColorsFonts.GREEN_SHINY, ColorsFonts.ORANGE);
 
@@ -184,7 +185,7 @@ public class RouteScreen extends Form implements CommandListener {
         buttonStop = new ScreenItem(Locale.get("Stop_route"));
         buttonStop.setFont(ColorsFonts.BMF_ARIAL_18_WHITE_BIG_BOLD_LETTERS_ONLY, ColorsFonts.BMF_ARIAL_18_WHITE_BIG_BOLD_LETTERS_ONLY);
         buttonStop.setSelectable(true);
-        buttonStop.setSizePos(itemBetweenSpace * 2 + width, getHeight() - BOTTOM_MARGIN,
+        buttonStop.setSizePos(itemBetweenSpace * 2 + width, Capabilities.getHeight() - BOTTOM_MARGIN,
                 width, MAIN_BUTTON_HEIGHT);
         buttonStop.setColors(ColorsFonts.DARK_GRAY, ColorsFonts.LIGHT_GRAY, ColorsFonts.GREEN_SHINY, ColorsFonts.ORANGE);
 
@@ -309,20 +310,20 @@ public class RouteScreen extends Form implements CommandListener {
     }
 
     private void calculateBySize(int minItemWidth, int minItemHeight) {
-        itemWidthCount = getWidth() / (minItemWidth + itemBetweenSpace);
-        itemWidth = (getWidth() - (itemWidthCount + 1) * itemBetweenSpace) / itemWidthCount;
+        itemWidthCount = Capabilities.getWidth() / (minItemWidth + itemBetweenSpace);
+        itemWidth = (Capabilities.getWidth() - (itemWidthCount + 1) * itemBetweenSpace) / itemWidthCount;
 
-        itemHeightCount = (getHeight() - BOTTOM_MARGIN - TOP_MARGIN) / (minItemHeight + itemBetweenSpace);
-        itemHeight = ((getHeight() - BOTTOM_MARGIN - TOP_MARGIN) - (itemHeightCount + 1) *
+        itemHeightCount = (Capabilities.getHeight() - BOTTOM_MARGIN - TOP_MARGIN) / (minItemHeight + itemBetweenSpace);
+        itemHeight = ((Capabilities.getHeight() - BOTTOM_MARGIN - TOP_MARGIN) - (itemHeightCount + 1) *
                 itemBetweenSpace) / itemHeightCount;
     }
 
     private void calculateByCount(int widthCount, int heightCount) {
         itemWidthCount = widthCount;
-        itemWidth = (getWidth() - (itemWidthCount + 1) * itemBetweenSpace) / itemWidthCount;
+        itemWidth = (Capabilities.getWidth() - (itemWidthCount + 1) * itemBetweenSpace) / itemWidthCount;
 
         itemHeightCount = heightCount;
-        itemHeight = ((getHeight() - BOTTOM_MARGIN - TOP_MARGIN) - (itemHeightCount + 1) *
+        itemHeight = ((Capabilities.getHeight() - BOTTOM_MARGIN - TOP_MARGIN) - (itemHeightCount + 1) *
                 itemBetweenSpace) / itemHeightCount;
     }
 

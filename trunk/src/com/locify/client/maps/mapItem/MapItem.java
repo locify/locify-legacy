@@ -22,6 +22,7 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.RectangleViewPort;
 import com.locify.client.maps.geometry.Point2D;
+import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.R;
 import java.io.IOException;
 import java.util.Vector;
@@ -69,7 +70,7 @@ public abstract class MapItem {
     
     public MapItem() {
         mapScreen = R.getMapScreen();
-        screenViewPort = new RectangleViewPort(0, 0, mapScreen.getWidth(), mapScreen.getHeight());
+        screenViewPort = new RectangleViewPort(0, 0, Capabilities.getWidth(), Capabilities.getHeight());
         try {
             if (stylePointIconNormal == null) {
                 stylePointIconNormal = new GeoFileStyle("StylePointNormal");
