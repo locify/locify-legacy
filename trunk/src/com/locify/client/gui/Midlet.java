@@ -24,9 +24,6 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
-import com.locify.client.maps.planStudio.PlanStudioManager;
-import com.locify.client.maps.projection.ReferenceEllipsoid;
-import com.locify.client.maps.projection.UTMProjection;
 import com.locify.client.utils.Capabilities;
 
 /**

@@ -215,6 +215,9 @@ Autoload=Automaticky načítat offline mapy
 Units=Jednotky
 Metric=Metrické
 Imperial=Imperiální
+Offline_map_loading=Načítání offline map
+Regular=Běžné
+S60_fix=Fix pro S60
 
 #Check version
 Download_latest=Aktualizovat

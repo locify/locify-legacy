@@ -57,6 +57,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
     private Form frmAdvancedMaps;
     private ChoiceGroup cgPanning;
     private ChoiceGroup cgAutoload;
+    private ChoiceGroup cgMapLoading;
     private TextField tfCacheSize;
     private StringItem btnSaveAdvancedMaps;
     // maps variables
@@ -228,6 +229,12 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         cgPanning.setSelectedIndex(R.getSettings().getPanning(), true);
         frmAdvancedMaps.append(cgPanning);
 
+        cgMapLoading = new ChoiceGroup(Locale.get("Offline_map_loading"), Choice.EXCLUSIVE);
+        cgMapLoading.append(Locale.get("Regular"), null);
+        cgMapLoading.append(Locale.get("S60_fix"), null);
+        cgMapLoading.setSelectedIndex(R.getSettings().getMapLoading(), true);
+        frmAdvancedMaps.append(cgMapLoading);
+
         btnSaveAdvancedMaps = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
         btnSaveAdvancedMaps.setDefaultCommand(Commands.cmdSave);
         btnSaveAdvancedMaps.setItemCommandListener(this);
@@ -284,7 +291,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
             viewAdvancedMapSettings();
         } else if (item.equals(btnSaveAdvancedMaps))
         {
-            R.getSettings().saveAdvancedMaps(cgAutoload.getSelectedIndex(),Integer.parseInt(tfCacheSize.getString()),cgPanning.getSelectedIndex());
+            R.getSettings().saveAdvancedMaps(cgAutoload.getSelectedIndex(),Integer.parseInt(tfCacheSize.getString()),cgPanning.getSelectedIndex(),cgMapLoading.getSelectedIndex());
         }
     }
 }

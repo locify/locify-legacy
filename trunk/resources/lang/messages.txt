@@ -215,6 +215,9 @@ Autoload=Autoload offline maps
 Units=Units
 Metric=Metric
 Imperial=Imperial
+Offline_map_loading=Offline map loading
+Regular=Regular
+S60_fix=S60 fix
 
 #Check version
 Download_latest=Download Latest

@@ -14,7 +14,7 @@
 package com.locify.client.utils;
 
 import com.locify.client.maps.fileMaps.FileMapManager;
-import com.locify.client.utils.math.LMath;
+import com.locify.client.data.SettingsData;
 import de.enough.polish.util.Arrays;
 import de.enough.polish.util.Comparator;
 import java.io.ByteArrayOutputStream;
@@ -137,7 +137,7 @@ public class StorageTar {
         try {
 //Logger.log("  StorageTar.skipBytes() " + numOfBytes);
             int actualPos = 0;
-            if (!Capabilities.isWindowsMobile()) {
+            if (R.getSettings().getMapLoading() == SettingsData.S60_FIX) {
                 while (true) {
                     if ((actualPos + bufferSize) < numOfBytes) {
                             is.read(buffer);

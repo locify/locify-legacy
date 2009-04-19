@@ -55,6 +55,8 @@ public class SettingsData {
     public static final int WAIT_UNTIL_END_OF_PANNING = 1;
     public static final int METRIC = 0;
     public static final int IMPERIAL = 1;
+    public static final int REGULAR = 0;
+    public static final int S60_FIX = 1;
     private static String language = "";
     public final String[] locales = {"en", "cs_CZ"};
     public final String[] languageNames = {Locale.get("English"), Locale.get("Czech")};    //settings
@@ -68,7 +70,7 @@ public class SettingsData {
     }
 
     public int getUnits() {
-        return Integer.parseInt((String)settings.get("units"));
+        return Integer.parseInt((String) settings.get("units"));
     }
 
     public String getPassword() {
@@ -145,6 +147,10 @@ public class SettingsData {
 
     public int getPanning() {
         return Integer.parseInt((String) settings.get("panning"));
+    }
+
+    public int getMapLoading() {
+        return Integer.parseInt((String) settings.get("mapLoading"));
     }
 
     public boolean getShowIconsHelp() {
@@ -226,7 +232,7 @@ public class SettingsData {
 //#                 settings.put("cacheSize", "1024");
                 //#else
                 settings.put("cacheSize", "512"); //kB
-                //#endif
+            //#endif
             }
             //#if applet
 //#             settings.put("panning", String.valueOf(REPAINT_DURING));
@@ -236,6 +242,11 @@ public class SettingsData {
             settings.put("showIconsHelp", "1");
             settings.put("autoload", String.valueOf(OFF));
             settings.put("units", String.valueOf(METRIC));
+            if (Capabilities.isNokia()) {
+                settings.put("mapLoading", String.valueOf(S60_FIX));
+            } else {
+                settings.put("mapLoading", String.valueOf(REGULAR));
+            }
 
             if (!R.getFileSystem().exists(FileSystem.SETTINGS_FILE)) {
                 saveXML();
@@ -327,10 +338,11 @@ public class SettingsData {
         }
     }
 
-    public void saveAdvancedMaps(int autoload, int cacheSize, int panning) {
+    public void saveAdvancedMaps(int autoload, int cacheSize, int panning, int mapLoading) {
         settings.put("autoload", String.valueOf(autoload));
         settings.put("cacheSize", String.valueOf(cacheSize));
         settings.put("panning", String.valueOf(panning));
+        settings.put("mapLoading", String.valueOf(mapLoading));
         saveXML();
         R.getCustomAlert().quickView(Locale.get("Restart_needed"), Locale.get("Info"), "locify://refresh");
     }
