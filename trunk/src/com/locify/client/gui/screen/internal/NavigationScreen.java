@@ -39,6 +39,7 @@ import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import de.enough.polish.util.Locale;
 import com.locify.client.utils.R;
+import com.locify.client.utils.math.LMath;
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.UiAccess;
 import de.enough.polish.util.ArrayList;
@@ -332,7 +333,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
                 continue;
             }
 
-            a = (i * 10 - nAngle) / GpsUtils.RHO;
+            a = (i * 10 - nAngle) / LMath.RHO;
 
             double aSin = Math.sin(a);
             double aCos = Math.cos(a);
@@ -363,19 +364,19 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             double a;
             int x1, x2, x3, x4, y1, y2, y3, y4;
 
-            a = dAngle / GpsUtils.RHO;
+            a = dAngle / LMath.RHO;
             x1 = (int) (Math.sin(a) * radius * 0.65);
             y1 = (int) (Math.cos(a) * radius * 0.65);
 
-            a = (dAngle + 180) / GpsUtils.RHO;
+            a = (dAngle + 180) / LMath.RHO;
             x2 = (int) (Math.sin(a) * (radius * 0.2));
             y2 = (int) (Math.cos(a) * (radius * 0.2));
 
-            a = (dAngle + 140) / GpsUtils.RHO;
+            a = (dAngle + 140) / LMath.RHO;
             x3 = (int) (Math.sin(a) * (radius * 0.5));
             y3 = (int) (Math.cos(a) * (radius * 0.5));
 
-            a = (dAngle + 220) / GpsUtils.RHO;
+            a = (dAngle + 220) / LMath.RHO;
             x4 = (int) (Math.sin(a) * (radius * 0.5));
             y4 = (int) (Math.cos(a) * (radius * 0.5));
 

@@ -64,14 +64,12 @@ public class DescriptionMapItem extends MapItem {
         initialize();
     }
 
-    public void updateWaypoint(Waypoint waypoint)
-    {
+    public void updateWaypoint(Waypoint waypoint) {
         this.item = waypoint;
         initialize();
     }
 
-    public Waypoint getWaypoint()
-    {
+    public Waypoint getWaypoint() {
         return item;
     }
     

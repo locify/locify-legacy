@@ -16,7 +16,6 @@ package com.locify.client.maps.mapItem;
 import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.maps.geometry.Point2D;
-import com.locify.client.utils.Logger;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
@@ -37,6 +36,7 @@ public class PointMapItem extends MapItem {
         super();
         this.waypoints = waypoints;
         this.selectedPoints = new Vector();
+        initializeFirstly(waypoints);
         initialize();
     }
 

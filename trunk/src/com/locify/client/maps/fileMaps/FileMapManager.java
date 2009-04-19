@@ -17,6 +17,7 @@ import com.locify.client.data.FileSystem;
 import com.locify.client.maps.ImageRequest;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.net.Http;
+import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StorageTar;
@@ -63,31 +64,31 @@ public abstract class FileMapManager {
     //            TEMP VARIABLES             //
     ///////////////////////////////////////////
     /** StringBuffer for many circumstances */
-    private static StringBuffer stringBuffer = new StringBuffer();
+    protected static StringBuffer stringBuffer = new StringBuffer();
     /** size of screen */
-    private int screenWidth = 0,  screenHeight = 0;
+    protected int screenWidth = 0,  screenHeight = 0;
     /** starting number of tile X-line */
-    private int tileX1;
+    protected int tileX1;
     /** starting number of tile Y-line */
-    private int tileY1;
+    protected int tileY1;
     /** ending number of tile X-line */
-    private int tileX2;
+    protected int tileX2;
     /** ending number of tile Y-line */
-    private int tileY2;
+    protected int tileY2;
     /** num of files able to draw on screen X-line */
-    private int numOfTilesXperScreen;
+    protected int numOfTilesXperScreen;
     /** num of files able to draw on screen Y-line */
-    private int numOfTilesYperScreen;
+    protected int numOfTilesYperScreen;
     /** num of files of whole map X-line */
-    private int numOfTotalTilesX;
+    protected int numOfTotalTilesX;
     /** num of files of whole map Y-line */
-    private int numOfTotalTilesY;
+    protected int numOfTotalTilesY;
     /** move result in X */
-    private int moveX;
+    protected int moveX;
     /** move result in Y */
-    private int moveY;
+    protected int moveY;
     /** loaded image used for drawing*/
-    private Image image;
+    protected Image image;
     /** data for Http transfer */
     private static String obtainedData;
 
@@ -99,7 +100,10 @@ public abstract class FileMapManager {
             this.mapFilename = mapPath.substring(mapPath.lastIndexOf('/') + 1);
             this.mapImageDir = this.mapFilename.substring(0, this.mapFilename.lastIndexOf('.')) + "/";
             this.mapPath = mapPath.substring(0, (mapPath.length() - this.mapFilename.length()));
-
+        } else if (mapPath.startsWith("http://")) {
+            this.mapFilename = "";
+            this.mapImageDir = "";
+            this.mapPath = mapPath;
         } else if (mapPath.endsWith(".xml") || mapPath.endsWith(".map") || mapPath.endsWith(".tar")) {
             this.mapFilename = mapPath;
             if (!mapPath.endsWith(".tar")) {
@@ -286,7 +290,7 @@ public abstract class FileMapManager {
         } else {
             FileConnection con = null;
             try {
-                con = (FileConnection) Connector.open(mapPath + createImageName(0, 0, null));
+                con = (FileConnection) Connector.open(mapPath + createImageName(0, 0));
 //Logger.log("File path: " + (manager.mapPathPrefix + manager.mapPath + createImageName(0, 0)));
                 if (con.exists()) {
                     img = Image.createImage(con.openInputStream());
@@ -313,19 +317,19 @@ public abstract class FileMapManager {
         }
     }
 
-    private String createImageName(int i, int j, StorageTar tar) {
-        if (stringBuffer.length() > 0)
-            stringBuffer.delete(0, stringBuffer.length());
-        stringBuffer.append(mapImageDir);
-        if (tar != null) {
-            stringBuffer.append(i);
-            stringBuffer.append("_");
-            stringBuffer.append(j);
-        } else {
-            stringBuffer.append(Utils.addZerosBefore("" + i, 3) + "_" + Utils.addZerosBefore("" + j, 3));
-        }
-        return stringBuffer.toString();
-    }
+//    private String createImageName(int i, int j, StorageTar tar) {
+//        if (stringBuffer.length() > 0)
+//            stringBuffer.delete(0, stringBuffer.length());
+//        stringBuffer.append(mapImageDir);
+//        if (tar != null) {
+//            stringBuffer.append(i);
+//            stringBuffer.append("_");
+//            stringBuffer.append(j);
+//        } else {
+//            stringBuffer.append(Utils.addZerosBefore("" + i, 3) + "_" + Utils.addZerosBefore("" + j, 3));
+//        }
+//        return stringBuffer.toString();
+//    }
 
     public synchronized boolean drawImageSingle(Graphics gr, FileMapViewPort targetPort) {
         try {
@@ -407,8 +411,8 @@ public abstract class FileMapManager {
 //Logger.log("   center: " + targetPort.getCenter().toString());
 
             if (screenWidth == 0) {
-                screenWidth = R.getMapScreen().getWidth();
-                screenHeight = R.getMapScreen().getHeight();
+                screenWidth = Capabilities.getWidth();
+                screenHeight = Capabilities.getHeight();
                 numOfTotalTilesX = (int) (fileMapConfig.xmax / fileMapConfig.tileSizeX);
                 if (fileMapConfig.xmax % fileMapConfig.tileSizeX != 0)
                     numOfTotalTilesX++;
@@ -463,13 +467,12 @@ public abstract class FileMapManager {
                     }
 
                     if (imageHaveToExist(tileX1 + i, tileY1 + j)) {
-                        imageName =  createImageName(tileX1 + i, tileY1 + j, tar);
+                        imageName =  createImageName(tileX1 + i, tileY1 + j);
                         if (tar != null) {
                             ir = new ImageRequest(mapPath + imageName,
                                     tar, tar.getTarRecord(numOfTotalTilesY * (tileX1 + i) + (tileY1 + j)),
                                     fileMapConfig.tileSizeX, fileMapConfig.tileSizeY, x1, y1);
                         } else {
-                            
                             ir = new ImageRequest(mapPath + imageName, fileMapConfig.tileSizeX,
                                     fileMapConfig.tileSizeY, x1, y1);
                         }
@@ -488,7 +491,7 @@ public abstract class FileMapManager {
         }
     }
 
-    private boolean imageHaveToExist(int tileX, int tileY) {
+    protected boolean imageHaveToExist(int tileX, int tileY) {
 //Logger.log("    ConfigFileTile.imageHaveToExist() - getTile: tX: " + tileX + " tY: " + tileY);
         return (tileX >= 0 && tileY >= 0 && tileX < numOfTotalTilesX && tileY < numOfTotalTilesY);
     }
@@ -501,6 +504,8 @@ public abstract class FileMapManager {
         FileMapManager.obtainedData = data;
     }
 
-    public abstract boolean drawActualMap(Graphics gr, FileMapViewPort viewPort,
+    public abstract boolean drawActualMap(Graphics gr, FileMapViewPort targetPort,
             Vector imageExist, Vector imageNotExist, int mapPanX, int mapPanY);
+
+    protected abstract String createImageName(int i, int j);
 }

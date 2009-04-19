@@ -34,4 +34,8 @@ public class FileMapManagerSingle extends FileMapManager {
             Vector imageExist, Vector imageNotExist, int mapPanX, int mapPanY) {
         return false;
     }
+
+    protected String createImageName(int i, int j) {
+        return "";
+    }
 }

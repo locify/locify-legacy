@@ -24,8 +24,10 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
+import com.locify.client.maps.planStudio.PlanStudioManager;
+import com.locify.client.maps.projection.ReferenceEllipsoid;
+import com.locify.client.maps.projection.UTMProjection;
 import com.locify.client.utils.Capabilities;
-import com.locify.client.utils.Logger;
 
 /**
  * Controls main MIDlet lifecycle
@@ -94,7 +96,6 @@ public class Midlet extends MIDlet {
                     R.getMainScreen().load();
                     R.destroyLoading();
                     R.getContext().loadLastKnown();
-//                    StoreManager.initializeOfflineMaps(null);
                 //#if !applet
                 } else {
                     R.getFirstRun().viewPermissionsWarning();

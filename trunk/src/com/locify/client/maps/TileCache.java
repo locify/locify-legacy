@@ -180,8 +180,7 @@ public class TileCache extends Thread {
                     } else if (actualRequest.fileName.startsWith("file:///") &&
                             actualRequest.tar == null) {
 //System.out.println("F: name - " + actualRequest.fileName);
-                        actualRequest.image = makeImageFileRequest(actualRequest.fileName,
-                                actualRequest.tileSizeX, actualRequest.tileSizeY);
+                        actualRequest.image = makeImageFileRequest(actualRequest.fileName);
                         addImageToCache(actualRequest);
                         if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
                             R.getMapScreen().repaint();
@@ -310,7 +309,7 @@ public class TileCache extends Thread {
         }
     }
 
-    private Image makeImageFileRequest(String url, int tileSizeX, int tileSizeY) {
+    private Image makeImageFileRequest(String url) {
         Image image = MapScreen.getImageNotExisted();
         FileConnection con = null;
         try {

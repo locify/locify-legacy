@@ -43,18 +43,17 @@ public class MapNavigationItem extends MapItem {
         initialize();
     }
 
-    public Waypoint getTargetWaypoint()
-    {
+    public Waypoint getTargetWaypoint() {
         return (Waypoint) waypoints.elementAt(1);
     }
 
-    public void setTargetWaypoint(Waypoint waypoint)
-    {
+    public void setTargetWaypoint(Waypoint waypoint) {
         waypoints.setElementAt(waypoint, 1);
         initialize();
     }
 
     public void initialize() {
+        initializeFirstly(waypoints);
         items = initializePoints(waypoints);
     }
 

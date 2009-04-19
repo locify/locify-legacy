@@ -38,6 +38,7 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
+import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
@@ -126,9 +127,11 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private int selectedMapItemIndex;
     /** support for touch screen */
     private int lastSelectedX,  lastSelectedY;
-    /* temp item names */
+    /* selected item marked as desk with informations */
     private String tempWaypointDescriptionItemName = "selectedItem";
+    /** navigation item is highlited line */
     private String tempMapNavigationItem = "navigationItem";
+    /** route showing for actually recording route */
     private String tempRunningRouteName = "runningRoute";
     /** time of stylus press */
     private long stylusTought;
@@ -146,6 +149,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private boolean showAllDuringPanning;
     /** map table for caches images */
     private static TileCache cache;
+    /** if item was added before map was inicialized, call it after that */
+    private MapItem newMapItemAdded;
 
     public MapScreen() {
         super(Locale.get("Maps"), true);
@@ -246,6 +251,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
                         R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude());
             } else {
+//                mapFile.addNextMapManager(PlanStudioManager.parseMapDefinitions(), true, true);
+//                map = mapFile;
+
                 TOP_MARGIN = R.getTopBar().height;
                 mapItemManager.init();
                 if (lastCenterPoint != null) {
@@ -306,9 +314,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 //mapItemManager.removeAll();
                 mapItemManager.addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 if (!nowDirectly || !firstCenterAfterND) {
-//Logger.debug("Y");
-                    centerMap(mapItem.getItemCenter(), false);
-                    objectZoomTo(mapItem);
+                    if (map instanceof FileMapLayer && !mapFile.isReady())
+                        newMapItemAdded = mapItem;
+                    else {
+                        centerMap(mapItem.getItemCenter(), false);
+                        objectZoomTo(mapItem);
+                    }
                 }
             }
         } else if (data instanceof Route) {
@@ -318,9 +329,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 mapItem.setStyles(route.getStyleNormal(), route.getStyleHighLight());
                 mapItemManager.addItem(route.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 if (!nowDirectly || !firstCenterAfterND) {
-//Logger.debug("Z " + mapItem.getItemCenter().toString());
-                    centerMap(mapItem.getItemCenter(), false);
-                    objectZoomTo(mapItem);
+                    if (map instanceof FileMapLayer && !mapFile.isReady())
+                        newMapItemAdded = mapItem;
+                    else {
+                        centerMap(mapItem.getItemCenter(), false);
+                        objectZoomTo(mapItem);
+                    }
                 }
             }
         }
@@ -383,7 +397,13 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             //mapFile.setProviderAndMode(fmm);
             mapFile.addNextMapManager(fmm, true, true);
             map = mapFile;
-            centerMap(center, false);
+            if (newMapItemAdded != null) {
+                centerMap(newMapItemAdded.getItemCenter(), false);
+                objectZoomTo(newMapItemAdded);
+                newMapItemAdded = null;
+            } else {
+                centerMap(center, false);
+            }
         }
         view();
     }
@@ -594,14 +614,14 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     actPoint.y - panMoveY, Graphics.VCENTER | Graphics.HCENTER);
 
             if (R.getContext().getSource() == LocationContext.GPS && !R.getLocator().isSimulatedGPS()) {
-                int x1 = (int) (20.0 * Math.sin((heading - 30) / GpsUtils.RHO));
-                int y1 = (int) (20.0 * Math.cos((heading - 30) / GpsUtils.RHO));
-                int x2 = (int) (40.0 * Math.sin((heading) / GpsUtils.RHO));
-                int y2 = (int) (40.0 * Math.cos((heading) / GpsUtils.RHO));
-                int x3 = (int) (20.0 * Math.sin((heading + 30) / GpsUtils.RHO));
-                int y3 = (int) (20.0 * Math.cos((heading + 30) / GpsUtils.RHO));
-                int x4 = (int) (25.0 * Math.sin((heading) / GpsUtils.RHO));
-                int y4 = (int) (25.0 * Math.cos((heading) / GpsUtils.RHO));
+                int x1 = (int) (20.0 * Math.sin((heading - 30) / LMath.RHO));
+                int y1 = (int) (20.0 * Math.cos((heading - 30) / LMath.RHO));
+                int x2 = (int) (40.0 * Math.sin((heading) / LMath.RHO));
+                int y2 = (int) (40.0 * Math.cos((heading) / LMath.RHO));
+                int x3 = (int) (20.0 * Math.sin((heading + 30) / LMath.RHO));
+                int y3 = (int) (20.0 * Math.cos((heading + 30) / LMath.RHO));
+                int x4 = (int) (25.0 * Math.sin((heading) / LMath.RHO));
+                int y4 = (int) (25.0 * Math.cos((heading) / LMath.RHO));
                 g.setColor(ColorsFonts.GREEN_SHINY);
                 g.fillTriangle(actPoint.x - panMoveX + x1, actPoint.y - panMoveY - y1,
                         actPoint.x - panMoveX + x2, actPoint.y - panMoveY - y2,
@@ -1314,6 +1334,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private int movePartImageValue = 3;
 
     private void makeZoomAction(int actionType, int panX, int panY) {
+        // disable zoom for maps without zoom
+        if (map.getMaxZoomLevel() - map.getMinZoomLevel() == 0)
+            return;
+        
         if (!zoomProcess) {
             zoomThread = new ZoomThread();
             zoomThread.start();

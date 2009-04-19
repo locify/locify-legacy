@@ -14,6 +14,7 @@
 package com.locify.client.maps.fileMaps;
 
 import com.locify.client.locator.Location4D;
+import com.locify.client.maps.projection.MercatorProjection;
 import com.locify.client.maps.projection.NullProjection;
 import com.locify.client.maps.projection.Projection;
 import com.locify.client.maps.projection.ReferenceEllipsoid;
@@ -74,18 +75,18 @@ public class FileMapConfig {
 
     private void setProjection(String projection) {
         if (projection.startsWith("WGS 84") || projection.startsWith("WGS84") ||
-                projection.startsWith("UTM") || projection.equalsIgnoreCase("Mercator") ||
-                projection.equalsIgnoreCase("Transverse Mercator")) {
-            this.mapProjection = new UTMProjection(ReferenceEllipsoid.WGS84);
+                projection.startsWith("UTM") || projection.equalsIgnoreCase("Transverse Mercator")) {
             this.mapProjectionType = Projection.PROJECTION_UTM;
         } else if (projection.startsWith("Pulkovo 1942") || projection.startsWith("S42") ||
                 projection.startsWith("S-42")) {
-            this.mapProjection = new S42Projection(ReferenceEllipsoid.KRASOVSKY);
             this.mapProjectionType = Projection.PROJECTION_S42;
+        } else if (projection.equalsIgnoreCase("Spherical Mercator") ||
+                projection.equalsIgnoreCase("Mercator")) {
+            this.mapProjectionType = Projection.PROJECTION_SPHERICAL_MERCATOR;
         } else {
-            this.mapProjection = new NullProjection();
             this.mapProjectionType = Projection.PROJECTION_NULL;
         }
+        setProjection(mapProjectionType);
     }
 
     private void setProjection(int projectionType) {
@@ -94,6 +95,8 @@ public class FileMapConfig {
             this.mapProjection = new UTMProjection(ReferenceEllipsoid.WGS84);
         } else if (projectionType == Projection.PROJECTION_S42) {
             this.mapProjection = new S42Projection(ReferenceEllipsoid.KRASOVSKY);
+        } else if (projectionType == Projection.PROJECTION_SPHERICAL_MERCATOR) {
+            this.mapProjection = new MercatorProjection();
         } else {
             this.mapProjection = new NullProjection();
         }
@@ -217,8 +220,8 @@ public class FileMapConfig {
                     if (i == 1 && !((String) token.elementAt(0)).startsWith("Map Projection") &&
                             !((String) token.elementAt(0)).startsWith("Point")) {
                         fmc.name = (String) lines.elementAt(i);
-                    } else if (i == 4 && !((String) token.elementAt(0)).startsWith("Point")) {
-                        fmc.setProjection((String) token.elementAt(0));
+//                    } else if (i == 4 && !((String) token.elementAt(0)).startsWith("Point")) {
+//                        fmc.setProjection((String) token.elementAt(0));
                     } else if (((String) token.elementAt(0)).startsWith("Map Projection") &&
                             fmc.mapProjectionType == Projection.PROJECTION_NULL) {
                         fmc.setProjection(((String) token.elementAt(1)).trim());
@@ -316,6 +319,29 @@ public class FileMapConfig {
         return null;
     }
 
+    public static FileMapConfig createConfigFromValues(String name, int mapProjectionType,
+            CalibrationPoint cpTL, CalibrationPoint cpBR, int xmax, int ymax,
+            int tileSizeX, int tileSizeY, int zoom) {
+        FileMapConfig fmc = new FileMapConfig();
+
+        fmc.name = name;
+        fmc.setProjection(mapProjectionType);
+        fmc.xmax = xmax;
+        fmc.ymax = ymax;
+        fmc.tileSizeX = tileSizeX;
+        fmc.tileSizeY = tileSizeY;
+        fmc.zoom = zoom;
+
+        fmc.calibrationPoints.addElement(cpTL);
+        fmc.addCalibrationPoint(cpTL.x, cpBR.y, cpBR.position.getLatitude(), cpTL.position.getLongitude());
+        fmc.addCalibrationPoint(cpBR.x, cpTL.y, cpTL.position.getLatitude(), cpBR.position.getLongitude());
+        fmc.calibrationPoints.addElement(cpBR);
+        
+        fmc.calculateViewPort();
+
+        return fmc;
+    }
+
     protected void addCalibrationPoint(int x, int y, double lat, double lon) {
 //Logger.log("  ConfigFileTile.addCalibrationPoint x: " + x + " y: " + y + " lat: " + lat + " lon: " + lon);
         CalibrationPoint calpoint = new CalibrationPoint();
@@ -324,10 +350,22 @@ public class FileMapConfig {
         calpoint.position = new Location4D(lat, lon, 0);
         this.calibrationPoints.addElement(calpoint);
     }
-    
+
     private boolean calculateViewPort() {
         try {
             if (calibrationPoints != null && calibrationPoints.size() > 2) {
+
+                if (sphericCoordinates && mapProjectionType == Projection.PROJECTION_SPHERICAL_MERCATOR) {
+                    for (int i = 0; i < calibrationPoints.size(); i++) {
+                        CalibrationPoint cp = (CalibrationPoint) calibrationPoints.elementAt(i);
+                        double[] coo = mapProjection.projectionToFlat(cp.position.getLatitude(), cp.position.getLongitude());
+                        cp.position = new Location4D(coo[0], coo[1], 0.0f);
+//Logger.log("  ConfigFileTile.calculateViewport - setCalibrationPoint x: " + cp.x + " y: " + cp.y +
+//        " lat: " + cp.position.getLatitude() + " lon: " + cp.position.getLongitude());
+                    }
+                    sphericCoordinates = false;
+                }
+
                 // compute transformation
                 Matrix A = new Matrix(calibrationPoints.size() * 2, 6);
                 Matrix X = new Matrix(calibrationPoints.size() * 2, 1);

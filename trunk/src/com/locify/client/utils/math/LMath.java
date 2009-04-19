@@ -12,6 +12,10 @@ public class LMath {
     final static public double LOG10 = 2.302585092994045684;
     /** ln(0.5) constant */
     final static public double LOGdiv2 = -0.6931471805599453094;
+    /** 180 / PI */
+    public static final double RHO = 180/Math.PI;
+    /** E :) */
+    public static final double E = 2.71828182845904523536;
 
     static public double acos(double x) {
         double f = asin(x);
@@ -190,6 +194,16 @@ public class LMath {
             return -_log(x);
         }
         return _log(x);
+    }
+
+    public static double ln(double x) {
+        if (!(x > 0.0)) {
+            return Double.NaN;
+        }
+        double y = (x - 1) / (x + 1);
+        double y2 = y * y;
+        return 2.0 * y * (1.0 / 1.0 + y2 * (1.0 / 3.0 + y2 * (1.0 / 5.0 + y2 *
+                (1.0 / 7.0 + y2 * (1.0 / 9.0 + y2 * (1.0 / 11.0 + y2))))));
     }
 
     static public double log10(double x) {

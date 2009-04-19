@@ -22,9 +22,11 @@ import com.locify.client.maps.fileMaps.FileMapConfig;
 import com.locify.client.maps.fileMaps.StoreManager;
 import com.locify.client.maps.fileMaps.StoreManagerMapInfo;
 import com.locify.client.maps.geometry.Point2D;
+import com.locify.client.maps.projection.MercatorProjection;
 import com.locify.client.maps.projection.ReferenceEllipsoid;
 import com.locify.client.maps.projection.S42Projection;
 import com.locify.client.maps.projection.UTMProjection;
+import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
@@ -76,7 +78,8 @@ public static long TIME;
         coo[0] = loc.getLatitude();
         coo[1] = loc.getLongitude();
 
-        if (fileMapConfig.getMapProjection() instanceof UTMProjection) {
+        if (fileMapConfig.getMapProjection() instanceof UTMProjection ||
+                fileMapConfig.getMapProjection() instanceof MercatorProjection) {
             if (!fileMapConfig.isSphericCoordinate()) {
                 coo = fileMapConfig.getMapProjection().projectionToFlat(loc.getLatitude(), loc.getLongitude());
             }
@@ -98,7 +101,8 @@ public static long TIME;
         coo[0] = x;
         coo[1] = y;
 
-        if (fileMapConfig.getMapProjection() instanceof UTMProjection) {
+        if (fileMapConfig.getMapProjection() instanceof UTMProjection ||
+                fileMapConfig.getMapProjection() instanceof MercatorProjection) {
             if (!fileMapConfig.isSphericCoordinate()) {
                 coo = fileMapConfig.getMapProjection().projectionToSphere(coo[1], coo[0]);
             }
@@ -186,6 +190,8 @@ public static long TIME;
 //Logger.log("  FileMapLayer.drawImages() NotExist: x: " + ir.x + " y: " + ir.y + " wi: " + image.getWidth() + " he: " + image.getHeight());
                         gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()) / 2,
                                 ir.y + (ir.tileSizeY - image.getHeight()) / 2, Graphics.LEFT | Graphics.TOP);
+                        gr.setColor(ColorsFonts.BLACK);
+                        gr.drawRect(ir.x, ir.y, ir.tileSizeX, ir.tileSizeY);
                     }
                 }
 
@@ -195,7 +201,17 @@ public static long TIME;
                     image = MapScreen.getTileCache().getImage(ir.fileName);
                     if (image != null) {
 //Logger.log("  FileMapLayer.drawImages() Exist: x: " + ir.x + " y: " + ir.y + " wi: " + image.getWidth() + " he: " + image.getHeight());
-                        gr.drawImage(image, ir.x, ir.y, Graphics.LEFT | Graphics.TOP);
+                        if (image.equals(MapScreen.getImageConnectionNotFound()) ||
+                        image.equals(MapScreen.getImageLoading()) ||
+                        image.equals(MapScreen.getImageLoading()) ||
+                        image.equals(MapScreen.getImageLoading())) {
+                            gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()) / 2,
+                                ir.y + (ir.tileSizeY - image.getHeight()) / 2, Graphics.LEFT | Graphics.TOP);
+                            gr.setColor(ColorsFonts.BLACK);
+                            gr.drawRect(ir.x, ir.y, ir.tileSizeX, ir.tileSizeY);
+                        } else {
+                            gr.drawImage(image, ir.x, ir.y, Graphics.LEFT | Graphics.TOP);
+                        }
                     }
                 }
 
@@ -309,8 +325,8 @@ public static long TIME;
     }
 
     private boolean setProviderAndMode(FileMapManager fmm) {
-        mapScaleW = fmm.getFileMapConfig().getLonDiffPerPixel() * mapScreen.getWidth();
-        mapScaleH = fmm.getFileMapConfig().getLatDiffPerPixel() * mapScreen.getHeight();
+        mapScaleW = fmm.getFileMapConfig().getLonDiffPerPixel() * Capabilities.getWidth();
+        mapScaleH = fmm.getFileMapConfig().getLatDiffPerPixel() * Capabilities.getHeight();
 
         Location4D center;
         if (viewPort != null)
@@ -322,10 +338,10 @@ public static long TIME;
                 center,
                 mapScaleW,
                 mapScaleH,
-                mapScreen.getWidth(),
-                mapScreen.getHeight());
-        this.moveCoefPerPixelX = viewPort.getLongitudeDimension() / mapScreen.getWidth();
-        this.moveCoefPerPixelY = viewPort.getLatitudeDimension() / mapScreen.getHeight();
+                Capabilities.getWidth(),
+                Capabilities.getHeight());
+        this.moveCoefPerPixelX = viewPort.getLongitudeDimension() / Capabilities.getWidth();
+        this.moveCoefPerPixelY = viewPort.getLatitudeDimension() / Capabilities.getHeight();
 //Logger.log("    mapScaleW: " + mapScaleW + " mapScaleH: " + mapScaleH);
 //Logger.log("    Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
 //Logger.log("    lonDim: " + viewPort.getLongitudeDimension() + " latDim: " + viewPort.getLatitudeDimension());

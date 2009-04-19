@@ -18,15 +18,13 @@ import com.locify.client.locator.LocationEventGenerator;
 import com.locify.client.locator.LocationEventListener;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
-import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.data.IconData;
-import com.locify.client.locator.LocationContext;
-import com.locify.client.locator.LocationProvider;
 import com.locify.client.locator.SatellitePosition;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 import com.locify.client.utils.R;
+import com.locify.client.utils.math.LMath;
 import de.enough.polish.ui.Form;
 import de.enough.polish.util.Locale;
 import java.util.Enumeration;
@@ -121,8 +119,8 @@ public class SatelliteScreen extends Form implements CommandListener, LocationEv
             // draw lines
             g.setColor(ColorsFonts.GRAY);
             for (int i = 0; i < 360; i = i + 45) {
-                x = (int) (spX + radius * Math.sin(i / GpsUtils.RHO));
-                y = (int) (spY + radius * Math.cos(i / GpsUtils.RHO));
+                x = (int) (spX + radius * Math.sin(i / LMath.RHO));
+                y = (int) (spY + radius * Math.cos(i / LMath.RHO));
 
                 g.drawLine(spX, spY, x, y);
             }
@@ -143,8 +141,8 @@ public class SatelliteScreen extends Form implements CommandListener, LocationEv
 
                 angle = (int) satel.getAzimuth();
                 dist = (int) (radius - satel.getElevation() * radius / 90.0);
-                x = (int) (spX + dist * Math.sin(angle / GpsUtils.RHO));
-                y = (int) (spY + dist * Math.cos(angle / GpsUtils.RHO));
+                x = (int) (spX + dist * Math.sin(angle / LMath.RHO));
+                y = (int) (spY + dist * Math.cos(angle / LMath.RHO));
 
                 g.drawString("" + prn, x - 4, y - 25, Graphics.TOP | Graphics.LEFT);
                 g.drawImage(getSatImage(satel.getSnr()), x, y, Graphics.VCENTER | Graphics.HCENTER);

@@ -69,7 +69,7 @@ public class S42Projection extends Projection {
         char latitudeZone = getLatitudeZone(lat, lon);
         int longitudeZone = getLongitudeZone(lat, lon);
 
-        double phi = lat / GpsUtils.RHO;
+        double phi = lat / LMath.RHO;
 
         double cosPhi = Math.cos(phi);
         double cos2Phi = cosPhi * cosPhi;
@@ -114,7 +114,7 @@ public class S42Projection extends Projection {
         double t8 = (kn2 * cos5Phi / 120.0) * (5.0 - 18.0 * tan2Phi + tan4Phi + 14.0 * e2c2 - 58.0 * t2e2c2 + 13.0 * e4c4 - 64.0 * t2e4c4 + 4.0 * e6c6 - 24.0 * t2e6c6);
         double t9 = (kn2 * cos7Phi / 50.40) * (61.0 - 479.0 * tan2Phi + 179.0 * tan4Phi - tan6Phi);
 
-        double lambda = lon / GpsUtils.RHO;
+        double lambda = lon / LMath.RHO;
         double lambda0 = getCentralMeridian(longitudeZone, latitudeZone);
         double dL = lambda - lambda0;
         double dL2 = dL * dL;
@@ -149,9 +149,9 @@ public class S42Projection extends Projection {
         double fe = 500000 + ((int) (X / 1000000)) * 1000000;
         double fn = 0;
         double lambda = 21 + 6 * (((int) (X / 1000000)) - 4);
-        double lambdaRad = lambda / GpsUtils.RHO;
+        double lambdaRad = lambda / LMath.RHO;
         double fi0 = 0;
-        double fi0Rad = fi0 / GpsUtils.RHO;
+        double fi0Rad = fi0 / LMath.RHO;
         double k0 = 1;
         double xM = X - fe;
         double yM = Y - fn;
@@ -178,8 +178,8 @@ public class S42Projection extends Projection {
                 LMath.pow(e, 6) / 720);
         double lamRad = lambdaRad + (D - (1 + 2 * T1 + C1) * LMath.pow(D, 3) / 6 + (5 - 2 * C1 + 28 * T1
                 - 3 * C1 * C1 + 8 * eC2 + 24 * T1 * T1) * LMath.pow(D, 5) / 120) / Math.cos(fi1);
-        res[0] = fiRad * GpsUtils.RHO;
-        res[1] = lamRad * GpsUtils.RHO;
+        res[0] = fiRad * LMath.RHO;
+        res[1] = lamRad * LMath.RHO;
         return res;
     }
 

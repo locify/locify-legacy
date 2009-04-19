@@ -32,4 +32,16 @@ public class FileMapManagerTar extends FileMapManager {
         appendRequests(imageExist, imageNotExist, viewPort, storageTar, mapPanX, mapPanY);
         return true;
     }
+
+    protected String createImageName(int i, int j) {
+        if (stringBuffer.length() > 0)
+            stringBuffer.delete(0, stringBuffer.length());
+        stringBuffer.append(mapImageDir);
+
+        stringBuffer.append(i);
+        stringBuffer.append("_");
+        stringBuffer.append(j);
+
+        return stringBuffer.toString();
+    }
 }

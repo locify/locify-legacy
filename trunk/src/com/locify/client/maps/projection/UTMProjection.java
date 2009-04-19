@@ -65,26 +65,6 @@ public class UTMProjection extends Projection {
 
     private static final double K08 = K07 * K0;
        
-    /**
-     * Holds the longitude zone identifier.
-     */
-    private int _longitudeZone;
-
-    /**
-     * Holds the latitude zone identifier.
-     */
-    private char _latitudeZone;
-
-    /**
-     * Holds the easting in meters.
-     */
-    private double _easting;
-
-    /**
-     * Holds the northing in meters.
-     */
-    private double _northing;
-
     // HACK epsilon: skirt the edge of the infinite. If this is too
     // small
     // then we get too close to +-INFINITY when we forward project.
@@ -95,25 +75,6 @@ public class UTMProjection extends Projection {
     public UTMProjection(ReferenceEllipsoid ellipsoid) {
         super(ellipsoid);
     }
-    
-    /**
-     * Returns the projected UTM position corresponding to the specified
-     * coordinates.
-     *
-     * @param longitudeZone the longitude zone number.
-     * @param latitudeZone  the longitude zone character.
-     * @param easting       the easting value stated in the specified unit.
-     * @param northing      the northing value stated in the specified unit.
-     * @param unit          the easting/northing length unit.
-     * @return the corresponding surface position.
-     */
-    public void valueOf(int longitudeZone, char latitudeZone, double easting, double northing) {
-        _longitudeZone = longitudeZone;
-        _latitudeZone = latitudeZone;
-        _easting = easting;
-        _northing = northing;
-    }
-
 
     public double[] projectionToFlat(double lat, double lon) {
         double[] result = new double[2];
@@ -121,7 +82,7 @@ public class UTMProjection extends Projection {
         char latitudeZone = getLatitudeZone(lat, lon);
         int longitudeZone = getLongitudeZone(lat, lon);
 
-        double phi = lat / GpsUtils.RHO;
+        double phi = lat / LMath.RHO;
 
         double cosPhi = Math.cos(phi);
         double cos2Phi = cosPhi * cosPhi;
@@ -166,7 +127,7 @@ public class UTMProjection extends Projection {
         double t8 = (kn2 * cos5Phi / 120.0) * (5.0 - 18.0 * tan2Phi + tan4Phi + 14.0 * e2c2 - 58.0 * t2e2c2 + 13.0 * e4c4 - 64.0 * t2e4c4 + 4.0 * e6c6 - 24.0 * t2e6c6);
         double t9 = (kn2 * cos7Phi / 50.40) * (61.0 - 479.0 * tan2Phi + 179.0 * tan4Phi - tan6Phi);
 
-        double lambda = lon / GpsUtils.RHO;
+        double lambda = lon / LMath.RHO;
         double lambda0 = getCentralMeridian(longitudeZone, latitudeZone);
         double dL = lambda - lambda0;
         double dL2 = dL * dL;
@@ -189,11 +150,10 @@ public class UTMProjection extends Projection {
         double northing = falseNorthing + t1 + dL2 * t2 + dL4 * t3 + dL6 * t4 + dL8 * t5;
         double easting = falseEasting + dL * t6 + dL3 * t7 + dL5 * t8 + dL7 * t9;
 
-        valueOf(longitudeZone, latitudeZone, easting, northing);
-
         result[0] = northing;
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        result[1] = (longitudeZone - 30) * 1000000 + easting;
+//        result[1] = (longitudeZone - 30) * 1000000 + easting;
+        result[1] = easting;
 //System.out.println("Lon zone: " + longitudeZone);
 //System.out.println("res1: " + northing);
 //System.out.println("res2: " + easting);
@@ -209,9 +169,9 @@ public class UTMProjection extends Projection {
         double fe = 500000;
         double fn = 0;
         double lambda = 21 + 6 * (((int) (X / 1000000)) - 4);
-        double lambdaRad = lambda / GpsUtils.RHO;
+        double lambdaRad = lambda / LMath.RHO;
         double fi0 = 0;
-        double fi0Rad = fi0 / GpsUtils.RHO;
+        double fi0Rad = fi0 / LMath.RHO;
         double k0 = 0.9996;
         //double xM = X - fe;
         double xM = X - ((int) (X / 1000000)) * 1000000 - fe;
@@ -239,8 +199,8 @@ public class UTMProjection extends Projection {
                 LMath.pow(e, 6) / 720);
         double lamRad = lambdaRad + (D - (1 + 2 * T1 + C1) * LMath.pow(D, 3) / 6 + (5 - 2 * C1 + 28 * T1
                 - 3 * C1 * C1 + 8 * eC2 + 24 * T1 * T1) * LMath.pow(D, 5) / 120) / Math.cos(fi1);
-        res[0] = fiRad * GpsUtils.RHO;
-        res[1] = lamRad * GpsUtils.RHO;
+        res[0] = fiRad * LMath.RHO;
+        res[1] = lamRad * LMath.RHO;
 //System.out.println(a + " " + e + " " + fe + " " + fn + " " + lambda + "\n" +
 //        lambdaRad + " " + fi0 + " " + fi0Rad + " " + k0 + " " + xM + "\n" +
 //        yM + " " + e1 + " " + M0 + " " + M + " " + mu + "\n" +

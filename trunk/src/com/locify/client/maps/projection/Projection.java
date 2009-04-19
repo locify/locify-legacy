@@ -22,6 +22,7 @@ public abstract class Projection {
     public static final int PROJECTION_NULL = -1;
     public static final int PROJECTION_UTM = 1;
     public static final int PROJECTION_S42 = 2;
+    public static final int PROJECTION_SPHERICAL_MERCATOR = 3;
 
     /** WGS84 radius in metres*/
     public static final double WGS84_RADIUS = 6378137.0;
@@ -31,6 +32,7 @@ public abstract class Projection {
     public static final double WGS84_FLATTENING = 1.0 / 298.2572235630;
     /** angle reduction between ferro and greenwich */
     public static final double SJTSK_FERRO_REDUCTION = 17 + 39 / 60 + 46 / 3600;
+    
     protected ReferenceEllipsoid ellipsoid;
 
     public Projection(ReferenceEllipsoid ellipsoid) {
@@ -53,74 +55,74 @@ public abstract class Projection {
     North latitudes are positive, South latitudes are negative
     Lat and Long are in decimal degrees
     Written by Chuck Gantz- chuck.gantz@globalstar.com */
-    public static double[] LatLonToUTM(ReferenceEllipsoid refEllipsoid, double Lat, double Long) { //, char UTMZone) {
-        double UTMNorthing;
-        double UTMEasting;
-        
-        double deg2rad = Math.PI / 180;
-        //double rad2deg = 180.0 / Math.PI;
-
-        double a = refEllipsoid.a;
-        double eccSquared = refEllipsoid.getEccentricitySquared();
-        double k0 = 0.9996;
-
-        double LongOrigin;
-        double eccPrimeSquared;
-        double N, T, C, A, M;
-
-        //Make sure the longitude is between -180.00 .. 179.9
-        double LongTemp = (Long + 180) - (int) ((Long + 180) / 360) * 360 - 180; // -180.00 .. 179.9;
-
-        double LatRad = Lat * deg2rad;
-        double LongRad = LongTemp * deg2rad;
-        double LongOriginRad;
-        int ZoneNumber;
-
-        ZoneNumber = (int) ((LongTemp + 180) / 6) + 1;
-
-        if (Lat >= 56.0 && Lat < 64.0 && LongTemp >= 3.0 && LongTemp < 12.0) {
-            ZoneNumber = 32;
-        }
-
-        // Special zones for Svalbard
-        if (Lat >= 72.0 && Lat < 84.0) {
-            if (LongTemp >= 0.0 && LongTemp < 9.0) {
-                ZoneNumber = 31;
-            } else if (LongTemp >= 9.0 && LongTemp < 21.0) {
-                ZoneNumber = 33;
-            } else if (LongTemp >= 21.0 && LongTemp < 33.0) {
-                ZoneNumber = 35;
-            } else if (LongTemp >= 33.0 && LongTemp < 42.0) {
-                ZoneNumber = 37;
-            }
-        }
-        LongOrigin = (ZoneNumber - 1) * 6 - 180 + 3;  //+3 puts origin in middle of zone
-        LongOriginRad = LongOrigin * deg2rad;
-
-        //compute the UTM Zone from the latitude and longitude
-        //sprintf(UTMZone, "%d%c", ZoneNumber, UTMLetterDesignator(Lat));
-
-        eccPrimeSquared = (eccSquared) / (1 - eccSquared);
-
-        N = a / Math.sqrt(1 - eccSquared * Math.sin(LatRad) * Math.sin(LatRad));
-        T = Math.tan(LatRad) * Math.tan(LatRad);
-        C = eccPrimeSquared * Math.cos(LatRad) * Math.cos(LatRad);
-        A = Math.cos(LatRad) * (LongRad - LongOriginRad);
-
-        M = a * ((1 - eccSquared / 4 - 3 * eccSquared * eccSquared / 64 - 5 * eccSquared * eccSquared * eccSquared / 256) * LatRad - (3 * eccSquared / 8 + 3 * eccSquared * eccSquared / 32 + 45 * eccSquared * eccSquared * eccSquared / 1024) * Math.sin(2 * LatRad) + (15 * eccSquared * eccSquared / 256 + 45 * eccSquared * eccSquared * eccSquared / 1024) * Math.sin(4 * LatRad) - (35 * eccSquared * eccSquared * eccSquared / 3072) * Math.sin(6 * LatRad));
-
-        UTMEasting = (double) (k0 * N * (A + (1 - T + C) * A * A * A / 6 + (5 - 18 * T + T * T + 72 * C - 58 * eccPrimeSquared) * A * A * A * A * A / 120) + 500000.0);
-
-        UTMNorthing = (double) (k0 * (M + N * Math.tan(LatRad) * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * A * A * A * A / 24 + (61 - 58 * T + T * T + 600 * C - 330 * eccPrimeSquared) * A * A * A * A * A * A / 720)));
-        if (Lat < 0) {
-            UTMNorthing += 10000000.0; //10000000 meter offset for southern hemisphere
-        }
-        
-        double[] res = new double[2];
-        res[0] = UTMNorthing;
-        res[1] = UTMEasting;
-        return res;
-    }
+//    public static double[] LatLonToUTM(ReferenceEllipsoid refEllipsoid, double Lat, double Long) { //, char UTMZone) {
+//        double UTMNorthing;
+//        double UTMEasting;
+//
+//        double deg2rad = Math.PI / 180;
+//        //double rad2deg = 180.0 / Math.PI;
+//
+//        double a = refEllipsoid.a;
+//        double eccSquared = refEllipsoid.getEccentricitySquared();
+//        double k0 = 0.9996;
+//
+//        double LongOrigin;
+//        double eccPrimeSquared;
+//        double N, T, C, A, M;
+//
+//        //Make sure the longitude is between -180.00 .. 179.9
+//        double LongTemp = (Long + 180) - (int) ((Long + 180) / 360) * 360 - 180; // -180.00 .. 179.9;
+//
+//        double LatRad = Lat * deg2rad;
+//        double LongRad = LongTemp * deg2rad;
+//        double LongOriginRad;
+//        int ZoneNumber;
+//
+//        ZoneNumber = (int) ((LongTemp + 180) / 6) + 1;
+//
+//        if (Lat >= 56.0 && Lat < 64.0 && LongTemp >= 3.0 && LongTemp < 12.0) {
+//            ZoneNumber = 32;
+//        }
+//
+//        // Special zones for Svalbard
+//        if (Lat >= 72.0 && Lat < 84.0) {
+//            if (LongTemp >= 0.0 && LongTemp < 9.0) {
+//                ZoneNumber = 31;
+//            } else if (LongTemp >= 9.0 && LongTemp < 21.0) {
+//                ZoneNumber = 33;
+//            } else if (LongTemp >= 21.0 && LongTemp < 33.0) {
+//                ZoneNumber = 35;
+//            } else if (LongTemp >= 33.0 && LongTemp < 42.0) {
+//                ZoneNumber = 37;
+//            }
+//        }
+//        LongOrigin = (ZoneNumber - 1) * 6 - 180 + 3;  //+3 puts origin in middle of zone
+//        LongOriginRad = LongOrigin * deg2rad;
+//
+//        //compute the UTM Zone from the latitude and longitude
+//        //sprintf(UTMZone, "%d%c", ZoneNumber, UTMLetterDesignator(Lat));
+//
+//        eccPrimeSquared = (eccSquared) / (1 - eccSquared);
+//
+//        N = a / Math.sqrt(1 - eccSquared * Math.sin(LatRad) * Math.sin(LatRad));
+//        T = Math.tan(LatRad) * Math.tan(LatRad);
+//        C = eccPrimeSquared * Math.cos(LatRad) * Math.cos(LatRad);
+//        A = Math.cos(LatRad) * (LongRad - LongOriginRad);
+//
+//        M = a * ((1 - eccSquared / 4 - 3 * eccSquared * eccSquared / 64 - 5 * eccSquared * eccSquared * eccSquared / 256) * LatRad - (3 * eccSquared / 8 + 3 * eccSquared * eccSquared / 32 + 45 * eccSquared * eccSquared * eccSquared / 1024) * Math.sin(2 * LatRad) + (15 * eccSquared * eccSquared / 256 + 45 * eccSquared * eccSquared * eccSquared / 1024) * Math.sin(4 * LatRad) - (35 * eccSquared * eccSquared * eccSquared / 3072) * Math.sin(6 * LatRad));
+//
+//        UTMEasting = (double) (k0 * N * (A + (1 - T + C) * A * A * A / 6 + (5 - 18 * T + T * T + 72 * C - 58 * eccPrimeSquared) * A * A * A * A * A / 120) + 500000.0);
+//
+//        UTMNorthing = (double) (k0 * (M + N * Math.tan(LatRad) * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * A * A * A * A / 24 + (61 - 58 * T + T * T + 600 * C - 330 * eccPrimeSquared) * A * A * A * A * A * A / 720)));
+//        if (Lat < 0) {
+//            UTMNorthing += 10000000.0; //10000000 meter offset for southern hemisphere
+//        }
+//
+//        double[] res = new double[2];
+//        res[0] = UTMNorthing;
+//        res[1] = UTMEasting;
+//        return res;
+//    }
 
 //    char UTMLetterDesignator(double Lat)
 //    {

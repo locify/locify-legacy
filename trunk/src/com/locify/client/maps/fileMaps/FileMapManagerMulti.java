@@ -13,6 +13,7 @@
  */
 package com.locify.client.maps.fileMaps;
 
+import com.locify.client.utils.Utils;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
@@ -31,5 +32,13 @@ public class FileMapManagerMulti extends FileMapManager {
         //return drawImageMulti(gr, viewPort, null, mapPanX, mapPanY);
         appendRequests(imageExist, imageNotExist, viewPort, null, mapPanX, mapPanY);
         return true;
+    }
+
+    protected String createImageName(int i, int j) {
+        if (stringBuffer.length() > 0)
+            stringBuffer.delete(0, stringBuffer.length());
+        stringBuffer.append(mapImageDir);
+        stringBuffer.append(Utils.addZerosBefore("" + i, 3) + "_" + Utils.addZerosBefore("" + j, 3));
+        return stringBuffer.toString();
     }
 }

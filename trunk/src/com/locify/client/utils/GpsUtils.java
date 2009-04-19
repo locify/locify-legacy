@@ -28,8 +28,6 @@ public class GpsUtils {
     public static final int FORMAT_WGS84 = 0;   //14,94323
     public static final int FORMAT_WGS84_MIN = 1; //14°52.123
     public static final int FORMAT_WGS84_SEC = 2; //14°52'12.34
-    
-    public static final double RHO = 180/Math.PI;
 
     /**
      * compute distance beetwen two points on sphere (WGS-84 diametr)
@@ -166,11 +164,11 @@ public class GpsUtils {
     }
 
     public static double degToRad(double deg) {
-        return deg / RHO;
+        return deg / LMath.RHO;
     }
 
     public static double radToDeg(double rad) {
-        return rad * RHO;
+        return rad * LMath.RHO;
     }
 
     public static String formatLatitude(double latitude, int format, int precisions) {

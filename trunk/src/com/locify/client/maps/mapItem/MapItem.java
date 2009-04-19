@@ -169,7 +169,58 @@ public abstract class MapItem {
     protected void disableInitializeState() {
         this.initialized = false;
     }
-    
+
+    /**
+     * Call this immediately after adding new Location4D or Waypoints into item!!!
+     * @param points
+     */
+    protected void initializeFirstly(Vector points) {
+        try {
+            if (actualState == STATE_WAITING) {
+                actualState = STATE_INITIALIZING;
+
+                boolean location4D = false;
+                if (points.size() > 0) {
+                    if (points.elementAt(0) instanceof Location4D)
+                        location4D = true;
+                    else
+                        location4D = false;
+                }
+
+                double topLat = Double.NEGATIVE_INFINITY;
+                double bottomLat = Double.POSITIVE_INFINITY;
+                double leftLon = Double.POSITIVE_INFINITY;
+                double rightLon =  Double.NEGATIVE_INFINITY;
+
+                Waypoint tempWpt;
+                Location4D tempLoc4D;
+                for (int i = 0; i < points.size(); i++) {
+                    if (!location4D) {
+                        tempWpt = (Waypoint) points.elementAt(i);
+                        tempLoc4D = new Location4D(tempWpt.getLatitude(), tempWpt.getLongitude(), 0f);
+                    } else {
+                        tempLoc4D = (Location4D) points.elementAt(i);
+                    }
+                    topLat = Math.max(topLat, tempLoc4D.getLatitude());
+                    bottomLat = Math.min(bottomLat, tempLoc4D.getLatitude());
+                    leftLon = Math.min(leftLon, tempLoc4D.getLongitude());
+                    rightLon = Math.max(rightLon, tempLoc4D.getLongitude());
+                }
+
+                this.positionTopLeft = new Location4D(topLat, leftLon, 0.0f);
+                this.positionBottomRight = new Location4D(bottomLat, rightLon, 0.0f);
+            }
+            actualState = STATE_WAITING;
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapItem.initialize()", null);
+        }
+    }
+
+    /**
+     * Call after every big change in mapItem position.
+     * @param points
+     * @return
+     */
     protected Point2D.Int[] initializePoints(Vector points) {
         try {
             if (mapScreen.getActualMapLayer() instanceof FileMapLayer &&
@@ -192,10 +243,6 @@ public abstract class MapItem {
                 int bottom = Integer.MIN_VALUE;
                 int left = Integer.MAX_VALUE;
                 int right = Integer.MIN_VALUE;
-                double topLat = Double.NEGATIVE_INFINITY;
-                double bottomLat = Double.POSITIVE_INFINITY;
-                double leftLon = Double.POSITIVE_INFINITY;
-                double rightLon =  Double.NEGATIVE_INFINITY;
 
                 Waypoint tempWpt;
                 Location4D tempLoc4D;
@@ -206,10 +253,6 @@ public abstract class MapItem {
                     } else {
                         tempLoc4D = (Location4D) points.elementAt(i);
                     }
-                    topLat = Math.max(topLat, tempLoc4D.getLatitude());
-                    bottomLat = Math.min(bottomLat, tempLoc4D.getLatitude());
-                    leftLon = Math.min(leftLon, tempLoc4D.getLongitude());
-                    rightLon = Math.max(rightLon, tempLoc4D.getLongitude());
 
                     items[i] = mapScreen.getActualMapLayer().getLocationCoord(tempLoc4D);
 
@@ -224,8 +267,6 @@ public abstract class MapItem {
                 }
 
                 this.itemViewPort = new RectangleViewPort(left, top, right - left, bottom - top);
-                this.positionTopLeft = new Location4D(topLat, leftLon, 0.0f);
-                this.positionBottomRight = new Location4D(bottomLat, rightLon, 0.0f);
 
                 initialized = true;
             }

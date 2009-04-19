@@ -58,6 +58,7 @@ public class FileMapViewPort {
     private double laYSinv;
     private double laYCinv;
     private boolean helmert;
+    protected boolean sphericalMercator = false;
 
     /** construct viewport from end points and calculate the center */
     public FileMapViewPort(Location4D a, Location4D b, Location4D c, Location4D d, int xmax, int ymax) {
@@ -146,14 +147,22 @@ public class FileMapViewPort {
 
     // transform from coordinates to pixels
     private Point2D.Int helmertTransform(double X, double Y) {
-        int x1 = (int) (X0 + laXC * X - laYS * Y);
+        int x1;
+        if (!sphericalMercator)
+            x1 = (int) (X0 + laXC * X - laYS * Y);
+        else
+            x1 = (int) (X0 + laXC * X - laYS * Y);
         int y1 = (int) (Y0 + laXS * X + laYC * Y);
         return new Point2D.Int(x1, y1);
     }
 
     // transform from pixels to coordinates
     private Location4D helmertTransformInverse(double X, double Y) {
-        double x1 = X0inv + laXCinv * X - laYSinv * Y;
+        double x1;
+        if (sphericalMercator)
+            x1 = X0inv + laXCinv * X - laYSinv * Y;
+        else
+            x1 = X0inv + laXCinv * X - laYSinv * Y;
         double y1 = Y0inv + laXSinv * X + laYCinv * Y;
         return new Location4D(x1, y1, 0.0f);
     }

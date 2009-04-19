@@ -8,7 +8,6 @@
  */
 package com.locify.client.maps.projection;
 
-import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.math.LMath;
 
 /**
@@ -230,8 +229,8 @@ public class ReferenceEllipsoid {
      */
     public double[] convertLatLonAltToXYZ(double lat, double lon, double alt) {
         double N = verticalRadiusOfCurvature(lat);
-        lat = lat / GpsUtils.RHO;
-        lon = lon / GpsUtils.RHO;
+        lat = lat / LMath.RHO;
+        lon = lon / LMath.RHO;
         double[] ret = new double[3];
         ret[0] = (N + alt) * Math.cos(lat) * Math.cos(lon); // X
         ret[1] = (N + alt) * Math.cos(lat) * Math.sin(lon); // Y
@@ -258,7 +257,7 @@ public class ReferenceEllipsoid {
             lat = LMath.atan(Z / ((1 - (N / (N + alt)) * ea2) * Math.sqrt(sqr(X) + sqr(Y))));
         }
 
-        double[] ret = {lat * GpsUtils.RHO, LMath.atan(Y/X) * GpsUtils.RHO, alt};
+        double[] ret = {lat * LMath.RHO, LMath.atan(Y/X) * LMath.RHO, alt};
         return ret;
     }
 
@@ -283,8 +282,8 @@ public class ReferenceEllipsoid {
 
     public static double[] convertSomethingToSomething(double lat, double lon,
             int dx, int dy, int dz, ReferenceEllipsoid elFrom, ReferenceEllipsoid elTo) {
-        double latR = lat / GpsUtils.RHO;
-        double lonR = lon / GpsUtils.RHO;
+        double latR = lat / LMath.RHO;
+        double lonR = lon / LMath.RHO;
 
         // temp variables
         double latSin = Math.sin(latR);

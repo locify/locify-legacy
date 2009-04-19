@@ -48,6 +48,7 @@ public class RouteMapItem extends MapItem {
         super();
         setVectorLocation4D(points);
         this.selectedPoints = new Vector();
+        initializeFirstly(points);
     }
 
     /**
@@ -57,6 +58,7 @@ public class RouteMapItem extends MapItem {
     public RouteMapItem(Route route) {
         this(route.getPoints());
         this.separating = route.getSeparating();
+        initializeFirstly(points);
     }
 
     public void initialize() {
