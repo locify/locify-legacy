@@ -41,4 +41,16 @@ public class FileMapManagerMulti extends FileMapManager {
         stringBuffer.append(Utils.addZerosBefore("" + i, 3) + "_" + Utils.addZerosBefore("" + j, 3));
         return stringBuffer.toString();
     }
+
+    public int getMinZoomLevel() {
+        return fileMapConfig.getMapZoom();
+    }
+
+    public int getMaxZoomLevel() {
+        return fileMapConfig.getMapZoom();
+    }
+
+    public void setZoomLevel(int zoom) {
+        return;
+    }
 }

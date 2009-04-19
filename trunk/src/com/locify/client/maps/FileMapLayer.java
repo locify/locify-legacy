@@ -28,7 +28,6 @@ import com.locify.client.maps.projection.S42Projection;
 import com.locify.client.maps.projection.UTMProjection;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.ColorsFonts;
-import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import javax.microedition.lcdui.Graphics;
 import java.util.Vector;
@@ -309,14 +308,20 @@ public static long TIME;
         
         if (removeAll) {
             destroyMap();
-            return setProviderAndMode(fmm);
+            setProviderAndMode(fmm);
+            managers.addElement(fmm);
+            return true;
         } else {
             if (compareToFirstProvidet(fmm)) {
-                return setProviderAndMode(fmm);
+                setProviderAndMode(fmm);
+                managers.addElement(fmm);
+                return true;
             } else {
                 if (force) {
                     destroyMap();
-                    return setProviderAndMode(fmm);
+                    setProviderAndMode(fmm);
+                    managers.addElement(fmm);
+                    return true;
                 } else {
                     return false;
                 }
@@ -324,7 +329,7 @@ public static long TIME;
         }
     }
 
-    private boolean setProviderAndMode(FileMapManager fmm) {
+    private void setProviderAndMode(FileMapManager fmm) {
         mapScaleW = fmm.getFileMapConfig().getLonDiffPerPixel() * Capabilities.getWidth();
         mapScaleH = fmm.getFileMapConfig().getLatDiffPerPixel() * Capabilities.getHeight();
 
@@ -345,10 +350,6 @@ public static long TIME;
 //Logger.log("    mapScaleW: " + mapScaleW + " mapScaleH: " + mapScaleH);
 //Logger.log("    Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
 //Logger.log("    lonDim: " + viewPort.getLongitudeDimension() + " latDim: " + viewPort.getLatitudeDimension());
-
-        managers.addElement(fmm);
-//Logger.log("  Added manager: " + fmm.getMapName());
-        return true;
     }
 
     private boolean compareToFirstProvidet(FileMapManager fmm) {
@@ -385,34 +386,49 @@ public static long TIME;
 
     public int getActualZoomLevel() {
         if (isReady()) {
-            return getFirstManager().getFileMapConfig().getMapZoom();
+            return getFirstManager().getActualZoomLevel();
         } else {
             return 0;
         }
     }
 
     public String getMapLayerName() {
-        return "Maps";
+        if (isReady()) {
+            return getFirstManager().getMapName();
+        } else {
+            return "";
+        }
     }
 
     public int getMaxZoomLevel() {
-        return 0;
+        if (isReady()) {
+            return getFirstManager().getMaxZoomLevel();
+        } else {
+            return 0;
+        }
     }
 
     public int getMinZoomLevel() {
-        return 0;
+        if (isReady()) {
+            return getFirstManager().getMinZoomLevel();
+        } else {
+            return 0;
+        }
     }
 
     public void zoomIn() {
-        return;
+        setZoomLevel(getActualZoomLevel() + 1);
     }
 
     public void zoomOut() {
-        return;
+        setZoomLevel(getActualZoomLevel() - 1);
     }
 
     public void setZoomLevel(int zoom_level) {
-        return;
+        if (isReady() && zoom_level >= getMinZoomLevel() && zoom_level <= getMaxZoomLevel()) {
+            getFirstManager().setZoomLevel(zoom_level);
+            setProviderAndMode(getFirstManager());
+        }
     }
 
     public void repaint() {

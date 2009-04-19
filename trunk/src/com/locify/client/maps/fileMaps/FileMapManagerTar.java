@@ -44,4 +44,16 @@ public class FileMapManagerTar extends FileMapManager {
 
         return stringBuffer.toString();
     }
+
+    public int getMinZoomLevel() {
+        return fileMapConfig.getMapZoom();
+    }
+
+    public int getMaxZoomLevel() {
+        return fileMapConfig.getMapZoom();
+    }
+
+    public void setZoomLevel(int zoom) {
+        return;
+    }
 }

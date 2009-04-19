@@ -405,7 +405,7 @@ public abstract class FileMapManager {
             FileMapViewPort targetPort, StorageTar tar, int mapPanX, int mapPanY) {
         try {
             Point2D mapPoint = fileMapConfig.getMapViewPort().convertGeoToMapPixel(targetPort.getCenter());
-//Logger.log(" FileMapManager.appendRequests() - " + mapPath + mapImageDir);
+Logger.log(" FileMapManager.appendRequests() - " + mapPath + mapImageDir);
 //Logger.log("   mapViewPort " + fileMapConfig.getMapViewPort().toString());
 //Logger.log("   targetPort " + targetPort.toString());
 //Logger.log("   center: " + targetPort.getCenter().toString());
@@ -476,12 +476,12 @@ public abstract class FileMapManager {
                             ir = new ImageRequest(mapPath + imageName, fileMapConfig.tileSizeX,
                                     fileMapConfig.tileSizeY, x1, y1);
                         }
-//Logger.log("  FileMapManager.appendRequests() - ImageExist: " + ir.toString());
+Logger.log("  FileMapManager.appendRequests() - ImageExist: " + ir.toString());
                         imageExist.addElement(ir);
                     } else {
                         ir = new ImageRequest(null, fileMapConfig.tileSizeX,
                                 fileMapConfig.tileSizeY, x1, y1);
-//Logger.log("  FileMapManager.appendRequests() - ImageNotExist: " + ir.toString());
+Logger.log("  FileMapManager.appendRequests() - ImageNotExist: " + ir.toString());
                         imageNotExist.addElement(ir);
                     }
                 }
@@ -508,4 +508,18 @@ public abstract class FileMapManager {
             Vector imageExist, Vector imageNotExist, int mapPanX, int mapPanY);
 
     protected abstract String createImageName(int i, int j);
+
+    public abstract int getMinZoomLevel();
+
+    public abstract int getMaxZoomLevel();
+
+    public int getActualZoomLevel() {
+        if (isReady()) {
+            return fileMapConfig.getMapZoom();
+        } else {
+            return 0;
+        }
+    }
+
+    public abstract void setZoomLevel(int zoom);
 }

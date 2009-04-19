@@ -38,4 +38,16 @@ public class FileMapManagerSingle extends FileMapManager {
     protected String createImageName(int i, int j) {
         return "";
     }
+
+    public int getMinZoomLevel() {
+        return fileMapConfig.getMapZoom();
+    }
+
+    public int getMaxZoomLevel() {
+        return fileMapConfig.getMapZoom();
+    }
+
+    public void setZoomLevel(int zoom) {
+        return;
+    }
 }
