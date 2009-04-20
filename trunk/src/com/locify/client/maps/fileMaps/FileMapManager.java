@@ -22,7 +22,6 @@ import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StorageTar;
 import com.locify.client.utils.StorageTar.TarRecord;
-import com.locify.client.utils.Utils;
 import java.io.IOException;
 import java.util.Vector;
 import javax.microedition.io.Connector;
@@ -90,7 +89,7 @@ public abstract class FileMapManager {
     /** loaded image used for drawing*/
     protected Image image;
     /** data for Http transfer */
-    private static String obtainedData;
+    public static String obtainedData;
 
     public FileMapManager(String mapPath) {
         this.ready = false;
@@ -498,10 +497,6 @@ public abstract class FileMapManager {
 
     public FileMapConfig getFileMapConfig() {
         return fileMapConfig;
-    }
-
-    public static void setObtainedData(String data) {
-        FileMapManager.obtainedData = data;
     }
 
     public abstract boolean drawActualMap(Graphics gr, FileMapViewPort targetPort,

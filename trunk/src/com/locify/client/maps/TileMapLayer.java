@@ -37,6 +37,7 @@ import com.locify.client.maps.tiles.impl.VirtualEarthHybridTileFactory;
 import com.locify.client.maps.tiles.impl.VirtualEarthRoadTileFactory;
 import com.locify.client.maps.tiles.impl.YahooMapTileFactory;
 import com.locify.client.maps.tiles.impl.YahooSatelliteTileFactory;
+import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Capabilities;

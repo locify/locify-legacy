@@ -38,6 +38,7 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
+//import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
@@ -74,7 +75,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private static final int MA_MY_LOCATION = 8;
     private static final int MA_SELECT = 9;
     // command
-    private Command cmdZoomIn,  cmdZoomOut,  cmdChangeMapTile,  cmdChangeMapFile,  cmdMyLocation;//,  cmdSelectItem;
+    private Command cmdZoomIn,  cmdZoomOut,  cmdChangeMapTile,  cmdChangeMapFile,  cmdMyLocation;
     private Command[] providerCommandsTile;
     private boolean drawLock;
     private static int TOP_MARGIN = R.getTopBar().height;
@@ -150,6 +151,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /** if item was added before map was inicialized, call it after that */
     private MapItem newMapItemAdded;
 
+    // planStudio temp
+    private Command cmdPlanStudio;
+//    private PlanStudioManager psm;
+
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -178,6 +183,11 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         cmdMyLocation = new Command(Locale.get("My_location"), Command.SCREEN, 3);
         cmdChangeMapTile = new Command(Locale.get("Change_map_tile"), Command.SCREEN, 5);
         cmdChangeMapFile = new Command(Locale.get("Change_map_file"), Command.SCREEN, 6);
+
+//        psm = new PlanStudioManager();
+        cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
+        this.addCommand(cmdPlanStudio);
+        
         this.addCommand(Commands.cmdBack);
         //#style imgHome
         this.addCommand(Commands.cmdHome);
@@ -249,9 +259,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
                         R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude());
             } else {
-//                mapFile.addNextMapManager(PlanStudioManager.parseMapDefinitions(), true, true);
-//                map = mapFile;
-
                 TOP_MARGIN = R.getTopBar().height;
                 mapItemManager.init();
                 if (lastCenterPoint != null) {
@@ -560,7 +567,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         }
 
         try {
-            if (MainScreen.hasPointerEvents && map instanceof TileMapLayer) {
+            if (MainScreen.hasPointerEvents && map.getMaxZoomLevel() - map.getMinZoomLevel() > 0) {
                 g.setColor(ColorsFonts.LIGHT_ORANGE);
                 g.fillArc(touchZoomInButtonCenter.x - touchZoomButtonRadius,
                         touchZoomInButtonCenter.y - touchZoomButtonRadius,
@@ -679,6 +686,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     R.getMapOfflineChooseScreen().view(locs[0].getLatitude(),
                             locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
                 }
+
+//            } else if (cmd.equals(cmdPlanStudio)) {
+//                psm.showSelectionMenu();
+
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);
             } else if (cmd.equals(cmdZoomOut)) {

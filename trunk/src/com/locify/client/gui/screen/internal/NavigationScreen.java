@@ -427,16 +427,16 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
                 radius = Math.min(cX, cY) - 5;
                 cY = cY + TOP_MARGIN + 10;
 
-                ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, Capabilities.getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, Capabilities.getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
             } else {
-                ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, Capabilities.getWidth() - 80 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, Capabilities.getWidth() - 80 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getWidth() - 80 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_LATITUDE)).setSizePos(space, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_LONGITUDE)).setSizePos(2 * space + sizeX, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_ALTITUDE)).setSizePos(3 * space + 2 * sizeX, Capabilities.getWidth() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, Capabilities.getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, Capabilities.getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_LATITUDE)).setSizePos(space, Capabilities.getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_LONGITUDE)).setSizePos(2 * space + sizeX, Capabilities.getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_ALTITUDE)).setSizePos(3 * space + 2 * sizeX, Capabilities.getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
             }
 
             //#if polish.Vendor == WM-big

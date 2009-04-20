@@ -72,8 +72,10 @@ public class ContentHandler {
                     }
                     R.getMapScreen().stopNetworkLink();
                 } //some other html or form
-                else if (data.startsWith("<?xml version=\"1.0\"?>")) {
-                    FileMapManager.setObtainedData(data);
+                else if (data.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><mapList><map")) {
+                    FileMapManager.obtainedData = data;
+                } else if (data.startsWith("<?xml version=\"1.0\"?>")) {
+                    FileMapManager.obtainedData = data;
                 } else {
                     R.getHTMLScreen().view(data);
                     if (!response.isDisabledCaching()) {
