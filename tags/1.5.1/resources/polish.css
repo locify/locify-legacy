@@ -1,0 +1,789 @@
+/** 
+* J2ME Polish Design Definition File
+* Property of Locify Ltd.
+*/
+
+/* ----------------------------- DEFINITIONS --------------------------- */
+
+/* WM-big used fonts 
+arial_20_bold
+arial_20
+arial_16_black */
+
+/* Colors definition */
+colors {
+    fontColor: black;
+    bgColor:  rgb(255,238,221);
+    focusedBgColor: #78e239;
+    borderColor: rgb(255,128,0);
+    topGradient: rgb(255,226,196);
+    bottomGradient: rgb(255,202,148);
+    darkGrey: #A9A9A9;
+}
+
+/* Backgrounds definition */
+backgrounds {
+    gradient2 {
+        type: top-bar;
+        top-color: topGradient;
+        bottom-color: bottomGradient;
+        start: 0;
+        end: 100;
+    }
+    gradient
+    {
+        type: vertical-gradient;
+        top-color: topGradient;
+        bottom-color: bottomGradient;
+        start: 0%;
+        end: 100%;
+    }
+}
+
+/* Borders definition */
+borders {
+    bottomBorder {
+        type: fixed-bottom;
+        color: borderColor;
+        width: 1;
+    }
+    originalBottomBorder {
+        type: bottom;
+        color: borderColor;
+        width: 1;
+    }
+    topBorder {
+        type: top;
+        color: borderColor;
+        width: 1;
+    }
+    inputBorder {
+        type: drop-shadow;
+        inner-color: borderColor;
+        outer-color: borderColor;
+        orientation: all;
+    }
+    focusedInputBorder {
+        type: drop-shadow;
+        inner-color: focusedBgColor;
+        outer-color: focusedBgColor;
+        orientation: all;
+    }
+    infoBorder {
+        type: drop-shadow;
+        inner-color: darkgrey;
+        outer-color: black;
+        orientation: all;
+        width:2;
+    }
+    mainScreenListBorder {
+        type: round-rect;
+        color: focusedBgColor;
+        arc: 8;
+        width:2;
+    }
+}
+
+
+/* -------------------------------- TITLE ------------------------------ */
+/* Title of every page */
+title {
+    margin:0;
+    padding: 3;
+    padding-left: 20;
+    padding-right: 66;
+    font-face: proportional;
+    font-style: bold;
+    background: gradient2;
+    border: bottomBorder;
+    layout: left | horizontal-expand;
+    text-wrap:false;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24_bold;
+    //#endif
+}
+
+.alerttitle {
+    margin:0;
+    padding: 3;
+    padding-left: 20;
+    font-face: proportional;
+    font-style: bold;
+    background: gradient;
+    border: bottomBorder;
+    layout: left | horizontal-expand;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24_bold;
+    //#endif
+}
+
+/* -------------------------------- CONTENT ------------------------------ */
+
+/* Main screen */
+.mainScreen {
+    padding: 0;
+    layout: hcenter | top;
+    background-color:bgColor;
+    scroll-mode: normal;
+}
+
+.mainScreenList extends list {
+    border:mainScreenListBorder;
+}
+
+.mainScreenListItem extends listItem {
+    border:none;
+    focused-style:mainScreenListItemFocused;
+}
+
+.mainScreenListItemFocused extends mainScreenListItem
+{
+    background-color: focusedBgColor;
+}
+
+tabbar {
+    background-color: white;
+    layout: expand;
+    padding-bottom: 0;
+    margin:0;
+    tabbar-left-arrow: url( left.png );
+    tabbar-right-arrow: url( right.png );
+    tabbar-roundtrip: true;
+}
+
+activetab {
+    padding: 3;
+    background-type: round-tab;
+    background-color: focusedBgColor;
+    background-arc: 8;
+    font-color: black;
+    font-style: bold;
+}
+
+inactivetab extends activetab {
+    background-color: bgColor;
+    font-color: gray;
+    margin-left: 2;
+    margin-right: 2;
+    margin-bottom: 1;
+}
+
+/* Scrollbar of content */
+scrollbar {
+    scrollbar-slider-color: #333;
+    scrollbar-slider-width: 3;
+}
+
+/* Ordinary list */
+list {
+    background-color:bgColor;
+    margin:0;
+    padding:0;
+    scroll-mode: normal;
+
+}
+
+/* Item of the list */
+listitem { 
+    layout: left | expand;
+    margin:0;
+    padding:2;
+    focused-style:.listItemFocused;
+    radiobox-plain:none;
+    radiobox-selected:none;
+    border:originalBottomBorder;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24;
+    //#endif
+}
+
+/* Focused list item */
+.listItemFocused extends listitem {
+    background-color: focusedBgColor;
+}
+
+/* ------------------------ FORM ITEMS ------------------------- */
+/* whole form */
+form {
+    background-color:bgColor;
+    scroll-mode: normal;
+}
+
+/* Label of the form item */
+label {
+    font-style: bold;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24_bold;
+    //#endif
+}
+
+/* Text input */
+textfield {
+    border:inputBorder;
+    background-color:white;
+    focused-style:.textfieldFocused;
+    scroll-mode:normal;
+    min-width:60;
+    layout:newline-after;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24;
+    //#endif
+}
+
+/* direct input info */
+info {
+	padding-right: 5;
+    margin-top:1;
+	background: none;
+	border-color: black;
+	font-style: plain;
+	font-face: proportional;
+	font-size: small;
+	font-color: fontColor;
+	layout: right;
+}
+
+.textFieldFocused extends textfield{
+    border:focusedInputBorder;
+}
+
+/*choice group*/
+choicegroup {
+    margin:0;
+    padding:0;
+    border:none;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24;
+    //#endif
+}
+
+/* input type select */
+.select extends textField
+{
+    min-width:100;
+    max-width:124;
+    popup-image:url( popup.png );
+    popup-roundtrip:true;
+    focused-style:selectFocused;
+}
+
+.selectFocused extends select
+{
+    border:focusedInputBorder;
+}
+
+radiobox
+{
+    margin:0;
+    padding-left:2;
+    radiobox-plain:url(radio.png);
+    radiobox-selected:url(radio-selected.png);
+    focused-style:.radioboxFocused;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24;
+    //#endif
+}
+
+.radioboxFocused extends radiobox
+{
+    background-color:focusedBgColor;
+}
+
+checkbox
+{
+    margin:0;
+    padding-left:2;
+    checkbox-plain:url(checkbox.png);
+    checkbox-selected:url(checkbox-checked.png);
+    focused-style:.checkboxFocused;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24;
+    //#endif
+}
+
+.checkboxFocused extends checkbox
+{
+    background-color:focusedBgColor;
+}
+
+/*button*/
+button extends textfield {
+    layout:newline-before|newline-after;
+    background-color:darkgrey;
+    font-style:bold;
+    font-color:white;
+    padding:3;
+    min-width:0;
+    margin:5;
+    focused-style:.buttonFocused;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24_bold;
+    //#endif
+}
+
+.buttonFocused extends button {
+    background-color:focusedBgColor;
+}
+
+/* Links */
+a {
+    font-style:bold;
+    font-color:blue;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24_bold;
+    //#endif
+}
+a:hover extends a {
+    font-color:red;
+}
+
+/* HTML browser */
+.browser {
+    view-type: browser;
+    padding:0;
+    margin:0;
+}
+
+.browserText {
+    //#if polish.name == WM-big
+      font-bitmap:arial_24;
+    //#endif
+}
+
+p {
+    //#if polish.name == WM-big
+      font-bitmap:arial_24;
+    //#endif
+}
+
+.contextContainer extends textField {
+    columns:3;
+    margin:2;
+    layout:newline-after;
+    focused-style:.contextContainerFocused;
+}
+
+.contextContainerFocused extends contextContainer
+{
+    border:focusedInputBorder;
+}
+
+.contextImg {
+    layout:vcenter;
+    margin:3;
+}
+
+.contextLabel extends label {
+    layout:left | newline-after;
+}
+
+.contextText {
+    max-width:65;
+    font-size:small;
+    //#if polish.name == WM-big
+      font-bitmap:arial_20;
+    //#endif
+}
+
+.contactsTextField extends textfield {
+    margin:5;
+    //#if polish.name == WM || polish.name == WM-big
+       min-width:135;
+    //#endif
+    focused-style:contactsTextFieldFocused;
+}
+
+.contactsTextFieldFocused extends .contactsTextField {
+    border:focusedInputBorder;
+}
+
+.fileUploadText {
+    max-width:85;
+    font-size:small;
+    //#if polish.name == WM-big
+      font-bitmap:arial_20;
+    //#endif
+}
+
+.contextButton extends textField {
+    layout:vcenter;
+    background-color:darkgrey;
+    font-style:bold;
+    font-color:white;
+    padding:3;
+    margin:3;
+    min-width:0;
+    focused-style:.contextButtonFocused;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24_bold;
+    //#endif
+}
+
+.contextButtonFocused extends contextButton {
+    background-color:focusedBgColor;
+}
+
+.helpIcons extends form {
+    view-type:midp2;
+}
+
+.breakline {
+    layout:newline-after;
+}
+
+/* Alert */
+.alertForm
+{
+    margin-right: 10;
+    margin-left: 10;
+    padding: 5;
+    padding-top:15;
+    padding-bottom:0;
+    layout: horizontal-center | bottom | horizontal-shrink | vertical-shrink;
+    repaint-previous-screen: true;
+    border {
+        type: drop-shadow;
+        width: 6;
+        inner-color: #aff0;
+        outer-color: #2002;
+        orientation: top-right;
+    }
+    screen-change-animation: fade;
+    title-style:.alertTitle;
+}
+
+/* Navigation screen */
+.navigationScreen {
+    padding: 5;
+    padding-left: 10;
+    padding-right: 10;
+    padding-vertical: 10;
+    layout: bottom | expand;
+    columns: 2;
+    columns-width: equal;
+}
+
+
+.naviInfoText {
+    background-color: red;
+    font {
+        face: proportional;
+        size: large;
+        style: bold;
+        color: #fff;
+    }
+    label {
+        font-style:plain;
+    }
+}
+
+gauge {
+    gauge-show-value:false;
+}
+
+/* ------------------------ MENU BAR ----------------------------*/
+
+/* Menu bar itself */
+menubar
+{
+    margin: 0;
+    padding-top: 1;
+    padding-bottom: 3;
+    padding-left:6;
+    padding-right:6;
+    background: gradient;
+    border: topBorder;
+}
+
+/* Left command in menu bar */
+leftcommand
+{
+    margin: 0;
+    margin-horizontal: 10;
+    padding-top: 3;
+    padding-bottom: 0;
+    font-color: black;
+    font-style: bold;
+    layout: left;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24_bold;
+    //#endif
+}
+
+/* Right command in menu bar */
+rightcommand extends leftcommand
+{
+    layout: right;
+}
+
+/* Menu from menubar */
+menu {
+    margin:0;
+    padding:0;
+    max-width: 140;
+    background {
+        type: round-rect;
+        color: bgColor;
+        border-width: 2;
+        border-color: borderColor;
+    }
+    layout:right;
+    scroll-mode: normal;
+}
+
+/* First submenu */
+menu1 extends menu {
+    layout: right;
+    max-width: 140;
+}
+
+
+/* Menu item */
+menuItem {
+    font {
+        color: fontColor;
+        size: medium;
+    }
+    layout: left | horizontal-expand;
+    focused-style:.focusedMenuItem;
+    border: bottomBorder;
+    margin:0;
+    padding:3;
+    scroll-mode: normal;
+    command-child-indicator-color: black;
+    command-child-indicator-width: 8;
+    command-child-indicator-height: 10;
+    //#if polish.name == WM-big
+      font-bitmap:arial_24;
+    //#endif
+}
+
+/* Focused menu item */
+.focusedMenuItem extends menuItem 
+{
+    background-color:focusedBgColor;
+}
+
+/* Main context menu items */
+.imgSelect extends menuItem
+{
+    before:url(select.png);
+    focused-style:.imgSelectFocused;
+}
+
+.imgSelectFocused extends imgSelect
+{
+    background-color:focusedBgColor;
+}
+
+.imgHome extends menuItem
+{
+    before:url(home.png);
+    focused-style:.imgHomeFocused;
+}
+.imgHomeFocused extends imgHome
+{
+    background-color:focusedBgColor;
+}
+.imgGps extends menuItem
+{
+    before:url(gps.png);
+    focused-style:.imgGpsFocused;
+}
+.imgGpsFocused extends imgGps
+{
+    background-color:focusedBgColor;
+}
+
+.imgSaved extends menuItem
+{
+    before:url(saved.png);
+    focused-style:.imgSavedFocused;
+}
+.imgSavedFocused extends imgSaved
+{
+    background-color:focusedBgColor;
+}
+.imgNavigate extends menuItem
+{
+    before:url(navigation.png);
+    focused-style:.imgNavigateFocused;
+}
+.imgNavigateFocused extends imgNavigate
+{
+    background-color:focusedBgColor;
+}
+.imgMap extends menuItem
+{
+    before:url(maps.png);
+    focused-style:.imgMapFocused;
+}
+.imgMapFocused extends imgMap
+{
+    background-color:focusedBgColor;
+}
+
+.imgWhere extends menuItem
+{
+    before:url(where.png);
+    focused-style:.imgWhereFocused;
+}
+.imgWhereFocused extends imgWhere
+{
+    background-color:focusedBgColor;
+}
+
+.imgLogger extends menuItem
+{
+    before:url(logger.png);
+    focused-style:.imgLoggerFocused;
+}
+.imgLoggerFocused extends imgLogger
+{
+    background-color:focusedBgColor;
+}
+
+.imgMore extends menuItem
+{
+    before:url(more.png);
+    focused-style:.imgMoreFocused;
+}
+.imgMoreFocused extends imgMore
+{
+    background-color:focusedBgColor;
+}
+
+.imgManage extends menuItem
+{
+    before:url(manage.png);
+    focused-style:.imgManageFocused;
+}
+.imgManageFocused extends imgManage
+{
+    background-color:focusedBgColor;
+}
+
+.imgAdd extends menuItem
+{
+    before:url(add.png);
+    focused-style:.imgAddFocused;
+}
+.imgAddFocused extends imgAdd
+{
+    background-color:focusedBgColor;
+}
+
+.imgExit extends menuItem
+{
+    before:url(exit.png);
+    focused-style:.imgExitFocused;
+}
+.imgExitFocused extends imgExit
+{
+    background-color:focusedBgColor;
+}
+
+/* Add submenu */
+
+.imgAddFromList extends menuItem
+{
+    before:url(addFromList.png);
+    focused-style:.imgAddFromListFocused;
+}
+.imgAddFromListFocused extends imgAddFromList
+{
+    background-color:focusedBgColor;
+}
+
+.imgAddFromLink extends menuItem
+{
+    before:url(addFromLink.png);
+    focused-style:.imgAddFromLinkFocused;
+}
+.imgAddFromLinkFocused extends imgAddFromLink
+{
+    background-color:focusedBgColor;
+}
+
+.imgAddShortcut extends menuItem
+{
+    before:url(addShortcut.png);
+    focused-style:.imgAddShortcutFocused;
+}
+.imgAddShortcutFocused extends imgAddShortcut
+{
+    background-color:focusedBgColor;
+}
+
+
+/* Service/Shortcut menu items */
+.imgInfo extends menuItem
+{
+    before:url(moreInfo.png);
+    focused-style:.imgInfoFocused;
+}
+.imgInfoFocused extends imgInfo
+{
+    background-color:focusedBgColor;
+}
+
+.imgServiceSettings extends menuItem
+{
+    before:url(serviceSettings.png);
+    focused-style:.imgServiceSettingsFocused;
+}
+.imgServiceSettingsFocused extends imgServiceSettings
+{
+    background-color:focusedBgColor;
+}
+
+.imgUpdateService extends menuItem
+{
+    before:url(updateService.png);
+    focused-style:.imgUpdateServiceFocused;
+}
+.imgUpdateServiceFocused extends imgUpdateService
+{
+    background-color:focusedBgColor;
+}
+
+.imgRename extends menuItem
+{
+    before:url(renameService.png);
+    focused-style:.imgRenameFocused;
+}
+.imgRenameFocused extends imgRename
+{
+    background-color:focusedBgColor;
+}
+
+.imgMove extends menuItem
+{
+    before:url(move.png);
+    focused-style:.imgMoveFocused;
+}
+.imgMoveFocused extends imgMove
+{
+    background-color:focusedBgColor;
+}
+
+.imgDelete extends menuItem
+{
+    before:url(delete.png);
+    focused-style:.imgDeleteFocused;
+}
+.imgDeleteFocused extends imgDelete
+{
+    background-color:focusedBgColor;
+}
+
+.imgOnlineMap extends menuItem
+{
+    before:url(online.png);
+    focused-style:.imgOnlineMapFocused;
+}
+.imgOnlineMapFocused extends imgOnlineMap
+{
+    background-color:focusedBgColor;
+}
+
