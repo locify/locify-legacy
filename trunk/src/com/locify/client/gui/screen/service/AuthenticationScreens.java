@@ -212,7 +212,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
                 ServiceSettingsData.saveXML();
             }
             if (httpBasic) {
-                String basicResponse = Base64.encode(login + ":" + password);
+                String basicResponse = Base64.encode(Utils.replaceString(login,":","{colon}") + ":" + password);
                 R.getHttp().repeat(basicResponse);
             } else {
                 R.getPostData().add("login", login);

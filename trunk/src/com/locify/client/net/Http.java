@@ -249,7 +249,7 @@ public class Http implements Runnable {
                 }
             }//header for downloading multiple pages straith into cache
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("X-Cache-Store")) {
-                Logger.debug("Download these urls to cache: "+httpConnection.getHeaderField(j));
+                Logger.log("Download these urls to cache: "+httpConnection.getHeaderField(j));
                 String[] parts = StringTokenizer.getArray(httpConnection.getHeaderField(j), " ");
                 for (int i = 0; i < parts.length; i++) {
                     start(new HttpRequest(parts[i], null, false, CookieData.getHeaderData(parts[i]), false));

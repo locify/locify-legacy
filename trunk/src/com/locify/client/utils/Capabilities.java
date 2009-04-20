@@ -13,9 +13,6 @@
  */
 package com.locify.client.utils;
 
-//#if polish.Vendor == BlackBerry
-import net.rim.device.api.system.Display;
-//#endif
 
 /**
  * This class contains method for getting info about user's phone. It is used for customizing Locify to the capabilities of the phone
@@ -151,18 +148,10 @@ public class Capabilities {
     }
 
     public static int getWidth() {
-        //#if polish.Vendor == BlackBerry
-            return Display.getWidth();
-        //#else
-//#             return R.getMainScreen().getWidth();
-        //#endif
+            return R.getMainScreen().getWidth();
     }
 
     public static int getHeight() {
-        //#if polish.Vendor == BlackBerry
-           return Display.getHeight();
-        //#else
-//#             return R.getMainScreen().getHeight();
-        //#endif
+           return R.getMainScreen().getHeight();
     }
 }

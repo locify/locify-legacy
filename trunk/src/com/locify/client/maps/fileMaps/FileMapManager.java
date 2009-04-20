@@ -405,7 +405,7 @@ public abstract class FileMapManager {
             FileMapViewPort targetPort, StorageTar tar, int mapPanX, int mapPanY) {
         try {
             Point2D mapPoint = fileMapConfig.getMapViewPort().convertGeoToMapPixel(targetPort.getCenter());
-Logger.log(" FileMapManager.appendRequests() - " + mapPath + mapImageDir);
+//Logger.log(" FileMapManager.appendRequests() - " + mapPath + mapImageDir);
 //Logger.log("   mapViewPort " + fileMapConfig.getMapViewPort().toString());
 //Logger.log("   targetPort " + targetPort.toString());
 //Logger.log("   center: " + targetPort.getCenter().toString());
@@ -476,12 +476,12 @@ Logger.log(" FileMapManager.appendRequests() - " + mapPath + mapImageDir);
                             ir = new ImageRequest(mapPath + imageName, fileMapConfig.tileSizeX,
                                     fileMapConfig.tileSizeY, x1, y1);
                         }
-Logger.log("  FileMapManager.appendRequests() - ImageExist: " + ir.toString());
+//Logger.log("  FileMapManager.appendRequests() - ImageExist: " + ir.toString());
                         imageExist.addElement(ir);
                     } else {
                         ir = new ImageRequest(null, fileMapConfig.tileSizeX,
                                 fileMapConfig.tileSizeY, x1, y1);
-Logger.log("  FileMapManager.appendRequests() - ImageNotExist: " + ir.toString());
+//Logger.log("  FileMapManager.appendRequests() - ImageNotExist: " + ir.toString());
                         imageNotExist.addElement(ir);
                     }
                 }
