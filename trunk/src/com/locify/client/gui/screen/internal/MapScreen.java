@@ -454,7 +454,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      * location pointer etc.
      */
     private void drawMap(Graphics g) {
-        Logger.debug("map height"+Capabilities.getHeight()+","+getHeight());
         g.setColor(ColorsFonts.LIGHT_ORANGE);
         g.fillRect(0, 0, Capabilities.getWidth(), Capabilities.getHeight());
 

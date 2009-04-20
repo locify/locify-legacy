@@ -17,7 +17,6 @@ import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
-import de.enough.polish.util.Locale;
 import com.locify.client.utils.R;
 
 /**
@@ -28,6 +27,7 @@ public class LoadingScreen extends Canvas {
 
     private Image image;
     private String text;
+    private static int height;
 
 
     public LoadingScreen() {
@@ -57,7 +57,7 @@ public class LoadingScreen extends Canvas {
 
     public void paint(Graphics g) {
         int width = getWidth();
-        int height = getHeight();
+        LoadingScreen.height = getHeight();
         g.setColor(255, 255, 255);
         g.fillRect(0, 0, width, height);
         g.drawImage(image, width / 2, height / 2 - image.getHeight() / 2, Graphics.TOP | Graphics.HCENTER);
@@ -66,5 +66,9 @@ public class LoadingScreen extends Canvas {
         g.drawString(text + " ...", width / 2, height - 20, Graphics.TOP | Graphics.HCENTER);
     }
 
+    public static int getScreenHeight()
+    {
+        return height;
+    }
     
 }

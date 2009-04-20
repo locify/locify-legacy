@@ -13,6 +13,7 @@
  */
 package com.locify.client.utils;
 
+import com.locify.client.gui.screen.internal.LoadingScreen;
 
 /**
  * This class contains method for getting info about user's phone. It is used for customizing Locify to the capabilities of the phone
@@ -29,7 +30,7 @@ public class Capabilities {
         } else {
             return true;
         }
-        //#endif
+    //#endif
     }
 
     public static boolean hasPIMSupport() {
@@ -48,7 +49,7 @@ public class Capabilities {
         }
         //throw new IOException("PIM optional package is not available.");
         return true;
-        //#endif
+    //#endif
     }
 
     public static boolean hasLandmarks() {
@@ -64,7 +65,7 @@ public class Capabilities {
         } catch (ClassNotFoundException e) {
             return false;
         }
-        //#endif
+    //#endif
     }
 
     public static boolean hasBluetooth() {
@@ -84,7 +85,7 @@ public class Capabilities {
         } catch (ClassNotFoundException e) {
             return false;
         }
-        //#endif
+    //#endif
     }
 
     public static boolean isNokia() {
@@ -96,7 +97,7 @@ public class Capabilities {
         } else {
             return true;
         }
-        //#endif
+    //#endif
     }
 
     public static boolean isSonyEricsson() {
@@ -108,7 +109,7 @@ public class Capabilities {
         } else {
             return true;
         }
-        //#endif
+    //#endif
     }
 
     public static boolean hasCOMMs() {
@@ -120,7 +121,7 @@ public class Capabilities {
         } else {
             return true;
         }
-        //#endif
+    //#endif
     }
 
     public static boolean isWindowsMobile() {
@@ -132,7 +133,7 @@ public class Capabilities {
         } else {
             return false;
         }
-        //#endif
+    //#endif
     }
 
     public static boolean isHGE100Connected() {
@@ -144,14 +145,18 @@ public class Capabilities {
         } else {
             return false;
         }
-        //#endif
+    //#endif
     }
 
     public static int getWidth() {
-            return R.getMainScreen().getScreenFullWidth();
+        return R.getMainScreen().getScreenFullWidth();
     }
 
     public static int getHeight() {
-           return R.getMainScreen().getScreenFullHeight();
+        //#if polish.Vendor == BlackBerry
+        return R.getMainScreen().getScreenFullHeight();
+        //#else
+//#         return LoadingScreen.getScreenHeight();
+    //#endif
     }
 }
