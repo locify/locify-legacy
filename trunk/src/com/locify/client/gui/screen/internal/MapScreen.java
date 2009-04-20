@@ -152,7 +152,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private MapItem newMapItemAdded;
 
     // planStudio temp
-    private Command cmdPlanStudio;
+//    private Command cmdPlanStudio;
 //    private PlanStudioManager psm;
 
     public MapScreen() {
@@ -185,8 +185,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         cmdChangeMapFile = new Command(Locale.get("Change_map_file"), Command.SCREEN, 6);
 
 //        psm = new PlanStudioManager();
-        cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
-        this.addCommand(cmdPlanStudio);
+//        cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
+//        this.addCommand(cmdPlanStudio);
         
         this.addCommand(Commands.cmdBack);
         //#style imgHome
