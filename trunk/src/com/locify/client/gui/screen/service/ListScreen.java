@@ -58,6 +58,7 @@ public class ListScreen implements CommandListener {
      * @param icon
      */
     public void addMenuItem(String title, String url, String icon) {
+        url = R.getHttp().makeAbsoluteURL(url);
         if (icon == null) {
             list.append(title, null);
         } else {

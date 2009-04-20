@@ -84,6 +84,7 @@ public class ConfirmScreen implements CommandListener {
      * @param url 
      */
     public void setURL(String url) {
+        url = R.getHttp().makeAbsoluteURL(url);
         confirmUrl = url;
         confirmAction = OPEN_URL;
     }

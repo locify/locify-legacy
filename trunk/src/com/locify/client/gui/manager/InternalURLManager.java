@@ -98,6 +98,8 @@ public class InternalURLManager {
     public void call(String url) {
         try {
             Logger.log("URL called: " + url);
+            //absolute urls
+            url = R.getHttp().makeAbsoluteURL(url);
             //support for http://in.locify.com/ internal urls
             url = Utils.replaceString(url, "http://in.locify.com/", "locify://");
             //add url to backscreens

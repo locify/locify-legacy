@@ -13,6 +13,8 @@
  */
 package com.locify.client.data;
 
+import com.locify.client.utils.R;
+
 
 /**
  * Object for storing service info
@@ -32,12 +34,12 @@ public class Service {
     public Service(String id, String name, String firstScreenUrl, String description, long timestamp, String icon, long settingsTimestamp, String settingsUrl) {
         this.id = id;
         this.name = name;
-        this.firstScreenUrl = firstScreenUrl;
+        this.firstScreenUrl = R.getHttp().makeAbsoluteURL(firstScreenUrl);
         this.description = description;
         this.timestamp = timestamp;
-        this.icon = icon;
+        this.icon = R.getHttp().makeAbsoluteURL(icon);
         this.settingsTimestamp = settingsTimestamp;
-        this.settingsUrl = settingsUrl;
+        this.settingsUrl = R.getHttp().makeAbsoluteURL(settingsUrl);
     }
 
     public String getId() {

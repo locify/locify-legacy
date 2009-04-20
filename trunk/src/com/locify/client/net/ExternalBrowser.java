@@ -42,6 +42,7 @@ public class ExternalBrowser implements CommandListener {
      */
     public void open(String url) {
         try {
+            url = R.getHttp().makeAbsoluteURL(url);
             if (!url.startsWith("http://")) {
                 url = "http://" + url;
             }

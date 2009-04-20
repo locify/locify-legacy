@@ -359,7 +359,7 @@ public class XHTMLTagHandler
                                 attributeMap.put(attributeName, attributeValue);
                             }
                             String src = (String) attributeMap.get("src");
-                            String url = makeAbsoluteURL(src);
+                            String url = R.getHttp().makeAbsoluteURL(src);
                             Image image = this.browser.loadImage(url);
                             linkItem = new ImageItem(null, image, 0, (String) attributeMap.get("alt"));
                         //this.browser.loadImageLater( url, (ImageItem) linkItem );
@@ -397,7 +397,7 @@ public class XHTMLTagHandler
                     return true;
                 } else if (TAG_IMG.equals(tagName)) {
                     String src = (String) attributeMap.get("src");
-                    String url = makeAbsoluteURL(src);
+                    String url = R.getHttp().makeAbsoluteURL(src);
                     Image image = this.browser.loadImage(url);
                     if (image != null) {
                         ImageItem item = new ImageItem(null, image, Item.LAYOUT_DEFAULT, "");
@@ -671,7 +671,7 @@ public class XHTMLTagHandler
                         String file = (String) attributeMap.get("src");
                         if (file.endsWith("wav"))
                         {
-                            AudioData.play(makeAbsoluteURL(file));
+                            AudioData.play(R.getHttp().makeAbsoluteURL(file));
                         }
                     }
                 }
@@ -767,7 +767,7 @@ public class XHTMLTagHandler
         }
 
         StringBuffer sb = new StringBuffer();
-        sb.append(makeAbsoluteURL(form.getAction()));
+        sb.append(form.getAction());
         Hashtable elements = form.getFormElements(this.formListener, submitItem);
         Enumeration enumeration = elements.keys();
         char separatorChar = '?';
@@ -850,12 +850,12 @@ public class XHTMLTagHandler
             }
             if (multipart && R.getFileBrowser().isFileSelected()) {
                 HttpMultipartRequest req = new HttpMultipartRequest(
-                        makeAbsoluteURL(form.getAction()),
+                        R.getHttp().makeAbsoluteURL(form.getAction()),
                         params,
                         fileName, R.getFileBrowser().getFileName(), "unknown/unknown", R.getFileBrowser().getFilePath(), browser);
                 req.send();
             } else {
-                this.browser.go(makeAbsoluteURL(form.getAction()), sb.toString());
+                this.browser.go(form.getAction(), sb.toString());
             }
 
         } catch (Exception e) {
@@ -891,7 +891,7 @@ public class XHTMLTagHandler
 //#         Item linkItem = getFocusedItemWithAttribute(ATTR_HREF, this.browser);
 //#         String href = (String) linkItem.getAttribute(ATTR_HREF);
 //#         if (href != null) {
-//#             this.browser.go(makeAbsoluteURL(href));
+//#             this.browser.go(href);
 //#         }
         //#endif
         //#if polish.debug.error
@@ -940,14 +940,6 @@ public class XHTMLTagHandler
      */
     public void setFormListener(FormListener listener) {
         this.formListener = listener;
-    }
-
-    private String makeAbsoluteURL(String url) {
-        if (url.startsWith("http://") || url.startsWith("locify://")) {
-            return url;
-        }
-        int lastSlash = R.getHttp().getLastUrl().lastIndexOf('/');
-        return R.getHttp().getLastUrl().substring(0, lastSlash + 1) + url;
     }
 
     public void addCommands(String a, String b, String c, Item i) {

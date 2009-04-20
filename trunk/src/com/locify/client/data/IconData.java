@@ -66,6 +66,7 @@ public class IconData {
      */
     public static void save(String url, byte[] imageData) {
         try {
+            url = R.getHttp().makeAbsoluteURL(url);
             R.getFileSystem().saveBytes(FileSystem.ICONS_FOLDER + FileSystem.hashFileName(url) + ".png", imageData);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "IconData.save", url);

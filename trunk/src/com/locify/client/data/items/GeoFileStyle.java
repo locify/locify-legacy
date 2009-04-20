@@ -14,6 +14,7 @@
 package com.locify.client.data.items;
 
 import com.locify.client.data.IconData;
+import com.locify.client.utils.R;
 import javax.microedition.lcdui.Image;
 
 /**
@@ -50,7 +51,7 @@ public class GeoFileStyle {
     }
     
     public void setIcon(String url) {
-        this.iconUrl = url;
+        this.iconUrl = R.getHttp().makeAbsoluteURL(url);
         this.icon = IconData.get(url);
         finalizeData();
     }

@@ -40,7 +40,7 @@ public class AudioData {
                 player.play(fileConnection.openInputStream());
                 fileConnection.close();
             } else {
-                (new Http()).start(url);
+                R.getHttp().start(url);
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "AudioData.play", url);
@@ -54,6 +54,7 @@ public class AudioData {
      */
     public static void save(String url, byte[] audioData) {
         try {
+            url = R.getHttp().makeAbsoluteURL(url);
             R.getFileSystem().saveBytes(FileSystem.AUDIO_FOLDER + FileSystem.hashFileName(url) + ".wav", audioData);
             play(url);
         } catch (Exception e) {

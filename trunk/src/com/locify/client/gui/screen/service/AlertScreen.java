@@ -65,6 +65,7 @@ public class AlertScreen implements CommandListener, Runnable {
      * @param url 
      */
     public void setNext(String url) {
+        url = R.getHttp().makeAbsoluteURL(url);
         nextUrl = url;
     }
 

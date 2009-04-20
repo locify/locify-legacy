@@ -46,6 +46,7 @@ public class CacheData {
      */
     public static void add(String url, String xhtml) {
         try {
+            url = R.getHttp().makeAbsoluteURL(url);
             xhtml = Utils.removeXmlHeaders(xhtml);
             //hledani polozky v kesi
             url = FileSystem.CACHE_FOLDER + FileSystem.hashFileName(ServicesData.getCurrent()) + "/" + FileSystem.hashFileName(url) + ".html";
