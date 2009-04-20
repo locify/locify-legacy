@@ -39,6 +39,7 @@ import com.locify.client.maps.tiles.impl.YahooMapTileFactory;
 import com.locify.client.maps.tiles.impl.YahooSatelliteTileFactory;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
+import com.locify.client.utils.Capabilities;
 import javax.microedition.lcdui.Graphics;
 import java.util.Vector;
 import javax.microedition.lcdui.Image;
@@ -380,8 +381,8 @@ public class TileMapLayer implements MapLayer {
      */
     private RectangleViewPort calculateViewportBounds(Point2D center) {
         //System.out.println("\n w" + getWidth() + " h" + getHeight());
-        int viewportWidth = parent.getWidth();
-        int viewportHeight = parent.getHeight();
+        int viewportWidth = Capabilities.getWidth();
+        int viewportHeight = Capabilities.getHeight();
         double viewportX = (center.getX() - viewportWidth / 2);
         double viewportY = (center.getY() - viewportHeight / 2);
         return new RectangleViewPort((int) viewportX, (int) viewportY, viewportWidth, viewportHeight);

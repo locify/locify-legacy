@@ -148,10 +148,10 @@ public class Capabilities {
     }
 
     public static int getWidth() {
-            return R.getMainScreen().getWidth();
+            return R.getMainScreen().getScreenFullWidth();
     }
 
     public static int getHeight() {
-           return R.getMainScreen().getHeight();
+           return R.getMainScreen().getScreenFullHeight();
     }
 }
