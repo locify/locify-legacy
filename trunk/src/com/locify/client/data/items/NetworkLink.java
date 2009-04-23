@@ -13,11 +13,15 @@
  */
 package com.locify.client.data.items;
 
+import com.locify.client.utils.Utils;
+import com.locify.client.utils.R;
+
 /**
  * Represents KML network link in the memory and provides the repeat call feature
  * @author Destil
  */
 public class NetworkLink extends GeoData {
+
     protected int refreshInterval;
     protected String link;
     protected String viewFormat;
@@ -40,7 +44,17 @@ public class NetworkLink extends GeoData {
     }
 
     public String getLink() {
-        return link;
+        if (viewFormat != null) {
+            String replaced = Utils.replaceString(viewFormat, "[lookatLat]", String.valueOf(R.getLocator().getLastLocation().getLatitude()));
+            replaced = Utils.replaceString(replaced, "[lookatLon]", String.valueOf(R.getLocator().getLastLocation().getLongitude()));
+            if (link.indexOf("?") != -1) {
+                return link + "&amp;" + replaced;
+            } else {
+                return link + "?" + replaced;
+            }
+        } else {
+            return link;
+        }
     }
 
     public String getName() {
@@ -58,5 +72,4 @@ public class NetworkLink extends GeoData {
     public String getViewFormat() {
         return viewFormat;
     }
-    
 }

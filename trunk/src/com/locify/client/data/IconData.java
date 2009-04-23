@@ -46,12 +46,12 @@ public class IconData {
                     return Image.createImage(imageData, 0, imageData.length);
                 } catch (IllegalArgumentException e) //spatne ulozeny obrazek
                 {
-                    (new Http()).start(url);
+                    R.getHttp().start(url);
                     return null;
                 }
             }
             //download not available icon
-            (new Http()).start(url);
+            R.getHttp().start(url);
             return null;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "IconData.get", url);

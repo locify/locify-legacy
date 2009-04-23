@@ -15,12 +15,11 @@ package com.locify.client.utils;
 
 import de.enough.polish.ui.CommandItem;
 import de.enough.polish.ui.Screen;
-import de.enough.polish.util.Locale;
-import java.io.DataInputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 import javax.microedition.lcdui.Command;
+import de.enough.polish.util.base64.Base64;
 
 /***
  * This class contains methods usefull in whole app
@@ -272,29 +271,29 @@ public class Utils {
 //    }
     /**
      * Implementation of str_replace
-     * @param _text Text to replace
-     * @param _searchStr String to search
-     * @param _replacementStr String to replace
+     * @param haystack Text to replace
+     * @param needle String to search
+     * @param replaceWith String to replace
      * @return Replaced text
      */
-    public static String replaceString(String _text, String _searchStr, String _replacementStr) {
+    public static String replaceString(String haystack, String needle, String replaceWith) {
         // String buffer to store str
         StringBuffer sb = new StringBuffer();
 
         // Search for search
-        int searchStringPos = _text.indexOf(_searchStr);
+        int searchStringPos = haystack.indexOf(needle);
         int startPos = 0;
-        int searchStringLength = _searchStr.length();
+        int searchStringLength = needle.length();
 
         // Iterate to add string
         while (searchStringPos != -1) {
-            sb.append(_text.substring(startPos, searchStringPos)).append(_replacementStr);
+            sb.append(haystack.substring(startPos, searchStringPos)).append(replaceWith);
             startPos = searchStringPos + searchStringLength;
-            searchStringPos = _text.indexOf(_searchStr, startPos);
+            searchStringPos = haystack.indexOf(needle, startPos);
         }
 
         // Create string
-        sb.append(_text.substring(startPos, _text.length()));
+        sb.append(haystack.substring(startPos, haystack.length()));
 
         return sb.toString();
     }

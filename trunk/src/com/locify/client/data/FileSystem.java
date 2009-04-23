@@ -24,6 +24,7 @@ import com.locify.client.utils.Sha1;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
+import com.locify.client.utils.Logger;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -216,7 +217,7 @@ public class FileSystem {
             for (int i = 0; i < firstRoots.size(); i++) {
                 orderedRoots.addElement(firstRoots.elementAt(i));
             }
-            for (int i = 0; i < lastRoots.size(); i++) {
+            for (int i = lastRoots.size()-1; i >= 0; i--) {
                 orderedRoots.addElement(lastRoots.elementAt(i));
             }
 

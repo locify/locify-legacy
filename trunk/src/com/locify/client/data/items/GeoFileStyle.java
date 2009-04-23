@@ -52,7 +52,7 @@ public class GeoFileStyle {
     
     public void setIcon(String url) {
         this.iconUrl = R.getHttp().makeAbsoluteURL(url);
-        this.icon = IconData.get(url);
+        this.icon = IconData.get(iconUrl);
         finalizeData();
     }
 
