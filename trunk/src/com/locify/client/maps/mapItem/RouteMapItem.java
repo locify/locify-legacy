@@ -115,7 +115,7 @@ public class RouteMapItem extends MapItem {
         }
     }
 
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
+    public void getWaypointsAtPositionByPoint(Vector data, int x, int y, int radiusSquare) {
         selectedPoints.removeAllElements();
         if (initialized) {
             Waypoint tempWpt;
@@ -135,6 +135,27 @@ public class RouteMapItem extends MapItem {
         }
     }
 
+    public void getWaypointsAtPositionByIcon(Vector data, int x, int y) {
+        if (styleNormal == null || styleNormal.getIcon() == null)
+            return;
+        
+        if (initialized) {
+            for (int i = 0; i < items.length; i++) {
+                Point2D.Int item = items[i];
+
+                if (y > (item.y - styleNormal.getIcon().getHeight() + styleNormal.getYMove()) &&
+                        y > (item.y + styleNormal.getYMove()) &&
+                        x > (item.x - styleNormal.getXMove()) &&
+                        x < (item.x + styleNormal.getIcon().getWidth() - styleNormal.getXMove())) {
+                    data.addElement(new Waypoint(
+                                ((Location4D) points.elementAt(i)).getLatitude(),
+                                ((Location4D) points.elementAt(i)).getLongitude(),
+                                "Route waypoint", "waypoint " + (i + 1), null, styleNormal, styleHightLight));
+                }
+            }
+        }
+    }
+    
     /**
      * Set Array of Location4D object as point of this route.
      * @param locations Vector of Location4D object.

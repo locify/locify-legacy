@@ -126,8 +126,17 @@ public abstract class MapItem {
      * @param radius radius of tested area
      * @return selected waypoint or null if nothing
      */
-    public abstract void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare);
-   
+    public abstract void getWaypointsAtPositionByPoint(Vector data, int x, int y, int radiusSquare);
+
+    /**
+     * Base on given coordinates, find if any of item icon is under this point and add them into data vector.
+     * @param data vector containing wapoints
+     * @param x center X
+     * @param y center Y
+     * @return selected waypoint or null if nothing
+     */
+    public abstract void getWaypointsAtPositionByIcon(Vector data, int x, int y);
+
     /**
      * Test if stylus touch inside this object
      */
@@ -279,7 +288,6 @@ public abstract class MapItem {
     }
     
     protected void panItems(Point2D.Int[] items, int moveX, int moveY) {
-//        if (enabled && actualState == STATE_WAITING) {
         if (enabled && initialized) {
             actualState = STATE_INITIALIZING;
             for (int i = 0; i < items.length; i++) {

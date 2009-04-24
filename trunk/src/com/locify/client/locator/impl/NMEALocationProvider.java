@@ -60,13 +60,8 @@ public class NMEALocationProvider extends LocationProvider {
         private NMEALocationProvider parent;
         private int nmeaCount;
         private boolean fix;
-        private int day;
-        private int month;
-        private int year;
-        private int fixSatellites;
         private String nmea;
         private boolean stopRequest;
-        private boolean waitingStarted;
         private Location4D lastLocation;
 
         public NMEAParser(NMEALocationProvider parent) {
@@ -92,6 +87,7 @@ public class NMEALocationProvider extends LocationProvider {
                             s.append((char) ch);
                         }
                         nmea = s.toString();
+//Logger.debug(nmea);
                         receiveNmea(nmea);
                         if (lastLocation == null || (
                                 lastLocation.getLatitude() != actualLocation.getLatitude() &&
@@ -195,7 +191,7 @@ public class NMEALocationProvider extends LocationProvider {
                         parseLatitude(param[2], param[3]);
                         parseLongitude(param[4], param[5]);
                         if (param.length > 7 && param[7].length() > 0)
-                            fixSatellites = GpsUtils.parseInt(param[7]);
+                            //fixSatellites = GpsUtils.parseInt(param[7]);
                         if (param.length > 10 && param[9].length() > 0 && param[10].length() > 0) {
                             parseAltitude(param[9], param[10]);
                         }
@@ -215,7 +211,7 @@ public class NMEALocationProvider extends LocationProvider {
                     nmeaCount++;
                 }
             } catch (Exception e) {
-                Logger.error("NMEALocationProvider.receiveNmea: " + nmea + " Ex: " + e.toString());
+//                Logger.error("NMEALocationProvider.receiveNmea: " + nmea + " Ex: " + e.toString());
             }
         }
 

@@ -16,6 +16,7 @@ package com.locify.client.maps.mapItem;
 import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.maps.geometry.Point2D;
+import com.locify.client.utils.Logger;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
@@ -24,7 +25,7 @@ import javax.microedition.lcdui.Graphics;
  * @author MenKat
  */
 public class PointMapItem extends MapItem {
-    
+
     /** default waypoints data */
     private Vector waypoints;
     /** points for painting */
@@ -61,21 +62,24 @@ public class PointMapItem extends MapItem {
 
     public void drawItem(Graphics g) {
         if (enabled) {
-            if (!initialized)
+            if (!initialized) {
                 initialize();
-            
+            }
+
             if (isInside() && actualState == STATE_WAITING && items != null) {
                 actualState = STATE_DRAWING;
 
                 GeoFileStyle style = null;
                 for (int i = 0; i < items.length; i++) {
                     // draw points
-                    if (selectedPoints.size() > 0 && selectedPoints.contains(new Integer(i)))
+                    if (selectedPoints.size() > 0 && selectedPoints.contains(new Integer(i))) {
                         continue;
+                    }
 
                     style = ((Waypoint) waypoints.elementAt(i)).getStyleNormal();
-                    if (style == null || (style != null && style.getIcon() == null))
+                    if (style == null || style.getIcon() == null) {
                         style = stylePointIconNormal;
+                    }
 
                     g.drawImage(style.getIcon(),
                             items[i].x - style.getXMove(), items[i].y - style.getYMove(),
@@ -86,7 +90,7 @@ public class PointMapItem extends MapItem {
         }
     }
 
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
+    public void getWaypointsAtPositionByPoint(Vector data, int x, int y, int radiusSquare) {
         selectedPoints.removeAllElements();
 //Logger.debug("PointMapItem.getWaypointsAtPosition() init: " + initialized + " wCount: " + items.length);
         if (initialized) {
@@ -95,8 +99,9 @@ public class PointMapItem extends MapItem {
                 Point2D.Int item = items[i];
                 if (((item.x - x) * (item.x - x) + (item.y - y) * (item.y - y)) <= radiusSquare) {
                     tempWpt = (Waypoint) waypoints.elementAt(i);
-                    if (tempWpt.getStyleHighLight() == null)
+                    if (tempWpt.getStyleHighLight() == null) {
                         tempWpt.setStyleHighLight(stylePointIconHighlight);
+                    }
                     tempWpt.state = Waypoint.STATE_HIGHLIGHT;
                     data.addElement(tempWpt);
                     selectedPoints.addElement(new Integer(i));
@@ -105,13 +110,37 @@ public class PointMapItem extends MapItem {
         }
     }
 
-    public Waypoint getWaypointById(String id)
-    {
-        for (int i=0;i<waypoints.size();i++)
-        {
+    public void getWaypointsAtPositionByIcon(Vector data, int x, int y) {
+//Logger.debug("PointMapItem.getWaypointsAtPositionByIcon() init: " + initialized + " wCount: " + items.length);
+        if (initialized) {
+            Waypoint tempWpt;
+            for (int i = 0; i < items.length; i++) {
+                Point2D.Int item = items[i];
+                tempWpt = (Waypoint) waypoints.elementAt(i);
+
+                GeoFileStyle styleNormal = tempWpt.getStyleNormal();
+                if (styleNormal == null || styleNormal.getIcon() == null)
+                    styleNormal = stylePointIconNormal;
+//Logger.debug("  get at: " + x + " " + y);
+//Logger.debug("  icon: " + styleNormal.getIcon().getWidth() + " " + styleNormal.getIcon().getHeight());
+//Logger.debug("  get at: " + (item.y - styleNormal.getIcon().getHeight() + styleNormal.getYMove()) +
+//        " " + (item.y + styleNormal.getYMove()) + " " + (item.x - styleNormal.getXMove()) + " " +
+//        (item.x + styleNormal.getIcon().getWidth() - styleNormal.getXMove()));
+
+                if (y >= (item.y - styleNormal.getIcon().getHeight() + styleNormal.getYMove()) &&
+                        y <= (item.y + styleNormal.getYMove()) &&
+                        x >= (item.x - styleNormal.getXMove()) &&
+                        x <= (item.x + styleNormal.getIcon().getWidth() - styleNormal.getXMove())) {
+                    data.addElement(tempWpt);
+                }
+            }
+        }
+    }
+    
+    public Waypoint getWaypointById(String id) {
+        for (int i = 0; i < waypoints.size(); i++) {
             Waypoint wpt = (Waypoint) waypoints.elementAt(i);
-            if (wpt.id != null && wpt.id.equals(id))
-            {
+            if (wpt.id != null && wpt.id.equals(id)) {
                 return wpt;
             }
         }

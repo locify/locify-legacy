@@ -89,4 +89,15 @@ public class GeoFileStyle {
             hotSpotY = (int) (scale * hotSpotY);
         }
     }
+
+    public GeoFileStyle getScaledCopy(float scale) {
+        GeoFileStyle gfs = new GeoFileStyle(name);
+        gfs.hotSpotX = hotSpotX;
+        gfs.hotSpotXunits = hotSpotXunits;
+        gfs.hotSpotY = hotSpotY;
+        gfs.hotSpotYunits = hotSpotYunits;
+        gfs.scale = scale;
+        gfs.setIcon(icon);
+        return gfs;
+    }
 }

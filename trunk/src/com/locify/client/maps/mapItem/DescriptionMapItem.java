@@ -175,9 +175,6 @@ public class DescriptionMapItem extends MapItem {
             actualState = STATE_WAITING;
         }
     }
-
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
-    }
     
     public void selectPrev() {
         if (selectedButton == buttons.length - 1)
@@ -194,6 +191,7 @@ public class DescriptionMapItem extends MapItem {
     }
     
     public void selectButtonAt(int x, int y) {
+        selectedButton = -1;
         for (int i = 0; i < buttons.length; i++) {
 //System.out.println("touchInside: x " + x + " y: " + y + " bx: " + buttons[i].getX() + " by: " + buttons[i].getY());
             if (buttons[i].isInside(x, y))
@@ -218,5 +216,13 @@ public class DescriptionMapItem extends MapItem {
             }
         }
         return false;
+    }
+
+    public void getWaypointsAtPositionByPoint(Vector data, int x, int y, int radiusSquare) {
+        return;
+    }
+
+    public void getWaypointsAtPositionByIcon(Vector data, int x, int y) {
+        return;
     }
 }

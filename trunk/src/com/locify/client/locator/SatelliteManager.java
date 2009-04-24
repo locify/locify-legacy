@@ -87,7 +87,7 @@ public class SatelliteManager {
                 }
             }
         } catch (Exception e) {
-            Logger.error("SatelliteManager.parseNmeaSatellites(String[] param), NMEA: " + nmea + " Ex: " + e.toString());
+            //Logger.error("SatelliteManager.parseNmeaSatellites(String[] param), NMEA: " + nmea + " Ex: " + e.toString());
         }
         return;
     }

@@ -264,7 +264,10 @@ public static long TIME;
 
     public Point2D.Int getLocationCoord(Location4D loc) {
         if (isReady()) {
+//Logger.log("Coo1: " + loc.toString());
             double[] coo = convertGeoToMap(getFirstManager().getFileMapConfig(), loc);
+//Logger.log("Coo2: " + coo[0] + " " + coo[1]);
+//Logger.log("Coo3: " + viewPort.convertGeoToMapPixel(new Location4D(coo[0], coo[1], 0.0f)).toString());
             return viewPort.convertGeoToMapPixel(new Location4D(coo[0], coo[1], 0.0f));
         } else {
             return null;

@@ -275,32 +275,33 @@ public class MapItemManager {
             name = (String) enu.nextElement();
             if (!isFixed(name)) {
                 item = (MapItem) items.get(name);
-                item.getWaypointsAtPosition(wayPoints, x, y, radiusSquare);
+                item.getWaypointsAtPositionByPoint(wayPoints, x, y, radiusSquare);
+            }
+        }
+
+        // no waypoints founded ... try to find any waypoints icons
+        if (wayPoints.size() == 0) {
+            enu = items.keys();
+            while (enu.hasMoreElements()) {
+                name = (String) enu.nextElement();
+                if (!isFixed(name)) {
+                    item = (MapItem) items.get(name);
+                    item.getWaypointsAtPositionByIcon(wayPoints, x, y);
+                }
             }
         }
         return wayPoints;
     }
 
-    public Waypoint getWaypointById(String id)
-    {
+    public Waypoint getWaypointById(String id) {
         Enumeration enu = items.elements();
         MapItem item;
         while (enu.hasMoreElements()) {
             item = (MapItem) enu.nextElement();
-            if (item instanceof PointMapItem)
-            {
+            if (item instanceof PointMapItem) {
                 return ((PointMapItem)item).getWaypointById(id);
             }
         }
         return null;
     }
-
-//    public MapItem touchAtPosition(int x, int y) {
-//        for (int i = 0; i < itemsState.size(); i++) {
-//            MapItem item = (MapItem) items.get(getItemName(i));
-//            if (item.touchInside(x, y))
-//                return item;
-//        }
-//        return null;
-//    }
 }

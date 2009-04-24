@@ -37,6 +37,7 @@ import com.locify.client.route.ScreenItem;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
+import com.locify.client.utils.Logger;
 import de.enough.polish.util.Locale;
 import com.locify.client.utils.R;
 import com.locify.client.utils.math.LMath;
@@ -162,7 +163,6 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
 
             // ITEM_ROUTE_TIME
             ScreenItem button00 = new ScreenItem(Locale.get("Distance"));
-            //button00.setTextValue(" ");
             items.add(button00);
             // ITEM_ROUTE_DIST
             ScreenItem button01 = new ScreenItem(Locale.get("Speed"));
@@ -213,8 +213,11 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
 
     public void view(String fileName) {
         MultiGeoData mgd = GeoFiles.parseKmlFile(fileName, false);
-        for (int i = 0; i < mgd.getDataSize(); i++) {
-            view(mgd.getGeoData(i));
+//        for (int i = 0; i < mgd.getDataSize(); i++) {
+//            view(mgd.getGeoData(i));
+//        }
+        if (mgd.getDataSize() > 0) {
+            view(mgd.getGeoData(0));
         }
     }
 
@@ -502,7 +505,6 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         } else {
             NavigationScreen.nAngle = nAngle;
             NavigationScreen.dAngle = dAngle;
-            repaint();
         }
     }
 
@@ -559,17 +561,14 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             }
             moveAngles(angleN, angleD);
 
-            nAngle = angleN;
-            dAngle = angleD;
-
             actualizeItem(ITEM_ACCURACY, GpsUtils.formatDouble(R.getLocator().getAccuracyHorizontal(), 1));
             actualizeItem(ITEM_SPEED, GpsUtils.formatSpeed(R.getLocator().getSpeed()));
-            actualizeItem(ITEM_ALTITUDE, GpsUtils.formatDouble(R.getLocator().getLastLocation().getAltitude(), 1) + "m");
-            actualizeItem(ITEM_LATITUDE, GpsUtils.formatLatitude(
-                    R.getLocator().getLastLocation().getLatitude(), R.getSettings().getCoordsFormat()));
-            actualizeItem(ITEM_LONGITUDE, GpsUtils.formatLongitude(
-                    R.getLocator().getLastLocation().getLongitude(), R.getSettings().getCoordsFormat()));
+            actualizeItem(ITEM_LATITUDE, GpsUtils.formatLatitude(location.getLatitude(), R.getSettings().getCoordsFormat()));
+            actualizeItem(ITEM_LONGITUDE, GpsUtils.formatLongitude(location.getLongitude(), R.getSettings().getCoordsFormat()));
+            actualizeItem(ITEM_ALTITUDE, GpsUtils.formatDouble(location.getAltitude(), 1) + "m");
 
+//Logger.debug("NS (" + System.currentTimeMillis() + "), lat: " + location.getLatitude() +
+//        ", lon: " + location.getLongitude() + ", angleN: " + angleN + ", angleD: " + angleD);
             repaint();
         }
     }
@@ -586,7 +585,6 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     }
 
     public void stateChanged(LocationEventGenerator sender, int state) {
-        repaint();
     }
 
     public static boolean isRunning() {

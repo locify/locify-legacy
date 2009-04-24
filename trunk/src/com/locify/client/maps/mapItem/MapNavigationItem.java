@@ -78,9 +78,6 @@ public class MapNavigationItem extends MapItem {
         }
     }
 
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
-    }
-    
     public void actualizeActualPosition(Location4D location) {
         waypoints.removeElementAt(0);
         waypoints.insertElementAt(new Waypoint(location.getLatitude(), location.getLongitude(), "", "", null), 0);
@@ -89,5 +86,13 @@ public class MapNavigationItem extends MapItem {
 
     public boolean touchInside(int x, int y) {
         return false;
+    }
+
+    public void getWaypointsAtPositionByPoint(Vector data, int x, int y, int radiusSquare) {
+        return;
+    }
+    
+    public void getWaypointsAtPositionByIcon(Vector data, int x, int y) {
+        return;
     }
 }

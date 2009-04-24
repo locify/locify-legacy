@@ -152,8 +152,9 @@ public class UTMProjection extends Projection {
 
         result[0] = northing;
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//        result[1] = (longitudeZone - 30) * 1000000 + easting;
-        result[1] = easting;
+        result[1] = (longitudeZone - 30) * 1000000 + easting;
+//        result[1] = easting;
+
 //System.out.println("Lon zone: " + longitudeZone);
 //System.out.println("res1: " + northing);
 //System.out.println("res2: " + easting);
@@ -161,6 +162,12 @@ public class UTMProjection extends Projection {
         return result;
     }
 
+    /**
+     *
+     * @param X in longitude direction !!!
+     * @param Y
+     * @return
+     */
     public double[] projectionToSphere(double X, double Y) {
         double[] res = new double[2];
 

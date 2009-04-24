@@ -403,9 +403,11 @@ public class StoreManager {
                             break;
                     }
                     FileMapConfig fmc = FileMapConfig.loadConfigFile(dis);
-                    StorageTar storageTar = StorageTar.loadStorageTar(dis);
 
-                    manager.setStorageTar(storageTar);
+                    if (manager instanceof FileMapManagerTar) {
+                        StorageTar storageTar = StorageTar.loadStorageTar(dis);
+                        manager.setStorageTar(storageTar);
+                    }
                     manager.setFileMapConfig(fmc);
 
                     dis.close();

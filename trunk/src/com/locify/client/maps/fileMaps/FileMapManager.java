@@ -203,20 +203,6 @@ public abstract class FileMapManager {
                         dir.close();
                         return fmm;
                     }
-
-                    dir = (FileConnection) Connector.open(ffImageName);
-                    if (dir.exists() && !dir.isDirectory()) {
-                        if (mapPath.endsWith(".xml")) {
-                            fmm = new FileMapManagerSingle(mapPath);
-                            fmm.setFileMapConfig(FileMapConfig.parseLocifyDescriptor(data));
-                        } else if (mapPath.endsWith(".map")) {
-                            fmm = new FileMapManagerSingle(mapPath);
-                            fmm.setFileMapConfig(FileMapConfig.parseDotMapDescriptor(data));
-                        }
-                        
-                        dir.close();
-                        return fmm;
-                    }
                 }
             } catch (IOException ex) {
                 R.getErrorScreen().view(ex, "FileMapManager.getMapType() (map + xml)", mapPath);
@@ -290,7 +276,7 @@ public abstract class FileMapManager {
             FileConnection con = null;
             try {
                 con = (FileConnection) Connector.open(mapPath + createImageName(0, 0));
-//Logger.log("File path: " + (manager.mapPathPrefix + manager.mapPath + createImageName(0, 0)));
+//Logger.log("File path: " + (mapPath + createImageName(0, 0)));
                 if (con.exists()) {
                     img = Image.createImage(con.openInputStream());
                 }

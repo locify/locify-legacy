@@ -38,7 +38,6 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
-//import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
@@ -151,7 +150,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /** if item was added before map was inicialized, call it after that */
     private MapItem newMapItemAdded;
 
-    // planStudio temp
+//     planStudio temp
 //    private Command cmdPlanStudio;
 //    private PlanStudioManager psm;
 
@@ -1464,6 +1463,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private void makeSelectionActionFire() {
         DescriptionMapItem item = (DescriptionMapItem) mapItemManager.getItemTemp(tempWaypointDescriptionItemName);
         if (item != null) {
+            if (item.getSelectedType() == -1)
+                return;
+            
             switch (item.getSelectedType()) {
                 case DescriptionMapItem.BUTTON_NAVIGATE:
                     mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);

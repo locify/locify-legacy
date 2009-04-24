@@ -490,6 +490,7 @@ public abstract class GeoFiles {
 //Logger.debug("  parseKML - tagPoint - tagNameEnd data:" + name + " " + description);
                                             waypoint.name = name;
                                             waypoint.description = description;
+System.out.println("waypoint set: " + styleURL);
                                             waypoint.styleName = styleURL;
                                             waypoint.id = id;
                                             styleURL = null;

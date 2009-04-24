@@ -74,14 +74,15 @@ public class MultiGeoData {
 //                }
 
                 // add style to data object
-                if (data.styleName != null) {
-                    GeoFileStyleMap gfsm = getStyleMap(data.styleName);
-                    if (gfsm != null) {
-                        data.styleNormal = gfsm.styleNormal;
-                        data.styleHighlight = gfsm.styleHighLight;
-                    } else {
-                        data.styleNormal = getStyle(data.styleName);
+                if (data instanceof WaypointsCloud) {
+                    WaypointsCloud wc = (WaypointsCloud) data;
+                    Waypoint wpt;
+                    for (int j = 0; j < wc.getWaypointsCount(); j++) {
+                        wpt = wc.getWaypoint(j);
+                        addStyleToDataObject(wpt);
                     }
+                } else {
+                    addStyleToDataObject(data);
                 }
 
                 if (data instanceof Route)
@@ -112,6 +113,20 @@ public class MultiGeoData {
         }
         data += " ... end of listing";
         return data;
+    }
+    
+    private void addStyleToDataObject(GeoData data) {
+        // add style to data object
+        if (data.styleName != null) {
+            GeoFileStyleMap gfsm = getStyleMap(data.styleName);
+            if (gfsm != null) {
+                data.styleNormal = gfsm.styleNormal;
+                data.styleHighlight = gfsm.styleHighLight;
+            } else {
+                data.styleNormal = getStyle(data.styleName);
+                data.styleHighlight = data.styleNormal.getScaledCopy(1.5f);
+            }
+        }
     }
 
     public GeoFileStyle getStyle(String styleName) {

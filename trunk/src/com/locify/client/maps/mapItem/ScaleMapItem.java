@@ -95,6 +95,7 @@ public class ScaleMapItem extends MapItem {
     }
 
     public void panItem(int moveX, int moveY) {
+        return;
     }
 
     public void drawItem(Graphics g) {
@@ -123,10 +124,15 @@ public class ScaleMapItem extends MapItem {
         }
     }
 
-    public void getWaypointsAtPosition(Vector data, int x, int y, int radiusSquare) {
-    }
-
     public boolean touchInside(int x, int y) {
         return false;
+    }
+
+    public void getWaypointsAtPositionByPoint(Vector data, int x, int y, int radiusSquare) {
+        return;
+    }
+
+    public void getWaypointsAtPositionByIcon(Vector data, int x, int y) {
+        return;
     }
 }

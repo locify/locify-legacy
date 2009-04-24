@@ -358,10 +358,23 @@ public class FileMapConfig {
                 if (sphericCoordinates && mapProjectionType == Projection.PROJECTION_SPHERICAL_MERCATOR) {
                     for (int i = 0; i < calibrationPoints.size(); i++) {
                         CalibrationPoint cp = (CalibrationPoint) calibrationPoints.elementAt(i);
+//Logger.log("  ConfigFileTile.calculateViewport - setCalibrationPoint x: " + cp.x + " y: " + cp.y);
+//Logger.log("    old: " + cp.position.getLatitude() + " " + cp.position.getLongitude());
                         double[] coo = mapProjection.projectionToFlat(cp.position.getLatitude(), cp.position.getLongitude());
                         cp.position = new Location4D(coo[0], coo[1], 0.0f);
-//Logger.log("  ConfigFileTile.calculateViewport - setCalibrationPoint x: " + cp.x + " y: " + cp.y +
-//        " lat: " + cp.position.getLatitude() + " lon: " + cp.position.getLongitude());
+//Logger.log("    new: " + cp.position.getLatitude() + " " + cp.position.getLongitude());
+                    }
+                    sphericCoordinates = false;
+                }
+
+                if (sphericCoordinates && mapProjectionType == Projection.PROJECTION_UTM) {
+                    for (int i = 0; i < calibrationPoints.size(); i++) {
+                        CalibrationPoint cp = (CalibrationPoint) calibrationPoints.elementAt(i);
+//Logger.log("  ConfigFileTile.calculateViewport - setCalibrationPoint x: " + cp.x + " y: " + cp.y);
+//Logger.log("    old: " + cp.position.getLatitude() + " " + cp.position.getLongitude());
+                        double[] coo = mapProjection.projectionToFlat(cp.position.getLatitude(), cp.position.getLongitude());
+                        cp.position = new Location4D(coo[0], coo[1], 0.0f);
+//Logger.log("    new: " + cp.position.getLatitude() + " " + cp.position.getLongitude());
                     }
                     sphericCoordinates = false;
                 }
@@ -430,11 +443,7 @@ public class FileMapConfig {
 //Logger.log(H.print(4));
                 mapViewPort.setInverseTransformParametres(H.get(0, 0), H.get(1, 0),
                         H.get(3, 0), H.get(2, 0), H.get(5, 0), H.get(4, 0));
-
-//Logger.log("trn: " + mapViewPort.convertGeoToMapPixel(new Location4D(50.3420, 13.5352, 0.0f)).toString());
-//Logger.log("trn: " + mapViewPort.convertGeoToMapPixel(new Location4D(50.3420, 14.8584, 0.0f)).toString());
-//Logger.log("trn: " + mapViewPort.convertGeoToMapPixel(new Location4D(49.4574, 13.5352, 0.0f)).toString());
-//Logger.log("trn: " + mapViewPort.convertGeoToMapPixel(new Location4D(49.4574, 14.8584, 0.0f)).toString());
+//Logger.log("Kun trn: " + mapViewPort.convertGeoToMapPixel(new Location4D(14.4300, 50.0797, 0.0f)).toString());
 //Logger.log("Points: " + mapViewPort.getCalibrationCorner(1).toString());
 //Logger.log("Points: " + mapViewPort.getCalibrationCorner(2).toString());
 //Logger.log("Points: " + mapViewPort.getCalibrationCorner(3).toString());
