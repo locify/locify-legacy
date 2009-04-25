@@ -58,6 +58,7 @@ public abstract class GeoFiles {
     private static final int STATE_PLACEMARK = 3;
     private static final int STATE_STYLE = 4;
     private static final int STATE_STYLE_MAP = 4;
+    private static final int STATE_SCREEN_OVERLAY = 5;
     private static int sActual;
     private static int sBefore;
     private static final String GEO_FILES_RECORD_STORE = "GeoFilesDatabase";
@@ -276,6 +277,9 @@ public abstract class GeoFiles {
                             if (sActual == STATE_DOCUMENT) {
                                 multiData.description = parser.nextText();
                                 description = "";
+                            } else if (sActual == STATE_SCREEN_OVERLAY) {
+                                multiData.screenOverlay = parser.nextText();
+                                setState(STATE_DOCUMENT);
                             } else {
                                 description = parser.nextText();
                             }
@@ -490,7 +494,6 @@ public abstract class GeoFiles {
 //Logger.debug("  parseKML - tagPoint - tagNameEnd data:" + name + " " + description);
                                             waypoint.name = name;
                                             waypoint.description = description;
-System.out.println("waypoint set: " + styleURL);
                                             waypoint.styleName = styleURL;
                                             waypoint.id = id;
                                             styleURL = null;
@@ -554,6 +557,8 @@ System.out.println("waypoint set: " + styleURL);
                         } catch (Exception e) {
                             Logger.warning("GeoFiles.parseKml() - 'StyleUrl' tag error!!!");
                         }
+                    } else if (tagName.equalsIgnoreCase("ScreenOverlay")) {
+                        setState(STATE_SCREEN_OVERLAY);
                     }
                 } else if (event == XmlPullParser.END_TAG) {
                     tagName = parser.getName();

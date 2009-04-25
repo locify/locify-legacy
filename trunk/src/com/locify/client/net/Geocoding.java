@@ -41,7 +41,7 @@ public class Geocoding {
      * @param address address string
      */
     public static void start(String address) {
-        R.getHttp().start("http://local.yahooapis.com/MapsService/V1/geocode?appid=9UbHjo7V34GSlshPrG9uURmEguPRUfT3Nh3H0qDKt_fHZtdNjY3gndp8Vszg&location=" + Utils.urlUTF8Encode(address));
+        (new Http()).start("http://local.yahooapis.com/MapsService/V1/geocode?appid=9UbHjo7V34GSlshPrG9uURmEguPRUfT3Nh3H0qDKt_fHZtdNjY3gndp8Vszg&location=" + Utils.urlUTF8Encode(address));
     }
 
     /**

@@ -38,6 +38,7 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
+import com.locify.client.maps.mapItem.ScreenOverlayMapItem;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
@@ -56,6 +57,7 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+
 /**
  * Screen for viewing all maps and items on map
  * @author Jiri & Menion
@@ -153,7 +155,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 //     planStudio temp
 //    private Command cmdPlanStudio;
 //    private PlanStudioManager psm;
-
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -186,7 +187,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 //        psm = new PlanStudioManager();
 //        cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
 //        this.addCommand(cmdPlanStudio);
-        
+
         this.addCommand(Commands.cmdBack);
         //#style imgHome
         this.addCommand(Commands.cmdHome);
@@ -318,9 +319,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 //mapItemManager.removeAll();
                 mapItemManager.addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 if (!nowDirectly || !firstCenterAfterND) {
-                    if (map instanceof FileMapLayer && !mapFile.isReady())
+                    if (map instanceof FileMapLayer && !mapFile.isReady()) {
                         newMapItemAdded = mapItem;
-                    else {
+                    } else {
                         centerMap(mapItem.getItemCenter(), false);
                         objectZoomTo(mapItem);
                     }
@@ -333,9 +334,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 mapItem.setStyles(route.getStyleNormal(), route.getStyleHighLight());
                 mapItemManager.addItem(route.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 if (!nowDirectly || !firstCenterAfterND) {
-                    if (map instanceof FileMapLayer && !mapFile.isReady())
+                    if (map instanceof FileMapLayer && !mapFile.isReady()) {
                         newMapItemAdded = mapItem;
-                    else {
+                    } else {
                         centerMap(mapItem.getItemCenter(), false);
                         objectZoomTo(mapItem);
                     }
@@ -357,6 +358,13 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void view(MultiGeoData data) {
+        if (data.getScreenOverlay() != null) {
+            mapItemManager.removeItem("overlay");
+            MapItem overlay = new ScreenOverlayMapItem(data.getScreenOverlay());
+            overlay.setPriority(MapItem.PRIORITY_HIGH);
+            overlay.setEnabled(true);
+            mapItemManager.addItemFixed("overlay", overlay);
+        }
         for (int i = 0; i < data.getDataSize(); i++) {
             view(data.getGeoData(i));
         }
@@ -1343,9 +1351,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
     private void makeZoomAction(int actionType, int panX, int panY) {
         // disable zoom for maps without zoom
-        if (map.getMaxZoomLevel() - map.getMinZoomLevel() == 0)
+        if (map.getMaxZoomLevel() - map.getMinZoomLevel() == 0) {
             return;
-        
+        }
+
         if (!zoomProcess) {
             zoomThread = new ZoomThread();
             zoomThread.start();
@@ -1463,9 +1472,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private void makeSelectionActionFire() {
         DescriptionMapItem item = (DescriptionMapItem) mapItemManager.getItemTemp(tempWaypointDescriptionItemName);
         if (item != null) {
-            if (item.getSelectedType() == -1)
+            if (item.getSelectedType() == -1) {
                 return;
-            
+            }
+
             switch (item.getSelectedType()) {
                 case DescriptionMapItem.BUTTON_NAVIGATE:
                     mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);

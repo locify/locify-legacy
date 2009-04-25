@@ -13,7 +13,6 @@
  */
 package com.locify.client.data;
 
-import com.locify.client.net.Http;
 import javax.microedition.lcdui.Image;
 import com.locify.client.utils.R;
 

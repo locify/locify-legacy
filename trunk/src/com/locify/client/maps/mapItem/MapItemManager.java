@@ -38,7 +38,7 @@ public class MapItemManager {
         this.itemsTemp = new Hashtable();
     }
 
-    public void init() {
+    public void init() {        
         if (!isFixed(Locale.get("Scale"))) {
             MapItem scale = new ScaleMapItem();
             scale.priority = MapItem.PRIORITY_HIGH;
@@ -53,7 +53,7 @@ public class MapItemManager {
      * @param item MapItem to show
      * @return true if added, falsee if same name already exist
      */
-    private boolean addItemFixed(String itemName, MapItem item) {
+    public boolean addItemFixed(String itemName, MapItem item) {
         if (!items.containsKey(itemName)) {
             item.fixed = true;
             items.put(itemName, item);
@@ -96,8 +96,7 @@ public class MapItemManager {
                 }
             }
             //update selected item
-            if (getItemTemp("selectedItem")!=null)
-            {
+            if (getItemTemp("selectedItem") != null) {
                 DescriptionMapItem navItem = (DescriptionMapItem) getItemTemp("selectedItem");
                 String navId = navItem.getWaypoint().id;
                 if (navId != null) {
@@ -299,7 +298,7 @@ public class MapItemManager {
         while (enu.hasMoreElements()) {
             item = (MapItem) enu.nextElement();
             if (item instanceof PointMapItem) {
-                return ((PointMapItem)item).getWaypointById(id);
+                return ((PointMapItem) item).getWaypointById(id);
             }
         }
         return null;

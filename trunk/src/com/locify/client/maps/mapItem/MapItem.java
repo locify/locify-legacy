@@ -299,4 +299,8 @@ public abstract class MapItem {
         }
         actualState = STATE_WAITING;
     }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 }

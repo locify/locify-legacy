@@ -29,6 +29,7 @@ public class MultiGeoData {
 
     protected String name;
     protected String description;
+    protected String screenOverlay;
     protected Hashtable styles;
     protected Hashtable stylesMap;
 
@@ -237,5 +238,9 @@ public class MultiGeoData {
         } else {
             return null;
         }
+    }
+
+    public String getScreenOverlay() {
+        return screenOverlay;
     }
 }
