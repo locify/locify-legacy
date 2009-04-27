@@ -389,11 +389,14 @@ public abstract class FileMapManager {
     public synchronized void appendRequests(Vector imageExist, Vector imageNotExist,
             FileMapViewPort targetPort, StorageTar tar, int mapPanX, int mapPanY) {
         try {
+boolean debug = false;
             Point2D mapPoint = fileMapConfig.getMapViewPort().convertGeoToMapPixel(targetPort.getCenter());
-//Logger.log(" FileMapManager.appendRequests() - " + mapPath + mapImageDir);
-//Logger.log("   mapViewPort " + fileMapConfig.getMapViewPort().toString());
-//Logger.log("   targetPort " + targetPort.toString());
-//Logger.log("   center: " + targetPort.getCenter().toString());
+
+if (debug) {
+    Logger.log(" FileMapManager.appendRequests() - " + mapPath + mapImageDir);
+    Logger.log("   mapViewPort " + fileMapConfig.getMapViewPort().toString());
+    Logger.log("   targetPort " + targetPort.toString());
+}
 
             if (screenWidth == 0) {
                 screenWidth = Capabilities.getWidth();
@@ -420,17 +423,19 @@ public abstract class FileMapManager {
             numOfTilesYperScreen = tileY2 - tileY1 + 1;
             moveX = (int) ((tileX1 * fileMapConfig.tileSizeX) - mapPointTL.getX());
             moveY = (int) ((tileY1 * fileMapConfig.tileSizeY) - mapPointTL.getY());
-//Logger.log("   " + numOfTotalTilesX + " " + numOfTotalTilesY);
-//Logger.log("   " + fileMapConfig.xmax + " " + fileMapConfig.ymax);
-//Logger.log("   " + fileMapConfig.tileSizeX + " " + fileMapConfig.tileSizeY);
-//Logger.log("   " + mapPointTL.getX() + " " + fileMapConfig.tileSizeX + " " + tileX1);
-//Logger.log("   " + mapPointTL.getY() + " " + fileMapConfig.tileSizeY + " " + tileY1);
-//Logger.log("   " + mapPointBR.getX() + " " + fileMapConfig.tileSizeX + " " + tileX2);
-//Logger.log("   " + mapPointBR.getY() + " " + fileMapConfig.tileSizeY + " " + tileY2);
-//Logger.log("   drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
-//Logger.log("   drawImageMulti - centerMapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
-//Logger.log("   drawImageMulti - tileX1: " + tileX1 + " tileY1: " + tileY1);
-//Logger.log("   drawImageMulti - tileX2: " + tileX2 + " tileY2: " + tileY2);
+if (debug) {
+    Logger.log("   " + numOfTotalTilesX + " " + numOfTotalTilesY);
+    Logger.log("   " + fileMapConfig.xmax + " " + fileMapConfig.ymax);
+    Logger.log("   " + fileMapConfig.tileSizeX + " " + fileMapConfig.tileSizeY);
+    Logger.log("   " + mapPointTL.getX() + " " + fileMapConfig.tileSizeX + " " + tileX1);
+    Logger.log("   " + mapPointTL.getY() + " " + fileMapConfig.tileSizeY + " " + tileY1);
+    Logger.log("   " + mapPointBR.getX() + " " + fileMapConfig.tileSizeX + " " + tileX2);
+    Logger.log("   " + mapPointBR.getY() + " " + fileMapConfig.tileSizeY + " " + tileY2);
+    Logger.log("   drawImageMulti - moveX: " + moveX + " moveY: " + moveY);
+    Logger.log("   drawImageMulti - centerMapPointX: " + mapPoint.getX() + " mapPointY: " + mapPoint.getY());
+    Logger.log("   drawImageMulti - tileX1: " + tileX1 + " tileY1: " + tileY1);
+    Logger.log("   drawImageMulti - tileX2: " + tileX2 + " tileY2: " + tileY2);
+}
 
             String imageName = null;
 
@@ -445,7 +450,8 @@ public abstract class FileMapManager {
                     for (int k = imageNotExist.size() - 1; k >= 0; k--) {
                         ir = (ImageRequest) imageNotExist.elementAt(k);
                         if (Math.abs(ir.getX() - x1) < 2 && Math.abs(ir.getY() - y1) < 2) {
-//Logger.log("  FileMapManager.appendRequests() - remove: x: " + ir.getX() + ", y: " + ir.getY());
+if (debug)
+    Logger.log("  FileMapManager.appendRequests() - remove: x: " + ir.getX() + ", y: " + ir.getY());
                             imageNotExist.removeElementAt(k);
                             break;
                         }
@@ -461,12 +467,14 @@ public abstract class FileMapManager {
                             ir = new ImageRequest(mapPath + imageName, fileMapConfig.tileSizeX,
                                     fileMapConfig.tileSizeY, x1, y1);
                         }
-//Logger.log("  FileMapManager.appendRequests() - ImageExist: " + ir.toString());
+if (debug)
+    Logger.log("  FileMapManager.appendRequests() - ImageExist: " + ir.toString());
                         imageExist.addElement(ir);
                     } else {
                         ir = new ImageRequest(null, fileMapConfig.tileSizeX,
                                 fileMapConfig.tileSizeY, x1, y1);
-//Logger.log("  FileMapManager.appendRequests() - ImageNotExist: " + ir.toString());
+if (debug)
+    Logger.log("  FileMapManager.appendRequests() - ImageNotExist: " + ir.toString());
                         imageNotExist.addElement(ir);
                     }
                 }

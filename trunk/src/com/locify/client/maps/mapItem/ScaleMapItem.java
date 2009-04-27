@@ -20,6 +20,7 @@ import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.Capabilities;
+import com.locify.client.utils.R;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
@@ -50,8 +51,8 @@ public class ScaleMapItem extends MapItem {
     
     public ScaleMapItem() {
         super();
-        this.posX = 5;
-        this.posY = Capabilities.getHeight() - 50;
+        this.posX = Capabilities.getWidth() - 5;
+        this.posY = Capabilities.getHeight() - R.getTopBar().height - 15;
         this.scaleSizeX = Capabilities.getWidth() / 2;
         this.scaleSizeY = 6;
         
@@ -104,9 +105,9 @@ public class ScaleMapItem extends MapItem {
                 initialize();
             
             g.setColor(ColorsFonts.BLACK);
-            g.drawString(scale, posX + scaleSizeX + 10, posY - 6, Graphics.TOP | Graphics.LEFT);
+            g.drawString(scale, posX, posY - 5, Graphics.BOTTOM | Graphics.RIGHT);
             if (scaleImage != null)
-                g.drawImage(scaleImage, posX, posY, Graphics.TOP | Graphics.LEFT);
+                g.drawImage(scaleImage, posX, posY, Graphics.TOP | Graphics.RIGHT);
         }
     }
 

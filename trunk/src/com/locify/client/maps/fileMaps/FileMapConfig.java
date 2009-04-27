@@ -74,8 +74,7 @@ public class FileMapConfig {
     }
 
     private void setProjection(String projection) {
-        if (projection.startsWith("WGS 84") || projection.startsWith("WGS84") ||
-                projection.startsWith("UTM") || projection.equalsIgnoreCase("Transverse Mercator")) {
+        if (projection.startsWith("UTM") || projection.equalsIgnoreCase("Transverse Mercator")) {
             this.mapProjectionType = Projection.PROJECTION_UTM;
         } else if (projection.startsWith("Pulkovo 1942") || projection.startsWith("S42") ||
                 projection.startsWith("S-42")) {
@@ -220,8 +219,8 @@ public class FileMapConfig {
                     if (i == 1 && !((String) token.elementAt(0)).startsWith("Map Projection") &&
                             !((String) token.elementAt(0)).startsWith("Point")) {
                         fmc.name = (String) lines.elementAt(i);
-//                    } else if (i == 4 && !((String) token.elementAt(0)).startsWith("Point")) {
-//                        fmc.setProjection((String) token.elementAt(0));
+                    } else if (i == 4 && !((String) token.elementAt(0)).startsWith("Point")) {
+                        fmc.setProjection((String) token.elementAt(0));
                     } else if (((String) token.elementAt(0)).startsWith("Map Projection") &&
                             fmc.mapProjectionType == Projection.PROJECTION_NULL) {
                         fmc.setProjection(((String) token.elementAt(1)).trim());
@@ -443,7 +442,8 @@ public class FileMapConfig {
 //Logger.log(H.print(4));
                 mapViewPort.setInverseTransformParametres(H.get(0, 0), H.get(1, 0),
                         H.get(3, 0), H.get(2, 0), H.get(5, 0), H.get(4, 0));
-//Logger.log("Kun trn: " + mapViewPort.convertGeoToMapPixel(new Location4D(14.4300, 50.0797, 0.0f)).toString());
+//Logger.log("Kun trn: " + mapViewPort.convertGeoToMapPixel(new Location4D(5544509, 461330, 0.0f)).toString());
+//Logger.log("Kun trn: " + mapViewPort.convertGeoToMapPixel(new Location4D(8641582, 4265425, 0.0f)).toString());
 //Logger.log("Points: " + mapViewPort.getCalibrationCorner(1).toString());
 //Logger.log("Points: " + mapViewPort.getCalibrationCorner(2).toString());
 //Logger.log("Points: " + mapViewPort.getCalibrationCorner(3).toString());

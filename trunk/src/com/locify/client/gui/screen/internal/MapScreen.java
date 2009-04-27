@@ -13,6 +13,7 @@
  */
 package com.locify.client.gui.screen.internal;
 
+import com.locify.client.data.IconData;
 import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.data.items.MultiGeoData;
@@ -38,6 +39,7 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
+//import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.maps.mapItem.ScreenOverlayMapItem;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.ColorsFonts;
@@ -80,7 +82,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private Command[] providerCommandsTile;
     private boolean drawLock;
     private static int TOP_MARGIN = R.getTopBar().height;
-    private static int BOTTOM_MARGIN = R.getTopBar().height;
+    private static int BOTTOM_MARGIN = R.getTopBar().height + 3;
     private MapLayer map;
     /** map manager for online maps */
     private TileMapLayer mapTile;
@@ -102,6 +104,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public static final String IMAGE_EMPTY_TILE = "/map_tile_64x64.png";
     public static final String IMAGE_ICON_PLUS = "/map_icon_plus.png";
     public static final String IMAGE_ICON_MINUS = "/map_icon_minus.png";
+    public static final String IMAGE_ICON_ZOOM_PLUS = "/map_icon_zoom_plus.png";
+    public static final String IMAGE_ICON_ZOOM_MINUS = "/map_icon_zoom_minus.png";
     public static final String IMAGE_ICON_ACTUAL_LOCATION = "/map_icon_actualLoc.png";
     /** image displayed while tile is loading */
     private static Image loadingImage;
@@ -117,8 +121,14 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private static Image imageIconPlus;
     /** minus icon image */
     private static Image imageIconMinus;
+    /** plus icon zoom image */
+    private static Image imageIconZoomPlus;
+    /** minus icon zoom image */
+    private static Image imageIconZoomMinus;
     /** actual position image */
     private static Image imageActualLocation;
+    /** size of zoom icon */
+    private static int imageIconZoomSideSize;
     /** thread for painting */
 //    private PaintThread paintThread;
     /** if some mapItems are selected this isn't null */
@@ -135,12 +145,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private String tempRunningRouteName = "runningRoute";
     /** time of stylus press */
     private long stylusTought;
-    /** center of zoom in button */
-    private Point2D.Int touchZoomInButtonCenter;
-    /** center of zoom out button */
-    private Point2D.Int touchZoomOutButtonCenter;
-    /** radius of touch buttons */
-    private int touchZoomButtonRadius;
     /** should all the files show on map directly? */
     private static boolean nowDirectly = false;
     /** is firstly centere after now directly? */
@@ -155,6 +159,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 //     planStudio temp
 //    private Command cmdPlanStudio;
 //    private PlanStudioManager psm;
+
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -167,26 +172,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         lastSelectedX = 0;
         lastSelectedY = 0;
 
-        //hasPointerSupport = true;
-        //#if polish.Vendor == WM-big
-        touchZoomInButtonCenter = new Point2D.Int(22, TOP_MARGIN + 28);
-        touchZoomOutButtonCenter = new Point2D.Int(22, Capabilities.getHeight() - BOTTOM_MARGIN - 50);
-        touchZoomButtonRadius = 20;
-        //#else
-//#         touchZoomInButtonCenter = new Point2D.Int(12, TOP_MARGIN + 14);
-//#         touchZoomOutButtonCenter = new Point2D.Int(12, Capabilities.getHeight() - BOTTOM_MARGIN - 44);
-//#         touchZoomButtonRadius = 10;
-        //#endif
-
         cmdZoomIn = new Command(Locale.get("Zoom_in"), Command.SCREEN, 1);
         cmdZoomOut = new Command(Locale.get("Zoom_out"), Command.SCREEN, 2);
         cmdMyLocation = new Command(Locale.get("My_location"), Command.SCREEN, 3);
         cmdChangeMapTile = new Command(Locale.get("Change_map_tile"), Command.SCREEN, 5);
         cmdChangeMapFile = new Command(Locale.get("Change_map_file"), Command.SCREEN, 6);
 
-//        psm = new PlanStudioManager();
-//        cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
-//        this.addCommand(cmdPlanStudio);
 
         this.addCommand(Commands.cmdBack);
         //#style imgHome
@@ -255,11 +246,16 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      */
     public void view() {
         try {
+//            if (psm == null) {
+//                psm = new PlanStudioManager();
+//                cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
+//                this.addCommand(cmdPlanStudio);
+//            }
+            
             if (map instanceof FileMapLayer && !mapFile.isReady()) {
                 R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
                         R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude());
             } else {
-                TOP_MARGIN = R.getTopBar().height;
                 mapItemManager.init();
                 if (lastCenterPoint != null) {
                     centerMap(lastCenterPoint, centerToActualLocation);
@@ -514,7 +510,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
             if (zoomProcess) {
                 try {
-                    int moveX = touchZoomInButtonCenter.x + touchZoomButtonRadius + 4;
+                    int moveX = 30;
                     int bw = borderW / 2;
                     int bh = borderH / 2;
                     int val1 = 0;
@@ -549,17 +545,17 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     }
 
                     if (!MainScreen.hasPointerEvents) {
-                        g.drawImage(getMapIconPlus(), touchZoomInButtonCenter.x,
-                                touchZoomInButtonCenter.y, Graphics.VCENTER | Graphics.HCENTER);
-                        g.drawImage(getMapIconMinus(), touchZoomOutButtonCenter.x,
-                                touchZoomOutButtonCenter.y, Graphics.VCENTER | Graphics.HCENTER);
+                        g.drawImage(getMapIconPlus(), 20, TOP_MARGIN + 10,
+                                Graphics.VCENTER | Graphics.HCENTER);
+                        g.drawImage(getMapIconMinus(), 20, Capabilities.getHeight() - BOTTOM_MARGIN - 10,
+                                Graphics.VCENTER | Graphics.HCENTER);
                     }
-
+                    
                     g.setColor(ColorsFonts.BLACK);
-                    g.drawLine(moveX + 5, TOP_MARGIN + 10, moveX + 5, Capabilities.getHeight() - BOTTOM_MARGIN - 40);
+                    g.drawLine(moveX + 5, TOP_MARGIN + 10, moveX + 5, Capabilities.getHeight() - BOTTOM_MARGIN - 10);
                     g.fillRect(moveX, TOP_MARGIN + 10, 10, 3);
-                    g.fillRect(moveX, Capabilities.getHeight() - BOTTOM_MARGIN - 40, 10, 3);
-                    double pxPerZoom = (Capabilities.getHeight() - TOP_MARGIN - BOTTOM_MARGIN - 50.0) /
+                    g.fillRect(moveX, Capabilities.getHeight() - BOTTOM_MARGIN - 10, 10, 3);
+                    double pxPerZoom = (Capabilities.getHeight() - TOP_MARGIN - BOTTOM_MARGIN - 20.0) /
                             (map.getMaxZoomLevel() - map.getMinZoomLevel());
 
                     int actZoomPixel = (int) (TOP_MARGIN + 10 + (map.getMaxZoomLevel() -
@@ -575,30 +571,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
         try {
             if (MainScreen.hasPointerEvents && map.getMaxZoomLevel() - map.getMinZoomLevel() > 0) {
-                g.setColor(ColorsFonts.LIGHT_ORANGE);
-                g.fillArc(touchZoomInButtonCenter.x - touchZoomButtonRadius,
-                        touchZoomInButtonCenter.y - touchZoomButtonRadius,
-                        touchZoomButtonRadius * 2, touchZoomButtonRadius * 2,
-                        0, 360);
-                g.fillArc(touchZoomOutButtonCenter.x - touchZoomButtonRadius,
-                        touchZoomOutButtonCenter.y - touchZoomButtonRadius,
-                        touchZoomButtonRadius * 2, touchZoomButtonRadius * 2,
-                        0, 360);
-
-                g.setColor(ColorsFonts.BLACK);
-                g.drawArc(touchZoomInButtonCenter.x - touchZoomButtonRadius,
-                        touchZoomInButtonCenter.y - touchZoomButtonRadius,
-                        touchZoomButtonRadius * 2, touchZoomButtonRadius * 2,
-                        0, 360);
-                g.drawArc(touchZoomOutButtonCenter.x - touchZoomButtonRadius,
-                        touchZoomOutButtonCenter.y - touchZoomButtonRadius,
-                        touchZoomButtonRadius * 2, touchZoomButtonRadius * 2,
-                        0, 360);
-
-                g.drawImage(getMapIconPlus(), touchZoomInButtonCenter.x,
-                        touchZoomInButtonCenter.y, Graphics.VCENTER | Graphics.HCENTER);
-                g.drawImage(getMapIconMinus(), touchZoomOutButtonCenter.x,
-                        touchZoomOutButtonCenter.y, Graphics.VCENTER | Graphics.HCENTER);
+                g.drawImage(getMapIconZoomPlus(), 0, TOP_MARGIN + 2,
+                        Graphics.TOP | Graphics.LEFT);
+                g.drawImage(getMapIconZoomMinus(), 0, Capabilities.getHeight() - BOTTOM_MARGIN,
+                        Graphics.BOTTOM | Graphics.LEFT);
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapZoomButtons");
@@ -1117,11 +1093,15 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             super.pointerReleased(x, y);
             if (y > TOP_MARGIN && y < (Capabilities.getHeight() - BOTTOM_MARGIN)) {
                 if ((System.currentTimeMillis() - stylusTought) < 250) {
-                    if (Math.sqrt((touchZoomInButtonCenter.x - x) * (touchZoomInButtonCenter.x - x) +
-                            (touchZoomInButtonCenter.y - y) * (touchZoomInButtonCenter.y - y)) < touchZoomButtonRadius) {
+                    if (x < imageIconZoomSideSize &&
+                            y > TOP_MARGIN &&
+                            y < TOP_MARGIN + imageIconZoomSideSize &&
+                            y < -1 * x + (TOP_MARGIN + imageIconZoomSideSize)) {
                         makeMapAction(MA_ZOOM_IN, null);
-                    } else if (Math.sqrt((touchZoomOutButtonCenter.x - x) * (touchZoomOutButtonCenter.x - x) +
-                            (touchZoomOutButtonCenter.y - y) * (touchZoomOutButtonCenter.y - y)) < touchZoomButtonRadius) {
+                    } else if (x < imageIconZoomSideSize &&
+                            y > (Capabilities.getHeight() - BOTTOM_MARGIN - imageIconZoomSideSize) &&
+                            y < Capabilities.getHeight() - BOTTOM_MARGIN &&
+                            y > x + (Capabilities.getHeight() - BOTTOM_MARGIN - imageIconZoomSideSize)) {
                         makeMapAction(MA_ZOOM_OUT, null);
                     } else if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
                         if (Math.sqrt((lastSelectedX - x) * (lastSelectedX - x) + (lastSelectedY - y) *
@@ -1260,6 +1240,44 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
         }
         return imageIconMinus;
+    }
+
+    private static Image getMapIconZoomPlus() {
+        if (imageIconZoomPlus == null) {
+            try {
+                imageIconZoomPlus = Image.createImage(IMAGE_ICON_ZOOM_PLUS);
+
+                if (imageIconZoomSideSize == 0) {
+                    int size = Capabilities.getHeight() * imageIconZoomPlus.getHeight() / 1000;
+                    imageIconZoomSideSize = size < 35 ? 35 : size;
+                }
+                
+                imageIconZoomPlus = IconData.reScaleImage(imageIconZoomPlus,
+                        imageIconZoomSideSize, imageIconZoomSideSize);
+            } catch (IOException ex) {
+                R.getErrorScreen().view(ex, "MapScreen.getMapIconZoomPlus()", null);
+            }
+        }
+        return imageIconZoomPlus;
+    }
+
+    private static Image getMapIconZoomMinus() {
+        if (imageIconZoomMinus == null) {
+            try {
+                imageIconZoomMinus = Image.createImage(IMAGE_ICON_ZOOM_MINUS);
+
+                if (imageIconZoomSideSize == 0) {
+                    int size = Capabilities.getHeight() * imageIconZoomPlus.getHeight() / 1000;
+                    imageIconZoomSideSize = size < 35 ? 35 : size;
+                }
+
+                imageIconZoomMinus = imageIconZoomMinus = IconData.reScaleImage(imageIconZoomMinus,
+                        imageIconZoomSideSize, imageIconZoomSideSize);
+            } catch (IOException ex) {
+                R.getErrorScreen().view(ex, "MapScreen.getMapIconZoomMinus()", null);
+            }
+        }
+        return imageIconZoomMinus;
     }
 
     private static Image getMapIconActualLocation() {

@@ -28,6 +28,7 @@ import com.locify.client.maps.projection.S42Projection;
 import com.locify.client.maps.projection.UTMProjection;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.ColorsFonts;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import javax.microedition.lcdui.Graphics;
 import java.util.Vector;

@@ -100,4 +100,8 @@ public class GeoFileStyle {
         gfs.setIcon(icon);
         return gfs;
     }
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
 }

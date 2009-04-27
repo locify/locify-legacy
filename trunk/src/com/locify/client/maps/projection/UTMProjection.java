@@ -72,6 +72,8 @@ public class UTMProjection extends Projection {
     // this if you start getting Infinity or NaN's for forward().
     protected static float epsilon = 0.01f;
     
+    public boolean psFix = false;
+
     public UTMProjection(ReferenceEllipsoid ellipsoid) {
         super(ellipsoid);
     }
@@ -152,8 +154,10 @@ public class UTMProjection extends Projection {
 
         result[0] = northing;
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        result[1] = (longitudeZone - 30) * 1000000 + easting;
-//        result[1] = easting;
+        if (psFix)
+            result[1] = easting;
+        else
+            result[1] = (longitudeZone - 30) * 1000000 + easting;
 
 //System.out.println("Lon zone: " + longitudeZone);
 //System.out.println("res1: " + northing);

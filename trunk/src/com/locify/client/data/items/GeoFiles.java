@@ -354,24 +354,31 @@ public abstract class GeoFiles {
                                                 route.separating.addElement(new Integer(route.points.size()));
                                             }
                                             String coordinates = parser.nextText();
-                                            coordinates = coordinates.replace(',', ' ');
-                                            coordinates = coordinates.replace('\n', ' ');
                                             coordinates = coordinates.replace('\t', ' ');
+                                            coordinates = coordinates.replace('\n', ' ');
+                                            coordinates = coordinates.trim();
+
+                                            Vector token = StringTokenizer.getVector(coordinates, " ");
 
                                             double lat = 0.0, lon = 0.0;
                                             float alt = 0.0f;
-                                            de.enough.polish.util.StringTokenizer token = new de.enough.polish.util.StringTokenizer(coordinates, ' ');
-                                            while (token.hasMoreTokens()) {
-                                                lon = Double.parseDouble((String) token.nextToken());
-                                                if (token.hasMoreTokens()) {
-                                                    lat = Double.parseDouble((String) token.nextToken());
-                                                    if (token.hasMoreTokens()) {
-                                                        alt = Float.parseFloat((String) token.nextToken());
 
+                                            for (int i = 0; i < token.size(); i++) {
+                                                de.enough.polish.util.StringTokenizer tokenPoint = new de.enough.polish.util.StringTokenizer((String) token.elementAt(i), ',');
+                                                while (tokenPoint.hasMoreTokens()) {
+                                                    lon = Double.parseDouble((String) tokenPoint.nextToken());
+                                                    if (tokenPoint.hasMoreTokens()) {
+                                                        lat = Double.parseDouble((String) tokenPoint.nextToken());
+                                                        alt = 0.0f;
+                                                        if (tokenPoint.hasMoreTokens()) {
+                                                            alt = Float.parseFloat((String) tokenPoint.nextToken());
+                                                        }
+//Logger.log("Add: " + lat + " " + lon + " " + alt);
                                                         route.points.addElement(new Location4D(lat, lon, alt));
                                                     }
                                                 }
                                             }
+//Logger.log("Route: " + route.points.size());
                                         }
                                     } else if (event == XmlPullParser.END_TAG) {
                                         tagName = parser.getName();
@@ -590,7 +597,9 @@ public abstract class GeoFiles {
                         }
                     } else if (tagName.equalsIgnoreCase("Style")) {
                         try {
-                            styles.put(style.name, style);
+                            if (style.getIconUrl() != null) {
+                                styles.put(style.name, style);
+                            }
                             setState(STATE_DOCUMENT);
                         } catch (Exception e) {
                             Logger.warning("GeoFiles.parseKml() - 'Style' endTag error!!!");

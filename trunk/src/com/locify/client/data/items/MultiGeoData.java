@@ -52,7 +52,6 @@ public class MultiGeoData {
             GeoData data;
             for (int i = 0; i < geoData.size(); i++) {
                 data = (GeoData) geoData.get(i);
-//Logger.log(data.toString());
                 // first finalize GeoFileStyleMap
                 if (stylesMap != null) {
                     Enumeration enu = stylesMap.elements();
@@ -63,16 +62,6 @@ public class MultiGeoData {
                         geoFileStyleMap.styleHighLight = getStyle(geoFileStyleMap.styleHighLightUrl);
                     }
                 }
-
-                // first finalize GeoFileStyleMap
-//                if (styles != null) {
-//                    Enumeration enu = styles.elements();
-//                    GeoFileStyle geoFileStyle;
-//                    while (enu.hasMoreElements()) {
-//                        geoFileStyle = (GeoFileStyle) enu.nextElement();
-//                        geoFileStyle.finalizeData();
-//                    }
-//                }
 
                 // add style to data object
                 if (data instanceof WaypointsCloud) {
@@ -86,8 +75,9 @@ public class MultiGeoData {
                     addStyleToDataObject(data);
                 }
 
-                if (data instanceof Route)
+                if (data instanceof Route) {
                     ((Route) geoData.get(i)).finalizeData();
+                }
 
                 if (data.name.equals("")) {
                     if (data instanceof Route)
@@ -98,8 +88,8 @@ public class MultiGeoData {
                         data.name = name + "_C";
                 }
             }
-        } catch (Exception e) {
-            Logger.error("MultiGeoData.finalize()");
+        } catch (Exception ex) {
+            Logger.error("MultiGeoData.finalize() " + ex.toString());
         }
     }
 
@@ -125,7 +115,8 @@ public class MultiGeoData {
                 data.styleHighlight = gfsm.styleHighLight;
             } else {
                 data.styleNormal = getStyle(data.styleName);
-                data.styleHighlight = data.styleNormal.getScaledCopy(1.5f);
+                if (data.styleNormal != null)
+                    data.styleHighlight = data.styleNormal.getScaledCopy(1.5f);
             }
         }
     }

@@ -124,8 +124,9 @@ public class Location4D {
     public String toString() {
         return ("{" + GpsUtils.formatDouble(latitude, 6) + "; " +
                 GpsUtils.formatDouble(longitude, 6) + "; " +
-                GpsUtils.formatDouble(altitude, 6) + "; " +
-                GpsUtils.formatTime(time) + "}");
+                GpsUtils.formatDouble(altitude, 6)
+//                + "; " + GpsUtils.formatTime(time)
+                + "}");
     }
 
     public void setPosition(double lat, double lon, int alt) {
