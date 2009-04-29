@@ -658,7 +658,7 @@ public abstract class GeoFiles {
                         try {
                             if (sActual == STATE_NONE) {
                                 setState(STATE_RTE);
-                                actualGeoData = new WaypointsCloud();
+                                actualGeoData = new Route();
                             } else {
                                 Logger.warning("GeoFiles.parseGpx() - 'rte' name error!!!");
                                 return null;
@@ -669,27 +669,30 @@ public abstract class GeoFiles {
                     } else if (tagName.equalsIgnoreCase("rtept")) {
                         try {
                             if (sActual == STATE_RTE) {
+                                Route route = (Route) actualGeoData;
                                 double lat = GpsUtils.parseDouble(parser.getAttributeValue(null, "lat"));
                                 double lon = GpsUtils.parseDouble(parser.getAttributeValue(null, "lon"));
 
-                                waypoint = new Waypoint(lat, lon, "", "", "");
-                                while (true) {
-                                    event = parser.nextToken();
-                                    if (event == XmlPullParser.START_TAG) {
-                                        tagName = parser.getName();
-                                        if (tagName.equalsIgnoreCase("name")) {
-                                            waypoint.name = parser.nextText();
-                                        } else if (tagName.equalsIgnoreCase("cmt")) {
-                                            waypoint.description = parser.nextText();
-                                        }
-                                    } else if (event == XmlPullParser.END_TAG) {
-                                        tagName = parser.getName();
-                                        if (tagName.equalsIgnoreCase("rtept")) {
-                                            break;
-                                        }
-                                    }
-                                }
-                                ((WaypointsCloud) actualGeoData).addWaypoint(waypoint);
+                                route.points.addElement(new Location4D(lat, lon, 0.0f));
+
+//                                waypoint = new Waypoint(lat, lon, "", "", "");
+//                                while (true) {
+//                                    event = parser.nextToken();
+//                                    if (event == XmlPullParser.START_TAG) {
+//                                        tagName = parser.getName();
+//                                        if (tagName.equalsIgnoreCase("name")) {
+//                                            waypoint.name = parser.nextText();
+//                                        } else if (tagName.equalsIgnoreCase("cmt")) {
+//                                            waypoint.description = parser.nextText();
+//                                        }
+//                                    } else if (event == XmlPullParser.END_TAG) {
+//                                        tagName = parser.getName();
+//                                        if (tagName.equalsIgnoreCase("rtept")) {
+//                                            break;
+//                                        }
+//                                    }
+//                                }
+//                                ((WaypointsCloud) actualGeoData).addWaypoint(waypoint);
                             }
                         } catch(Exception ex) {
                             Logger.warning("GeoFiles.parseGpx() - 'rtept' tag error!!!");
@@ -880,7 +883,7 @@ public abstract class GeoFiles {
 //Logger.debug("    parserTag: " + tagName);
                     if (tagName.equalsIgnoreCase("rte")) {
                         if (actualType == TYPE_CORRUPT || actualType == TYPE_ROUTE) {
-                            actualType = TYPE_WAYPOINTS_CLOUD;
+                            actualType = TYPE_ROUTE;
                         } else {
                             return TYPE_MULTI;
                         }
