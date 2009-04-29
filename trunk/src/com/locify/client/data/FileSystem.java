@@ -277,7 +277,7 @@ public class FileSystem {
      * @param pattern eg. '*.kml' for only kml files
      * @return string enumeration of files
      */
-    public synchronized Enumeration listFiles(String folder, String pattern) {
+    public synchronized Vector listFiles(String folder, String[] pattern) {
         try {
             //#if applet
 //#             return null;
@@ -287,14 +287,32 @@ public class FileSystem {
                 return null;
             }
 
-            Enumeration files;
-            if (pattern != null) {
-                files = fileConnection.list(pattern, false);
+            Enumeration files = fileConnection.list();
+
+            Vector filteredFiles = new Vector();
+            if (pattern == null) {
+                while (files.hasMoreElements()) {
+                    filteredFiles.addElement(files.nextElement());
+                }
             } else {
-                files = fileConnection.list();
+                // fix patterns (here are not used as usually
+                for (int i = 0; i < pattern.length; i++) {
+                    pattern[i] = pattern[i].substring(pattern[i].lastIndexOf('.') + 1, pattern[i].length());
+                }
+
+                while (files.hasMoreElements()) {
+                    String file = (String) files.nextElement();
+                    for (int i = 0; i < pattern.length; i++) {
+                        if (file.endsWith(pattern[i])) {
+                            filteredFiles.addElement(file);
+                            break;
+                        }
+                    }
+                }
             }
+
             fileConnection.close();
-            return files;
+            return filteredFiles;
             //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.listFiles", folder);

@@ -76,32 +76,17 @@ public class StoreManager {
                     long time = System.currentTimeMillis();
 //Logger.debug("StoreManager.initializeOfflineMaps() - started");
 
-                    Enumeration f1 = null;
-                    Enumeration f2 = null;
+                    Vector files = null;
+                    Vector filesCached = null;
                     try{
-                        f1 = R.getFileSystem().listFiles(FileSystem.MAP_FOLDER, null);
-                        f2 = R.getFileSystem().listFiles(FileSystem.CACHE_MAP_FOLDER, null);
+                        files = R.getFileSystem().listFiles(FileSystem.MAP_FOLDER, null);
+                        filesCached = R.getFileSystem().listFiles(FileSystem.CACHE_MAP_FOLDER, null);
                     } catch (Exception ex) {
                         Logger.error("StoreManager.initializeOfflineMaps() error01: " + ex.toString());
                     } catch (OutOfMemoryError ex) {
                         Logger.error("StoreManager.initializeOfflineMaps() error02: " + ex.toString());
                     }
 
-                    Vector files = new Vector();
-                    if (f1 != null) {
-                        while (f1.hasMoreElements()) {
-                            files.addElement(f1.nextElement());
-                        }
-                    }
-                    f1 = null;
-
-                    Vector filesCached = new Vector();
-                    if (f2 != null) {
-                        while (f2.hasMoreElements()) {
-                            filesCached.addElement(f2.nextElement());
-                        }
-                    }
-                    f2 = null;
 //Logger.debug("  step1 (" + (System.currentTimeMillis() - time) + "ms)");
 
                     // delete old config file

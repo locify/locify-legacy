@@ -14,6 +14,8 @@
 
 package com.locify.client.data.items;
 
+import com.locify.client.locator.Location4D;
+
 /**
  * Object for generalizing geo data - waypoint, route and waypoint cloud
  * @author MenKat
@@ -23,9 +25,8 @@ public abstract class GeoData {
     protected String name;
     protected String description;
     protected String service;
-    protected double latitude;
-    protected double longitude;
     protected String styleName;
+    protected Location4D position;
     protected GeoFileStyle styleNormal;
     protected GeoFileStyle styleHighlight;
 
@@ -33,8 +34,7 @@ public abstract class GeoData {
         this.name = "";
         this.description = "";
         this.service = "";
-        this.latitude = 0.0;
-        this.longitude = 0.0;
+        this.position = new Location4D(0.0, 0.0, 0.0f, 0);
         this.styleName = null;
         this.styleNormal = null;
     }
@@ -52,11 +52,27 @@ public abstract class GeoData {
     }
     
     public double getLatitude() {
-        return latitude;
+        return position.getLatitude();
     }
     
     public double getLongitude() {
-        return longitude;
+        return position.getLongitude();
+    }
+
+    public double getAltitude() {
+        return position.getAltitude();
+    }
+
+    public void setLatitude(double latitude) {
+        position.setLatitude(latitude);
+    }
+
+    public void setLongitude(double longitude) {
+        position.setLongitude(longitude);
+    }
+
+    public void setAltitude(float altitude) {
+        position.setAltitude(altitude);
     }
 
     public GeoFileStyle getStyleNormal() {
@@ -68,6 +84,6 @@ public abstract class GeoData {
     }
 
     public String toString() {
-        return "Name: " + name + " desc.: " + description + " lat: " + latitude + " lon: " + longitude;
+        return "Name: " + name + " desc.: " + description + " lat: " + getLatitude() + " lon: " + getLongitude();
     }
 }

@@ -15,7 +15,6 @@
 package com.locify.client.data.items;
 
 import com.locify.client.locator.Location4D;
-import com.locify.client.utils.Logger;
 import java.util.Vector;
 
 /**
@@ -27,13 +26,11 @@ public class WaypointsCloud extends GeoData {
     /** vector containing waypoints */
     private Vector waypoints;
     private boolean initialized;
-    protected Location4D centerLocation;
 
     public WaypointsCloud() {
         super();
         waypoints = new Vector();
         initialized = false;
-        centerLocation = new Location4D(0.0, 0.0, 0.0f);
     }
 
     public WaypointsCloud(String name) {
@@ -63,16 +60,16 @@ public class WaypointsCloud extends GeoData {
                 double lon = 0;
                 float alt = 0;
                 for (int i = 0; i < waypoints.size(); i++) {
-                    lat += ((Waypoint) waypoints.elementAt(i)).latitude;
-                    lon += ((Waypoint) waypoints.elementAt(i)).longitude;
+                    lat += ((Waypoint) waypoints.elementAt(i)).getLatitude();
+                    lon += ((Waypoint) waypoints.elementAt(i)).getLongitude();
                     alt += ((Waypoint) waypoints.elementAt(i)).getLocation().getAltitude();
                 }
-                centerLocation.setLatitude(lat/waypoints.size());
-                centerLocation.setLongitude(lon/waypoints.size());
-                centerLocation.setAltitude(alt/waypoints.size());
+                setLatitude(lat/waypoints.size());
+                setLongitude(lon/waypoints.size());
+                setAltitude(alt/waypoints.size());
                 initialized = true;
             }
-            return centerLocation;
+            return position;
         }
         return new Location4D(0.0, 0.0, 0.0f);
     }

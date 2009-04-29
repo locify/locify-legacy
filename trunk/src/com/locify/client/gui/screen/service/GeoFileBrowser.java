@@ -51,7 +51,7 @@ public class GeoFileBrowser implements CommandListener {
     private NetworkLink networkLink;
     private MultiGeoData multiData;
     private int dataType;
-    private String kmlData;
+    private String geoData;
     private String fileName;
     private Form formMultiGeoData;
     private Form formRoute;
@@ -88,13 +88,13 @@ public class GeoFileBrowser implements CommandListener {
      * Sets raw kml data from net
      * @param kml kml data
      */
-    public void setKml(String kml) {
+    public void setGeoData(String geoData) {
 //        kml = GeoFiles.correctStringData(kml);
-        int type = GeoFiles.getDataTypeString(kml);
-        multiData = GeoFiles.parseKmlString(kml, false);
+        int type = GeoFiles.getDataTypeString(geoData);
+        multiData = GeoFiles.parseGeoDataString(geoData, false);
         if (multiData != null && multiData.getDataSize() > 0) {
             manageData(type);
-            kmlData = kml;
+            this.geoData = geoData;
             inService = true;
         } else {
             multiData = null;
@@ -103,12 +103,12 @@ public class GeoFileBrowser implements CommandListener {
     }
 
     /**
-     * Sets file with waypoint kml data
+     * Sets file with waypoint GeoData data
      * @param fileName file name
      */
     public void view(String fileName) {
         int type = GeoFiles.getDataTypeFile(fileName);
-        multiData = GeoFiles.parseKmlFile(fileName, false);
+        multiData = GeoFiles.parseGeoDataFile(fileName, false);
         if (multiData != null && multiData.getDataSize() > 0) {
             manageData(type);
             this.fileName = fileName;
@@ -196,6 +196,7 @@ public class GeoFileBrowser implements CommandListener {
     }
 
     private void viewDataRoute() {
+System.out.println(route.toString());
         formRoute = new Form(route.getName());
         formRoute.append(new StringItem(Locale.get("Route_length") + " ", GpsUtils.formatDistance(route.getRouteDist())));
         formRoute.append(new StringItem(Locale.get("Travel_time") + " ", GpsUtils.formatTime(route.getRouteTime())));
@@ -299,14 +300,14 @@ public class GeoFileBrowser implements CommandListener {
 
     public void commandAction(Command c, Displayable d) {
         if (c == Commands.cmdSave) {
-            GeoFiles.saveGeoFileData(kmlData);
+            GeoFiles.saveGeoFileData(geoData);
         } else if (c == cmdMap && d != formWaypointCloud) {
             R.getURL().call("locify://maps");
             if (dataType == GeoFiles.TYPE_WAYPOINT) {
                 R.getMapScreen().view(waypoint);
             } else if (dataType == GeoFiles.TYPE_ROUTE) {
                 if (route.isRouteOnlyInfo()) {
-                    route = (Route) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                    route = (Route) GeoFiles.parseGeoDataFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
                 }
                 R.getMapScreen().view(route);
             } else if (dataType == GeoFiles.TYPE_MULTI) {
@@ -321,7 +322,7 @@ public class GeoFileBrowser implements CommandListener {
             if (c == cmdExportFirst || c == cmdExportLast) {
                 Waypoint way;
                 if (route.isRouteOnlyInfo()) {
-                    route = (Route) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                    route = (Route) GeoFiles.parseGeoDataFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
                 }
 
                 if (c == cmdExportFirst) {
@@ -333,7 +334,7 @@ public class GeoFileBrowser implements CommandListener {
             } else if (c == cmdNavigateToFirst || c == cmdNavigateToLast) {
                 Waypoint way;
                 if (route.isRouteOnlyInfo()) {
-                    route = (Route) GeoFiles.parseKmlFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                    route = (Route) GeoFiles.parseGeoDataFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
                 }
                 if (c == cmdNavigateToFirst) {
                     way = route.getFirstWaypoint();

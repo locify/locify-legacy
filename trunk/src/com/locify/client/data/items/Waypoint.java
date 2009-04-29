@@ -35,8 +35,8 @@ public class Waypoint extends GeoData {
 
     public Waypoint(double latitude, double longitude, String name, String description, String id) {
         super();
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.setLatitude(latitude);
+        this.setLongitude(longitude);
         this.name = name;
         this.description = description;
         this.state = STATE_NONE;
@@ -46,8 +46,8 @@ public class Waypoint extends GeoData {
     public Waypoint(double latitude, double longitude, String name, String description, String id,
             GeoFileStyle styleNormal, GeoFileStyle styleHightLight) {
         super();
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.setLatitude(latitude);
+        this.setLongitude(longitude);
         this.name = name;
         this.description = description;
 
@@ -61,7 +61,7 @@ public class Waypoint extends GeoData {
     /** returns Location4D instance of this wp */
     public Location4D getLocation() {
         if (location == null) {
-            location = new Location4D(latitude, longitude, 0);
+            location = new Location4D(getLatitude(), getLongitude(), 0);
         }
         return location;
     }

@@ -349,7 +349,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      * @param fileName
      */
     public void view(String fileName) {
-        MultiGeoData mgd = GeoFiles.parseKmlFile(fileName, false);
+        MultiGeoData mgd = GeoFiles.parseGeoDataFile(fileName, false);
         view(mgd);
     }
 
@@ -1522,7 +1522,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 waypoint), MapItem.PRIORITY_MEDIUM);
         mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
         selectNearestWaypointsAtCenter();
-        view();
+        repaint();
     }
 
     public void resumeNetworkLink() {

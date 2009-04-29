@@ -29,7 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.Connector;
@@ -52,13 +51,18 @@ public abstract class GeoFiles {
     public static final int TYPE_NETWORKLINK = 4;
     public static final int TYPE_MULTI = 9;
     public static final int TYPE_CORRUPT = 10;
+
     private static final int STATE_NONE = 0;
+    // kml tags
     private static final int STATE_DOCUMENT = 1;
     private static final int STATE_FOLDER = 2;
     private static final int STATE_PLACEMARK = 3;
     private static final int STATE_STYLE = 4;
     private static final int STATE_STYLE_MAP = 4;
     private static final int STATE_SCREEN_OVERLAY = 5;
+    // gpx tags
+    private static final int STATE_RTE = 11;
+
     private static int sActual;
     private static int sBefore;
     private static final String GEO_FILES_RECORD_STORE = "GeoFilesDatabase";
@@ -158,7 +162,7 @@ public abstract class GeoFiles {
     public static void saveGeoFileData(String kml) {
         try {
             int type = getDataTypeString(kml);
-            String name = parseKmlString(kml, true).getName();
+            String name = parseGeoDataString(kml, true).getName();
 
             if (type != TYPE_CORRUPT && name != null && name.length() > 0) {
                 R.getFileSystem().saveString(FileSystem.FILES_FOLDER + fileName(name), kml);
@@ -175,7 +179,7 @@ public abstract class GeoFiles {
     /****************************************************/
     /*                 PARSE FUNCTIONS                  */
     /****************************************************/
-    public static MultiGeoData parseKmlFile(String fileName, boolean firstNameOnly) {
+    public static MultiGeoData parseGeoDataFile(String fileName, boolean firstNameOnly) {
         FileConnection fileConnection = null;
         InputStream is = null;
         XmlPullParser parser;
@@ -191,10 +195,14 @@ public abstract class GeoFiles {
             parser = new KXmlParser();
             parser.setInput(is, "utf-8");
 
-            return parseKml(parser, firstNameOnly);
+            if (fileName.endsWith("kml"))
+                return parseKml(parser, firstNameOnly);
+            else if (fileName.endsWith("gpx"))
+                return parseGpx(parser, firstNameOnly);
+            return new MultiGeoData();
         } catch (Exception e) {
             //R.getErrorScreen().view(e, "RouteData.isRoute", null);
-            Logger.debug("GeoFiles.parseKmlFile() - wrong file: " + fileName);
+            Logger.error("GeoFiles.parseKmlFile() - wrong file: " + fileName + " ex: " + e.toString());
             return null;
         } finally {
             try {
@@ -210,28 +218,27 @@ public abstract class GeoFiles {
         }
     }
 
-    public static MultiGeoData parseKmlString(String data, boolean firstNameOnly) {
+    public static MultiGeoData parseGeoDataString(String data, boolean firstNameOnly) {
         ByteArrayInputStream stream = null;
-        InputStreamReader reader = null;
         XmlPullParser parser;
 
         try {
             stream = new ByteArrayInputStream(UTF8.encode(data));
-            reader = new InputStreamReader(stream);
             parser = new KXmlParser();
-            parser.setInput(reader);
+            parser.setInput(new InputStreamReader(stream));
 
-            return parseKml(parser, firstNameOnly);
+            if (data.indexOf("<kml xmlns=") != -1)
+                return parseKml(parser, firstNameOnly);
+            else if (data.indexOf("<gpx xmlns=") != -1)
+                return parseGpx(parser, firstNameOnly);
+            return new MultiGeoData();
         } catch (Exception e) {
-            Logger.debug("Parsing: wrongFile or data: " + data + "\n" + e.getMessage());
+            Logger.error("Parsing: wrongFile or data: " + data + " ex: " + e.toString());
             return null;
         } finally {
             try {
                 if (stream != null) {
                     stream.close();
-                }
-                if (reader != null) {
-                    reader.close();
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -487,8 +494,8 @@ public abstract class GeoFiles {
                                         if (tagName.equalsIgnoreCase("Coordinates")) {
                                             String coordinates = parser.nextText();
                                             String[] parts = StringTokenizer.getArray(coordinates, ",");
-                                            waypoint.longitude = Double.parseDouble(parts[0]);
-                                            waypoint.latitude = Double.parseDouble(parts[1]);
+                                            waypoint.setLongitude(Double.parseDouble(parts[0]));
+                                            waypoint.setLatitude(Double.parseDouble(parts[1]));
                                         } else if (tagName.equalsIgnoreCase("value")) {
                                             //this is little stupid, because <value> has to be inside <data name="service"> and <extendedData>.
                                             //but we don't use it value anywhere else in KML, so for now it's enough
@@ -629,6 +636,86 @@ public abstract class GeoFiles {
         }
     }
 
+    private static MultiGeoData parseGpx(XmlPullParser parser, boolean firstNameOnly) {
+        MultiGeoData multiData = new MultiGeoData();
+        GeoData actualGeoData = null;
+
+        try {
+            Waypoint waypoint = null;
+
+            int event;
+            String tagName;
+
+            sBefore = STATE_NONE;
+            sActual = STATE_NONE;
+
+            while (true) {
+                event = parser.nextToken();
+                if (event == XmlPullParser.START_TAG) {
+                    tagName = parser.getName();
+//Logger.debug("  parseKML - tagName: " + tagName);
+                    if (tagName.equalsIgnoreCase("rte")) {
+                        try {
+                            if (sActual == STATE_NONE) {
+                                setState(STATE_RTE);
+                                actualGeoData = new WaypointsCloud();
+                            } else {
+                                Logger.warning("GeoFiles.parseGpx() - 'rte' name error!!!");
+                                return null;
+                            }
+                        } catch (Exception e) {
+                            Logger.warning("GeoFiles.parseGpx() - 'rte' error!!!");
+                        }
+                    } else if (tagName.equalsIgnoreCase("rtept")) {
+                        try {
+                            if (sActual == STATE_RTE) {
+                                double lat = GpsUtils.parseDouble(parser.getAttributeValue(null, "lat"));
+                                double lon = GpsUtils.parseDouble(parser.getAttributeValue(null, "lon"));
+
+                                waypoint = new Waypoint(lat, lon, "", "", "");
+                                while (true) {
+                                    event = parser.nextToken();
+                                    if (event == XmlPullParser.START_TAG) {
+                                        tagName = parser.getName();
+                                        if (tagName.equalsIgnoreCase("name")) {
+                                            waypoint.name = parser.nextText();
+                                        } else if (tagName.equalsIgnoreCase("cmt")) {
+                                            waypoint.description = parser.nextText();
+                                        }
+                                    } else if (event == XmlPullParser.END_TAG) {
+                                        tagName = parser.getName();
+                                        if (tagName.equalsIgnoreCase("rtept")) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                ((WaypointsCloud) actualGeoData).addWaypoint(waypoint);
+                            }
+                        } catch(Exception ex) {
+                            Logger.warning("GeoFiles.parseGpx() - 'rtept' tag error!!!");
+                        }
+                    }
+                } else if (event == XmlPullParser.END_TAG) {
+                    tagName = parser.getName();
+//Logger.debug("  parseKML - tagNameEnd:" + tagName);
+                    if (tagName.equalsIgnoreCase("gpx")) {
+                        break;
+                    } else if (tagName.equalsIgnoreCase("rte")) {
+                        multiData.addGeoData(actualGeoData);
+                    }
+                } else if (event == XmlPullParser.END_DOCUMENT) {
+                    break;
+                }
+            }
+
+            multiData.finalizeData();
+            return multiData;
+        } catch (Exception e) {
+            Logger.error("GeoFiles.parseKml() - FINAL error!!!\n" + e.getMessage());
+            return null;
+        }
+    }
+
     private static void setState(int state) {
 //Logger.debug("  parseKML - setState: " + state);
         sBefore = sActual;
@@ -663,7 +750,10 @@ public abstract class GeoFiles {
                 parser = new KXmlParser();
                 parser.setInput(is, "utf-8");
 
-                type = getDataType(parser);
+                if (fileName.endsWith("kml"))
+                    type = getDataTypeKml(parser);
+                else if (fileName.endsWith("gpx"))
+                    type = getDataTypeGpx(parser);
 //Logger.debug("  return parser type: " + type);
             }
             return type;
@@ -687,16 +777,18 @@ public abstract class GeoFiles {
 
     public static int getDataTypeString(String data) {
         ByteArrayInputStream stream = null;
-        InputStreamReader reader = null;
         XmlPullParser parser;
 
         try {
             stream = new ByteArrayInputStream(UTF8.encode(data));
-            reader = new InputStreamReader(stream);
             parser = new KXmlParser();
-            parser.setInput(reader);
+            parser.setInput(new InputStreamReader(stream));
 
-            return getDataType(parser);
+            if (data.indexOf("<kml xmlns=") != -1)
+                return getDataTypeKml(parser);
+            else if (data.indexOf("<gpx xmlns=") != -1)
+                return getDataTypeGpx(parser);
+            return 0;
         } catch (Exception e) {
             Logger.debug("Parsing: wrongFile or data: " + data + "\n" + e.getMessage());
             return TYPE_CORRUPT;
@@ -705,16 +797,13 @@ public abstract class GeoFiles {
                 if (stream != null) {
                     stream.close();
                 }
-                if (reader != null) {
-                    reader.close();
-                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
     }
 
-    private static int getDataType(XmlPullParser parser) {
+    private static int getDataTypeKml(XmlPullParser parser) {
         int actualType = TYPE_CORRUPT;
         boolean containPlacemark = false;
 
@@ -765,6 +854,51 @@ public abstract class GeoFiles {
                 } else {
                     return TYPE_CORRUPT;
                 }
+            } else {
+                return actualType;
+            }
+        } catch (Exception e) {
+            Logger.debug("GeoFiles.getDataType() err:" + e.toString());
+            return TYPE_CORRUPT;
+        }
+    }
+
+    private static int getDataTypeGpx(XmlPullParser parser) {
+        int actualType = TYPE_CORRUPT;
+
+        try {
+            int event;
+            String tagName;
+//for (int i = 0; i < XmlPullParser.TYPES.length; i++) {
+//    Logger.debug("Type: " + XmlPullParser.TYPES[i] + " (" + i + ")");
+//}
+            while (true) {
+                event = parser.nextToken();
+//Logger.debug("    parserTag: token: " + event);
+                if (event == XmlPullParser.START_TAG) {
+                    tagName = parser.getName();
+//Logger.debug("    parserTag: " + tagName);
+                    if (tagName.equalsIgnoreCase("rte")) {
+                        if (actualType == TYPE_CORRUPT || actualType == TYPE_ROUTE) {
+                            actualType = TYPE_WAYPOINTS_CLOUD;
+                        } else {
+                            return TYPE_MULTI;
+                        }
+                    }
+                } else if (event == XmlPullParser.END_TAG) {
+                    tagName = parser.getName();
+//Logger.debug("    parserTagEnd: " + tagName);
+                    if (tagName.equalsIgnoreCase("gpx")) {
+                        break;
+                    }
+                } else if (event == XmlPullParser.END_DOCUMENT) {
+                    break;
+                }
+            }
+
+            if (actualType == TYPE_CORRUPT) {
+//Logger.debug("  almost result - containPlacemark: " + containPlacemark);
+                return TYPE_CORRUPT;
             } else {
                 return actualType;
             }
@@ -891,10 +1025,11 @@ public abstract class GeoFiles {
         String syncData = "";
         try {
 
-            Enumeration files = R.getFileSystem().listFiles(FileSystem.FILES_FOLDER, "*.kml");
+            String[] pattern = {"*.kml"};
+            Vector files = R.getFileSystem().listFiles(FileSystem.FILES_FOLDER, pattern);
             if (files != null) {
-                while (files.hasMoreElements()) {
-                    String fileName = (String) files.nextElement();
+                for (int i = 0; i < files.size(); i++) {
+                    String fileName = (String) files.elementAt(i);
 
                     String type = "";
                     int fileType = getDataTypeFile(fileName);

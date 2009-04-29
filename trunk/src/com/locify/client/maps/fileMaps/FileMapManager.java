@@ -401,13 +401,15 @@ if (debug) {
             if (screenWidth == 0) {
                 screenWidth = Capabilities.getWidth();
                 screenHeight = Capabilities.getHeight();
-                numOfTotalTilesX = (int) (fileMapConfig.xmax / fileMapConfig.tileSizeX);
-                if (fileMapConfig.xmax % fileMapConfig.tileSizeX != 0)
-                    numOfTotalTilesX++;
-                numOfTotalTilesY = (int) (fileMapConfig.ymax / fileMapConfig.tileSizeY);
-                if (fileMapConfig.ymax % fileMapConfig.tileSizeY != 0)
-                    numOfTotalTilesY++;
             }
+
+            numOfTotalTilesX = (int) (fileMapConfig.xmax / fileMapConfig.tileSizeX);
+            if (fileMapConfig.xmax % fileMapConfig.tileSizeX != 0)
+                numOfTotalTilesX++;
+            numOfTotalTilesY = (int) (fileMapConfig.ymax / fileMapConfig.tileSizeY);
+            if (fileMapConfig.ymax % fileMapConfig.tileSizeY != 0)
+                numOfTotalTilesY++;
+            
             // top left map point (in map pixel coordinates)
             Point2D mapPointTL = new Point2D.Double(mapPoint.getX() - screenWidth / 2,
                     mapPoint.getY() - screenHeight / 2);

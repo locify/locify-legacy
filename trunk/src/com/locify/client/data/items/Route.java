@@ -78,11 +78,11 @@ public class Route extends GeoData {
     }
 
     public Location4D getFirstPoint() {
-        return new Location4D(latitude, longitude, 0.0f);
+        return new Location4D(getLatitude(), getLongitude(), 0.0f);
     }
 
     public Waypoint getFirstWaypoint() {
-        return new Waypoint(latitude, longitude, "waypoint 01", "", null);
+        return new Waypoint(getLatitude(), getLongitude(), "waypoint 01", "", null);
     }
 
     public Location4D getLastPoint() {
@@ -143,8 +143,8 @@ public class Route extends GeoData {
             }
             if (points.size() > 0) {
                 pointCount = Math.max(pointCount, points.size());
-                latitude = ((Location4D) points.elementAt(0)).getLatitude();
-                longitude = ((Location4D) points.elementAt(0)).getLongitude();
+                setLatitude(((Location4D) points.elementAt(0)).getLatitude());
+                setLongitude(((Location4D) points.elementAt(0)).getLongitude());
             }
         } catch (Exception ex) {
             Logger.error("Route.finalizeData() " + ex.toString());

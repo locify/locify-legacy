@@ -39,7 +39,6 @@ import javax.microedition.lcdui.StringItem;
  */
 public class MapOfflineChooseScreen implements CommandListener, ItemCommandListener {
 
-    private Command cmdSelect;
     private Command cmdSelectAndCenter;
     private Command cmdOnlineMaps;
     private Command cmdInitialize;
