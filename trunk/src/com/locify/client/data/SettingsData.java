@@ -218,6 +218,8 @@ public class SettingsData {
                     settings.put("lastLocation", "0,0");
                     break;
             }
+            //only for CATCH&RUN testing:
+           // settings.put("lastLocation", "50.102226,14.392229");
             settings.put("locationSource", "4");
             settings.put("locationInfo", Locale.get("Unknown_location"));
             settings.put("externalClose", String.valueOf(ASK));

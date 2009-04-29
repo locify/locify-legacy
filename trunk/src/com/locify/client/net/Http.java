@@ -47,6 +47,7 @@ public class Http implements Runnable {
     private Vector requestQueue;
     private HttpRequest request;
     private HttpResponse response;
+    private long lastRequestTime = 0;
 
     public Http() {
         //#if release
@@ -71,8 +72,14 @@ public class Http implements Runnable {
      */
     private void start(HttpRequest newRequest) {
         newRequest.setUrl(makeAbsoluteURL(newRequest.getUrl()));
+        //cancel multiple same request - user is mad and clicking over and over
+        if (lastRequestTime != 0 && (System.currentTimeMillis()-lastRequestTime)<2000 && request.toString().equals(newRequest.toString()))
+        {
+            return;
+        }
         requestQueue.addElement(newRequest);
         R.getPostData().reset();
+        lastRequestTime = System.currentTimeMillis();
         if (requestQueue.size() == 1) {
             thread = new Thread(this);
             thread.start();
@@ -396,6 +403,10 @@ class HttpRequest {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String toString() {
+        return url+postData+postDataUrlEncoded+cookies+httpBasicResponse+display;
     }
 }
 

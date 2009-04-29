@@ -16,7 +16,7 @@ package com.locify.client.maps.mapItem;
 import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.maps.geometry.Point2D;
-import com.locify.client.utils.Logger;
+import com.locify.client.utils.R;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
@@ -53,7 +53,11 @@ public class PointMapItem extends MapItem {
     }
 
     public void initialize() {
-        items = initializePoints(waypoints);
+        try {
+            items = initializePoints(waypoints);
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "PointMapItem.initialize()", null);
+        }
     }
 
     public void panItem(int moveX, int moveY) {
@@ -119,8 +123,9 @@ public class PointMapItem extends MapItem {
                 tempWpt = (Waypoint) waypoints.elementAt(i);
 
                 GeoFileStyle styleNormal = tempWpt.getStyleNormal();
-                if (styleNormal == null || styleNormal.getIcon() == null)
+                if (styleNormal == null || styleNormal.getIcon() == null) {
                     styleNormal = stylePointIconNormal;
+                }
 //Logger.debug("  get at: " + x + " " + y);
 //Logger.debug("  icon: " + styleNormal.getIcon().getWidth() + " " + styleNormal.getIcon().getHeight());
 //Logger.debug("  get at: " + (item.y - styleNormal.getIcon().getHeight() + styleNormal.getYMove()) +
@@ -136,7 +141,7 @@ public class PointMapItem extends MapItem {
             }
         }
     }
-    
+
     public Waypoint getWaypointById(String id) {
         for (int i = 0; i < waypoints.size(); i++) {
             Waypoint wpt = (Waypoint) waypoints.elementAt(i);

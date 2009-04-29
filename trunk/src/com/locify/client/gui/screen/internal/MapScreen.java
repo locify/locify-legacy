@@ -39,7 +39,7 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
-//import com.locify.client.maps.planStudio.PlanStudioManager;
+import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.maps.mapItem.ScreenOverlayMapItem;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.ColorsFonts;
@@ -157,8 +157,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private MapItem newMapItemAdded;
 
 //     planStudio temp
-//    private Command cmdPlanStudio;
-//    private PlanStudioManager psm;
+    private Command cmdPlanStudio;
+    private PlanStudioManager psm;
 
     public MapScreen() {
         super(Locale.get("Maps"), true);
@@ -246,11 +246,11 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      */
     public void view() {
         try {
-//            if (psm == null) {
-//                psm = new PlanStudioManager();
-//                cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
-//                this.addCommand(cmdPlanStudio);
-//            }
+            if (psm == null) {
+                psm = new PlanStudioManager();
+                cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
+                this.addCommand(cmdPlanStudio);
+            }
             
             if (map instanceof FileMapLayer && !mapFile.isReady()) {
                 R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
@@ -670,8 +670,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                             locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
                 }
 
-//            } else if (cmd.equals(cmdPlanStudio)) {
-//                psm.showSelectionMenu();
+            } else if (cmd.equals(cmdPlanStudio)) {
+                psm.showSelectionMenu();
 
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);

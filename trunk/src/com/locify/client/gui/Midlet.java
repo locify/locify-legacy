@@ -24,6 +24,7 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
+import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.utils.Capabilities;
 
 /**
@@ -152,4 +153,5 @@ public class Midlet extends MIDlet {
             }
         }
     }
+
 }
