@@ -304,6 +304,10 @@ Process_stopped=Proces zastaven
 Completed=Dokončeno...
 No_files=Soubory s mapou nenalezeny
 Maps_in_area=Mapy na tomto místě:
+Item_manager=Správce objektů
+Permanent_map_items=Permanentní mapový objekt
+Temporary_map_items=Dočasný mapový objekt
+Map_function=Mapové funkce
 
 #J2ME Polish texts
 polish.command.mark=Označit

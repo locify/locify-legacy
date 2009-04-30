@@ -39,7 +39,7 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
-import com.locify.client.maps.planStudio.PlanStudioManager;
+//import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.maps.mapItem.ScreenOverlayMapItem;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.ColorsFonts;
@@ -78,7 +78,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private static final int MA_MY_LOCATION = 8;
     private static final int MA_SELECT = 9;
     // command
-    private Command cmdZoomIn,  cmdZoomOut,  cmdChangeMapTile,  cmdChangeMapFile,  cmdMyLocation;
+    private Command cmdMapFunction, cmdZoomIn,  cmdZoomOut, cmdMyLocation;
+    private Command cmdChangeMapTile,  cmdChangeMapFile;
+    private Command cmdItemManager;
+    
     private Command[] providerCommandsTile;
     private boolean drawLock;
     private static int TOP_MARGIN = R.getTopBar().height;
@@ -138,11 +141,11 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /** support for touch screen */
     private int lastSelectedX,  lastSelectedY;
     /* selected item marked as desk with informations */
-    private String tempWaypointDescriptionItemName = "selectedItem";
+    public static String tempWaypointDescriptionItemName = "selectedItem";
     /** navigation item is highlited line */
-    private String tempMapNavigationItem = "navigationItem";
+    public static String tempMapNavigationItem = "navigationItem";
     /** route showing for actually recording route */
-    private String tempRunningRouteName = "runningRoute";
+    public static String tempRunningRouteName = "runningRoute";
     /** time of stylus press */
     private long stylusTought;
     /** should all the files show on map directly? */
@@ -157,8 +160,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private MapItem newMapItemAdded;
 
 //     planStudio temp
-    private Command cmdPlanStudio;
-    private PlanStudioManager psm;
+//    private Command cmdPlanStudio;
+//    private PlanStudioManager psm;
 
     public MapScreen() {
         super(Locale.get("Maps"), true);
@@ -172,19 +175,24 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         lastSelectedX = 0;
         lastSelectedY = 0;
 
-        cmdZoomIn = new Command(Locale.get("Zoom_in"), Command.SCREEN, 1);
-        cmdZoomOut = new Command(Locale.get("Zoom_out"), Command.SCREEN, 2);
-        cmdMyLocation = new Command(Locale.get("My_location"), Command.SCREEN, 3);
+        cmdMapFunction = new Command(Locale.get("Map_function"), Command.SCREEN, 1);
+        cmdZoomIn = new Command(Locale.get("Zoom_in"), Command.SCREEN, 2);
+        cmdZoomOut = new Command(Locale.get("Zoom_out"), Command.SCREEN, 3);
+        cmdMyLocation = new Command(Locale.get("My_location"), Command.SCREEN, 4);
         cmdChangeMapTile = new Command(Locale.get("Change_map_tile"), Command.SCREEN, 5);
         cmdChangeMapFile = new Command(Locale.get("Change_map_file"), Command.SCREEN, 6);
-
+        cmdItemManager = new Command(Locale.get("Item_manager"), Command.SCREEN, 7);
 
         this.addCommand(Commands.cmdBack);
         //#style imgHome
         this.addCommand(Commands.cmdHome);
-        this.addCommand(cmdZoomIn);
-        this.addCommand(cmdZoomOut);
-        this.addCommand(cmdMyLocation);
+
+        this.addCommand(cmdMapFunction);
+        UiAccess.addSubCommand(cmdZoomIn, cmdMapFunction, this);
+        UiAccess.addSubCommand(cmdZoomOut, cmdMapFunction, this);
+        UiAccess.addSubCommand(cmdMyLocation, cmdMapFunction, this);
+        
+        this.addCommand(cmdItemManager);
 
         // set map tiles and providers
         mapTile = new TileMapLayer(this);
@@ -246,12 +254,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      */
     public void view() {
         try {
-            if (psm == null) {
-                psm = new PlanStudioManager();
-                cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
-                this.addCommand(cmdPlanStudio);
-            }
-            
+//            if (psm == null) {
+//                psm = new PlanStudioManager();
+//                cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
+//                this.addCommand(cmdPlanStudio);
+//            }
+
             if (map instanceof FileMapLayer && !mapFile.isReady()) {
                 R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
                         R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude());
@@ -670,8 +678,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                             locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
                 }
 
-            } else if (cmd.equals(cmdPlanStudio)) {
-                psm.showSelectionMenu();
+//            } else if (cmd.equals(cmdPlanStudio)) {
+//                psm.showSelectionMenu();
 
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);
@@ -679,8 +687,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 makeMapAction(MA_ZOOM_OUT, null);
             } else if (cmd.equals(cmdMyLocation)) {
                 makeMapAction(MA_MY_LOCATION, null);
-//            } else if (cmd.equals(cmdSelectItem)) {
-//                makeMapAction("select", null);
+            } else if (cmd.equals(cmdItemManager)) {
+                mapItemManager.viewMapSettings();
             } else {
                 for (int i = 0; i < providerCommandsTile.length; i++) {
                     if (providerCommandsTile[i].equals(cmd)) {

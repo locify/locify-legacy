@@ -16,10 +16,19 @@ package com.locify.client.maps.mapItem;
 import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.utils.R;
 import com.locify.client.data.items.Waypoint;
+import com.locify.client.utils.Commands;
+import de.enough.polish.ui.Choice;
+import de.enough.polish.ui.ChoiceGroup;
+import de.enough.polish.ui.Form;
+import de.enough.polish.ui.Spacer;
+import de.enough.polish.ui.StringItem;
 import de.enough.polish.util.Locale;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.CommandListener;
+import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 
 /**
@@ -82,7 +91,7 @@ public class MapItemManager {
         if (MapScreen.isNowDirectly() && item instanceof PointMapItem) {
             //update map navigation
             if (R.getMapScreen().isMapNavigationRunning()) {
-                MapNavigationItem navItem = (MapNavigationItem) getItemTemp("navigationItem");
+                MapNavigationItem navItem = (MapNavigationItem) getItemTemp(MapScreen.tempMapNavigationItem);
                 String navId = navItem.getTargetWaypoint().id;
                 if (navId != null) {
                     navItem.setTargetWaypoint(((PointMapItem) item).getWaypointById(navId));
@@ -96,8 +105,8 @@ public class MapItemManager {
                 }
             }
             //update selected item
-            if (getItemTemp("selectedItem") != null) {
-                DescriptionMapItem navItem = (DescriptionMapItem) getItemTemp("selectedItem");
+            if (getItemTemp(MapScreen.tempWaypointDescriptionItemName) != null) {
+                DescriptionMapItem navItem = (DescriptionMapItem) getItemTemp(MapScreen.tempWaypointDescriptionItemName);
                 String navId = navItem.getWaypoint().id;
                 if (navId != null) {
                     navItem.updateWaypoint(((PointMapItem) item).getWaypointById(navId));
@@ -302,5 +311,63 @@ public class MapItemManager {
             }
         }
         return null;
+    }
+
+    private Form frmItemManager;
+    private ChoiceGroup cgMapItems;
+    private ChoiceGroup cgMapItemsFixed;
+
+    public void viewMapSettings() {
+        frmItemManager = new Form(Locale.get("Maps"));
+
+        cgMapItemsFixed = new ChoiceGroup("", Choice.MULTIPLE);
+        cgMapItems = new ChoiceGroup("", Choice.MULTIPLE);
+        for (int i = 0; i < getItemCount(); i++) {
+            MapItem mi = getItem(i);
+            String miName = getItemName(i);
+            if (mi.fixed) {
+                cgMapItemsFixed.append(miName, null);
+                cgMapItemsFixed.setSelectedIndex(cgMapItemsFixed.size() - 1, mi.enabled);
+            } else {
+                cgMapItems.append(miName, null);
+                cgMapItems.setSelectedIndex(cgMapItems.size() - 1, mi.enabled);
+            }
+        }
+
+        if (cgMapItemsFixed.size() > 0) {
+            frmItemManager.append(new StringItem(Locale.get("Permanent_map_items"), null));
+            frmItemManager.append(cgMapItemsFixed);
+            frmItemManager.append(new Spacer(100, 5));
+        }
+        if (cgMapItems.size() > 0) {
+            frmItemManager.append(new StringItem(Locale.get("Temporary_map_items"), null));
+            frmItemManager.append(cgMapItems);
+        }
+
+        frmItemManager.addCommand(Commands.cmdOK);
+        frmItemManager.addCommand(Commands.cmdBack);
+        //#style imgHome
+        frmItemManager.addCommand(Commands.cmdHome);
+        frmItemManager.setCommandListener(new CommandListener() {
+
+            public void commandAction(Command c, Displayable d) {
+                if (c.equals(Commands.cmdBack)) {
+                    R.getMapScreen().view();
+                } else if (c.equals(Commands.cmdHome)) {
+                    R.getMapScreen().commandAction(Commands.cmdHome, null);
+                } else if (c.equals(Commands.cmdOK)) {
+                    for (int i = 0; i < cgMapItemsFixed.size(); i++) {
+                        setEnabled(cgMapItemsFixed.getString(i), cgMapItemsFixed.isSelected(i));
+                    }
+                    for (int i = 0; i < cgMapItems.size(); i++) {
+                        setEnabled(cgMapItems.getString(i), cgMapItems.isSelected(i));
+                    }
+
+                    R.getMapScreen().view();
+                }
+            }
+        });
+
+        R.getMidlet().switchDisplayable(null, frmItemManager);
     }
 }

@@ -22,6 +22,7 @@ import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.RectangleViewPort;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.utils.Capabilities;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import java.io.IOException;
 import java.util.Vector;
@@ -267,9 +268,9 @@ public abstract class MapItem {
                         tempLoc4D = (Location4D) points.elementAt(i);
                     }
 
-                    Thread.sleep(5);
+//                    Thread.sleep(5);
                     items[i] = mapScreen.getActualMapLayer().getLocationCoord(tempLoc4D);
-                    Thread.sleep(5);
+//                    Thread.sleep(5);
 
                     top = Math.min(top, items[i].y);
                     bottom = Math.max(bottom, items[i].y);

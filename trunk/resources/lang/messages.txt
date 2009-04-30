@@ -303,6 +303,10 @@ Process_stopped=Process stopped
 Completed=Completed...
 No_files=No map files in map directory
 Maps_in_area=Maps in this area:
+Item_manager=Item manager
+Permanent_map_items=Permanent map items
+Temporary_map_items=Temporary map items
+Map_function=Map function
 
 #J2ME Polish texts
 polish.command.mark=Mark
