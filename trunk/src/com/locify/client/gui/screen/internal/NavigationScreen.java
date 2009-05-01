@@ -33,11 +33,11 @@ import com.locify.client.utils.GpsUtils;
 import com.locify.client.locator.Navigator;
 import com.locify.client.locator.impl.WaypointNavigatorModel;
 import com.locify.client.locator.impl.WaypointRouteNavigatorModel;
+import com.locify.client.net.Backlight;
 import com.locify.client.route.ScreenItem;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
-import com.locify.client.utils.Logger;
 import de.enough.polish.util.Locale;
 import com.locify.client.utils.R;
 import com.locify.client.utils.math.LMath;
@@ -81,7 +81,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     // compas radius
     private int radius;
     private boolean smallRadius;
-    private boolean networkLinkLock = false;
+    private Backlight backLight;
     private static int BOTTOM_MARGIN;
     private static int TOP_MARGIN;
 
@@ -229,7 +229,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     public void view(String id, boolean idc) {
         if (R.getMapItemManager().getWaypointById(id) != null) {
             navigator = new WaypointNavigatorModel(R.getMapItemManager().getWaypointById(id));
-            setNetworkLinkLock(true);
+            R.getMapScreen().setDifferentScreenLock(true);
             R.getMapScreen().resumeNetworkLink();
             R.getBack().deleteLast();
             view();
@@ -265,13 +265,11 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
 
     public void commandAction(Command cmd, Displayable screen) {
         if (cmd.equals(Commands.cmdBack)) {
-            networkLinkLock = false;
             if (R.getContext().isTemporary()) {
                 R.getContext().removeTemporaryLocation();
             }
             R.getBack().goBack();
         } else if (cmd.equals(Commands.cmdHome)) {
-            networkLinkLock = false;
             if (R.getContext().isTemporary()) {
                 R.getContext().removeTemporaryLocation();
             }
@@ -591,18 +589,35 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         return !(navigator == null);
     }
 
-    public void setNetworkLinkLock(boolean networkLinkLock) {
-        this.networkLinkLock = networkLinkLock;
-    }
-
-    public boolean hasNetworkLinkLock() {
-        return networkLinkLock;
-    }
-
     public String getWaypointId() {
         if (navigator != null & navigator instanceof WaypointNavigatorModel) {
             return ((WaypointNavigatorModel) navigator).getId();
         }
         return null;
+    }
+
+    public void keyPressed(int keyCode)
+    {
+        super.keyPressed(keyCode);
+        if (keyCode == KEY_NUM1)
+        {
+            if (backLight==null)
+            {
+                backLight = new Backlight();
+                backLight.start();
+            }
+            else
+            {
+                backLight.resume();
+            }
+        }
+
+        if (keyCode == KEY_NUM3)
+        {
+            if (backLight != null)
+            {
+                backLight.stop();
+            }
+        }
     }
 }

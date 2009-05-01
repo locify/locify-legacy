@@ -75,6 +75,7 @@ public class Http implements Runnable {
         //cancel multiple same request - user is mad and clicking over and over
         if (lastRequestTime != 0 && (System.currentTimeMillis()-lastRequestTime)<2000 && request.toString().equals(newRequest.toString()))
         {
+            Logger.log("Cancelling request - too soon before another");
             return;
         }
         requestQueue.addElement(newRequest);
@@ -91,8 +92,9 @@ public class Http implements Runnable {
      * @param basic http basic string
      */
     public void repeat(String basic) {
-        request.setHttpBasicResponse(basic);
-        start(request);
+        HttpRequest newRequest = request.clone();
+        newRequest.setHttpBasicResponse(basic);
+        start(newRequest);
     }
 
     /**
@@ -407,6 +409,10 @@ class HttpRequest {
 
     public String toString() {
         return url+postData+postDataUrlEncoded+cookies+httpBasicResponse+display;
+    }
+
+    public HttpRequest clone() {
+        return new HttpRequest(url, postData, postDataUrlEncoded, cookies, display);
     }
 }
 

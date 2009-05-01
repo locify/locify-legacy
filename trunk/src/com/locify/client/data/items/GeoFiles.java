@@ -580,8 +580,7 @@ public abstract class GeoFiles {
                     if (tagName.equalsIgnoreCase("Folder")) {
                         try {
                             setState(STATE_DOCUMENT);
-                            if (actualGeoData != null && actualGeoData instanceof WaypointsCloud &&
-                                    ((WaypointsCloud) actualGeoData).getWaypointsCount() > 0) {
+                            if (actualGeoData != null && actualGeoData instanceof WaypointsCloud) {
                                 multiData.addGeoData(actualGeoData);
                                 actualGeoData = null;
                             }

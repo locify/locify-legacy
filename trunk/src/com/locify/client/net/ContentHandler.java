@@ -50,11 +50,10 @@ public class ContentHandler {
                     return;
                 }
                 Logger.log("Data:");
-                Logger.log(data);
+                //Logger.log(data);
 
                 //kml
                 if (data.indexOf("<kml xmlns=") != -1 && data.indexOf("<kml xmlns=") < 100) {
-                    //System.out.println("kml content");
                     R.getGeoDataBrowser().setGeoData(data);
                     R.getBack().dontSave();
                     R.getURL().call("locify://geoFileBrowser");
@@ -70,7 +69,12 @@ public class ContentHandler {
                     if (!response.isDisabledCaching() && shouldCache) {
                         CacheData.add(response.getUrl(), data);
                     }
-                    R.getMapScreen().stopNetworkLink();
+                    //network link
+                    if (R.getMapScreen().isNowDirectly())
+                    {
+                        R.getBack().goForward("locify://htmlScreen", null);
+                        R.getMapScreen().setDifferentScreenLock(true);
+                    }
                 } //some other html or form
                 else if (data.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><mapList><map")) {
                     FileMapManager.obtainedData = data;
@@ -81,7 +85,12 @@ public class ContentHandler {
                     if (!response.isDisabledCaching()) {
                         CacheData.add(response.getUrl(), data);
                     }
-                    R.getMapScreen().stopNetworkLink();
+                    //network link
+                    if (R.getMapScreen().isNowDirectly())
+                    {
+                        R.getBack().goForward("locify://htmlScreen", null);
+                        R.getMapScreen().setDifferentScreenLock(true);
+                    }
                 }
             }
         } catch (Exception e) {

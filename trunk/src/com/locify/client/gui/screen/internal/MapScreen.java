@@ -154,6 +154,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private boolean firstCenterAfterND;
     /** show all items during panning */
     private boolean showAllDuringPanning;
+    /** different screen that map has lock, so map will not be shown */
+    private boolean differentScreenLock;
     /** map table for caches images */
     private static TileCache cache;
     /** if item was added before map was inicialized, call it after that */
@@ -234,6 +236,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
         nowDirectly = false;
         firstCenterAfterND = false;
+        differentScreenLock = false;
         if (R.getSettings().getPanning() == SettingsData.REPAINT_DURING) {
             showAllDuringPanning = true;
         } else {
@@ -254,6 +257,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      */
     public void view() {
         try {
+            differentScreenLock = false;
 //            if (psm == null) {
 //                psm = new PlanStudioManager();
 //                cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
@@ -300,7 +304,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void view(GeoData data) {
-//Logger.debug("ADD DATA");
         if (data.getName().equals("")) {
             return;
         }
@@ -318,17 +321,15 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
         } else if (data instanceof WaypointsCloud) {
             WaypointsCloud cloud = (WaypointsCloud) data;
-            if (cloud.getWaypointsCount() != 0) {
-                PointMapItem mapItem = new PointMapItem(cloud.getWaypointsCloudPoints());
-                //mapItemManager.removeAll();
-                mapItemManager.addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
-                if (!nowDirectly || !firstCenterAfterND) {
-                    if (map instanceof FileMapLayer && !mapFile.isReady()) {
-                        newMapItemAdded = mapItem;
-                    } else {
-                        centerMap(mapItem.getItemCenter(), false);
-                        objectZoomTo(mapItem);
-                    }
+            PointMapItem mapItem = new PointMapItem(cloud.getWaypointsCloudPoints());
+            //mapItemManager.removeAll();
+            mapItemManager.addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
+            if (cloud.getWaypointsCount() != 0 && (!nowDirectly || !firstCenterAfterND)) {
+                if (map instanceof FileMapLayer && !mapFile.isReady()) {
+                    newMapItemAdded = mapItem;
+                } else {
+                    centerMap(mapItem.getItemCenter(), false);
+                    objectZoomTo(mapItem);
                 }
             }
         } else if (data instanceof Route) {
@@ -347,7 +348,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 }
             }
         }
-        if (!R.getNavigationScreen().hasNetworkLinkLock()) {
+        if (!differentScreenLock) {
             view();
         }
     }
@@ -375,16 +376,16 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void view(NetworkLink link) {
-//Logger.debug("START ND");
         if (networkLinkDownloader != null) {
             networkLinkDownloader.stop();
         }
         networkLinkDownloader = new NetworkLinkDownloader(link);
         networkLinkDownloader.start();
+
+        differentScreenLock = false;
         view();
         nowDirectly = true;
         firstCenterAfterND = false;
-//Logger.debug("SET ND");
     }
 
     /**
@@ -558,7 +559,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                         g.drawImage(getMapIconMinus(), 20, Capabilities.getHeight() - BOTTOM_MARGIN - 10,
                                 Graphics.VCENTER | Graphics.HCENTER);
                     }
-                    
+
                     g.setColor(ColorsFonts.BLACK);
                     g.drawLine(moveX + 5, TOP_MARGIN + 10, moveX + 5, Capabilities.getHeight() - BOTTOM_MARGIN - 10);
                     g.fillRect(moveX, TOP_MARGIN + 10, 10, 3);
@@ -705,6 +706,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 for (int i = 0; i < R.getContext().commands.length; i++) {
                     if (cmd == R.getContext().commands[i]) {
                         lastCenterPoint = null;
+                        if (networkLinkDownloader != null) {
+                            networkLinkDownloader.stop();
+                        }
                         R.getContext().setTemporaryScreen("locify://maps");
                         R.getURL().call(R.getContext().actions[i]);
                         return;
@@ -1259,7 +1263,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     int size = Capabilities.getHeight() * imageIconZoomPlus.getHeight() / 1000;
                     imageIconZoomSideSize = size < 35 ? 35 : size;
                 }
-                
+
                 imageIconZoomPlus = IconData.reScaleImage(imageIconZoomPlus,
                         imageIconZoomSideSize, imageIconZoomSideSize);
             } catch (IOException ex) {
@@ -1505,7 +1509,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             switch (item.getSelectedType()) {
                 case DescriptionMapItem.BUTTON_NAVIGATE:
                     mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
-                    R.getNavigationScreen().setNetworkLinkLock(true);
+                    differentScreenLock = true;
                     R.getNavigationScreen().updateWaypoint(item.getSelectedWaypoint());
                     R.getURL().call("locify://navigation");
                     break;
@@ -1523,6 +1527,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void startMapNavigation(Waypoint waypoint) {
+        System.out.println("start map navigation");
+        differentScreenLock = false;
         mapItemManager.addItemTemp(tempMapNavigationItem,
                 new MapNavigationItem(
                 new Waypoint(R.getLocator().getLastLocation().getLatitude(),
@@ -1530,12 +1536,20 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 waypoint), MapItem.PRIORITY_MEDIUM);
         mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
         selectNearestWaypointsAtCenter();
-        repaint();
+        view();
     }
 
     public void resumeNetworkLink() {
         if (networkLinkDownloader != null && networkLinkDownloader.isStopped()) {
             networkLinkDownloader.resume();
         }
+    }
+
+    public void setDifferentScreenLock(boolean differentScreenLock) {
+        this.differentScreenLock = differentScreenLock;
+    }
+
+    public boolean getDifferentScreenLock() {
+        return this.differentScreenLock;
     }
 }

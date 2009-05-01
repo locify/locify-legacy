@@ -15,6 +15,7 @@ package com.locify.client.maps.mapItem;
 
 import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.utils.R;
+import com.locify.client.utils.Logger;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.utils.Commands;
 import de.enough.polish.ui.Choice;
@@ -98,7 +99,7 @@ public class MapItemManager {
                 }
             }
             //update compass navigation
-            if (R.getNavigationScreen().hasNetworkLinkLock()) {
+            if (R.getMapScreen().getDifferentScreenLock()) {
                 String navId = R.getNavigationScreen().getWaypointId();
                 if (navId != null) {
                     R.getNavigationScreen().updateWaypoint(((PointMapItem) item).getWaypointById(navId));
