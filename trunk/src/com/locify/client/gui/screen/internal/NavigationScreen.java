@@ -18,6 +18,7 @@ import com.locify.client.data.items.MultiGeoData;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.WaypointsCloud;
+import com.locify.client.data.SettingsData;
 import com.locify.client.locator.LocationContext;
 import java.io.IOException;
 import javax.microedition.lcdui.Command;
@@ -33,7 +34,7 @@ import com.locify.client.utils.GpsUtils;
 import com.locify.client.locator.Navigator;
 import com.locify.client.locator.impl.WaypointNavigatorModel;
 import com.locify.client.locator.impl.WaypointRouteNavigatorModel;
-import com.locify.client.net.Backlight;
+import com.locify.client.utils.Backlight;
 import com.locify.client.route.ScreenItem;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Capabilities;
@@ -46,7 +47,6 @@ import de.enough.polish.ui.UiAccess;
 import de.enough.polish.util.ArrayList;
 import javax.microedition.lcdui.Image;
 
-
 /** 
  * Screen shows compas, GPS infomation, speed. In case of navigation displays navigation arrow
  * @author Jiri Stepan
@@ -55,7 +55,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
 
     private static final int VIEW_MODE_MORE = 0;
     private static final int VIEW_MODE_LESS = 1;
-    private int view_mode;
+    private int viewMode;
     private Command cmdMore;
     private Command cmdLess;
     private static Navigator navigator;
@@ -89,8 +89,8 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         ////#style .navigationScreen
         super(Locale.get("Navigation"));
         try {
-            cmdMore = new Command(Locale.get("Dock_more"), Command.ITEM, 2);
-            cmdLess = new Command(Locale.get("Navi-less"), Command.ITEM, 3);
+            cmdMore = new Command(Locale.get("Navi_more"), Command.ITEM, 2);
+            cmdLess = new Command(Locale.get("Navi_less"), Command.ITEM, 3);
 
             smallRadius = false;
 
@@ -98,6 +98,13 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             addCommand(Commands.cmdBack);
             //#style imgMore
             addCommand(cmdMore);
+
+            if (R.getBacklight().isOn()) {
+                addCommand(Commands.cmdBacklightOff);
+            } else {
+                addCommand(Commands.cmdBacklightOn);
+            }
+
             //#style imgHome
             addCommand(Commands.cmdHome);
             //another location commands
@@ -147,6 +154,11 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             }
             R.getMidlet().switchDisplayable(null, this);
             locationChanged(null, location);
+            if (R.getSettings().getBacklight() == SettingsData.NAVIGATION || R.getSettings().getBacklight() == SettingsData.MAP_NAVIGATION) {
+                R.getBacklight().on();
+                removeCommand(Commands.cmdBacklightOn);
+                addCommand(Commands.cmdBacklightOff);
+            }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "NavigationScreen.view", null);
         }
@@ -269,11 +281,18 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
                 R.getContext().removeTemporaryLocation();
             }
             R.getBack().goBack();
+            if (R.getSettings().getBacklight() != SettingsData.WHOLE_APPLICATION) {
+                R.getBacklight().off();
+            }
         } else if (cmd.equals(Commands.cmdHome)) {
             if (R.getContext().isTemporary()) {
                 R.getContext().removeTemporaryLocation();
             }
             R.getURL().call("locify://mainScreen");
+
+            if (R.getSettings().getBacklight() != SettingsData.WHOLE_APPLICATION) {
+                R.getBacklight().off();
+            }
         } else if (cmd.equals(cmdMore)) {
             setMode(VIEW_MODE_MORE);
             removeCommand(cmdMore);
@@ -282,6 +301,14 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             setMode(VIEW_MODE_LESS);
             removeCommand(cmdLess);
             addCommand(cmdMore);
+        } else if (cmd.equals(Commands.cmdBacklightOn)) {
+            R.getBacklight().on();
+            removeCommand(Commands.cmdBacklightOn);
+            addCommand(Commands.cmdBacklightOff);
+        } else if (cmd.equals(Commands.cmdBacklightOff)) {
+            R.getBacklight().off();
+            removeCommand(Commands.cmdBacklightOff);
+            addCommand(Commands.cmdBacklightOn);
         } else {
             for (int i = 0; i < R.getContext().commands.length; i++) {
                 if (cmd == R.getContext().commands[i]) {
@@ -394,14 +421,14 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     }
 
     private void setMode(int mode) {
-        view_mode = mode;
+        viewMode = mode;
         cX = Capabilities.getWidth() / 2;
 
         for (int i = 0; i < items.size(); i++) {
             ((ScreenItem) items.get(i)).setVisible(false);
         }
 
-        if (view_mode == VIEW_MODE_LESS) {
+        if (viewMode == VIEW_MODE_LESS) {
             cY = (Capabilities.getHeight() - 60 - TOP_MARGIN - BOTTOM_MARGIN) / 2;
             radius = Math.min(cX, cY) - 5;
             cY = cY + TOP_MARGIN + 10;
@@ -415,7 +442,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             tempItem.setSizePos(10, Capabilities.getHeight() - 45 - BOTTOM_MARGIN,
                     Capabilities.getWidth() - 20, 35);
             tempItem.setVisible(true);
-        } else if (view_mode == VIEW_MODE_MORE) {
+        } else if (viewMode == VIEW_MODE_MORE) {
             cY = (Capabilities.getHeight() - 100 - TOP_MARGIN - BOTTOM_MARGIN) / 2;
             radius = Math.min(cX, cY) - 5;
             cY = cY + TOP_MARGIN + 10;
@@ -596,28 +623,23 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         return null;
     }
 
-    public void keyPressed(int keyCode)
-    {
+    public void keyPressed(int keyCode) {
         super.keyPressed(keyCode);
-        if (keyCode == KEY_NUM1)
-        {
-            if (backLight==null)
-            {
-                backLight = new Backlight();
-                backLight.start();
-            }
-            else
-            {
-                backLight.resume();
-            }
-        }
-
-        if (keyCode == KEY_NUM3)
-        {
-            if (backLight != null)
-            {
-                backLight.stop();
-            }
+        switch (keyCode) {
+            case KEY_NUM7:
+                if (R.getBacklight().isOn()) {
+                    R.getBacklight().off();
+                } else {
+                    R.getBacklight().on();
+                }
+                break;
+            case KEY_NUM5:
+                if (viewMode == VIEW_MODE_MORE) {
+                    commandAction(cmdLess, this);
+                } else {
+                    commandAction(cmdMore, this);
+                }
+                break;
         }
     }
 }

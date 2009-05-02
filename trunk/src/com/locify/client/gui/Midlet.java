@@ -16,6 +16,7 @@ package com.locify.client.gui;
 import com.locify.client.data.CookieData;
 import com.locify.client.data.DeletedData;
 import com.locify.client.data.ServiceSettingsData;
+import com.locify.client.data.SettingsData;
 import com.locify.client.data.ServicesData;
 import com.locify.client.data.items.GeoFiles;
 import javax.microedition.lcdui.Alert;
@@ -24,7 +25,6 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
-import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.utils.Capabilities;
 
 /**
@@ -95,6 +95,10 @@ public class Midlet extends MIDlet {
                     R.destroyLoading();
                     R.getContext().loadLastKnown();
                 //#if !applet
+                    if (R.getSettings().getBacklight() == SettingsData.WHOLE_APPLICATION)
+                    {
+                        R.getBacklight().on();
+                    }
                 } else {
                     R.getFirstRun().viewPermissionsWarning();
                 }

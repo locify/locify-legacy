@@ -84,6 +84,8 @@ OK=OK
 Show_on_map=Ukázat na mapě
 Show_on_map_all=Ukázat vše na mapě
 Refresh=Obnovit
+Backlight_on=Zapnout podsvícení (7)
+Backlight_off=Vypnout podsvícení (7)
 
 #First run
 Set_root_directory=Nastavte adresář pro data
@@ -218,6 +220,11 @@ Imperial=Imperiální
 Offline_map_loading=Načítání offline map
 Regular=Běžné
 S60_fix=Fix pro S60
+Turn_on_backlight=Zapínat podsvícení
+Nowhere=Nikde
+Maps_and_navigation=Mapy a navigace
+Whole_application=Celá aplikace
+Backlight_blink_frequency=Frekvence blikání podsvícení (s)
 
 #Check version
 Download_latest=Aktualizovat
@@ -273,10 +280,8 @@ You_need_valid_gps_position=Na uložení místa potřebujete GPS signál
 Name_must_not_be_empty=Jméno místa nesmí být prázdné
 
 #Navigation
-Navi-less=Méně
-Navi-altitude=N.v.
-Navi-accuracy=±
-Navi-course=Směr
+Navi_more=Více (5)
+Navi_less=Méně (5)
 
 #Map screen
 Change_map_tile=Online mapy (*#)
@@ -304,10 +309,10 @@ Process_stopped=Proces zastaven
 Completed=Dokončeno...
 No_files=Soubory s mapou nenalezeny
 Maps_in_area=Mapy na tomto místě:
-Item_manager=Správce objektů
+Item_manager=Objekty na mapě (5)
 Permanent_map_items=Permanentní mapový objekt
 Temporary_map_items=Dočasný mapový objekt
-Map_function=Mapové funkce
+Map_function=Akce
 
 #J2ME Polish texts
 polish.command.mark=Označit

@@ -84,6 +84,8 @@ OK=OK
 Show_on_map=Show on map
 Show_on_map_all=Show all on map
 Refresh=Refresh
+Backlight_on=Backlight on (7)
+Backlight_off=Backlight off (7)
 
 #First run
 Set_root_directory=Set Root Directory
@@ -218,6 +220,11 @@ Imperial=Imperial
 Offline_map_loading=Offline map loading
 Regular=Regular
 S60_fix=S60 fix
+Turn_on_backlight=Turn on backlight
+Nowhere=Nowhere
+Maps_and_navigation=Maps and navigation
+Whole_application=Whole application
+Backlight_blink_frequency=Backlight blink frequency (s)
 
 #Check version
 Download_latest=Download Latest
@@ -273,10 +280,8 @@ You_need_valid_gps_position=You need a valid GPS position to save place
 Name_must_not_be_empty=Name must not be empty
 
 #Navigation
-Navi-less=Less
-Navi-altitude=Alt.
-Navi-accuracy=±
-Navi-course=Course
+Navi_more=More (5)
+Navi_less=Less (5)
 
 #Map screen
 Change_map_tile=Online maps (*#)
@@ -303,10 +308,10 @@ Process_stopped=Process stopped
 Completed=Completed...
 No_files=No map files in map directory
 Maps_in_area=Maps in this area:
-Item_manager=Item manager
+Item_manager=Map objects (5)
 Permanent_map_items=Permanent map items
 Temporary_map_items=Temporary map items
-Map_function=Map function
+Map_function=Actions
 
 #J2ME Polish texts
 polish.command.mark=Mark

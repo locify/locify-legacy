@@ -111,6 +111,7 @@ public class R {
     private static UploadProgressScreen progress;
     private static SatelliteScreen satelliteScreen;
     private static ContactsScreen contactsScreen;
+    private static Backlight backlight;
 
     public R(Midlet ref) {
         midlet = ref;
@@ -444,5 +445,12 @@ public class R {
             contactsScreen = new ContactsScreen();
         }
         return contactsScreen;
+    }
+
+    public static Backlight getBacklight() {
+        if (backlight == null) {
+            backlight = new Backlight();
+        }
+        return backlight;
     }
 }

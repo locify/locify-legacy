@@ -42,21 +42,35 @@ public class SettingsData {
 
     //constants
     public static final int DEFAULT_TCP_PORT = 20175;
+    //external browser
     public static final int ALWAYS = 0;
     public static final int NEVER = 1;
     public static final int ASK = 2;
+    //location formats
     public static final int FORMAT_WGS84 = 0;   //E 14.94323
     public static final int FORMAT_WGS84_MIN = 1; //E 14°52.123
     public static final int FORMAT_WGS84_SEC = 2; //E 14°52'12.34
+    //connect gps
     public static final int AUTODETECT = 0;
+    //autologin
     public static final int ON = 0;
     public static final int OFF = 1;
+    //panning behaviour
     public static final int REPAINT_DURING = 0;
     public static final int WAIT_UNTIL_END_OF_PANNING = 1;
+    //units
     public static final int METRIC = 0;
     public static final int IMPERIAL = 1;
+    //offline map loading
     public static final int REGULAR = 0;
     public static final int S60_FIX = 1;
+    //backlight
+    public static final int NOWHERE = 0;
+    public static final int MAP = 1;
+    public static final int NAVIGATION = 2;
+    public static final int MAP_NAVIGATION = 3;
+    public static final int WHOLE_APPLICATION = 4;
+
     private static String language = "";
     public final String[] locales = {"en", "cs_CZ"};
     public final String[] languageNames = {Locale.get("English"), Locale.get("Czech")};    //settings
@@ -151,6 +165,14 @@ public class SettingsData {
 
     public int getMapLoading() {
         return Integer.parseInt((String) settings.get("mapLoading"));
+    }
+
+    public int getBacklight() {
+        return Integer.parseInt((String) settings.get("backlight"));
+    }
+
+    public int getBacklightFrequency() {
+        return Integer.parseInt((String) settings.get("backlightFrequency"));
     }
 
     public boolean getShowIconsHelp() {
@@ -249,6 +271,8 @@ public class SettingsData {
             } else {
                 settings.put("mapLoading", String.valueOf(REGULAR));
             }
+            settings.put("backlight", String.valueOf(NOWHERE));
+            settings.put("backlightFrequency","4");
 
             if (!R.getFileSystem().exists(FileSystem.SETTINGS_FILE)) {
                 saveXML();
@@ -268,7 +292,7 @@ public class SettingsData {
         R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
     }
 
-    public void saveInterfaceSettings(int selectedLanguage, int units) {
+    public void saveInterfaceSettings(int selectedLanguage, int units, int backlight, int backlightFrequency) {
         try {
             language = locales[selectedLanguage];
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -282,6 +306,8 @@ public class SettingsData {
             recordStore.closeRecordStore();
 
             settings.put("units", String.valueOf(units));
+            settings.put("backlight", String.valueOf(backlight));
+            settings.put("backlightFrequency", String.valueOf(backlightFrequency));
             saveXML();
             R.getCustomAlert().quickView(Locale.get("Restart_needed"), Locale.get("Info"), "locify://refresh");
         } catch (Exception e) {

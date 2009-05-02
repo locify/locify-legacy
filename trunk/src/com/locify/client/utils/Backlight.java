@@ -11,9 +11,8 @@
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
-package com.locify.client.net;
+package com.locify.client.utils;
 
-import com.locify.client.utils.R;
 
 /**
  * Manages automated downloading of KML inside NetworkLink
@@ -21,31 +20,37 @@ import com.locify.client.utils.R;
  */
 public class Backlight extends Thread {
 
-    private static int FLASHBACK_PERIOD = 4;
-    private boolean stop = false;
+    private boolean stop = true;
+    private boolean started = false;
     private int flashbackLightPause = 0;
 
     public Backlight() {
     }
 
-    public void stop() {
+    public void off() {
         stop = true;
     }
 
-    public void resume() {
+    public void on() {
         stop = false;
+        if (!started)
+        {
+            this.start();
+        }
     }
 
-    public boolean isStopped() {
-        return stop;
+    public boolean isOn()
+    {
+        return (!stop);
     }
 
     public void run() {
         try {
+            started = true;
             while (true) {
-                if (!stop && FLASHBACK_PERIOD > 0)
+                if (!stop && R.getSettings().getBacklightFrequency() > 0)
                 {
-                    if (flashbackLightPause < FLASHBACK_PERIOD*2-1)
+                    if (flashbackLightPause < R.getSettings().getBacklightFrequency()*2-1)
                     {
                         flashbackLightPause++;
                     }
@@ -58,7 +63,7 @@ public class Backlight extends Thread {
                 Thread.sleep(1000);
             }
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "NetworkLinkDownloader.run", null);
+            R.getErrorScreen().view(e, "Backlight.run", null);
         }
     }
 }

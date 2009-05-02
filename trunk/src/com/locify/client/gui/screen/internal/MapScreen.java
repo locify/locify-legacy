@@ -78,10 +78,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private static final int MA_MY_LOCATION = 8;
     private static final int MA_SELECT = 9;
     // command
-    private Command cmdMapFunction, cmdZoomIn,  cmdZoomOut, cmdMyLocation;
+    private Command cmdMapFunction,  cmdZoomIn,  cmdZoomOut,  cmdMyLocation;
     private Command cmdChangeMapTile,  cmdChangeMapFile;
     private Command cmdItemManager;
-    
     private Command[] providerCommandsTile;
     private boolean drawLock;
     private static int TOP_MARGIN = R.getTopBar().height;
@@ -164,7 +163,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 //     planStudio temp
 //    private Command cmdPlanStudio;
 //    private PlanStudioManager psm;
-
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -193,7 +191,13 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         UiAccess.addSubCommand(cmdZoomIn, cmdMapFunction, this);
         UiAccess.addSubCommand(cmdZoomOut, cmdMapFunction, this);
         UiAccess.addSubCommand(cmdMyLocation, cmdMapFunction, this);
-        
+
+        if (R.getBacklight().isOn()) {
+            addCommand(Commands.cmdBacklightOff);
+        } else {
+            addCommand(Commands.cmdBacklightOn);
+        }
+
         this.addCommand(cmdItemManager);
 
         // set map tiles and providers
@@ -282,6 +286,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 selectNearestWaypointsAtCenter();
                 repaint();
                 resumeNetworkLink();
+            }
+
+            if (R.getSettings().getBacklight() == SettingsData.MAP || R.getSettings().getBacklight() == SettingsData.MAP_NAVIGATION) {
+                R.getBacklight().on();
+                removeCommand(Commands.cmdBacklightOn);
+                addCommand(Commands.cmdBacklightOff);
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.view()", null);
@@ -662,6 +672,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     networkLinkDownloader.stop();
                 }
                 R.getBack().goBack();
+                if (R.getSettings().getBacklight() != SettingsData.WHOLE_APPLICATION) {
+                    R.getBacklight().off();
+                }
             } else if (cmd.equals(Commands.cmdHome)) {
                 //map.stop(); //stops loading tiles
                 selectNearestWaypoints(0, 0, 0, true); // deselect object selection
@@ -671,6 +684,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 R.getURL().call("locify://mainScreen");
                 if (networkLinkDownloader != null) {
                     networkLinkDownloader.stop();
+                }
+                if (R.getSettings().getBacklight() != SettingsData.WHOLE_APPLICATION) {
+                    R.getBacklight().off();
                 }
             } else if (cmd.equals(cmdChangeMapFile)) {
                 Location4D[] locs = getBoundingBox();
@@ -690,6 +706,14 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 makeMapAction(MA_MY_LOCATION, null);
             } else if (cmd.equals(cmdItemManager)) {
                 mapItemManager.viewMapSettings();
+            } else if (cmd.equals(Commands.cmdBacklightOn)) {
+                R.getBacklight().on();
+                removeCommand(Commands.cmdBacklightOn);
+                addCommand(Commands.cmdBacklightOff);
+            } else if (cmd.equals(Commands.cmdBacklightOff)) {
+                R.getBacklight().off();
+                removeCommand(Commands.cmdBacklightOff);
+                addCommand(Commands.cmdBacklightOn);
             } else {
                 for (int i = 0; i < providerCommandsTile.length; i++) {
                     if (providerCommandsTile[i].equals(cmd)) {
@@ -818,6 +842,19 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                         break;
                     case KEY_NUM9:
                         commandAction(cmdChangeMapFile, this);
+                        break;
+                    case KEY_NUM7:
+                        if (R.getBacklight().isOn())
+                        {
+                            commandAction(Commands.cmdBacklightOff, this);
+                        }
+                        else
+                        {
+                            commandAction(Commands.cmdBacklightOn, this);
+                        }
+                        break;
+                    case KEY_NUM5:
+                        commandAction(cmdItemManager,this);
                         break;
                     default:
                         break;

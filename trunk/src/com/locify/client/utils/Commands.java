@@ -37,4 +37,6 @@ public class Commands {
     public static Command cmdYes = new Command(Locale.get("Yes"), Command.OK, 1);
     public static Command cmdNo = new Command(Locale.get("No"), Command.CANCEL, 2);
     public static Command cmdCancel = new Command(Locale.get("Cancel"), Command.CANCEL, 5);
+    public static Command cmdBacklightOn = new Command(Locale.get("Backlight_on"),Command.SCREEN,20);
+    public static Command cmdBacklightOff = new Command(Locale.get("Backlight_off"),Command.SCREEN,20);
 }

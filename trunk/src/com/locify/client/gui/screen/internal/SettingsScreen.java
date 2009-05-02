@@ -46,6 +46,8 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
     private Form frmInterface;
     private ChoiceGroup cgLanguage;
     private ChoiceGroup cgUnits;
+    private ChoiceGroup cgBacklight;
+    private TextField tfBacklightFrequency;
     private Form frmOther;
     private ChoiceGroup cgAutoLogin;
     private ChoiceGroup cgExternalClose;
@@ -127,9 +129,21 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
 
         cgUnits = new ChoiceGroup(Locale.get("Units"), Choice.EXCLUSIVE);
         cgUnits.append(Locale.get("Metric"), null);
-        cgUnits.append("Imperial", null);
+        cgUnits.append(Locale.get("Imperial"), null);
         cgUnits.setSelectedIndex(R.getSettings().getUnits(), true);
         frmInterface.append(cgUnits);
+
+        cgBacklight = new ChoiceGroup(Locale.get("Turn_on_backlight"), Choice.EXCLUSIVE);
+        cgBacklight.append(Locale.get("Nowhere"), null);
+        cgBacklight.append(Locale.get("Maps"), null);
+        cgBacklight.append(Locale.get("Navigation"), null);
+        cgBacklight.append(Locale.get("Maps_and_navigation"), null);
+        cgBacklight.append(Locale.get("Whole_application"), null);
+        cgBacklight.setSelectedIndex(R.getSettings().getBacklight(), true);
+        frmInterface.append(cgBacklight);
+
+        tfBacklightFrequency = new TextField(Locale.get("Backlight_blink_frequency"),String.valueOf(R.getSettings().getBacklightFrequency()),10,TextField.NUMERIC);
+        frmInterface.append(tfBacklightFrequency);
 
         btnSaveInterface = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
         btnSaveInterface.setDefaultCommand(Commands.cmdSave);
@@ -276,7 +290,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         if (item.equals(btnSaveLocation)) {
             R.getSettings().saveLocationSettings(cgPrefferedGps.getSelectedIndex(), cgCoordinatesFormat.getSelectedIndex());
         } else if (item.equals(btnSaveInterface)) {
-            R.getSettings().saveInterfaceSettings(cgLanguage.getSelectedIndex(), cgUnits.getSelectedIndex());
+            R.getSettings().saveInterfaceSettings(cgLanguage.getSelectedIndex(), cgUnits.getSelectedIndex(), cgBacklight.getSelectedIndex(), Integer.parseInt(tfBacklightFrequency.getString()));
         } else if (item.equals(btnSaveOther)) {
             R.getSettings().saveOtherSettings(cgAutoLogin.getSelectedIndex(), cgExternalClose.getSelectedIndex());
         } else if (item.equals(btnSaveMap)) {
