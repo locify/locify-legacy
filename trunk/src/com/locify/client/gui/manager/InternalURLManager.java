@@ -218,7 +218,7 @@ public class InternalURLManager {
                 R.getXmlParser().setUpdateService(true);
                 R.getHttp().start(R.getMainScreen().getFocusedItem().getId());
             } else if (url.equals("locify://serviceSettings")) {
-                if (R.getPostData() != null) {
+                if (R.getPostData().getUrlEncoded() != null) {
                     //saves values sent to service settings
                     ServiceSettingsData.saveFromForm(R.getPostData().getUrlEncoded());
                 } else {
