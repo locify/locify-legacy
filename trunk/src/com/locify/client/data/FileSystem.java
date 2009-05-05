@@ -284,7 +284,7 @@ public class FileSystem {
             //#else
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT + folder);
             if (!fileConnection.exists()) {
-                return null;
+                return new Vector();
             }
 
             Enumeration files = fileConnection.list();

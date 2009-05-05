@@ -27,7 +27,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Vector;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -78,7 +77,7 @@ public class StoreManager {
 
                     Vector files = null;
                     Vector filesCached = null;
-                    try{
+                    try {
                         files = R.getFileSystem().listFiles(FileSystem.MAP_FOLDER, null);
                         filesCached = R.getFileSystem().listFiles(FileSystem.CACHE_MAP_FOLDER, null);
                     } catch (Exception ex) {
