@@ -65,32 +65,38 @@ public class PointMapItem extends MapItem {
     }
 
     public void drawItem(Graphics g) {
-        if (enabled) {
-            if (!initialized) {
-                initialize();
-            }
-
-            if (isInside() && actualState == STATE_WAITING && items != null) {
-                actualState = STATE_DRAWING;
-
-                GeoFileStyle style = null;
-                for (int i = 0; i < items.length; i++) {
-                    // draw points
-                    if (selectedPoints.size() > 0 && selectedPoints.contains(new Integer(i))) {
-                        continue;
-                    }
-
-                    style = ((Waypoint) waypoints.elementAt(i)).getStyleNormal();
-                    if (style == null || style.getIcon() == null) {
-                        style = stylePointIconNormal;
-                    }
-
-                    g.drawImage(style.getIcon(),
-                            items[i].x - style.getXMove(), items[i].y - style.getYMove(),
-                            Graphics.BOTTOM | Graphics.LEFT);
+        try {
+            if (enabled) {
+                if (!initialized) {
+                    initialize();
                 }
+
+                if (isInside() && actualState == STATE_WAITING && items != null) {
+                    actualState = STATE_DRAWING;
+
+                    GeoFileStyle style = null;
+                    for (int i = 0; i < items.length; i++) {
+                        if (items[i] != null && waypoints.elementAt(i) != null) {
+                            // draw points
+                            if (selectedPoints.size() > 0 && selectedPoints.contains(new Integer(i))) {
+                                continue;
+                            }
+
+                            style = ((Waypoint) waypoints.elementAt(i)).getStyleNormal();
+                            if (style == null || style.getIcon() == null) {
+                                style = stylePointIconNormal;
+                            }
+
+                            g.drawImage(style.getIcon(),
+                                    items[i].x - style.getXMove(), items[i].y - style.getYMove(),
+                                    Graphics.BOTTOM | Graphics.LEFT);
+                        }
+                    }
+                }
+                actualState = STATE_WAITING;
             }
-            actualState = STATE_WAITING;
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "PointMapItem.drawItem()", null);
         }
     }
 
@@ -143,6 +149,9 @@ public class PointMapItem extends MapItem {
     }
 
     public Waypoint getWaypointById(String id) {
+        if (waypoints == null) {
+            return null;
+        }
         for (int i = 0; i < waypoints.size(); i++) {
             Waypoint wpt = (Waypoint) waypoints.elementAt(i);
             if (wpt.id != null && wpt.id.equals(id)) {

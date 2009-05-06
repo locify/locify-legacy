@@ -122,6 +122,8 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
             if (!R.getFileSystem().exists(FileSystem.MAINSCREEN_FILE)) {  //prvni start aplikace
                 items = new Vector();
                 //#if applet
+//#                 addEdit("http://localhost/m", "", R.getURL().getIcon("locify://shortcut"));
+//#                 /*
 //#                 addEdit("http://services.locify.com/wikipedia/welcome", "", R.getURL().getIcon("locify://shortcut"));
 //#                 addEdit("http://services.locify.com/nearestCaches/", "", R.getURL().getIcon("locify://shortcut"));
 //#                 addEdit("http://services.locify.com/twitter/welcome", "", R.getURL().getIcon("locify://shortcut"));
@@ -133,6 +135,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
 //#                 addEdit("http://services.locify.com/zvents/welcome", "", R.getURL().getIcon("locify://shortcut"));
 //#                 addEdit("http://services.locify.com/accuweather/welcome", "", R.getURL().getIcon("locify://shortcut"));
 //#                 addEdit("http://locify.destil.cz/geomail/", "", R.getURL().getIcon("locify://shortcut"));
+//#                  * */
                 //#else
                 //nacitani zastupcu na download z JADu
                 Logger.log("Loading shortcuts from JAD file");

@@ -17,6 +17,7 @@ import com.locify.client.data.IconData;
 import com.locify.client.data.AudioData;
 import com.locify.client.data.CacheData;
 import com.locify.client.data.ServicesData;
+import com.locify.client.data.items.GeoFiles;
 import com.locify.client.maps.fileMaps.FileMapManager;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
@@ -57,6 +58,10 @@ public class ContentHandler {
                     R.getGeoDataBrowser().setGeoData(data);
                     R.getBack().dontSave();
                     R.getURL().call("locify://geoFileBrowser");
+                    if (response.isSaveAfterDownload())
+                    {
+                        GeoFiles.saveGeoFileData(data);
+                    }
                 } //geocoding result
                 else if (data.indexOf("<ResultSet") != -1) {
                     Geocoding.result(data);

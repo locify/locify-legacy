@@ -11,13 +11,14 @@
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
-
 package com.locify.client.maps.mapItem;
 
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.locator.Location4D;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.utils.ColorsFonts;
+import com.locify.client.utils.Logger;
+import com.locify.client.utils.R;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
@@ -31,9 +32,9 @@ public class MapNavigationItem extends MapItem {
     private Vector waypoints;
     /** points for painting */
     private Point2D.Int[] items;
+
     /** space and dist of Half line in px */
 //    private int partSize = 10;
-
     public MapNavigationItem(Waypoint point1, Waypoint point2) {
         super();
         Vector data = new Vector();
@@ -44,7 +45,11 @@ public class MapNavigationItem extends MapItem {
     }
 
     public Waypoint getTargetWaypoint() {
-        return (Waypoint) waypoints.elementAt(1);
+        if (waypoints.elementAt(1) == null) {
+            return null;        
+        } else {
+            return (Waypoint) waypoints.elementAt(1);
+        }
     }
 
     public void setTargetWaypoint(Waypoint waypoint) {
@@ -62,19 +67,26 @@ public class MapNavigationItem extends MapItem {
     }
 
     public void drawItem(Graphics g) {
-        if (enabled) {
-            if (!initialized)
-                initialize();
-            
-            if (isInside() && actualState == STATE_WAITING && items != null) {
-                actualState = STATE_DRAWING;
-                
-                g.setStrokeStyle(Graphics.DOTTED);
-                g.setColor(ColorsFonts.RED);
-                g.drawLine(items[0].x, items[0].y, items[1].x, items[1].y);
-                g.setStrokeStyle(Graphics.SOLID);
+        try {
+            if (enabled) {
+                if (!initialized) {
+                    initialize();
+                }
+
+                if (isInside() && actualState == STATE_WAITING && items != null) {
+                    actualState = STATE_DRAWING;
+
+                    g.setStrokeStyle(Graphics.DOTTED);
+                    g.setColor(ColorsFonts.RED);
+                    if (items[0] != null && items[1] != null) {
+                        g.drawLine(items[0].x, items[0].y, items[1].x, items[1].y);
+                    }
+                    g.setStrokeStyle(Graphics.SOLID);
+                }
+                actualState = STATE_WAITING;
             }
-            actualState = STATE_WAITING;
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapNavigationItem.drawItem()", null);
         }
     }
 
@@ -91,7 +103,7 @@ public class MapNavigationItem extends MapItem {
     public void getWaypointsAtPositionByPoint(Vector data, int x, int y, int radiusSquare) {
         return;
     }
-    
+
     public void getWaypointsAtPositionByIcon(Vector data, int x, int y) {
         return;
     }

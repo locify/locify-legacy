@@ -148,10 +148,15 @@ public abstract class MapItem {
      * @return true if is inside, otherwise false.
      */
     protected boolean isInside() {
-        if (screenViewPort != null && itemViewPort != null) {
-            return itemViewPort.intersects(screenViewPort);
+        try {
+            if (screenViewPort != null && itemViewPort != null) {
+                return itemViewPort.intersects(screenViewPort);
+            }
+            return false;
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapItem.isInside()", null);
+            return false;
         }
-        return false;
     }
 
     public Location4D getItemCenter() {
@@ -206,16 +211,18 @@ public abstract class MapItem {
                     Waypoint tempWpt;
                     Location4D tempLoc4D;
                     for (int i = 0; i < points.size(); i++) {
-                        if (!location4D) {
-                            tempWpt = (Waypoint) points.elementAt(i);
-                            tempLoc4D = new Location4D(tempWpt.getLatitude(), tempWpt.getLongitude(), 0f);
-                        } else {
-                            tempLoc4D = (Location4D) points.elementAt(i);
+                        if (points.elementAt(i) != null) {
+                            if (!location4D) {
+                                tempWpt = (Waypoint) points.elementAt(i);
+                                tempLoc4D = new Location4D(tempWpt.getLatitude(), tempWpt.getLongitude(), 0f);
+                            } else {
+                                tempLoc4D = (Location4D) points.elementAt(i);
+                            }
+                            topLat = Math.max(topLat, tempLoc4D.getLatitude());
+                            bottomLat = Math.min(bottomLat, tempLoc4D.getLatitude());
+                            leftLon = Math.min(leftLon, tempLoc4D.getLongitude());
+                            rightLon = Math.max(rightLon, tempLoc4D.getLongitude());
                         }
-                        topLat = Math.max(topLat, tempLoc4D.getLatitude());
-                        bottomLat = Math.min(bottomLat, tempLoc4D.getLatitude());
-                        leftLon = Math.min(leftLon, tempLoc4D.getLongitude());
-                        rightLon = Math.max(rightLon, tempLoc4D.getLongitude());
                     }
 
                     this.positionTopLeft = new Location4D(topLat, leftLon, 0.0f);
@@ -235,7 +242,7 @@ public abstract class MapItem {
      */
     protected Point2D.Int[] initializePoints(Vector points) {
         try {
-            if (mapScreen.getActualMapLayer() instanceof FileMapLayer &&
+            if (points == null || mapScreen.getActualMapLayer() instanceof FileMapLayer &&
                     !((FileMapLayer) mapScreen.getActualMapLayer()).isReady()) {
                 return null;
             }
@@ -261,26 +268,28 @@ public abstract class MapItem {
                 Waypoint tempWpt;
                 Location4D tempLoc4D;
                 for (int i = 0; i < items.length; i++) {
-                    if (!location4D) {
-                        tempWpt = (Waypoint) points.elementAt(i);
-                        tempLoc4D = new Location4D(tempWpt.getLatitude(), tempWpt.getLongitude(), 0f);
-                    } else {
-                        tempLoc4D = (Location4D) points.elementAt(i);
-                    }
+                    if (points.elementAt(i) != null) {
+                        if (!location4D) {
+                            tempWpt = (Waypoint) points.elementAt(i);
+                            tempLoc4D = new Location4D(tempWpt.getLatitude(), tempWpt.getLongitude(), 0f);
+                        } else {
+                            tempLoc4D = (Location4D) points.elementAt(i);
+                        }
 
 //                    Thread.sleep(5);
-                    items[i] = mapScreen.getActualMapLayer().getLocationCoord(tempLoc4D);
+                        items[i] = mapScreen.getActualMapLayer().getLocationCoord(tempLoc4D);
 //                    Thread.sleep(5);
 
-                    top = Math.min(top, items[i].y);
-                    bottom = Math.max(bottom, items[i].y);
-                    left = Math.min(left, items[i].x);
-                    right = Math.max(right, items[i].x);
-                    if (right == left) {
-                        right++;
-                    }
-                    if (bottom == top) {
-                        bottom++;
+                        top = Math.min(top, items[i].y);
+                        bottom = Math.max(bottom, items[i].y);
+                        left = Math.min(left, items[i].x);
+                        right = Math.max(right, items[i].x);
+                        if (right == left) {
+                            right++;
+                        }
+                        if (bottom == top) {
+                            bottom++;
+                        }
                     }
                 }
 
@@ -291,7 +300,7 @@ public abstract class MapItem {
             actualState = STATE_WAITING;
             return items;
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapItem.initialize()", null);
+            R.getErrorScreen().view(e, "MapItem.initializePoints()", null);
             return null;
         }
     }

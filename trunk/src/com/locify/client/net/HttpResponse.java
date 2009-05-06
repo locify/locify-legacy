@@ -22,6 +22,7 @@ public class HttpResponse {
     private boolean image = false;
     private boolean audio = false;
     private boolean disabledCaching = false;
+    private boolean saveAfterDownload = false;
     private String newLocation;
     private String url;
 
@@ -71,5 +72,13 @@ public class HttpResponse {
 
     public boolean isDisabledCaching() {
         return disabledCaching;
+    }
+
+    public boolean isSaveAfterDownload() {
+        return saveAfterDownload;
+    }
+
+    public void setSaveAfterDownload(boolean saveAfterDownload) {
+        this.saveAfterDownload = saveAfterDownload;
     }
 }

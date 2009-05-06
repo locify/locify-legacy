@@ -48,7 +48,7 @@ public class MapItemManager {
         this.itemsTemp = new Hashtable();
     }
 
-    public void init() {        
+    public void init() {
         if (!isFixed(Locale.get("Scale"))) {
             MapItem scale = new ScaleMapItem();
             scale.priority = MapItem.PRIORITY_HIGH;
@@ -88,34 +88,38 @@ public class MapItemManager {
      * @param priority
      */
     public void addItem(String itemName, MapItem item, int priority) {
-        /* change navigation along the map while new waypoint is coming from network link */
-        if (MapScreen.isNowDirectly() && item instanceof PointMapItem) {
-            //update map navigation
-            if (R.getMapScreen().isMapNavigationRunning()) {
-                MapNavigationItem navItem = (MapNavigationItem) getItemTemp(MapScreen.tempMapNavigationItem);
-                String navId = navItem.getTargetWaypoint().id;
-                if (navId != null) {
-                    navItem.setTargetWaypoint(((PointMapItem) item).getWaypointById(navId));
+        try {
+            /* change navigation along the map while new waypoint is coming from network link */
+            if (MapScreen.isNowDirectly() && item instanceof PointMapItem) {
+                //update map navigation
+                if (R.getMapScreen().isMapNavigationRunning()) {
+                    MapNavigationItem navItem = (MapNavigationItem) getItemTemp(MapScreen.tempMapNavigationItem);
+                    Waypoint target = navItem.getTargetWaypoint();
+                    if (target != null) {
+                        navItem.setTargetWaypoint(((PointMapItem) item).getWaypointById(target.id));
+                    }
+                }
+                //update compass navigation
+                if (R.getMapScreen().getDifferentScreenLock()) {
+                    String navId = R.getNavigationScreen().getWaypointId();
+                    if (navId != null) {
+                        R.getNavigationScreen().updateWaypoint(((PointMapItem) item).getWaypointById(navId));
+                    }
+                }
+                //update selected item
+                if (getItemTemp(MapScreen.tempWaypointDescriptionItemName) != null) {
+                    DescriptionMapItem navItem = (DescriptionMapItem) getItemTemp(MapScreen.tempWaypointDescriptionItemName);
+                    String navId = navItem.getWaypoint().id;
+                    if (navId != null) {
+                        navItem.updateWaypoint(((PointMapItem) item).getWaypointById(navId));
+                    }
                 }
             }
-            //update compass navigation
-            if (R.getMapScreen().getDifferentScreenLock()) {
-                String navId = R.getNavigationScreen().getWaypointId();
-                if (navId != null) {
-                    R.getNavigationScreen().updateWaypoint(((PointMapItem) item).getWaypointById(navId));
-                }
-            }
-            //update selected item
-            if (getItemTemp(MapScreen.tempWaypointDescriptionItemName) != null) {
-                DescriptionMapItem navItem = (DescriptionMapItem) getItemTemp(MapScreen.tempWaypointDescriptionItemName);
-                String navId = navItem.getWaypoint().id;
-                if (navId != null) {
-                    navItem.updateWaypoint(((PointMapItem) item).getWaypointById(navId));
-                }
-            }
+            item.priority = priority;
+            items.put(itemName, item);
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapItemManager.addItem()", itemName);
         }
-        item.priority = priority;
-        items.put(itemName, item);
     }
 
     public MapItem getItem(String itemName) {
@@ -219,7 +223,7 @@ public class MapItemManager {
             MapItem item;
             while (enu.hasMoreElements()) {
                 item = (MapItem) items.get(enu.nextElement());
-                if (item.priority == priority) {
+                if (item != null && item.priority == priority) {
                     item.drawItem(g);
                 }
             }
@@ -227,7 +231,7 @@ public class MapItemManager {
             enu = itemsTemp.keys();
             while (enu.hasMoreElements()) {
                 item = (MapItem) itemsTemp.get(enu.nextElement());
-                if (item.priority == priority) {
+                if (item != null && item.priority == priority) {
                     item.drawItem(g);
                 }
             }
@@ -313,7 +317,6 @@ public class MapItemManager {
         }
         return null;
     }
-
     private Form frmItemManager;
     private ChoiceGroup cgMapItems;
     private ChoiceGroup cgMapItemsFixed;

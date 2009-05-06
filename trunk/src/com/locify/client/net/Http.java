@@ -264,6 +264,7 @@ public class Http implements Runnable {
                 for (int i = 0; i < parts.length; i++) {
                     start(new HttpRequest(parts[i], null, false, CookieData.getHeaderData(parts[i]), false));
                 }
+                response.setSaveAfterDownload(true);
             }
             j++;
         }
