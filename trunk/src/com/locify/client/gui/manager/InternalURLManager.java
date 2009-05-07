@@ -258,8 +258,11 @@ public class InternalURLManager {
                 R.getExternalBrowser().viewCloseAppScreen();
             } else if (url.equals("locify://back")) {
                 //returns to previous screen
-                R.getMapScreen().stopNetworkLink();
                 R.getBack().goBack();
+            } else if (url.equals("locify://backBack"))
+            {
+                R.getMapScreen().stopNetworkLink();
+                R.getBack().goBack(2);
             } else if (url.equals("locify://refresh")) {
                 //repeats last url
                 R.getBack().repeat();

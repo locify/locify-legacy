@@ -162,7 +162,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
 //    planStudio temp
     private Command cmdPlanStudio;
-    private PlanStudioManager psm;
+   // private PlanStudioManager psm;
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -262,11 +262,11 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void view() {
         try {
             differentScreenLock = false;
-           if (psm == null) {
-               psm = new PlanStudioManager();
-               cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
-               this.addCommand(cmdPlanStudio);
-            }
+           //if (psm == null) {
+           //    psm = new PlanStudioManager();
+           //    cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
+           //    this.addCommand(cmdPlanStudio);
+           // }
 
             if (map instanceof FileMapLayer && !mapFile.isReady()) {
                 R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
@@ -399,12 +399,12 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     /**
-     * It is called when something other than KML came via network link
+     * It is called when leaving map with network link
      */
     public void stopNetworkLink() {
-        if (MapScreen.isNowDirectly() && networkLinkDownloader != null && !networkLinkDownloader.isStopped()) {
+        if (networkLinkDownloader != null) {
             networkLinkDownloader.stop();
-            R.getBack().goForward("locify://newScreen", null);
+            nowDirectly = false;
         }
     }
 
@@ -668,9 +668,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 if (R.getContext().isTemporary()) {
                     R.getContext().removeTemporaryLocation();
                 }
-                if (networkLinkDownloader != null) {
-                    networkLinkDownloader.stop();
-                }
+                stopNetworkLink();
                 R.getBack().goBack();
                 if (R.getSettings().getBacklight() != SettingsData.WHOLE_APPLICATION) {
                     R.getBacklight().off();
@@ -681,10 +679,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 if (R.getContext().isTemporary()) {
                     R.getContext().removeTemporaryLocation();
                 }
+                stopNetworkLink();
                 R.getURL().call("locify://mainScreen");
-                if (networkLinkDownloader != null) {
-                    networkLinkDownloader.stop();
-                }
                 if (R.getSettings().getBacklight() != SettingsData.WHOLE_APPLICATION) {
                     R.getBacklight().off();
                 }
@@ -696,7 +692,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 }
 
             } else if (cmd.equals(cmdPlanStudio)) {
-                psm.showSelectionMenu();
+            //    psm.showSelectionMenu();
 
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);

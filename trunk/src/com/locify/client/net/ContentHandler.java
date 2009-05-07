@@ -77,7 +77,7 @@ public class ContentHandler {
                     //network link
                     if (R.getMapScreen().isNowDirectly())
                     {
-                        R.getBack().goForward("locify://htmlScreen", null);
+                        R.getBack().goForward("locify://htmlScreenOnMap", null);
                         R.getMapScreen().setDifferentScreenLock(true);
                     }
                 } //some other html or form
@@ -93,7 +93,7 @@ public class ContentHandler {
                     //network link
                     if (R.getMapScreen().isNowDirectly())
                     {
-                        R.getBack().goForward("locify://htmlScreen", null);
+                        R.getBack().goForward("locify://htmlScreenOnMap", null);
                         R.getMapScreen().setDifferentScreenLock(true);
                     }
                 }

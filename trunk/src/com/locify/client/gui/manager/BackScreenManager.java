@@ -50,7 +50,7 @@ public class BackScreenManager {
     public void goForward(String url, String postData) {
         try {
             if (debug) {
-                Logger.debug("BACK - go forward: " + url);
+                Logger.debug("BACK - go forward: " + url+debug());
             }
             //is this a forbidden url?
             for (int i = 0; i < noBack.length; i++) {
@@ -69,19 +69,20 @@ public class BackScreenManager {
                     if (screen.equals(url + " " + postData) || ((screen.startsWith("http://") || screen.startsWith("locify://savePlace")) && url.equals("locify://htmlBrowser"))) {
                         iWasThere = true;
                     } else if (iWasThere) {
-                        if (debug) {
-                            Logger.debug("BACK - I was there: " + url);
-                        }
                         //removing all subsequent screens - found shorter path
                         screens.removeElementAt(i);
                         i--;
+
+                        if (debug) {
+                            Logger.debug("BACK - I was there: " + url+debug());
+                        }
                     }
                 }
                 if (!iWasThere) {
-                    if (debug) {
-                        Logger.debug("BACK - adding: " + url);
-                    }
                     screens.addElement(url + " " + postData);
+                    if (debug) {
+                        Logger.debug("BACK - adding: " + url+debug());
+                    }
                 }
             }
             dontSave = false;
@@ -125,10 +126,10 @@ public class BackScreenManager {
             if (parts.length == 2) {
                 R.getPostData().setRaw(parts[1], true);
             }
-            if (debug) {
-                Logger.debug("BACK - to:" + parts[0] + " steps=" + steps);
-            }
             R.getURL().call(parts[0]);
+            if (debug) {
+                Logger.debug("BACK - to:" + parts[0] + " steps=" + steps+debug());
+            }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "BackScreenManager.goBack", null);
         }
@@ -139,11 +140,11 @@ public class BackScreenManager {
      */
     public void deleteLast() {
         //remove last element
-        if (debug) {
-            Logger.debug("BACK - delete: " + screens.lastElement());
-        }
         if (screens.size() != 1) {
             screens.removeElementAt(screens.size() - 1);
+        }
+        if (debug) {
+            Logger.debug("BACK - delete: " + screens.lastElement()+debug());
         }
     }
 
@@ -152,13 +153,23 @@ public class BackScreenManager {
      */
     public void repeat() {
         //go to element previous to last
-        if (debug) {
-            Logger.debug("BACK - repeat");
-        }
         dontSave();
         String last = (String) screens.lastElement();
         String[] parts = StringTokenizer.getArray(last, " ");
         R.getPostData().setRaw(parts[1], true);
         R.getURL().call(parts[0]);
+        if (debug) {
+            Logger.debug("BACK - repeat"+debug());
+        }
+    }
+
+    private String debug()
+    {
+        String out =" [";
+        for (int i=0;i<screens.size();i++)
+        {
+            out += screens.elementAt(i)+", ";
+        }
+        return out +="]";
     }
 }
