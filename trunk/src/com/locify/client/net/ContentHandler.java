@@ -14,7 +14,7 @@
 package com.locify.client.net;
 
 import com.locify.client.data.IconData;
-import com.locify.client.data.AudioData;
+import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.data.CacheData;
 import com.locify.client.data.ServicesData;
 import com.locify.client.data.items.GeoFiles;
@@ -35,15 +35,15 @@ public class ContentHandler {
      */
     public static void handle(HttpResponse response) {
         try {
-            if (response.isImage()) {
+            if (response.getSource() == Http.IMAGE_DOWNLOADER) {
                 if (response.getUrl().startsWith(ServicesData.getCurrent())) {
                     R.getCustomList().refreshIcon(response.getUrl(), response.getData());
                 } else {
                     R.getMainScreen().refreshIcon(response.getUrl(), response.getData());
                 }
                 IconData.save(response.getUrl(), response.getData());
-            } else if (response.isAudio()) {
-                AudioData.save(response.getUrl(), response.getData());
+            } else if (response.getSource() == Http.AUDIO_DOWNLOADER) {
+                R.getAudio().save(response.getUrl(), response.getData());
             } else { //string content
                 String data = UTF8.decode(response.getData(), 0, response.getData().length);
                 if (data.length() == 0) {
@@ -51,15 +51,20 @@ public class ContentHandler {
                     return;
                 }
                 Logger.log("Data:");
-                //Logger.log(data);
+                // Logger.log(data);
 
                 //kml
                 if (data.indexOf("<kml xmlns=") != -1 && data.indexOf("<kml xmlns=") < 100) {
-                    R.getGeoDataBrowser().setGeoData(data);
-                    R.getBack().dontSave();
-                    R.getURL().call("locify://geoFileBrowser");
-                    if (response.isSaveAfterDownload())
+                    if (response.getSource() == Http.NETWORKLINK_DOWNLOADER && !MapScreen.isNowDirectly()) {
+                        return; //downloader is stopped but requests already are made
+                    }
+                    else
                     {
+                        R.getGeoDataBrowser().setGeoData(data, response.getSource());
+                        R.getBack().dontSave();
+                        R.getURL().call("locify://geoFileBrowser");
+                    }
+                    if (response.isSaveAfterDownload()) {
                         GeoFiles.saveGeoFileData(data);
                     }
                 } //geocoding result
@@ -75,8 +80,7 @@ public class ContentHandler {
                         CacheData.add(response.getUrl(), data);
                     }
                     //network link
-                    if (R.getMapScreen().isNowDirectly())
-                    {
+                    if (MapScreen.isNowDirectly()) {
                         R.getBack().goForward("locify://htmlScreenOnMap", null);
                         R.getMapScreen().setDifferentScreenLock(true);
                     }
@@ -91,8 +95,7 @@ public class ContentHandler {
                         CacheData.add(response.getUrl(), data);
                     }
                     //network link
-                    if (R.getMapScreen().isNowDirectly())
-                    {
+                    if (MapScreen.isNowDirectly()) {
                         R.getBack().goForward("locify://htmlScreenOnMap", null);
                         R.getMapScreen().setDifferentScreenLock(true);
                     }

@@ -255,16 +255,24 @@ public class MapItemManager {
     }
 
     public void panItem(int x, int y) {
-        Enumeration enu = items.elements();
-        MapItem item;
-        while (enu.hasMoreElements()) {
-            item = (MapItem) enu.nextElement();
-            item.panItem(x, y);
-        }
-        enu = itemsTemp.elements();
-        while (enu.hasMoreElements()) {
-            item = (MapItem) enu.nextElement();
-            item.panItem(x, y);
+        try {
+            Enumeration enu = items.elements();
+            MapItem item;
+            while (enu.hasMoreElements()) {
+                item = (MapItem) enu.nextElement();
+                if (item != null) {
+                    item.panItem(x, y);
+                }
+            }
+            enu = itemsTemp.elements();
+            while (enu.hasMoreElements()) {
+                item = (MapItem) enu.nextElement();
+                if (item != null) {
+                    item.panItem(x, y);
+                }
+            }
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapItemManager.panItem", null);
         }
     }
 

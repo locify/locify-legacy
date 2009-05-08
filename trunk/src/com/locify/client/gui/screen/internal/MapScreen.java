@@ -376,7 +376,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         if (data.getScreenOverlay() != null) {
             mapItemManager.removeItem("overlay");
             MapItem overlay = new ScreenOverlayMapItem(data.getScreenOverlay());
-            overlay.setPriority(MapItem.PRIORITY_HIGH);
+            overlay.setPriority(MapItem.PRIORITY_LOW);
             overlay.setEnabled(true);
             mapItemManager.addItemFixed("overlay", overlay);
         }
@@ -403,8 +403,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      */
     public void stopNetworkLink() {
         if (networkLinkDownloader != null) {
-            networkLinkDownloader.stop();
             nowDirectly = false;
+            networkLinkDownloader.stop();
         }
     }
 
@@ -664,22 +664,22 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         try {
             if (cmd.equals(Commands.cmdBack)) {
                 //map.stop(); //stops loading tiles
+                stopNetworkLink();
                 selectNearestWaypoints(0, 0, 0, true); // deselect object selection
                 if (R.getContext().isTemporary()) {
                     R.getContext().removeTemporaryLocation();
                 }
-                stopNetworkLink();
                 R.getBack().goBack();
                 if (R.getSettings().getBacklight() != SettingsData.WHOLE_APPLICATION) {
                     R.getBacklight().off();
                 }
             } else if (cmd.equals(Commands.cmdHome)) {
                 //map.stop(); //stops loading tiles
+                stopNetworkLink();
                 selectNearestWaypoints(0, 0, 0, true); // deselect object selection
                 if (R.getContext().isTemporary()) {
                     R.getContext().removeTemporaryLocation();
                 }
-                stopNetworkLink();
                 R.getURL().call("locify://mainScreen");
                 if (R.getSettings().getBacklight() != SettingsData.WHOLE_APPLICATION) {
                     R.getBacklight().off();
@@ -1386,7 +1386,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 panMoveY = 0;
                 repaint();
             } catch (Exception e) {
-                R.getErrorScreen().view(e, "MapScreen.ZoomThread.run()", null);
+                R.getErrorScreen().view(e, "MapScreen.PanThread.run()", null);
             }
         }
     }

@@ -29,6 +29,7 @@ import com.locify.client.gui.screen.internal.ShortcutsScreen;
 import com.locify.client.locator.LocatorModel;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.SettingsData;
+import com.locify.client.data.AudioData;
 import com.locify.client.data.Sync;
 import com.locify.client.gui.manager.FirstRunManager;
 import com.locify.client.gui.manager.InternalURLManager;
@@ -112,6 +113,7 @@ public class R {
     private static SatelliteScreen satelliteScreen;
     private static ContactsScreen contactsScreen;
     private static Backlight backlight;
+    private static AudioData audioData;
 
     public R(Midlet ref) {
         midlet = ref;
@@ -452,5 +454,12 @@ public class R {
             backlight = new Backlight();
         }
         return backlight;
+    }
+
+    public static AudioData getAudio() {
+        if (audioData == null) {
+            audioData = new AudioData();
+        }
+        return audioData;
     }
 }

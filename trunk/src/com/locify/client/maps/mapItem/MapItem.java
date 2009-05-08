@@ -306,16 +306,22 @@ public abstract class MapItem {
     }
 
     protected void panItems(Point2D.Int[] items, int moveX, int moveY) {
-        if (enabled && initialized) {
-            actualState = STATE_INITIALIZING;
-            for (int i = 0; i < items.length; i++) {
-                items[i].setLocation(items[i].x + moveX, items[i].y + moveY);
-            }
+        try {
+            if (enabled && initialized) {
+                actualState = STATE_INITIALIZING;
+                for (int i = 0; i < items.length; i++) {
+                    if (items[i] != null) {
+                        items[i].setLocation(items[i].x + moveX, items[i].y + moveY);
+                    }
+                }
 
-            itemViewPort.x += moveX;
-            itemViewPort.y += moveY;
+                itemViewPort.x += moveX;
+                itemViewPort.y += moveY;
+            }
+            actualState = STATE_WAITING;
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapItem.panItems()", null);
         }
-        actualState = STATE_WAITING;
     }
 
     public void setPriority(int priority) {

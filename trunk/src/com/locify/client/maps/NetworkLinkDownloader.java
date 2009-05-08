@@ -15,6 +15,7 @@ package com.locify.client.maps;
 
 import com.locify.client.data.items.NetworkLink;
 import com.locify.client.utils.R;
+import com.locify.client.net.Http;
 
 /**
  * Manages automated downloading of KML inside NetworkLink
@@ -45,7 +46,7 @@ public class NetworkLinkDownloader extends Thread {
         try {
             while (true) {
                 if (!stop) {
-                    R.getHttp().start(link.getLink());
+                    R.getHttp().start(link.getLink(), Http.NETWORKLINK_DOWNLOADER);
                 }
                 Thread.sleep(link.getRefreshInterval() * 1000);
             }

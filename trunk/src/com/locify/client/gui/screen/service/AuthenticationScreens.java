@@ -172,7 +172,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
                 }
                 
                 R.getPostData().add("next", next);
-                R.getHttp().start(Http.DEFAULT_URL + "user/login");
+                R.getHttp().start(Http.DEFAULT_URL + "user/login",Http.AUTH);
             } else {
                 //service authentication
                 String realm = "";
@@ -206,7 +206,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
                 R.getSettings().saveLocifyCredentials(login, password);
             }
             R.getPostData().add("login", login);
-            R.getHttp().start(Http.DEFAULT_URL + "user/login");
+            R.getHttp().start(Http.DEFAULT_URL + "user/login",Http.AUTH);
         } else {
             if (saveCredentials) {
                 ServiceSettingsData.addEdit("login", login, ServicesData.getCurrent());
@@ -219,7 +219,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
             } else {
                 R.getPostData().add("login", login);
                 R.getPostData().add("password", password);
-                R.getHttp().start(authUrl);
+                R.getHttp().start(authUrl,Http.AUTH);
             }
         }
     }
@@ -244,7 +244,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
                 R.getPostData().add("login", tfLogin.getString());
                 R.getPostData().add("password", tfPassword.getString());
                 R.getPostData().add("email", tfEmail.getString());
-                R.getHttp().start(Http.DEFAULT_URL + "user/register");
+                R.getHttp().start(Http.DEFAULT_URL + "user/register",Http.AUTH);
             }
         }
     }

@@ -40,8 +40,8 @@ public class ScreenOverlayMapItem extends MapItem {
     public void initialize() {
         try {
             screenItem = new ScreenItem(description);
-            BitMapFont font = ColorsFonts.BMF_ARIAL_10_BLACK;
-            screenItem.setFont(font, ColorsFonts.BMF_ARIAL_14_BLACK);
+            BitMapFont font = ColorsFonts.BMF_ARIAL_14_BLACK;
+            screenItem.setFont(font, font);
             int textWidth = font.stringWidth(description);
             screenItem.setSizePos(Capabilities.getWidth()-textWidth-10, R.getTopBar().height+4, textWidth+8, font.getFontHeight()+2);
             initialized = true;

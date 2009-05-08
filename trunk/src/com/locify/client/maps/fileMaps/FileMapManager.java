@@ -153,8 +153,7 @@ public abstract class FileMapManager {
             (mapPath.startsWith("http://") && mapPath.endsWith(".map"))) {
             try {
                 obtainedData = "";
-                Http http = R.getHttp();
-                http.start(mapPath);
+                R.getHttp().start(mapPath, Http.MAPS);
                 long actualTime = System.currentTimeMillis();
                 while (obtainedData.equals("") && (System.currentTimeMillis() - actualTime) < 10000) {
                     try {

@@ -671,7 +671,7 @@ public class XHTMLTagHandler
                         String file = (String) attributeMap.get("src");
                         if (file.endsWith("wav"))
                         {
-                            AudioData.play(R.getHttp().makeAbsoluteURL(file));
+                            R.getAudio().play(R.getHttp().makeAbsoluteURL(file));
                         }
                     }
                 }

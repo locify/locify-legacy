@@ -19,15 +19,15 @@ package com.locify.client.net;
  */
 public class HttpResponse {
     private byte[] data;
-    private boolean image = false;
-    private boolean audio = false;
     private boolean disabledCaching = false;
     private boolean saveAfterDownload = false;
     private String newLocation;
     private String url;
+    private int source;
 
-    public HttpResponse(String url) {
+    public HttpResponse(String url, int source) {
         this.url = url;
+        this.source = source;
     }
 
     public void setData(byte[] data) {
@@ -42,28 +42,12 @@ public class HttpResponse {
         this.disabledCaching = disabledCaching;
     }
 
-    public void setAudio(boolean audio) {
-        this.audio = audio;
-    }
-
-    public void setImage(boolean image) {
-        this.image = image;
-    }
-
     public void setNewLocation(String newLocation) {
         this.newLocation = newLocation;
     }
 
     public String getNewLocation() {
         return newLocation;
-    }
-
-    public boolean isImage() {
-        return image;
-    }
-
-    public boolean isAudio() {
-        return audio;
     }
 
     public String getUrl() {
@@ -80,5 +64,9 @@ public class HttpResponse {
 
     public void setSaveAfterDownload(boolean saveAfterDownload) {
         this.saveAfterDownload = saveAfterDownload;
+    }
+
+    public int getSource() {
+        return source;
     }
 }

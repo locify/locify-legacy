@@ -517,7 +517,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
     public void autoInstallNext() {
         try {
             if (autoInstallUrls.size() > 0) {
-                R.getHttp().start((String) autoInstallUrls.firstElement());
+                R.getHttp().start((String) autoInstallUrls.firstElement(), Http.SERVICE);
                 autoInstallUrls.removeElement(autoInstallUrls.firstElement());
             } else {
                 R.getXmlParser().setAutoInstall(false);

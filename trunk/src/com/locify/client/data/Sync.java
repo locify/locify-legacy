@@ -74,7 +74,7 @@ public class Sync implements CommandListener {
 
             Http http = R.getHttp();
             R.getPostData().setRaw(syncData, false);
-            http.start(Http.DEFAULT_URL + "sync/sync");
+            http.start(Http.DEFAULT_URL + "sync/sync",Http.SYNC);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "Sync.sendSync", null);
         }

@@ -115,7 +115,7 @@ public class InternalURLManager {
             MainScreen ms = R.getMainScreen();
             if (url.startsWith("http://")) {
                 //download page from net
-                R.getHttp().start(url);
+                R.getHttp().start(url,Http.SERVICE);
             } else if (url.equals("locify://mainScreen")) {
                 //display main screen
                 R.getMainScreen().view();
@@ -159,7 +159,7 @@ public class InternalURLManager {
             } else if (url.equals("locify://addService")) {
                 //display server service list
                 ServicesData.setCurrent("Locify");
-                R.getHttp().start(Http.DEFAULT_URL + "services/list");
+                R.getHttp().start(Http.DEFAULT_URL + "services/list",Http.SERVICE);
             } else if (url.equals("locify://addShortcut")) {
                 //display available shortcuts
                 R.getShortcuts().view();
@@ -216,7 +216,7 @@ public class InternalURLManager {
                 CacheData.deleteAll(R.getMainScreen().getFocusedItem().getId());
                 ServicesData.setCurrent(R.getMainScreen().getFocusedItem().getId());
                 R.getXmlParser().setUpdateService(true);
-                R.getHttp().start(R.getMainScreen().getFocusedItem().getId());
+                R.getHttp().start(R.getMainScreen().getFocusedItem().getId(),Http.SERVICE);
             } else if (url.equals("locify://serviceSettings")) {
                 if (R.getPostData().getUrlEncoded() != null) {
                     //saves values sent to service settings
@@ -224,7 +224,7 @@ public class InternalURLManager {
                 } else {
                     //display service settings
                     Service service = ServicesData.getService(ms.getFocusedItem().getId());
-                    R.getHttp().start(service.getSettingsUrl());
+                    R.getHttp().start(service.getSettingsUrl(),Http.SERVICE);
                 }
             } else if (url.equals("locify://renameItem")) {
                 //shows rename item screen

@@ -29,6 +29,7 @@ import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.R;
 import com.locify.client.net.XHTMLBrowser;
+import com.locify.client.net.Http;
 import de.enough.polish.ui.ChoiceGroup;
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.Screen;
@@ -51,6 +52,7 @@ public class GeoFileBrowser implements CommandListener {
     private NetworkLink networkLink;
     private MultiGeoData multiData;
     private int dataType;
+    private int multiDataSource;
     private String geoData;
     private String fileName;
     private Form formMultiGeoData;
@@ -87,11 +89,13 @@ public class GeoFileBrowser implements CommandListener {
     /**
      * Sets raw kml data from net
      * @param kml kml data
+     * @param source source of data - from http response
      */
-    public void setGeoData(String geoData) {
+    public void setGeoData(String geoData, int source) {
 //        kml = GeoFiles.correctStringData(kml);
         int type = GeoFiles.getDataTypeString(geoData);
         multiData = GeoFiles.parseGeoDataString(geoData, false);
+        multiDataSource = source;
         if (multiData != null && multiData.getDataSize() > 0) {
             manageData(type);
             this.geoData = geoData;
@@ -152,6 +156,11 @@ public class GeoFileBrowser implements CommandListener {
                     R.getBack().deleteLast();
                     R.getBack().goForward("locify://maps", null);
                     return;
+                }
+
+                if (multiDataSource==Http.NETWORKLINK_DOWNLOADER && !MapScreen.isNowDirectly())
+                {
+                    return; //file is from networklinkdownloader which was already stopped
                 }
 
                 if (MapScreen.isNowDirectly()) {

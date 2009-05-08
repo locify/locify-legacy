@@ -39,6 +39,17 @@ import java.util.Vector;
 public class Http implements Runnable {
 
     public static String DEFAULT_URL;
+    //sources - where request is originated
+    public static int SERVICE = 0;
+    public static int NETWORKLINK_DOWNLOADER = 1;
+    public static int IMAGE_DOWNLOADER = 2;
+    public static int AUDIO_DOWNLOADER = 3;
+    public static int STRAIGHT_TO_CACHE = 4;
+    public static int GEOCODING = 5;
+    public static int MAPS = 6;
+    public static int AUTH = 7;
+    public static int UPDATER = 8;
+    public static int SYNC = 9;
     private Thread thread = null;
     private HttpConnection httpConnection = null;
     private InputStream is = null;
@@ -62,8 +73,8 @@ public class Http implements Runnable {
      * Opens new request in new thread
      * @param url
      */
-    public void start(String url) {
-        start(new HttpRequest(url, R.getPostData().getUrlEncoded(), R.getPostData().isUrlEncoded(), CookieData.getHeaderData(url), true));
+    public void start(String url, int source) {
+        start(new HttpRequest(url, R.getPostData().getUrlEncoded(), R.getPostData().isUrlEncoded(), CookieData.getHeaderData(url), source));
     }
 
     /***
@@ -104,7 +115,7 @@ public class Http implements Runnable {
         try {
             while (!requestQueue.isEmpty()) {
                 request = (HttpRequest) requestQueue.firstElement();
-                response = new HttpResponse(request.getUrl());
+                response = new HttpResponse(request.getUrl(), request.getSource());
                 //firstly try cache
                 response.setData(CacheData.get(request.getUrl()));
                 if (response.getData() != null) {
@@ -163,7 +174,7 @@ public class Http implements Runnable {
                 }
                 //process content
                 if (response.getData() != null) {
-                    if (request.shouldDisplay()) {
+                    if (request.getSource()!=STRAIGHT_TO_CACHE) {
                         ContentHandler.handle(response);
                     } else //dont display, save to cache instead
                     {
@@ -242,13 +253,6 @@ public class Http implements Runnable {
             } //location url
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("Location")) {
                 response.setNewLocation(httpConnection.getHeaderField(j));
-            } //image download
-            else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("Content-type")) {
-                if (httpConnection.getHeaderField(j).equalsIgnoreCase("image/png")) {
-                    response.setImage(true);
-                } else if (httpConnection.getHeaderField(j).equalsIgnoreCase("audio/x-wav")) {
-                    response.setAudio(true);
-                }
             } // http basic auth
             else if (httpConnection.getHeaderFieldKey(j).equalsIgnoreCase("WWW-Authenticate")) {
                 if (httpConnection.getHeaderField(j).indexOf("Basic") != -1) {
@@ -262,7 +266,7 @@ public class Http implements Runnable {
                 Logger.log("Download these urls to cache: " + httpConnection.getHeaderField(j));
                 String[] parts = StringTokenizer.getArray(httpConnection.getHeaderField(j), " ");
                 for (int i = 0; i < parts.length; i++) {
-                    start(new HttpRequest(parts[i], null, false, CookieData.getHeaderData(parts[i]), false));
+                    start(new HttpRequest(parts[i], null, false, CookieData.getHeaderData(parts[i]), STRAIGHT_TO_CACHE));
                 }
                 response.setSaveAfterDownload(true);
             }
@@ -290,15 +294,15 @@ public class Http implements Runnable {
             return true;
         } else if (responseCode == 301 || responseCode == 302 || responseCode == 303 || responseCode == 307) {
             Logger.log("Redirecting to " + response.getNewLocation());
-            start(response.getNewLocation());
+            start(response.getNewLocation(), response.getSource());
             return true;
         } else {
             if (responseCode == 403) //auth failed
             {
                 R.getSettings().setAutologin(SettingsData.OFF);
             }
-            if ((response.isAudio() || response.isImage()) && responseCode != 200) {
-                Logger.log("Image download failed: " + responseCode);
+            if ((response.getSource()==AUDIO_DOWNLOADER || response.getSource() == IMAGE_DOWNLOADER) && responseCode != 200) {
+                Logger.log("Media download failed: " + responseCode);
                 return true;
             }
             return false;
@@ -366,14 +370,14 @@ class HttpRequest {
     private boolean postDataUrlEncoded;
     private String cookies;
     private String httpBasicResponse;
-    private boolean display; //used for automated cache saving
+    private int source;
 
-    public HttpRequest(String url, String postData, boolean postDataUrlEncoded, String cookies, boolean display) {
+    public HttpRequest(String url, String postData, boolean postDataUrlEncoded, String cookies, int source) {
         this.url = url;
         this.postData = postData;
         this.postDataUrlEncoded = postDataUrlEncoded;
         this.cookies = cookies;
-        this.display = display;
+        this.source = source;
     }
 
     public String getPostData() {
@@ -386,10 +390,6 @@ class HttpRequest {
 
     public String getUrl() {
         return url;
-    }
-
-    public boolean shouldDisplay() {
-        return display;
     }
 
     public String getCookies() {
@@ -409,11 +409,15 @@ class HttpRequest {
     }
 
     public String toString() {
-        return url+postData+postDataUrlEncoded+cookies+httpBasicResponse+display;
+        return url+postData+postDataUrlEncoded+cookies+httpBasicResponse+source;
     }
 
     public HttpRequest clone() {
-        return new HttpRequest(url, postData, postDataUrlEncoded, cookies, display);
+        return new HttpRequest(url, postData, postDataUrlEncoded, cookies, source);
+    }
+
+    public int getSource() {
+        return source;
     }
 }
 

@@ -15,6 +15,7 @@ package com.locify.client.data;
 
 import javax.microedition.lcdui.Image;
 import com.locify.client.utils.R;
+import com.locify.client.net.Http;
 
 /**
  * This class takes cares about storing icons downloaded from web,
@@ -45,12 +46,12 @@ public class IconData {
                     return Image.createImage(imageData, 0, imageData.length);
                 } catch (IllegalArgumentException e) //spatne ulozeny obrazek
                 {
-                    R.getHttp().start(url);
+                    R.getHttp().start(url,Http.IMAGE_DOWNLOADER);
                     return null;
                 }
             }
             //download not available icon
-            R.getHttp().start(url);
+            R.getHttp().start(url,Http.IMAGE_DOWNLOADER);
             return null;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "IconData.get", url);

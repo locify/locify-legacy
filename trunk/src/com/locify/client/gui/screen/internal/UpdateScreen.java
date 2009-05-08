@@ -16,6 +16,7 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
+import com.locify.client.net.Http;
 import de.enough.polish.util.Locale;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -62,7 +63,7 @@ public class UpdateScreen extends Form implements CommandListener, ItemCommandLi
      */
     public void checkVersion()
     {
-        R.getHttp().start(UPDATE_URL);
+        R.getHttp().start(UPDATE_URL,Http.UPDATER);
     }
 
     public void commandAction(Command command, Displayable displayable) {
