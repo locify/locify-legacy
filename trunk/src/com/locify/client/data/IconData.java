@@ -39,7 +39,7 @@ public class IconData {
                 return Image.createImage(url.substring(14));
             }
             //filesystem icons
-            byte[] imageData = R.getFileSystem().loadBytes(FileSystem.ICONS_FOLDER + FileSystem.hashFileName(url) + ".png");
+            byte[] imageData = R.getFileSystem().loadBytes(FileSystem.IMAGES_FOLDER + FileSystem.hashFileName(url) + ".png");
             if (imageData != null) //icon available
             {
                 try {
@@ -67,7 +67,7 @@ public class IconData {
     public static void save(String url, byte[] imageData) {
         try {
             url = R.getHttp().makeAbsoluteURL(url);
-            R.getFileSystem().saveBytes(FileSystem.ICONS_FOLDER + FileSystem.hashFileName(url) + ".png", imageData);
+            R.getFileSystem().saveBytes(FileSystem.IMAGES_FOLDER + FileSystem.hashFileName(url) + ".png", imageData);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "IconData.save", url);
         }
@@ -79,7 +79,7 @@ public class IconData {
      */
     public static void delete(String url) {
         try {
-            R.getFileSystem().delete(FileSystem.ICONS_FOLDER + FileSystem.hashFileName(url) + ".png");
+            R.getFileSystem().delete(FileSystem.IMAGES_FOLDER + FileSystem.hashFileName(url) + ".png");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "IconData.delete", url);
         }

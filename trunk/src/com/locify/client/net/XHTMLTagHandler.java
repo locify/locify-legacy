@@ -28,7 +28,6 @@ package com.locify.client.net;
 import com.locify.client.gui.screen.service.HtmlSelect;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
-import com.locify.client.data.AudioData;
 import com.locify.client.gui.screen.service.ContactsScreen;
 import java.util.Enumeration;
 import java.util.Hashtable;

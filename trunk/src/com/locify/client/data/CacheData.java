@@ -31,7 +31,7 @@ public class CacheData {
      */
     public static byte[] get(String url) {
         try {
-            url = FileSystem.CACHE_FOLDER + FileSystem.hashFileName(ServicesData.getCurrent()) + "/" + FileSystem.hashFileName(url) + ".html";
+            url = FileSystem.HTML_FOLDER + FileSystem.hashFileName(ServicesData.getCurrent()) + "/" + FileSystem.hashFileName(url) + ".html";
             return R.getFileSystem().loadBytes(url);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "CacheData.get", url);
@@ -49,7 +49,7 @@ public class CacheData {
             url = R.getHttp().makeAbsoluteURL(url);
             xhtml = Utils.removeXmlHeaders(xhtml);
             //hledani polozky v kesi
-            url = FileSystem.CACHE_FOLDER + FileSystem.hashFileName(ServicesData.getCurrent()) + "/" + FileSystem.hashFileName(url) + ".html";
+            url = FileSystem.HTML_FOLDER + FileSystem.hashFileName(ServicesData.getCurrent()) + "/" + FileSystem.hashFileName(url) + ".html";
             R.getFileSystem().saveString(url, xhtml);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "CacheData.add", url);
@@ -63,7 +63,7 @@ public class CacheData {
      */
     public static void delete(String service, String url) {
         try {
-            R.getFileSystem().delete(FileSystem.CACHE_FOLDER + FileSystem.hashFileName(service) + "/" + FileSystem.hashFileName(url) + ".html");
+            R.getFileSystem().delete(FileSystem.HTML_FOLDER + FileSystem.hashFileName(service) + "/" + FileSystem.hashFileName(url) + ".html");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "CacheData.delete", url);
         }
@@ -76,7 +76,7 @@ public class CacheData {
     public static void deleteAll(String service)
     {
         try {
-            R.getFileSystem().deleteAll(FileSystem.CACHE_FOLDER + FileSystem.hashFileName(service)+"/");
+            R.getFileSystem().deleteAll(FileSystem.HTML_FOLDER + FileSystem.hashFileName(service)+"/");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "CacheData.deleteAll", null);
         }

@@ -24,7 +24,6 @@ import com.locify.client.utils.Sha1;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
-import com.locify.client.utils.Logger;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -32,27 +31,21 @@ import java.util.Vector;
 
 /**
  * This class takes care about storing files on memory card or phone's memory<br/>
- * Location in the filesystem can be:<br/>
- * <ul>
- *   <li>ICONS_FOLDER</li>
- *   <li>CACHE_FOLDER</li>
- *   <li>WAYPOINTS_FOLDER</li>
- *   <li>ROUTES_FOLDER</li>
- *   <li>SETTINGS_FOLDER</li>
- * </ul>
  * @author Destil
  */
 public class FileSystem {
 
     //folders definition
     public static final String SETTINGS_FOLDER = "settings/";
-    public static final String ICONS_FOLDER = SETTINGS_FOLDER + "icons/";
-    public static final String CACHE_FOLDER = SETTINGS_FOLDER + "cache/";
-    public static final String AUDIO_FOLDER = SETTINGS_FOLDER + "audio/";
     public static final String FILES_FOLDER = "files/";
     public static final String LOG_FOLDER = "log/";
     public static final String MAP_FOLDER = "maps/";
-    public static final String CACHE_MAP_FOLDER = SETTINGS_FOLDER + "cache/map/";
+    public static final String CACHE_FOLDER = "cache/";
+    public static final String IMAGES_FOLDER = CACHE_FOLDER + "images/";
+    public static final String HTML_FOLDER = CACHE_FOLDER + "html/";
+    public static final String AUDIO_FOLDER = CACHE_FOLDER + "audio/";
+    public static final String CACHE_MAP_FOLDER = CACHE_FOLDER + "map/";
+    public static final String ROUTE_FOLDER = CACHE_FOLDER + "route/";
     //files definition
     public static final String SETTINGS_FILE = SETTINGS_FOLDER + "mainSettings.xml";
     public static final String COOKIES_FILE = SETTINGS_FOLDER + "cookies.xml";
@@ -61,8 +54,8 @@ public class FileSystem {
     public static final String MAINSCREEN_FILE = SETTINGS_FOLDER + "mainScreen.xml";
     public static final String SERVICE_SETTINGS_FILE = SETTINGS_FOLDER + "serviceSettings.xml";
     /** file for saving running route serializated data before midlet is killed */
-    public static final String RUNNING_ROUTE_VARIABLES = CACHE_FOLDER + "runningRoute.lcf";
-    public static final String RUNNING_TEMP_ROUTE = FILES_FOLDER + "runningRoute.tmp";
+    public static final String RUNNING_ROUTE_VARIABLES = ROUTE_FOLDER + "runningRoute.lcf";
+    public static final String RUNNING_TEMP_ROUTE = ROUTE_FOLDER + "runningRoute.tmp";
     public static String ROOT = null;
 
     public FileSystem() {

@@ -15,15 +15,16 @@ package com.locify.client.data;
 
 import com.locify.client.utils.R;
 import com.locify.client.net.Http;
-import de.enough.polish.multimedia.AudioPlayer;
-import javax.microedition.io.file.FileConnection;
-import javax.microedition.io.Connector;
+import java.io.ByteArrayInputStream;
+import javax.microedition.media.MediaException;
+import javax.microedition.media.Player;
+import javax.microedition.media.Manager;
 
 /**
  * Manages downloading, storing and playing audio files in WAV format
  * @author Destil
  */
-public class AudioData implements Runnable {
+public class AudioData {
 
     private String url = null;
 
@@ -40,10 +41,15 @@ public class AudioData implements Runnable {
                 return;
             }
             if (R.getFileSystem().exists(FileSystem.AUDIO_FOLDER + FileSystem.hashFileName(url) + ".wav")) {
-                this.url = url;
-                (new Thread(this)).start();
+                ByteArrayInputStream baos = new ByteArrayInputStream(R.getFileSystem().loadBytes(FileSystem.AUDIO_FOLDER + FileSystem.hashFileName(url) + ".wav"));
+                try {
+                    Player player = Manager.createPlayer(baos, "audio/x-wav");
+                    player.start();
+                } catch (MediaException e) {
+                    //ignore
+                }
             } else {
-                R.getHttp().start(url,Http.AUDIO_DOWNLOADER);
+                R.getHttp().start(url, Http.AUDIO_DOWNLOADER);
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "AudioData.play", url);
@@ -65,14 +71,4 @@ public class AudioData implements Runnable {
         }
     }
 
-    public void run() {
-        try {
-            AudioPlayer player = new AudioPlayer("audio/x-wav");
-            FileConnection fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.AUDIO_FOLDER + FileSystem.hashFileName(url) + ".wav");
-            player.play(fileConnection.openInputStream());
-            fileConnection.close();
-        } catch (Exception e) {
-            //ignore
-        }
-    }
 }
