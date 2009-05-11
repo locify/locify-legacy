@@ -83,6 +83,17 @@ public class ServiceSettingsData {
         }
     }
 
+    public static void delete(String service)
+    {
+        for (int i = 0; i < settings.size(); i++) {
+                ServiceSetting setting = (ServiceSetting) settings.elementAt(i);
+                if (setting.getService().equals(service)) {
+                    settings.removeElementAt(i);
+                    i--;
+                }
+        }
+    }
+
     /**
      * Returns value of desired setting name
      * @param name name of setting
@@ -128,7 +139,7 @@ public class ServiceSettingsData {
     public static String replaceVariables(String text) {
         try {
             int start = 0;
-            while ((start = text.indexOf("$settings[",start)) != -1) {
+            while ((start = text.indexOf("$settings[", start)) != -1) {
                 int end = text.indexOf("]", start);
                 String settingName = text.substring(start + 10, end);
                 boolean replaced = false;
@@ -160,39 +171,40 @@ public class ServiceSettingsData {
             String syncData = "";
             //find out which services have settings
             Vector servicesWithSettings = new Vector();
-            for (int i = 0; i < settings.size(); i++) {
-                ServiceSetting setting = (ServiceSetting) settings.elementAt(i);
-                if (!servicesWithSettings.contains(setting.getService())) {
-                    servicesWithSettings.addElement(setting.getService());
-                }
-            }
-
-            //print out settings of each service
-            for (int i = 0; i < servicesWithSettings.size(); i++) {
-                String service = (String) servicesWithSettings.elementAt(i);
-                if (!service.equals("Locify")) {
-                    syncData += "<file>\n";
-                    syncData += "<id>" + service + "</id>\n";
-                    syncData += "<type>settings</type>\n";
-                    syncData += "<action>allSync</action>\n";
-                    syncData += "<ts>" + ServicesData.getService(service).getSettingsTimestamp() + "</ts>\n";
-                    syncData += "<content>\n";
-                    syncData += "<settings>\n";
-                    for (int j = 0; j < settings.size(); j++) {
-                        ServiceSetting setting = (ServiceSetting) settings.elementAt(j);
-                        if (setting.getService().equals(service)) {
-                            syncData += "<variable><name>" + setting.getName() + "</name><value>" + setting.getValue() + "</value></variable>\n";
-                        }
+            if (servicesWithSettings != null && settings != null) {
+                for (int i = 0; i < settings.size(); i++) {
+                    ServiceSetting setting = (ServiceSetting) settings.elementAt(i);
+                    if (!servicesWithSettings.contains(setting.getService())) {
+                        servicesWithSettings.addElement(setting.getService());
                     }
-                    syncData += "</settings>\n";
-                    syncData += "</content>\n";
-                    syncData += "</file>\n";
+                }
+                //print out settings of each service
+                for (int i = 0; i < servicesWithSettings.size(); i++) {
+                    String service = (String) servicesWithSettings.elementAt(i);
+                    if (!service.equals("Locify")) {
+                        syncData += "<file>\n";
+                        syncData += "<id>" + service + "</id>\n";
+                        syncData += "<type>settings</type>\n";
+                        syncData += "<action>allSync</action>\n";
+                        syncData += "<ts>" + ServicesData.getService(service).getSettingsTimestamp() + "</ts>\n";
+                        syncData += "<content>\n";
+                        syncData += "<settings>\n";
+                        for (int j = 0; j < settings.size(); j++) {
+                            ServiceSetting setting = (ServiceSetting) settings.elementAt(j);
+                            if (setting.getService().equals(service)) {
+                                syncData += "<variable><name>" + setting.getName() + "</name><value>" + setting.getValue() + "</value></variable>\n";
+                            }
+                        }
+                        syncData += "</settings>\n";
+                        syncData += "</content>\n";
+                        syncData += "</file>\n";
+                    }
                 }
             }
 
             return syncData;
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "ServiceSettingsData.syncData", null);
+            R.getErrorScreen().view(e, "ServiceSettingsData.getXml", null);
             return "";
         }
     }
@@ -202,8 +214,7 @@ public class ServiceSettingsData {
         R.getFileSystem().saveString(FileSystem.SERVICE_SETTINGS_FILE, data);
     }
 
-    public static void loadXML()
-    {
+    public static void loadXML() {
         try {
             settings = new Vector();
             String data = R.getFileSystem().loadString(FileSystem.SERVICE_SETTINGS_FILE);

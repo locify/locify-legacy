@@ -94,6 +94,7 @@ public class ServicesData {
                     DeletedData.add(id, "service");
                     //R.getIcons().delete(service.getIcon());
                     services.removeElementAt(i);
+                    ServiceSettingsData.delete(id);
                     break;
                 }
             }

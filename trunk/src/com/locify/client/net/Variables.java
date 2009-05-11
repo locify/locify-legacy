@@ -15,7 +15,7 @@ package com.locify.client.net;
 
 import com.locify.client.data.CookieData;
 import com.locify.client.data.ServiceSettingsData;
-import com.locify.client.maps.planStudio.PlanStudioManager;
+//import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
@@ -68,7 +68,7 @@ public class Variables {
             }
             if (text.indexOf("$client[ident]") >=0 )
             {
-                text = Utils.replaceString(text, "$client[ident]", PlanStudioManager.getPhoneIdentification());
+                //text = Utils.replaceString(text, "$client[ident]", PlanStudioManager.getPhoneIdentification());
             }
             if (text.indexOf("$location[source]") >=0 )
             {

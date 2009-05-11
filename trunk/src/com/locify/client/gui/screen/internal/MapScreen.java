@@ -39,7 +39,7 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
-import com.locify.client.maps.planStudio.PlanStudioManager;
+//import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.maps.mapItem.ScreenOverlayMapItem;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.ColorsFonts;
@@ -358,7 +358,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 }
             }
         }
-        if (!differentScreenLock) {
+        if (!differentScreenLock && !isMenuOpened()) {
             view();
         }
         //free memory or networklink will have problems
@@ -1562,7 +1562,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void startMapNavigation(Waypoint waypoint) {
-        System.out.println("start map navigation");
         differentScreenLock = false;
         mapItemManager.addItemTemp(tempMapNavigationItem,
                 new MapNavigationItem(

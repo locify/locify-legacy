@@ -205,7 +205,6 @@ public class GeoFileBrowser implements CommandListener {
     }
 
     private void viewDataRoute() {
-System.out.println(route.toString());
         formRoute = new Form(route.getName());
         formRoute.append(new StringItem(Locale.get("Route_length") + " ", GpsUtils.formatDistance(route.getRouteDist())));
         formRoute.append(new StringItem(Locale.get("Travel_time") + " ", GpsUtils.formatTime(route.getRouteTime())));
