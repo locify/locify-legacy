@@ -339,6 +339,7 @@ public class Utils {
      * Converts expire date from cookies to unix timestamp
      * Sample cookie date: expires=Fri, 31 Dec 2010 23:59:59 GMT;
      *                 or: expires=Fri, 31-Dec-2010 23:59:59 GMT;
+     *                 or: Sat04 Jul 2009 12:24:30 GMT
      * @param expires cookie expire string
      * @return unix timestamp
      */
@@ -354,12 +355,18 @@ public class Utils {
                 year = Integer.parseInt(date[2]);
                 time = StringTokenizer.getArray(parts[2], ":");
             } else {
-                day = Integer.parseInt(parts[1]);
-                month = numericMonth(parts[2]);
-                year = Integer.parseInt(parts[3]);
-                time = StringTokenizer.getArray(parts[4], ":");
+                if (parts[0].length() == 5) {
+                    day = Integer.parseInt(parts[0].substring(3, 5));
+                    month = numericMonth(parts[1]);
+                    year = Integer.parseInt(parts[2]);
+                    time = StringTokenizer.getArray(parts[3], ":");
+                } else {
+                    day = Integer.parseInt(parts[1]);
+                    month = numericMonth(parts[2]);
+                    year = Integer.parseInt(parts[3]);
+                    time = StringTokenizer.getArray(parts[4], ":");
+                }
             }
-
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.DAY_OF_MONTH, day);
             calendar.set(Calendar.MONTH, month);
@@ -374,6 +381,7 @@ public class Utils {
             return -1;
         }
     }
+
 
     /**
      * Returns numeric month from three-letter name

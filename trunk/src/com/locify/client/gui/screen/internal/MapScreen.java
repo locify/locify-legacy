@@ -361,6 +361,8 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         if (!differentScreenLock) {
             view();
         }
+        //free memory or networklink will have problems
+        System.gc();
     }
 
     /**

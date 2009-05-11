@@ -149,9 +149,9 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
      * @param discType 
      */
     public void inquiryCompleted(int discType) {
-            if (devices.size() == 0) {
-                viewConnectionProgress(Locale.get("No_bt_in_range"), Gauge.CONTINUOUS_IDLE);
-            }
+        if (devices.size() == 0) {
+            viewConnectionProgress(Locale.get("No_bt_in_range"), Gauge.CONTINUOUS_IDLE);
+        }
     }
 
     /**
@@ -185,24 +185,28 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
      * This thread takes care about service searching
      */
     public void run() {
-        boolean searching = true;
-        int timeout = 0;
-        while (searching) {
-            try {
-                timeout++;
-                if (timeout > 20) {
-                    viewConnectionProgress(Locale.get("Unable_to_search_service"), Gauge.CONTINUOUS_IDLE);
-                    searching = false;
-                }
-                this.discoveryAgent.searchServices(null, new UUID[]{new UUID(0x1101)}, (RemoteDevice) this.devices.elementAt(lstDevices.getSelectedIndex()), this);
-
-                searching = false;
-            } catch (BluetoothStateException ex) {
+        try {
+            boolean searching = true;
+            int timeout = 0;
+            while (searching) {
                 try {
-                    Thread.sleep(150);
-                } catch (InterruptedException exc) {
+                    timeout++;
+                    if (timeout > 20) {
+                        viewConnectionProgress(Locale.get("Unable_to_search_service"), Gauge.CONTINUOUS_IDLE);
+                        searching = false;
+                    }
+                    this.discoveryAgent.searchServices(null, new UUID[]{new UUID(0x1101)}, (RemoteDevice) this.devices.elementAt(lstDevices.getSelectedIndex()), this);
+
+                    searching = false;
+                } catch (BluetoothStateException ex) {
+                    try {
+                        Thread.sleep(150);
+                    } catch (InterruptedException exc) {
+                    }
                 }
             }
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "BluetoothManager.run()", bluetoothAdress);
         }
     }
 
@@ -213,8 +217,7 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
         } else if (command == Commands.cmdBack) {
             discoveryAgent.cancelInquiry(this);
             R.getBack().goBack();
-        } else if (displayable == lstDevices && command == List.SELECT_COMMAND)
-        {
+        } else if (displayable == lstDevices && command == List.SELECT_COMMAND) {
             R.getURL().call("locify://selectBTDevice");
         }
     }

@@ -72,57 +72,60 @@ public class NMEALocationProvider extends LocationProvider {
         }
 
         public void run() {
-            stopRequest = false;
-            setState(CONNECTING);
-            parent.gpsAlive = 0;
+            try {
+                stopRequest = false;
+                setState(CONNECTING);
+                parent.gpsAlive = 0;
 
-            StringBuffer s = new StringBuffer();
-            while (!stopRequest) {
-                if (inputStream != null) {
-                    try {
-                        s.delete(0, s.length());
-                        int ch = 0;
-                        //cteni dat
-                        while (((ch = inputStream.read()) != '\n') && (ch != -1)) {
-                            s.append((char) ch);
-                        }
-                        nmea = s.toString();
+                StringBuffer s = new StringBuffer();
+                while (!stopRequest) {
+                    if (inputStream != null) {
+                        try {
+                            s.delete(0, s.length());
+                            int ch = 0;
+                            //cteni dat
+                            while (((ch = inputStream.read()) != '\n') && (ch != -1)) {
+                                s.append((char) ch);
+                            }
+                            nmea = s.toString();
 //Logger.debug(nmea);
-                        receiveNmea(nmea);
-                        if (lastLocation == null || (
-                                lastLocation.getLatitude() != actualLocation.getLatitude() &&
-                                lastLocation.getLongitude() != actualLocation.getLongitude())) {
+                            receiveNmea(nmea);
+                            if (lastLocation == null || (lastLocation.getLatitude() != actualLocation.getLatitude() &&
+                                    lastLocation.getLongitude() != actualLocation.getLongitude())) {
 
-                            LocationSample locSampl = new LocationSample(
-                                    actualLocation.getLatitude(), actualLocation.getLongitude(), actualLocation.getAltitude(),
-                                    getHorizontalAccuracy(), getVerticalAccuracy(),
-                                    speed, course);
+                                LocationSample locSampl = new LocationSample(
+                                        actualLocation.getLatitude(), actualLocation.getLongitude(), actualLocation.getAltitude(),
+                                        getHorizontalAccuracy(), getVerticalAccuracy(),
+                                        speed, course);
 
-                            locationFilter.addLocationSample(locSampl);
-                            actualLocation = locationFilter.getFilteredLocation();
+                                locationFilter.addLocationSample(locSampl);
+                                actualLocation = locationFilter.getFilteredLocation();
 
-                            //course = locationFilter.getFilteredCourse();
-                            //speed = locationFilter.getFilteredSpeed();
-                            parent.notifyNewLocationToListeners();
+                                //course = locationFilter.getFilteredCourse();
+                                //speed = locationFilter.getFilteredSpeed();
+                                parent.notifyNewLocationToListeners();
 
-                            lastLocation = actualLocation.getLocation4DCopy();
+                                lastLocation = actualLocation.getLocation4DCopy();
+                            }
+
+                            parent.gpsAlive = System.currentTimeMillis();
+
+                            //nastaveni gps statusu
+                            if (!fix) {
+                                setState(WAITING);
+                            } else {
+                                setState(READY);
+                            }
+
+                        } catch (Exception e) {
+                            stop();
                         }
-
-                        parent.gpsAlive = System.currentTimeMillis();
-
-                        //nastaveni gps statusu
-                        if (!fix) {
-                            setState(WAITING);
-                        } else {
-                            setState(READY);
-                        }
-
-                    } catch (Exception e) {
+                    } else {
                         stop();
                     }
-                } else {
-                    stop();
                 }
+            } catch (Exception e) {
+                R.getErrorScreen().view(e, "NMEALocationProvider.run()", null);
             }
         }
 
@@ -153,7 +156,7 @@ public class NMEALocationProvider extends LocationProvider {
                     return;
                 }
                 if (nmea.length() < 10) {
-                // Satellites in view
+                    // Satellites in view
                 } else if (nmea.startsWith("$GPGSV")) {
                     satManager.parseNMEASatellites(nmea);
                     nmeaCount++;
@@ -190,10 +193,11 @@ public class NMEALocationProvider extends LocationProvider {
                     } else if (param.length > 5) {
                         parseLatitude(param[2], param[3]);
                         parseLongitude(param[4], param[5]);
-                        if (param.length > 7 && param[7].length() > 0)
-                            //fixSatellites = GpsUtils.parseInt(param[7]);
-                        if (param.length > 10 && param[9].length() > 0 && param[10].length() > 0) {
-                            parseAltitude(param[9], param[10]);
+                        if (param.length > 7 && param[7].length() > 0) //fixSatellites = GpsUtils.parseInt(param[7]);
+                        {
+                            if (param.length > 10 && param[9].length() > 0 && param[10].length() > 0) {
+                                parseAltitude(param[9], param[10]);
+                            }
                         }
                     }
                     nmeaCount++;

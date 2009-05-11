@@ -103,7 +103,12 @@ public class MapItemManager {
                 if (R.getMapScreen().getDifferentScreenLock()) {
                     String navId = R.getNavigationScreen().getWaypointId();
                     if (navId != null) {
-                        R.getNavigationScreen().updateWaypoint(((PointMapItem) item).getWaypointById(navId));
+                        Waypoint waypoint = ((PointMapItem) item).getWaypointById(navId);
+                        if (waypoint == null) {
+                            R.getNavigationScreen().removeNavigator();
+                        } else {
+                            R.getNavigationScreen().updateWaypoint(waypoint);
+                        }
                     }
                 }
                 //update selected item

@@ -213,6 +213,12 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         view();
     }
 
+    public void removeNavigator()
+    {
+        navigator = null;
+        repaint();
+    }
+
     /**
      * Starts navigation to lat, lon
      * @param lat
@@ -507,20 +513,24 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             Thread thread = new Thread(new Runnable() {
 
                 public void run() {
-                    for (int i = 0; i < numOfSteps; i++) {
-                        NavigationScreen.nAngle = fixDegAngle(NavigationScreen.nAngle + (nDiff / numOfSteps));
-                        NavigationScreen.dAngle = fixDegAngle(NavigationScreen.dAngle + (dDiff / numOfSteps));
-                        repaint();
-                        try {
-                            Thread.sleep(40);
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
+                    try {
+                        for (int i = 0; i < numOfSteps; i++) {
+                            NavigationScreen.nAngle = fixDegAngle(NavigationScreen.nAngle + (nDiff / numOfSteps));
+                            NavigationScreen.dAngle = fixDegAngle(NavigationScreen.dAngle + (dDiff / numOfSteps));
+                            repaint();
+                            try {
+                                Thread.sleep(40);
+                            } catch (InterruptedException ex) {
+                                ex.printStackTrace();
+                            }
                         }
-                    }
 
-                    NavigationScreen.nAngle = nAngle;
-                    NavigationScreen.dAngle = dAngle;
-                    repaint();
+                        NavigationScreen.nAngle = nAngle;
+                        NavigationScreen.dAngle = dAngle;
+                        repaint();
+                    } catch (Exception e) {
+                        R.getErrorScreen().view(e, "NavigationScreen.moveAngles.run()", null);
+                    }
                 }
             });
 

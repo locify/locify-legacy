@@ -33,7 +33,6 @@ public class RouteManager implements LocationEventListener {
     public static final int ROUTE_STATE_RUNNING = 1;
     public static final int ROUTE_STATE_UNFINISHED_ROUTE = 2;
     public static final int ROUTE_STATE_PAUSED = 3;
-
     private Thread thread;
     private long sleepedTime = 0;
     private int routeSaveUnfinishedTester = 0;
@@ -56,39 +55,43 @@ public class RouteManager implements LocationEventListener {
         thread = new Thread(new Runnable() {
 
             public void run() {
-                while (true) {
+                try {
+                    while (true) {
 
-                    actualizeRouteTime();
+                        actualizeRouteTime();
 
-                    if (sleepedTime > 1000 && isRunning()) {
-                        if (R.getRouteScreen().isShown()) {
-                            actualDate = Utils.getActualDate();
-                        }
-
-                        // every 3 seconds
-                        if (routeSaveUnfinishedTester % 3 == 0) {
-                            if (R.isMapScreenInitialized() && R.getMapScreen().isShown()) {
-                                R.getMapScreen().showActualRoute(rv);
+                        if (sleepedTime > 1000 && isRunning()) {
+                            if (R.getRouteScreen().isShown()) {
+                                actualDate = Utils.getActualDate();
                             }
 
-                            rv.dataFlush(false);
-                        }
+                            // every 3 seconds
+                            if (routeSaveUnfinishedTester % 3 == 0) {
+                                if (R.isMapScreenInitialized() && R.getMapScreen().isShown()) {
+                                    R.getMapScreen().showActualRoute(rv);
+                                }
 
-                        if (routeSaveUnfinishedTester % 15 == 0) {
-                            saveUnfinishedRoute();
-                            routeSaveUnfinishedTester = 0;
-                        }
+                                rv.dataFlush(false);
+                            }
 
-                        routeSaveUnfinishedTester++;
-                        sleepedTime = 0;
-                    } else {
-                        sleepedTime += 100;
+                            if (routeSaveUnfinishedTester % 15 == 0) {
+                                saveUnfinishedRoute();
+                                routeSaveUnfinishedTester = 0;
+                            }
+
+                            routeSaveUnfinishedTester++;
+                            sleepedTime = 0;
+                        } else {
+                            sleepedTime += 100;
+                        }
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
                     }
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                } catch (Exception e) {
+                    R.getErrorScreen().view(e, "RouteManager.run", null);
                 }
             }
         });
@@ -101,7 +104,7 @@ public class RouteManager implements LocationEventListener {
             rv.dataBegin();
             rv.startTime = System.currentTimeMillis();
             rv.pauseStart = rv.startTime;
-            //routeVariables.locationActual = R.getLocator().getLastLocation();
+        //routeVariables.locationActual = R.getLocator().getLastLocation();
         }
 
         if (rv.paused) {
@@ -186,8 +189,9 @@ public class RouteManager implements LocationEventListener {
 
     public void locationChanged(LocationEventGenerator sender, Location4D location) {
 //System.out.println("RouteManager - locationChanged() " + location.toString());
-        if (location.getLatitude() == 0.0 || location.getLongitude() == 0.0)
+        if (location.getLatitude() == 0.0 || location.getLongitude() == 0.0) {
             return;
+        }
 
         rv.hdop = R.getLocator().getAccuracyHorizontal();
         rv.vdop = R.getLocator().getAccuracyVertical();

@@ -59,7 +59,6 @@ public class RouteScreen extends Form implements CommandListener {
     public static final int ITEM_VDOP = 9;
     public static final int ITEM_GRAPH_ALTITUDE_BY_DIST = 10;
     public static final int ITEM_GRAPH_ALTITUDE_BY_TIME = 11;
-
     private ScreenItem buttonStart,  buttonStop;
     // actual set items to display
     public static int[] displayItems;
@@ -76,7 +75,6 @@ public class RouteScreen extends Form implements CommandListener {
     private Command cmdActionReset;
     private Command cmdActionPause;
     private Command cmdActionResume;
-
     public static final int STYLE_SIMPLE = 0;
     public static final int STYLE_EXTENDED = 1;
     public static final int STYLE_GRAPHS = 2;
@@ -335,21 +333,21 @@ public class RouteScreen extends Form implements CommandListener {
                 calculateByCount(2, itemHeightCount - 1);
             }
             this.actualStyleScreen = new RouteStyleSimple(this);
-            //this.setTitle(Locale.get("Route_screen"));
+        //this.setTitle(Locale.get("Route_screen"));
         } else if (RouteStyle == STYLE_EXTENDED) {
             calculateByCount(3, 4);
             while (itemHeight < 40 && itemHeightCount > 1) {
                 calculateByCount(3, itemHeightCount - 1);
             }
             this.actualStyleScreen = new RouteStyleExtended(this);
-            //this.setTitle(Locale.get("Route_screen"));
+        //this.setTitle(Locale.get("Route_screen"));
         } else if (RouteStyle == STYLE_GRAPHS) {
             calculateByCount(1, 2);
             while (itemHeight < 80 && itemHeightCount > 1) {
                 calculateByCount(1, itemHeightCount - 1);
             }
             this.actualStyleScreen = new RouteStyleGraph(this);
-            //this.setTitle(Locale.get("Route_screen"));
+        //this.setTitle(Locale.get("Route_screen"));
         }
     }
 
@@ -469,15 +467,19 @@ public class RouteScreen extends Form implements CommandListener {
             thread = new Thread(new Runnable() {
 
                 public void run() {
-                    while (true) {
-                        if (isShown()) {
-                            actualizeItems();
+                    try {
+                        while (true) {
+                            if (isShown()) {
+                                actualizeItems();
+                            }
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException ex) {
+                                ex.printStackTrace();
+                            }
                         }
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
+                    } catch (Exception e) {
+                        R.getErrorScreen().view(e, "RouteScreen.run()", null);
                     }
                 }
             });
@@ -527,7 +529,7 @@ public class RouteScreen extends Form implements CommandListener {
         actualizeItems();
 
         //R.getMidlet().getDisplay().flashBacklight(1);
-        
+
         buttonStart.setTextLabel(Locale.get("Start_route"));
         buttonStart.setActive(true);
         buttonStop.setActive(false);
@@ -538,7 +540,7 @@ public class RouteScreen extends Form implements CommandListener {
         this.addSubCommand(cmdActionStart, cmdAction);
         this.addSubCommand(cmdActionReset, cmdAction);
     }
-    
+
     private void removeSubCommands() {
         Utils.removeSubCommand(cmdActionStart, cmdAction, this);
         Utils.removeSubCommand(cmdActionPause, cmdAction, this);

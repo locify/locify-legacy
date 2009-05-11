@@ -120,12 +120,16 @@ public class AlertScreen implements CommandListener, Runnable {
 
     public void run() {
         try {
-            alertDismissed = false;
-            Thread.sleep(timeout);
-        } catch (InterruptedException ex) {
-        }
-        if (!alertDismissed) {
-            commandAction(cmdOk, form);
+            try {
+                alertDismissed = false;
+                Thread.sleep(timeout);
+            } catch (InterruptedException ex) {
+            }
+            if (!alertDismissed) {
+                commandAction(cmdOk, form);
+            }
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "AlertScreen.run()", null);
         }
     }
 }

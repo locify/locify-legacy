@@ -45,30 +45,34 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
         private boolean hasFix;
 
         public void run() {
-            stop = false;
-            hasFix = false;
-            long start = new Date().getTime();
-            long delta = 0;
-            do {
-                delta = new Date().getTime() - start;
+            try {
+                stop = false;
+                hasFix = false;
+                long start = new Date().getTime();
+                long delta = 0;
+                do {
+                    delta = new Date().getTime() - start;
 
-                if (hasFix()) {
-                    hasFix = true;
-                    break;
-                }
-                try {
-                    sleep(SLEEP_TIME);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            } while ((delta < TIMEOUT) & (!stop));
+                    if (hasFix()) {
+                        hasFix = true;
+                        break;
+                    }
+                    try {
+                        sleep(SLEEP_TIME);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                } while ((delta < TIMEOUT) & (!stop));
 
-            if (stop) {
-                return;
-            }
-            if (hasFix) {
-                notifyNewLocationToListeners();
-                notifyMessageToListener("Has_fix");
+                if (stop) {
+                    return;
+                }
+                if (hasFix) {
+                    notifyNewLocationToListeners();
+                    notifyMessageToListener("Has_fix");
+                }
+            } catch (Exception e) {
+                R.getErrorScreen().view(e, "LocatorModel.run()", null);
             }
         }
 

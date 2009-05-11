@@ -36,7 +36,6 @@ import javax.microedition.lcdui.Image;
 public class TileCache extends Thread {
 
     private int maxSize;
-    
     private HashMap runningHttpDownloaders;
     /** if new requestsAdded started */
     private boolean cleanRequest;
@@ -55,7 +54,7 @@ public class TileCache extends Thread {
     private Vector tileCache;
     private Vector tileRequest;
     private Vector tileNewRequest;
-    
+
     /**
      * Create file cache for images.
      * @param cacheMaxSize
@@ -64,13 +63,14 @@ public class TileCache extends Thread {
      */
     public TileCache() {
         this.maxSize = (int) ((R.getSettings().getCacheSize() * 1024) / (256 * 256));
-        if (maxSize < 6)
+        if (maxSize < 6) {
             maxSize = 6;
-        
+        }
+
         this.tileRequest = new Vector();
         this.tileNewRequest = new Vector();
         this.tileCache = new Vector();
-        
+
         this.cleanRequest = false;
         this.runningHttpDownloaders = new HashMap();
         this.lastRunRemover = System.currentTimeMillis();
@@ -117,11 +117,12 @@ public class TileCache extends Thread {
         }
         return null;
     }
-    
+
     private boolean existInRequest(String imageName) {
         for (int i = 0; i < tileRequest.size(); i++) {
-            if (((ImageRequest) tileRequest.elementAt(i)).fileName.equals(imageName))
+            if (((ImageRequest) tileRequest.elementAt(i)).fileName.equals(imageName)) {
                 return true;
+            }
         }
         return false;
     }
@@ -132,120 +133,126 @@ public class TileCache extends Thread {
     }
 
     public void run() {
-        ImageRequest actualRequest;
-        while (true) {
+        try {
+            ImageRequest actualRequest;
+            while (true) {
 //System.out.println("A. request size: " + tileRequest.size());
-            while (!tileRequest.isEmpty()) {
-                manageRequests();
-                if (tileRequest.isEmpty())
-                    break;
+                while (!tileRequest.isEmpty()) {
+                    manageRequests();
+                    if (tileRequest.isEmpty()) {
+                        break;
+                    }
 //System.out.println("Actual request size: " + tileRequest.size());
-                try {
-                    actualRequest = (ImageRequest) tileRequest.elementAt(0);
-                    if (actualRequest.fileName.startsWith("http://")) {
-                        TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
+                    try {
+                        actualRequest = (ImageRequest) tileRequest.elementAt(0);
+                        if (actualRequest.fileName.startsWith("http://")) {
+                            TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
 //long tic = System.currentTimeMillis();
 //System.out.println((System.currentTimeMillis() - tic) + " start");
                         /* check if same ImageRequest is not already downloading */
-                        HttpImageDownloader hid = (HttpImageDownloader) runningHttpDownloaders.get(actualRequest.fileName);
-                        if (hid != null) {
-                            if (hid.imageLoaded) {
-                                if (hid.image == null) {
+                            HttpImageDownloader hid = (HttpImageDownloader) runningHttpDownloaders.get(actualRequest.fileName);
+                            if (hid != null) {
+                                if (hid.imageLoaded) {
+                                    if (hid.image == null) {
+                                        tileRequest.insertElementAt(actualRequest, tileRequest.size());
+                                        tileRequest.removeElementAt(0);
+                                    } else {
+                                        actualRequest.image = hid.image;
+                                        addImageToCache(actualRequest);
+                                    }
+                                    runningHttpDownloaders.remove(actualRequest.fileName);
+                                } else if (System.currentTimeMillis() - hid.startTime > timeOut) {
+                                    actualRequest.image = MapScreen.getImageNotExisted();
+                                    addImageToCache(actualRequest);
+                                    runningHttpDownloaders.remove(actualRequest.fileName);
+                                } else {
                                     tileRequest.insertElementAt(actualRequest, tileRequest.size());
                                     tileRequest.removeElementAt(0);
-                                } else {
-                                    actualRequest.image = hid.image;
-                                    addImageToCache(actualRequest);
                                 }
-                                runningHttpDownloaders.remove(actualRequest.fileName);
-                            } else if (System.currentTimeMillis() - hid.startTime > timeOut) {
-                                actualRequest.image = MapScreen.getImageNotExisted();
-                                addImageToCache(actualRequest);
-                                runningHttpDownloaders.remove(actualRequest.fileName);
                             } else {
+                                if (runningHttpDownloaders.size() < 2) {
+                                    HttpImageDownloader http = new HttpImageDownloader(actualRequest.fileName);
+                                    http.setPriority(Thread.MIN_PRIORITY);
+                                    http.start();
+                                    runningHttpDownloaders.put(actualRequest.fileName, http);
+                                }
                                 tileRequest.insertElementAt(actualRequest, tileRequest.size());
                                 tileRequest.removeElementAt(0);
                             }
-                        } else {
-                            if (runningHttpDownloaders.size() < 2) {
-                                HttpImageDownloader http = new HttpImageDownloader(actualRequest.fileName);
-                                http.setPriority(Thread.MIN_PRIORITY);
-                                http.start();
-                                runningHttpDownloaders.put(actualRequest.fileName, http);
-                            }
-                            tileRequest.insertElementAt(actualRequest, tileRequest.size());
-                            tileRequest.removeElementAt(0);
-                        }
 //System.out.println((System.currentTimeMillis() - tic) + " end");
-                    } else if (actualRequest.fileName.startsWith("file:///") &&
-                            actualRequest.tar == null) {
+                        } else if (actualRequest.fileName.startsWith("file:///") &&
+                                actualRequest.tar == null) {
 //System.out.println("F: name - " + actualRequest.fileName);
-                        actualRequest.image = makeImageFileRequest(actualRequest.fileName);
-                        addImageToCache(actualRequest);
-                        if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
-                            R.getMapScreen().repaint();
-                        }
-
-                    } else if (actualRequest.tar != null) {
-                        try {
-//long time = System.currentTimeMillis();
-//Logger.debug("!!! Memory before - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
-//Logger.debug("TileCache TAR: name - " + actualRequest.tar + " record: " + (actualRequest.record == null));
-                            if (actualRequest.record == null) {
-                                actualRequest.image = MapScreen.getImageConnectionNotFound();
-                            } else {
-                                byte[] array = actualRequest.tar.loadFile(actualRequest.record);
-                                if (array == null || array.length == 0) {
-//Logger.debug("TileCache TAR: array: " + (array == null));
-                                    actualRequest.image = MapScreen.getImageConnectionNotFound();
-                                } else {
-                                    try {
-                                        actualRequest.image = Image.createImage(array, 0, array.length);
-                                    } catch (OutOfMemoryError ex) {
-                                        Logger.error("TileCache.run() outOfMemoryError: " + ex.toString());
-                                    } catch (Exception ex) {
-                                        Logger.error("TileCache.run() Error: " + ex.toString());
-                                    } finally {
-                                        if (actualRequest.image == null)
-                                            actualRequest.image = MapScreen.getImageConnectionNotFound();
-                                    }
-                                }
-                            }
-
+                            actualRequest.image = makeImageFileRequest(actualRequest.fileName);
                             addImageToCache(actualRequest);
                             if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
                                 R.getMapScreen().repaint();
                             }
+
+                        } else if (actualRequest.tar != null) {
+                            try {
+//long time = System.currentTimeMillis();
+//Logger.debug("!!! Memory before - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
+//Logger.debug("TileCache TAR: name - " + actualRequest.tar + " record: " + (actualRequest.record == null));
+                                if (actualRequest.record == null) {
+                                    actualRequest.image = MapScreen.getImageConnectionNotFound();
+                                } else {
+                                    byte[] array = actualRequest.tar.loadFile(actualRequest.record);
+                                    if (array == null || array.length == 0) {
+//Logger.debug("TileCache TAR: array: " + (array == null));
+                                        actualRequest.image = MapScreen.getImageConnectionNotFound();
+                                    } else {
+                                        try {
+                                            actualRequest.image = Image.createImage(array, 0, array.length);
+                                        } catch (OutOfMemoryError ex) {
+                                            Logger.error("TileCache.run() outOfMemoryError: " + ex.toString());
+                                        } catch (Exception ex) {
+                                            Logger.error("TileCache.run() Error: " + ex.toString());
+                                        } finally {
+                                            if (actualRequest.image == null) {
+                                                actualRequest.image = MapScreen.getImageConnectionNotFound();
+                                            }
+                                        }
+                                    }
+                                }
+
+                                addImageToCache(actualRequest);
+                                if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
+                                    R.getMapScreen().repaint();
+                                }
 //Logger.debug("TileCache TAR: end after " + (System.currentTimeMillis() - time) + "ms");
 //Logger.debug("Memory after - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
-                        } catch (Exception ex) {
-                            R.getErrorScreen().view(ex, "TileCache.run()", "TarFile load");
+                            } catch (Exception ex) {
+                                R.getErrorScreen().view(ex, "TileCache.run()", "TarFile load");
+                            }
                         }
-                    }
 
-                    refreshScreenAndDownloaders();
+                        refreshScreenAndDownloaders();
 
-                    try {
-                        Thread.sleep(250);
-                    } catch (InterruptedException e) {
-                        R.getErrorScreen().view(e, "TileCache.run() - sleep(250)", null);
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException e) {
+                            R.getErrorScreen().view(e, "TileCache.run() - sleep(250)", null);
+                        }
+                    } catch (Exception e) {
+                        R.getErrorScreen().view(e, "TileCache.run() - while (!requests.isEmpty())", null);
                     }
-                } catch (Exception e) {
-                    R.getErrorScreen().view(e, "TileCache.run() - while (!requests.isEmpty())", null);
+                    needRefresh = true;
                 }
-                needRefresh = true;
-            }
 
 //System.out.println("End request");
-            manageRequests();
-            refreshScreenAndDownloaders();
-            TopBarBackground.setHttpStatus(TopBarBackground.UNDEFINED);
-                
-            try {
-                Thread.sleep(250);
-            } catch (InterruptedException e) {
-                R.getErrorScreen().view(e, "FileTileCache.run(2) - sleep(250)", null);
+                manageRequests();
+                refreshScreenAndDownloaders();
+                TopBarBackground.setHttpStatus(TopBarBackground.UNDEFINED);
+
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    R.getErrorScreen().view(e, "FileTileCache.run(2) - sleep(250)", null);
+                }
             }
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "TileCache.run()", null);
         }
     }
 
@@ -261,8 +268,9 @@ public class TileCache extends Thread {
             for (int i = 0; i < tileNewRequest.size(); i++) {
                 actualR = (ImageRequest) tileNewRequest.elementAt(i);
 //Logger.log("New request: " + actualR.fileName);
-                if (getImageFromCache(actualR.fileName) == null)
+                if (getImageFromCache(actualR.fileName) == null) {
                     tileRequest.addElement(actualR);
+                }
             }
             tileNewRequest = null;
 
@@ -281,24 +289,26 @@ public class TileCache extends Thread {
             if (tileCache.size() > maxSize) {
                 needGarbage = true;
 //Logger.debug("\nTileCache: clear cache tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
-                for (int i = tileCache.size() - 1; i >=0; i--) {
+                for (int i = tileCache.size() - 1; i >= 0; i--) {
                     actualR = (ImageRequest) tileCache.elementAt(i);
                     if (!actualR.requiredTile) {
 //Logger.debug("\n  remove: " + actualR.fileName);
                         tileCache.removeElementAt(i);
-                        if (tileCache.size() < ((3 * maxSize) / 5))
+                        if (tileCache.size() < ((3 * maxSize) / 5)) {
                             break;
+                        }
                     }
                 }
             }
             if (tileCache.size() > maxSize) {
 //Logger.debug("\nTileCache: clear cache FORCE tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
-                for (int i = tileCache.size() - 1; i >=0; i--) {
+                for (int i = tileCache.size() - 1; i >= 0; i--) {
                     actualR = (ImageRequest) tileCache.elementAt(i);
 //Logger.debug("\n  remove: " + actualR.fileName);
                     tileCache.removeElementAt(i);
-                    if (tileCache.size() < Math.floor((3 * maxSize) / 5))
+                    if (tileCache.size() < Math.floor((3 * maxSize) / 5)) {
                         break;
+                    }
                 }
             }
 
@@ -346,8 +356,9 @@ public class TileCache extends Thread {
                 Iterator iter = runningHttpDownloaders.keysIterator();
                 while (iter.hasNext()) {
                     HttpImageDownloader hid = (HttpImageDownloader) runningHttpDownloaders.get((String) iter.next());
-                    if (currentTime - hid.startTime > 2 * timeOut)
+                    if (currentTime - hid.startTime > 2 * timeOut) {
                         iter.remove();
+                    }
                 }
                 lastRunRemover = currentTime;
             }
@@ -362,7 +373,6 @@ public class TileCache extends Thread {
         private boolean imageLoaded;
         private String path;
         private long startTime;
-
         private HttpConnection connection;
         private DataInputStream dis;
         private ByteArrayOutputStream baos;
