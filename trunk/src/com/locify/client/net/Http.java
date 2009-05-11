@@ -59,6 +59,7 @@ public class Http implements Runnable {
     private HttpRequest request;
     private HttpResponse response;
     private long lastRequestTime = 0;
+    private String lastUrl = "";
 
     public Http() {
         //#if release
@@ -92,6 +93,10 @@ public class Http implements Runnable {
         requestQueue.addElement(newRequest);
         R.getPostData().reset();
         lastRequestTime = System.currentTimeMillis();
+        if (newRequest.getSource()!=GEOCODING)
+        {
+            lastUrl = newRequest.getUrl();
+        }
         if (requestQueue.size() == 1) {
             thread = new Thread(this);
             thread.start();
@@ -191,7 +196,7 @@ public class Http implements Runnable {
     }
 
     public String getLastUrl() {
-        return request.getUrl();
+        return lastUrl;
     }
 
     private void setRequestHeaders() {

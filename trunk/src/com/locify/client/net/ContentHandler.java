@@ -51,7 +51,7 @@ public class ContentHandler {
                     return;
                 }
                 Logger.log("Data:");
-                // Logger.log(data);
+                Logger.log(data);
 
                 //kml
                 if (data.indexOf("<kml xmlns=") != -1 && data.indexOf("<kml xmlns=") < 100) {
