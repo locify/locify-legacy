@@ -39,7 +39,6 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
-//import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.maps.mapItem.ScreenOverlayMapItem;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.ColorsFonts;
@@ -82,6 +81,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private Command cmdChangeMapTile,  cmdChangeMapFile;
     private Command cmdItemManager;
     private Command[] providerCommandsTile;
+    private Command cmdPlanStudio;
     private boolean drawLock;
     private static int TOP_MARGIN = R.getTopBar().height;
     private static int BOTTOM_MARGIN = R.getTopBar().height + 3;
@@ -159,10 +159,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private static TileCache cache;
     /** if item was added before map was inicialized, call it after that */
     private MapItem newMapItemAdded;
-
-//    planStudio temp
-    private Command cmdPlanStudio;
-   // private PlanStudioManager psm;
+   
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -182,12 +179,14 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         cmdChangeMapTile = new Command(Locale.get("Change_map_tile"), Command.SCREEN, 5);
         cmdChangeMapFile = new Command(Locale.get("Change_map_file"), Command.SCREEN, 6);
         cmdItemManager = new Command(Locale.get("Item_manager"), Command.SCREEN, 7);
+        cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
 
         this.addCommand(Commands.cmdBack);
         //#style imgHome
         this.addCommand(Commands.cmdHome);
 
         this.addCommand(cmdMapFunction);
+        this.addCommand(cmdPlanStudio);
         UiAccess.addSubCommand(cmdZoomIn, cmdMapFunction, this);
         UiAccess.addSubCommand(cmdZoomOut, cmdMapFunction, this);
         UiAccess.addSubCommand(cmdMyLocation, cmdMapFunction, this);
@@ -262,12 +261,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void view() {
         try {
             differentScreenLock = false;
-           //if (psm == null) {
-           //    psm = new PlanStudioManager();
-           //    cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
-           //    this.addCommand(cmdPlanStudio);
-           // }
-
             if (map instanceof FileMapLayer && !mapFile.isReady()) {
                 R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
                         R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude());
@@ -694,8 +687,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 }
 
             } else if (cmd.equals(cmdPlanStudio)) {
-            //    psm.showSelectionMenu();
-
+                R.getPlanstudio().view();
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);
             } else if (cmd.equals(cmdZoomOut)) {

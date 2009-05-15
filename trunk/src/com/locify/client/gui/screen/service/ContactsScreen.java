@@ -27,7 +27,6 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.pim.Contact;
 import javax.microedition.pim.ContactList;
 import javax.microedition.pim.PIM;
-import javax.microedition.pim.PIMException;
 
 /**
  *
@@ -61,10 +60,8 @@ public class ContactsScreen implements CommandListener {
                 supportTel = contactList.isSupportedField(Contact.TEL);
                 initialized = true;
             }
-        } catch (PIMException ex) {
-            ex.printStackTrace();
+        } catch (Exception ex) {
         }
-
     }
 
     public void viewFiltered(String filterName, int filter) {
