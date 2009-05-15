@@ -47,7 +47,7 @@ public class KalmanLocationFilter implements LocationFilter {
     
     /* variables for debugging mode */
     private boolean debugMode = false;
-    private int numOfTest = 390;
+    private int numOfTest = 370;
     int index1 = 1000;
     private String linSe = "\n";
     private Vector dataMeas,  dataResult,  dataPred;
@@ -55,7 +55,7 @@ public class KalmanLocationFilter implements LocationFilter {
     private double[] newCoo = new double[2];
 
     /* number of averaged measure when standing on same place */
-    private int numOfAverageMeasure = 5;
+    private int numOfAverageMeasure = 3;
     /** temp variables used for averaging */
     private boolean weightedAverage = false;
     private double waValueLat,  waValueLon,  waWeight;
@@ -136,8 +136,6 @@ if (debugMode) {
 
             /* error distance ... not perfectly but enough precise */
             float lastMaxErrorDist = (float) Math.sqrt((fHdop1 + fHdop2) / 4);
-            //lastMaxErrorDist /= 10;
-            lastMaxErrorDist /= 50;
 
 //if (debugMode) {
 //    Logger.log("    HDOP1 " + GpsUtils.formatDouble(fHdop1, 1) +
@@ -146,7 +144,6 @@ if (debugMode) {
 //            "  lastME " + GpsUtils.formatDouble(lastMaxErrorDist, 2));
 //}
 
-            //lastMaxErrorDist = 0;
             if (lastDist <= lastMaxErrorDist) {
 if (debugMode) {
 //    Logger.log("    ***** average *****");
@@ -204,7 +201,9 @@ if (debugMode)
 if (debugMode) {
     newCoo = utm.projectionToFlat(lastSample.getLatitude(), lastSample.getLongitude());
     dataResult.addElement(new Measure(newCoo[1], newCoo[0], lastSample.getHorizontalAccuracy()));
+//System.out.println(index1 + " ");
     if (index1 == (1000 + numOfTest)) {
+        Logger.log("Save start");
         saveDXF();
         saveLog();
         debugMode = false;
@@ -259,10 +258,10 @@ if (debugMode) {
         state2pre = A.times(state1);
 
         /* predict fictive deviance error */
-        Q.set(0, 0, 1 * fHdop1 / 100.0);
-        Q.set(1, 1, 1 * fHdop1 / 50.0);
-        Q.set(2, 2, 1 * fHdop1 / 100.0);
-        Q.set(3, 3, 1 * fHdop1 / 50.0);
+        Q.set(0, 0, 10 * fHdop1 / 100.0);
+        Q.set(1, 1, 10 * fHdop1 / 50.0);
+        Q.set(2, 2, 10 * fHdop1 / 100.0);
+        Q.set(3, 3, 10 * fHdop1 / 50.0);
         Ppre = (A.times(P)).times(A.transpose()).plus(Q);
 
 if (debugMode) {
@@ -273,10 +272,10 @@ if (debugMode) {
         /********************************************/
         /*     Update phase (apriori estimate)     */
         /********************************************/
-        R.set(0, 0, fHdop2);
-        R.set(1, 1, 2 * fHdop2);
-        R.set(2, 2, fHdop2);
-        R.set(3, 3, 2 * fHdop2);
+        R.set(0, 0, 100 * fHdop2 / 100.0);
+        R.set(1, 1, 100 * fHdop2 / 50.0);
+        R.set(2, 2, 100 * fHdop2 / 100.0);
+        R.set(3, 3, 100 * fHdop2 / 50.0);
         
 //if (debugMode) {
 //    Logger.log("    A:\n" + A.print(2));
@@ -416,7 +415,8 @@ if (debugMode) {
                                     (measure2.lon - measure1.lon) * (measure2.lon - measure1.lon));
                             double dist2 = Math.sqrt((measure3.lat - measure1.lat) * (measure3.lat - measure1.lat) +
                                     (measure3.lon - measure1.lon) * (measure3.lon - measure1.lon));
-                            data.append(i + "," + GpsUtils.formatDouble(dist1, 3) + "," + GpsUtils.formatDouble(dist2, 3) + "," + linSe);
+                            //data.append(i + ";");
+                            data.append(GpsUtils.formatDouble(dist1, 3) + ";" + GpsUtils.formatDouble(dist2, 3) + linSe);
                         }
 
                         //write file

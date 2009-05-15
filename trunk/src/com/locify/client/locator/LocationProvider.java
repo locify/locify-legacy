@@ -58,8 +58,8 @@ public abstract class LocationProvider implements LocationEventGenerator {
     
     public LocationProvider() {
         listeners = new Vector();
-        this.locationFilter = new DummyLocationFilter();
-        //this.locationFilter = new KalmanLocationFilter();
+//        this.locationFilter = new DummyLocationFilter();
+        this.locationFilter = new KalmanLocationFilter();
         this.satManager = new SatelliteManager();
     }
 

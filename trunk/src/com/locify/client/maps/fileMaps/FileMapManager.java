@@ -103,9 +103,10 @@ public abstract class FileMapManager {
             this.mapFilename = "";
             this.mapImageDir = "";
             this.mapPath = mapPath;
-        } else if (mapPath.endsWith(".xml") || mapPath.endsWith(".map") || mapPath.endsWith(".tar")) {
+        } else if (mapPath.endsWith(".xml") || mapPath.endsWith(".map") ||
+                mapPath.endsWith(".tar") || mapPath.endsWith(".mpx")) {
             this.mapFilename = mapPath;
-            if (!mapPath.endsWith(".tar")) {
+            if (!mapPath.endsWith(".tar") && !mapPath.endsWith(".mpx")) {
                 this.mapImageDir = this.mapFilename.substring(0, this.mapFilename.lastIndexOf('.')) + "/";
                 if (!R.getFileSystem().exists(FileSystem.MAP_FOLDER + mapImageDir)) {
                     Logger.error("FileMapManager.constructor() - cannot find image directory in " + mapPath);
@@ -258,15 +259,17 @@ public abstract class FileMapManager {
     }
 
     public void setStorageTar(StorageTar tar) {
-        this.storageTar = tar;
-        this.mapImageDir = storageTar.getImageDir();
+        if (tar != null) {
+            this.storageTar = tar;
+            this.mapImageDir = storageTar.getImageDir();
+        }
     }
 
     private void calculateTileSize() {
         Image img = null;
         if (storageTar != null) {
-            byte[] data = storageTar.loadFile(storageTar.getTarRecord(0));
             try {
+                byte[] data = storageTar.loadFile(storageTar.getTarRecord(0));
                 img = Image.createImage(data, 0, data.length);
             } catch (Exception e) {
                 Logger.error("FileMapManager.calculateTileSize() " + e.toString());
@@ -300,20 +303,6 @@ public abstract class FileMapManager {
             Logger.error("FileMapManager.calculateTileSize() - problem");
         }
     }
-
-//    private String createImageName(int i, int j, StorageTar tar) {
-//        if (stringBuffer.length() > 0)
-//            stringBuffer.delete(0, stringBuffer.length());
-//        stringBuffer.append(mapImageDir);
-//        if (tar != null) {
-//            stringBuffer.append(i);
-//            stringBuffer.append("_");
-//            stringBuffer.append(j);
-//        } else {
-//            stringBuffer.append(Utils.addZerosBefore("" + i, 3) + "_" + Utils.addZerosBefore("" + j, 3));
-//        }
-//        return stringBuffer.toString();
-//    }
 
     public synchronized boolean drawImageSingle(Graphics gr, FileMapViewPort targetPort) {
         try {

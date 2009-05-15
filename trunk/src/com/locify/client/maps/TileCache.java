@@ -192,7 +192,6 @@ public class TileCache extends Thread {
                         } else if (actualRequest.tar != null) {
                             try {
 //long time = System.currentTimeMillis();
-//Logger.debug("!!! Memory before - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
 //Logger.debug("TileCache TAR: name - " + actualRequest.tar + " record: " + (actualRequest.record == null));
                                 if (actualRequest.record == null) {
                                     actualRequest.image = MapScreen.getImageConnectionNotFound();

@@ -166,109 +166,6 @@ public class Utils {
         return 0;	// shouldn't happen, we're guarded by isHexit()
     }
 
-//    /**
-//     * Implementation of Arcus tangens (while J2ME doesn't have it)
-//     * @param x value
-//     * @return arcus tangens of value
-//     */
-//    static public double atan(double x) {
-//        final double SQRT3 = 1.732050807568877294;
-//        boolean signChange = false;
-//        boolean Invert = false;
-//        int sp = 0;
-//        double x2, a;
-//        // check up the sign change
-//        if (x < 0.) {
-//            x = -x;
-//            signChange = true;
-//        }
-//        // check up the invertation
-//        if (x > 1.) {
-//            x = 1 / x;
-//            Invert = true;
-//        }
-//        // process shrinking the domain until x<PI/12
-//        while (x > Math.PI / 12) {
-//            sp++;
-//            a = x + SQRT3;
-//            a = 1 / a;
-//            x = x * SQRT3;
-//            x = x - 1;
-//            x = x * a;
-//        }
-//        // calculation core
-//        x2 = x * x;
-//        a = x2 + 1.4087812;
-//        a = 0.55913709 / a;
-//        a = a + 0.60310579;
-//        a = a - (x2 * 0.05160454);
-//        a = a * x;
-//        // process until sp=0
-//        while (sp > 0) {
-//            a = a + Math.PI / 6;
-//            sp--;
-//        }
-//        // invertation took place
-//        if (Invert) {
-//            a = Math.PI / 2 - a;
-//        // sign change took place
-//        }
-//        if (signChange) {
-//            a = -a;
-//        //
-//        }
-//        return a;
-//    }
-
-//    /**
-//     * Function for multiplying number by his exponen as A^x
-//     * @param a 1. number 
-//     * @param b exponent
-//     * @return result
-//     */
-//    public static double pow(double a, double b) {
-//        boolean gt1 = (Math.sqrt((a - 1) * (a - 1)) <= 1) ? false : true;
-//        int oc = -1, iter = 30;
-//        double p = a, x, x2, sumX, sumY;
-//
-//        if ((b - Math.floor(b)) == 0) {
-//            for (int i = 1; i < b; i++) {
-//                p *= a;
-//            }
-//            return p;
-//        }
-//
-//        x = (gt1) ? (a / (a - 1)) : (a - 1);
-//        sumX = (gt1) ? (1 / x) : x;
-//
-//        for (int i = 2; i < iter; i++) {
-//            p = x;
-//            for (int j = 1; j < i; j++) {
-//                p *= x;
-//            }
-//            double xTemp = (gt1) ? (1 / (i * p)) : (p / i);
-//
-//            sumX = (gt1) ? (sumX + xTemp) : (sumX + (xTemp * oc));
-//
-//            oc *= -1;
-//        }
-//
-//        x2 = b * sumX;
-//        sumY = 1 + x2;
-//
-//        for (int i = 2; i <= iter; i++) {
-//            p = x2;
-//            for (int j = 1; j < i; j++) {
-//                p *= x2;
-//            }
-//            int yTemp = 2;
-//            for (int j = i; j > 2; j--) {
-//                yTemp *= j;
-//            }
-//            sumY += p / yTemp;
-//        }
-//        return sumY;
-//    }
     /**
      * Implementation of str_replace
      * @param haystack Text to replace
@@ -481,4 +378,35 @@ public class Utils {
         CommandItem ci = screen.getCommandItem(parent);
         ci.removeChild(child);
     }
+
+    public static int readInt(byte[] buffer, int start, int len) {
+        int result = 0;
+		for (int i = 0; i < len; i++) {
+			int n = (buffer[start + i] < 0 ? (int) buffer[start + i] + 256 : (int) buffer[start + i]) << (8 * i);
+			result += n;
+		}
+
+        return result;
+    }
+
+	public static double readDouble(byte[] buffer, int start, int len) {
+		long result = 0;
+		for (int i = 0; i < len; i++) {
+			result |= ((long)(buffer[start + i] & 0xff)) << (i * 8);
+		}
+		return Double.longBitsToDouble(result);
+	}
+
+    /**
+     * Print actual memory values to System.out
+     */
+    public static void printMemoryState() {
+        Runtime rt = Runtime.getRuntime();
+        System.out.println("\n*************** MemoryStatistics ***********");
+        System.out.println("  free     = " + rt.freeMemory());
+        System.out.println("  total    = " + rt.totalMemory());
+        System.out.println("  consumed = " + (rt.totalMemory() - rt.freeMemory()));
+        System.out.println("*******************************************");
+    }
+
 }
