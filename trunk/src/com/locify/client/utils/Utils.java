@@ -400,9 +400,10 @@ public class Utils {
     /**
      * Print actual memory values to System.out
      */
-    public static void printMemoryState() {
+    public static void printMemoryState(String label) {
+        System.gc();
         Runtime rt = Runtime.getRuntime();
-        System.out.println("\n*************** MemoryStatistics ***********");
+        System.out.println("\n*************** MemoryStatistics - " + label + " - ***********");
         System.out.println("  free     = " + rt.freeMemory());
         System.out.println("  total    = " + rt.totalMemory());
         System.out.println("  consumed = " + (rt.totalMemory() - rt.freeMemory()));

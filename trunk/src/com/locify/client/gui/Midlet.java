@@ -15,10 +15,12 @@ package com.locify.client.gui;
 
 import com.locify.client.data.CookieData;
 import com.locify.client.data.DeletedData;
+import com.locify.client.data.IconData;
 import com.locify.client.data.ServiceSettingsData;
 import com.locify.client.data.SettingsData;
 import com.locify.client.data.ServicesData;
 import com.locify.client.data.items.GeoFiles;
+import java.io.IOException;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
@@ -26,6 +28,8 @@ import javax.microedition.midlet.MIDlet;
 import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
 import com.locify.client.utils.Capabilities;
+import com.locify.client.utils.Utils;
+import javax.microedition.lcdui.Image;
 
 /**
  * Controls main MIDlet lifecycle
@@ -89,14 +93,14 @@ public class Midlet extends MIDlet {
                     //#if !applet
                     if (!Capabilities.isWindowsMobile())
                         R.getContactsScreen().load();
-                    R.getRouteScreen().loadUnfinishedRoute();
+                    if (GeoFiles.isUnfinishedRoute())
+                        R.getRouteScreen().loadUnfinishedRoute();
                     //#endif
                     R.getMainScreen().load();
                     R.destroyLoading();
                     R.getContext().loadLastKnown();
                 //#if !applet
-                    if (R.getSettings().getBacklight() == SettingsData.WHOLE_APPLICATION)
-                    {
+                    if (R.getSettings().getBacklight() == SettingsData.WHOLE_APPLICATION) {
                         R.getBacklight().on();
                     }
                 } else {
@@ -107,6 +111,48 @@ public class Midlet extends MIDlet {
         } catch (Exception e) {
             R.getErrorScreen().view(e, "Midlet.startMIDlet", null);
         }
+//Utils.printMemoryState("Start");
+//        Utils.printMemoryState();
+//        System.gc();
+//        Utils.printMemoryState();
+//        try {
+            //Image i1 = Image.createImage("/map_tile_64x64.png");
+//            Image i2 = Image.createImage("/wpt_description_background.png");
+            //Image i3 = Image.createImage("/map_icon_zoom_plus.png");
+
+//            Image x1 = IconData.get("locify://icons/gps.png");
+//            Image x2 = IconData.get("locify://icons/savedLocation.png");
+//            Image x3 = IconData.get("locify://icons/coordinates.png");
+//            Image x4 = IconData.get("locify://icons/lastKnown.png");
+//            Image x5 = IconData.get("locify://icons/savePlace.png");
+//            Image x6 = IconData.get("locify://icons/recordRoute.png");
+//            Image x7 = IconData.get("locify://icons/browse.png");
+//            Image x8 = IconData.get("locify://icons/sync.png");
+//            Image x9 = IconData.get("locify://icons/viewLocation.png");
+//            Image x10 = IconData.get("locify://icons/viewPlace.png");
+//            Image x11 = IconData.get("locify://icons/viewRoute.png");
+//            Image x12 = IconData.get("locify://icons/select.png");
+//            Image x13 = IconData.get("locify://icons/compass.png");
+//            Image x14 = IconData.get("locify://icons/navigateTo.png");
+//            Image x15 = IconData.get("locify://icons/navigateAlong.png");
+//            Image x16 = IconData.get("locify://icons/gps.png");
+//            Image x17 = IconData.get("locify://icons/settings.png");
+//            Image x18 = IconData.get("locify://icons/login.png");
+//            Image x19 = IconData.get("locify://icons/logout.png");
+//            Image x20 = IconData.get("locify://icons/checkVersion.png");
+//            Image x21 = IconData.get("locify://icons/help.png");
+//            Image x22 = IconData.get("locify://icons/moreInfo.png");
+//            Utils.printMemoryState();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        System.gc();
+//        Utils.printMemoryState();
+
+
+//        byte[] data = R.getFileSystem().loadBytes("img.png");
+//System.out.println("\nLoadedData: " + new String(data));
+//        PlanStudioManager.parseOfflineMap();
     }
 
     /**
