@@ -43,6 +43,7 @@ public class NMEALocationProvider extends LocationProvider {
 
     protected NMEAParser parser;
     protected InputStream inputStream;
+    protected StreamConnection streamConnection;
     private String connectionUrl;
     protected long gpsAlive = 0;
 
@@ -312,14 +313,14 @@ public class NMEALocationProvider extends LocationProvider {
     }
 
     public void setConnectionUrl(String connectionUrl) {
+        Logger.debug("set connection url");
         this.connectionUrl = connectionUrl;
 
         try {
-            StreamConnection streamConnection = null;
-            streamConnection = (StreamConnection) Connector.open(connectionUrl);
+            streamConnection = (StreamConnection) Connector.open(connectionUrl,Connector.READ);
             inputStream = streamConnection.openInputStream();
             this.setInputStream(inputStream);
-        } catch (Exception ex) {
+        } catch (Exception e) {
             R.getSettings().setLastDevice("");
         }
     }

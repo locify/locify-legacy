@@ -102,6 +102,7 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
         try {
             viewConnectionProgress(Locale.get("Bluetooth_searching"), Gauge.CONTINUOUS_RUNNING);
             devices = new Vector();
+            lstDevices = null;
             discoveryAgent = localDevice.getDiscoveryAgent();
             discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
         } catch (Exception e) {
@@ -195,8 +196,19 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
                         viewConnectionProgress(Locale.get("Unable_to_search_service"), Gauge.CONTINUOUS_IDLE);
                         searching = false;
                     }
-                    this.discoveryAgent.searchServices(null, new UUID[]{new UUID(0x1101)}, (RemoteDevice) this.devices.elementAt(lstDevices.getSelectedIndex()), this);
+                    int[] attr = new int[]{
+                        0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
+                        0x0008, 0x0009, 0x000A, 0x000B, 0x000C
+                    };
 
+                    //
+                    // search for L2CAP services, most services based on L2CAP
+                    //
+                    // note: Rococo simulator required a new instance of Listener for
+                    // every search. not sure if this is also the case in real devices
+                    discoveryAgent.searchServices(attr, // attributes to retrieve from remote device
+                            new UUID[]{new UUID(0x0100)}, // search criteria, 0x0100 = L2CAP
+                            (RemoteDevice) this.devices.elementAt(lstDevices.getSelectedIndex()), this); // direct discovery response to Listener object
                     searching = false;
                 } catch (BluetoothStateException ex) {
                     try {

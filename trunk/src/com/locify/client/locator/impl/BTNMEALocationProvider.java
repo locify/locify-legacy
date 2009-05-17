@@ -90,6 +90,11 @@ public class BTNMEALocationProvider extends NMEALocationProvider implements Runn
                             }
                         }
                         inputStream = null;
+                        if (streamConnection != null)
+                        {
+                            streamConnection.close();
+                        }
+                        streamConnection = null;
                     } else {
                         btstate = STATUS_CONNECTED;
                     }
