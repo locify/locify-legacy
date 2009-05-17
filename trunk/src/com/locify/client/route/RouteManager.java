@@ -20,7 +20,6 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationEventGenerator;
 import com.locify.client.locator.LocationEventListener;
 import com.locify.client.utils.R;
-import com.locify.client.utils.Utils;
 
 /**
  * Manages startin, pausing, stopping and recording a route
@@ -39,8 +38,6 @@ public class RouteManager implements LocationEventListener {
     /* working variables */
     private double stepDistance = 0;
 //    private RouteDataIO routeData;
-    /** actual date */
-    private String actualDate = "";
     private RouteVariables rv;
 
     public RouteManager() {
@@ -61,9 +58,6 @@ public class RouteManager implements LocationEventListener {
                         actualizeRouteTime();
 
                         if (sleepedTime > 1000 && isRunning()) {
-                            if (R.getRouteScreen().isShown()) {
-                                actualDate = Utils.getActualDate();
-                            }
 
                             // every 3 seconds
                             if (routeSaveUnfinishedTester % 3 == 0) {
@@ -265,10 +259,6 @@ public class RouteManager implements LocationEventListener {
 
     public float getVdop() {
         return rv.vdop;
-    }
-
-    public String getActualDate() {
-        return actualDate;
     }
 
     public double getLatitude() {

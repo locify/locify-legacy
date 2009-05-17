@@ -363,10 +363,11 @@ public class InternalURLManager {
         if (parts[1] == null || parts[1].equals("")) {
             return null;
         }
+        parts[1] = Utils.replaceString(parts[1], "&amp;", "<amp>");
         String[] items = StringTokenizer.getArray(parts[1], "&");
         for (int i = 0; i < items.length; i++) {
             String[] namevalue = StringTokenizer.getArray(items[i], "=");
-            map.put(Utils.urlUTF8decode(namevalue[0]), Utils.urlUTF8decode(namevalue[1]));
+            map.put(Utils.urlUTF8decode(namevalue[0]), Utils.urlUTF8decode(Utils.replaceString(namevalue[1],"<amp>","&")));
         }
         return map;
     }

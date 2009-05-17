@@ -360,13 +360,22 @@ public class Utils {
 
     /**
      * Get actual date at format
-     * @return Time at format for example -  "23. 12. 1987  -  21:12:25"
+     * @return Time at format for example -  "23.12.1987"
      */
-    public static String getActualDate() {
+    public static String getDate() {
         String time = (new Date()).toString();
         Vector vec = StringTokenizer.getVector(time, " ");
-        return vec.elementAt(2) + ". " + vec.elementAt(1) + " " +
-                vec.elementAt(5) + "  -  " + vec.elementAt(3);
+        return vec.elementAt(2) + "." + numericMonth((String)vec.elementAt(1)) + "." +
+                vec.elementAt(5);
+    }
+
+    /**
+     * Returns current time in format: 21:12:25
+     */
+    public static String getTime() {
+        String time = (new Date()).toString();
+        Vector vec = StringTokenizer.getVector(time, " ");
+        return (String) vec.elementAt(3);
     }
 
     /**

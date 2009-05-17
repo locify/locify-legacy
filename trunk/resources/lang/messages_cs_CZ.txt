@@ -282,6 +282,7 @@ Name_must_not_be_empty=Jméno místa nesmí být prázdné
 #Navigation
 Navi_more=Více (5)
 Navi_less=Méně (5)
+Date=Datum
 
 #Map screen
 Change_map_tile=Online mapy (*#)
@@ -383,7 +384,7 @@ Pause_route=PAUZA
 Resume_route=POKRAČ.
 Hdop_route=HDOP
 Vdop_route=VDOP
-Time=Celkový čas
+Time=Čas
 Max_speed=Max. rychlost
 Average_speed=Prům. rychlost
 Style=Styl zobrazení

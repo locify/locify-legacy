@@ -282,6 +282,7 @@ Name_must_not_be_empty=Name must not be empty
 #Navigation
 Navi_more=More (5)
 Navi_less=Less (5)
+Date=Date
 
 #Map screen
 Change_map_tile=Online maps (*#)

@@ -39,6 +39,7 @@ import com.locify.client.route.ScreenItem;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
+import com.locify.client.utils.Utils;
 import de.enough.polish.util.Locale;
 import com.locify.client.utils.R;
 import com.locify.client.utils.math.LMath;
@@ -73,6 +74,8 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     private static final int ITEM_LONGITUDE = 3;
     private static final int ITEM_ALTITUDE = 4;
     private static final int ITEM_ACCURACY = 5;
+    private static final int ITEM_TIME = 6;
+    private static final int ITEM_DATE = 7;
     // angles images
     private Image[] numbers;
     // center of compas
@@ -191,6 +194,12 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             // ITEM_LATITUDE
             ScreenItem button05 = new ScreenItem(Locale.get("Accuracy"));
             items.add(button05);
+            // TIME
+            ScreenItem button06 = new ScreenItem(Locale.get("Time"));
+            items.add(button06);
+            // DATE
+            ScreenItem button07 = new ScreenItem(Locale.get("Date"));
+            items.add(button07);
 
             for (int i = 0; i < items.size(); i++) {
                 tempItem = (ScreenItem) items.get(i);
@@ -342,6 +351,9 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         } else {
             TOP_MARGIN = gr.getClipHeight(); //nastavi dle pokusi o vyhresleni v TopBarBackground
         }
+        //actualize date and time
+        actualizeItem(ITEM_TIME, Utils.getTime());
+        actualizeItem(ITEM_DATE, Utils.getDate());
         drawLock = false;
     }
 
@@ -465,6 +477,8 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
                 ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, Capabilities.getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
                 ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
             } else {
+                ((ScreenItem) items.get(ITEM_TIME)).setSizePos(0, TOP_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_DATE)).setSizePos(Capabilities.getWidth()-sizeX, TOP_MARGIN, sizeX, 30);
                 ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, Capabilities.getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
                 ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, Capabilities.getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
                 ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
