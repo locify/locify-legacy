@@ -21,6 +21,8 @@ import com.locify.client.gui.screen.internal.LoadingScreen;
  */
 public class Capabilities {
 
+    private static int height;
+
     public static boolean hasJSR179() {
         //#if applet
 //#         return false;
@@ -149,14 +151,18 @@ public class Capabilities {
     }
 
     public static int getWidth() {
-        return R.getMainScreen().getScreenFullWidth();
+         return R.getMainScreen().getScreenFullWidth();
     }
 
     public static int getHeight() {
+        return height;
+    }
+
+    public static void setHeight(int height) {
         //#if polish.Vendor == BlackBerry
-        return R.getMainScreen().getScreenFullHeight();
+        height = R.getMainScreen().getScreenFullHeight();
         //#else
-//#         return LoadingScreen.getScreenHeight();
+//#         Capabilities.height = height;
     //#endif
     }
 }

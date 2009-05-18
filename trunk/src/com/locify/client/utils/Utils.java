@@ -19,7 +19,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 import javax.microedition.lcdui.Command;
-import de.enough.polish.util.base64.Base64;
 
 /***
  * This class contains methods usefull in whole app
@@ -406,6 +405,8 @@ public class Utils {
 		return Double.longBitsToDouble(result);
 	}
 
+    private static long lastMemory = 0;
+
     /**
      * Print actual memory values to System.out
      */
@@ -413,9 +414,9 @@ public class Utils {
         System.gc();
         Runtime rt = Runtime.getRuntime();
         System.out.println("\n*************** MemoryStatistics - " + label + " - ***********");
-        System.out.println("  free     = " + rt.freeMemory());
-        System.out.println("  total    = " + rt.totalMemory());
-        System.out.println("  consumed = " + (rt.totalMemory() - rt.freeMemory()));
+        System.out.println(" consumed = " + ((rt.totalMemory() - rt.freeMemory())/1024) + " kB");
+        System.out.println(" from last = "+ ((lastMemory - rt.freeMemory())/1024) + " kB");
+        lastMemory = rt.freeMemory();
         System.out.println("*******************************************");
     }
 

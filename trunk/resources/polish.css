@@ -705,17 +705,6 @@ menuItem {
     background-color:focusedBgColor;
 }
 
-.imgAddShortcut extends menuItem
-{
-    before:url(addShortcut.png);
-    focused-style:.imgAddShortcutFocused;
-}
-.imgAddShortcutFocused extends imgAddShortcut
-{
-    background-color:focusedBgColor;
-}
-
-
 /* Service/Shortcut menu items */
 .imgInfo extends menuItem
 {

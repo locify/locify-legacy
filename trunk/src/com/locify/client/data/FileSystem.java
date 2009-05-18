@@ -24,6 +24,7 @@ import com.locify.client.utils.Sha1;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
+import com.locify.client.utils.Logger;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -188,6 +189,7 @@ public class FileSystem {
             if (Capabilities.isSonyEricsson()) {
                 tryOuts.addElement("other/" + locifyFolder);
             }
+            tryOuts.addElement("images/");
             if (Capabilities.isNokia()) {
                 tryOuts.addElement("data/Images/" + locifyFolder);
             }
@@ -198,6 +200,7 @@ public class FileSystem {
             Enumeration roots = FileSystemRegistry.listRoots();
             while (roots.hasMoreElements()) {
                 String root = (String) roots.nextElement();
+                Logger.debug("root "+root);
                 if (root.equalsIgnoreCase("e:/") || root.indexOf("Card") != -1 ||
                 root.indexOf("card") != -1 || root.indexOf("SD") != -1 ||
                 root.indexOf("MMC") != -1 || root.indexOf("tflash") != -1) {
@@ -229,6 +232,7 @@ public class FileSystem {
                         R.getFirstRun().saveRoot(ROOT);
                         return true;
                     } catch (Exception e) {
+                        Logger.debug("exception in creating root "+root+suffix+":"+e);
                     }
                 }
             }

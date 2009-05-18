@@ -91,15 +91,16 @@ public class Midlet extends MIDlet {
                     ServicesData.load();
                     ServiceSettingsData.load();
                     //#if !applet
-                    if (!Capabilities.isWindowsMobile())
+                    if (!Capabilities.isWindowsMobile()) {
                         R.getContactsScreen().load();
-                    if (GeoFiles.isUnfinishedRoute())
+                    }
+                    if (GeoFiles.isUnfinishedRoute()) {
                         R.getRouteScreen().loadUnfinishedRoute();
+                    }
                     //#endif
                     R.getMainScreen().load();
-                    R.destroyLoading();
                     R.getContext().loadLastKnown();
-                //#if !applet
+                    //#if !applet
                     if (R.getSettings().getBacklight() == SettingsData.WHOLE_APPLICATION) {
                         R.getBacklight().on();
                     }
@@ -108,6 +109,8 @@ public class Midlet extends MIDlet {
                 }
             }
             //#endif
+
+            R.destroyLoading();
         } catch (Exception e) {
             R.getErrorScreen().view(e, "Midlet.startMIDlet", null);
         }
@@ -116,9 +119,9 @@ public class Midlet extends MIDlet {
 //        System.gc();
 //        Utils.printMemoryState();
 //        try {
-            //Image i1 = Image.createImage("/map_tile_64x64.png");
+    //Image i1 = Image.createImage("/map_tile_64x64.png");
 //            Image i2 = Image.createImage("/wpt_description_background.png");
-            //Image i3 = Image.createImage("/map_icon_zoom_plus.png");
+    //Image i3 = Image.createImage("/map_icon_zoom_plus.png");
 
 //            Image x1 = IconData.get("locify://icons/gps.png");
 //            Image x2 = IconData.get("locify://icons/savedLocation.png");
@@ -203,5 +206,4 @@ public class Midlet extends MIDlet {
             }
         }
     }
-
 }

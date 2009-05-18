@@ -36,59 +36,13 @@ import de.enough.polish.util.HashMap;
  */
 public class InternalURLManager {
 
-    private Vector urls;
     private HashMap parameters;
 
     /**
      * Internal urls definition
      */
     public InternalURLManager() {
-        urls = new Vector();
-        //shortcuts
-        String title = Locale.get("Set_location");
-        urls.addElement(new InternalURL("locify://setLocation", title, "where.png", true));
-        title = Locale.get("Gps");
-        urls.addElement(new InternalURL("locify://gps", title, "gps.png", true));
-        title = Locale.get("Saved_location");
-        urls.addElement(new InternalURL("locify://savedLocation", title, "savedLocation.png", true));
-        title = Locale.get("Address");
-        urls.addElement(new InternalURL("locify://address", title, "address.png", true));
-        title = Locale.get("Coordinates");
-        urls.addElement(new InternalURL("locify://coordinates", title, "coordinates.png", true));
-        title = Locale.get("Last_known");
-        urls.addElement(new InternalURL("locify://lastKnown", title, "lastKnown.png", true));
-        title = Locale.get("Navigation");
-        urls.addElement(new InternalURL("locify://navigation", title, "navigation.png", true));
-        title = Locale.get("Satellites");
-        urls.addElement(new InternalURL("locify://satellites", title, "gps.png", true));
-        title = Locale.get("Maps");
-        urls.addElement(new InternalURL("locify://maps", title, "maps.png", true));
-        title = Locale.get("Record_route");
-        urls.addElement(new InternalURL("locify://recordRoute", title, "recordRoute.png", true));
-        title = Locale.get("Login");
-        urls.addElement(new InternalURL("locify://login", title, "login.png", true));
-        title = Locale.get("Sync");
-        urls.addElement(new InternalURL("locify://synchronize", title, "sync.png", true));
-        title = Locale.get("Settings");
-        urls.addElement(new InternalURL("locify://settings", title, "settings.png", true));
-        title = Locale.get("Service_from_list");
-        urls.addElement(new InternalURL("locify://addService", title, "addFromList.png", true));
-        title = Locale.get("Service_by_link");
-        urls.addElement(new InternalURL("locify://addServiceByLink", title, "addFromLink.png", true));
-        title = Locale.get("Add_shortcut");
-        urls.addElement(new InternalURL("locify://addShortcut", title, "addShortcut.png", true));
-        title = Locale.get("Check_version");
-        urls.addElement(new InternalURL("locify://checkVersion", title, "checkVersion.png", true));
-        title = Locale.get("Help");
-        urls.addElement(new InternalURL("locify://help", title, "help.png", true));
-        title = Locale.get("Exit");
-        urls.addElement(new InternalURL("locify://exit", title, "exit.png", true));
-        //#if !release
-        title = Locale.get("Logger");
-        urls.addElement(new InternalURL("locify://logger", title, "moreInfo.png", true));
-        //#endif
-        //other visual internal urls
-        urls.addElement(new InternalURL("locify://shortcut", "", "shortcut_to_download_25x25.png", false));
+
     }
 
     /**
@@ -160,9 +114,6 @@ public class InternalURLManager {
                 //display server service list
                 ServicesData.setCurrent("Locify");
                 R.getHttp().start(Http.DEFAULT_URL + "services/list",Http.SERVICE);
-            } else if (url.equals("locify://addShortcut")) {
-                //display available shortcuts
-                R.getShortcuts().view();
             } else if (url.equals("locify://addServiceByLink")) {
                 //display form to add url manually
                 R.getServiceManager().viewAddByLink();
@@ -308,45 +259,6 @@ public class InternalURLManager {
         } catch (Exception e) {
             R.getErrorScreen().view(e, "InternalURLManager.call", url);
         }
-    }
-
-    /**
-     * Returns icon url of internal url
-     * @param url internal url
-     * @return icon url
-     */
-    public String getIcon(String url) {
-        for (int i = 0; i < urls.size(); i++) {
-            InternalURL iUrl = (InternalURL) urls.elementAt(i);
-            if (iUrl.getUrl().equals(url)) {
-                return "locify://icons/" + iUrl.getIcon();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns all internal urls which are shortcuts
-     * @return all shortcuts
-     */
-    public Vector getShortcuts() {
-        Vector shortcuts = new Vector();
-        for (int i = 0; i < urls.size(); i++) {
-            InternalURL url = (InternalURL) urls.elementAt(i);
-            if (url.isShortcut()) {
-                shortcuts.addElement(url);
-            }
-        }
-        return shortcuts;
-    }
-
-    /**
-     * Returns one url item
-     * @param number number in the vector
-     * @return item
-     */
-    public InternalURL getItemAt(int number) {
-        return (InternalURL) urls.elementAt(number);
     }
 
     /**

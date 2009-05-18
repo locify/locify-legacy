@@ -162,7 +162,6 @@ Service_description=Popis služby
 Service_url=URL služby
 Confirmation=Potvrzení
 New_name=Nové jméno
-Add_shortcut=Přidat zástupce
 Add_service=Přidat službu
 
 #Login & Register

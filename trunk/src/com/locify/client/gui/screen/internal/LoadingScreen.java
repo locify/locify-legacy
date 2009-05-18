@@ -18,6 +18,7 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import com.locify.client.utils.R;
+import com.locify.client.utils.Capabilities;
 
 /**
  * This screen is shown until main screen is loaded
@@ -27,7 +28,6 @@ public class LoadingScreen extends Canvas {
 
     private Image image;
     private String text;
-    private static int height;
 
 
     public LoadingScreen() {
@@ -41,7 +41,7 @@ public class LoadingScreen extends Canvas {
             this.setFullScreenMode(true);
             image = Image.createImage("/loading.png");
             text = "Loading";
-            R.getMidlet().switchDisplayable(null, this);
+            R.getMidlet().switchDisplayable(null, this);            
         } catch (Exception e) {
         }
     }
@@ -57,18 +57,13 @@ public class LoadingScreen extends Canvas {
 
     public void paint(Graphics g) {
         int width = getWidth();
-        LoadingScreen.height = getHeight();
+        Capabilities.setHeight(getHeight());
         g.setColor(255, 255, 255);
-        g.fillRect(0, 0, width, height);
-        g.drawImage(image, width / 2, height / 2 - image.getHeight() / 2, Graphics.TOP | Graphics.HCENTER);
+        g.fillRect(0, 0, width, getHeight());
+        g.drawImage(image, width / 2, getHeight() / 2 - image.getHeight() / 2, Graphics.TOP | Graphics.HCENTER);
         g.setColor(255, 143, 0);
         g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
-        g.drawString(text + " ...", width / 2, height - 20, Graphics.TOP | Graphics.HCENTER);
-    }
-
-    public static int getScreenHeight()
-    {
-        return height;
+        g.drawString(text + " ...", width / 2, getHeight() - 20, Graphics.TOP | Graphics.HCENTER);
     }
     
 }

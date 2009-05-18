@@ -67,7 +67,6 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
     //add
     protected Command cmdAddService = new Command(Locale.get("Service_from_list"), Command.SCREEN, 10);
     protected Command cmdAddByLink = new Command(Locale.get("Service_by_link"), Command.SCREEN, 11);
-    protected Command cmdAddShortcut = new Command(Locale.get("Shortcut"), Command.SCREEN, 12);
     //right button commands
     protected Command cmdMoveTo = new Command(Locale.get("Move"), Command.SCREEN, 1);
     protected Command cmdCancel = new Command(Locale.get("Cancel"), Command.CANCEL, 2);
@@ -145,13 +144,8 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                         break;
                     } else {
                         String[] parts = StringTokenizer.getArray(R.getMidlet().getAppProperty("Shortcut-" + i), "|");
-                        if (parts[1].startsWith("locify://")) {
-                            //shorcut to internal function
-                            addEdit(parts[1], parts[0], R.getURL().getIcon(parts[1]));
-                        } else {
-                            //shorcut to download
-                            addEdit(parts[1], parts[0], R.getURL().getIcon("locify://shortcut"));
-                        }
+                        //shorcut to download
+                        addEdit(parts[1], parts[0], "locify://icons/shortcut_to_download_25x25.png");
                         i++;
                     }
                 }
@@ -189,7 +183,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
             if (autoInstallRequest) {
                 R.getConfirmScreen().view(Locale.get("Autoinstall_confirmation"), ConfirmScreen.AUTOINSTALL_SERVICES);
             }
-            //#endif
+        //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MainScreen.load", null);
         }
@@ -275,8 +269,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
         }
     }
 
-    public void setAutoInstallRequest(boolean request)
-    {
+    public void setAutoInstallRequest(boolean request) {
         this.autoInstallRequest = request;
     }
 
@@ -297,8 +290,6 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
         this.addSubCommand(cmdAddService, cmdAdd);
         //#style imgAddFromLink
         this.addSubCommand(cmdAddByLink, cmdAdd);
-        //#style imgAddShortcut
-        this.addSubCommand(cmdAddShortcut, cmdAdd);
     }
 
     private void createOtherMenu() {
@@ -660,9 +651,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
             R.getURL().call("locify://addService");
         } else if (c == cmdAddByLink) {
             R.getURL().call("locify://addServiceByLink");
-        } else if (c == cmdAddShortcut) {
-            R.getURL().call("locify://addShortcut");
-        } else {
+        }else {
             for (int i = 0; i < R.getContext().commands.length; i++) {
                 if (c == R.getContext().commands[i]) {
                     R.getURL().call(R.getContext().actions[i]);

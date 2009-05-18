@@ -35,7 +35,6 @@ public class ConnectionProblem extends Form implements CommandListener {
     public void view() {
         this.deleteAll();
         this.append(Locale.get("Connection_problem_description"));
-        //#style imgAddShortcut
         this.addCommand(tryAgain);
         this.addCommand(Commands.cmdBack);
         //#style imgHome

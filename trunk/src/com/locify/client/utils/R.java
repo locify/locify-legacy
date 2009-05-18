@@ -25,7 +25,6 @@ import com.locify.client.gui.screen.service.HTMLScreen;
 import com.locify.client.net.XmlParser;
 import com.locify.client.gui.screen.internal.NavigationScreen;
 import com.locify.client.gui.screen.internal.MainScreen;
-import com.locify.client.gui.screen.internal.ShortcutsScreen;
 import com.locify.client.locator.LocatorModel;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.SettingsData;
@@ -85,7 +84,6 @@ public class R {
     private static MapOfflineChooseScreen mapOfflineChooseScreen;
     private static MapItemManager mapItemManager;
     private static BackScreenManager backScreens;
-    private static ShortcutsScreen shortcuts;
     private static HTMLScreen htmlScreen;
     private static Redirection autoSend;
     private static Logger logger;
@@ -240,13 +238,6 @@ public class R {
             backScreens = new BackScreenManager();
         }
         return backScreens;
-    }
-
-    public static ShortcutsScreen getShortcuts() {
-        if (shortcuts == null) {
-            shortcuts = new ShortcutsScreen();
-        }
-        return shortcuts;
     }
 
     public static HTMLScreen getHTMLScreen() {

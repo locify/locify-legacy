@@ -162,7 +162,6 @@ Service_description=Service description
 Service_url=Service URL
 Confirmation=Confirmation
 New_name=New name
-Add_shortcut=Add Shortcut
 Add_service=Add Service
 
 #Login & Register
