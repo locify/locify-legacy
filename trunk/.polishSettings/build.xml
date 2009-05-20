@@ -2,7 +2,7 @@
 <project name="Locify" default="j2mepolish">
     <import file="nbproject/build-impl.xml"/>
     <property file="${user.name}.properties" />
-    <property name="polish.home" location="C:\Program Files (x86)\J2ME-Polish" />
+    <property name="polish.home" location="\usr\local\J2ME-Polish" />
     <property file="${polish.home}/global.properties" />
     <taskdef name="j2mepolish" 
 		classname="de.enough.polish.ant.PolishTask" 
@@ -13,6 +13,10 @@
         <property name="release" value="false" />
         <!-- turn this true to build versions with absolute URLs -->
         <property name="absolute-urls" value="false" />
+        <!-- this is for generating aplet for web, turns off filesystem and other apis -->
+        <property name="applet" value="false" />
+        <!-- this is specific for planstudio build -->
+        <property name="planstudio" value="false" />
         <!-- test is launched in netbeans when i click to run, when i click to build is false -->
         <property name="test" value="false" />
     </target>
@@ -31,9 +35,10 @@
 				jarUrl="${polish.jarName}" 
 				name="Locify" 
 				vendorName="Locify Ltd." 
-				version="1.0"
-                optionalPermissions="javax.microedition.io.Connector.http, javax.microedition.location.Location, javax.microedition.io.Connector.bluetooth.client, javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.microedition.io.Connector.socket, javax.microedition.io.Connector.comm, javax.microedition.location.LandmarkStore.category, javax.microedition.location.LandmarkStore.read, javax.microedition.location.LandmarkStore.write, javax.wireless.messaging.sms.send, javax.microedition.io.Connector.sms"
+				version="1.5.3"
 		  />
+
+                
             <build usePolishGui="true" fullscreen="menu" workdir="build/" destdir="dist/${polish.name}/" >
                 <midlets definition="${manifest.midlets}" if="manifest.midlets:defined" />
                 <midlets unless="manifest.midlets:defined">
@@ -51,8 +56,8 @@
                     <variable name="polish.usePolishTitle" value="true" />
                     <variable name="polish.animationInterval" value="700" />
                     <variable name="polish.Browser.PaintDownloadIndicator" value="false" />
-                    <variable name="polish.ScreenInfo.enable" value="true" />
-                    <variable name="polish.TextField.suppressCommands" value="true"/>
+                    <variable name="polish.TextField.suppressCommands" value="true" if="!applet"/>
+                    <variable name="polish.TextField.useDirectInput" value="true" if="applet"/>
                     <variable name="polish.ChoiceGroup.suppressSelectCommand" value="true" />
                 </variables>
                 <libraries>
@@ -62,8 +67,6 @@
                     <localization dynamic="true" defaultLocale="en">
                         <locale name="en" encoding="utf-8" />
                         <locale name="cs_CZ" encoding="utf-8" />
-                        <locale name="sl_SI" encoding="utf-8" />
-                        <locale name="pl_PL" encoding="utf-8" />
                     </localization>
                     <root dir="resources/" />
                     <root dir="resources/img/" />
@@ -87,17 +90,16 @@
                     <attribute name="MIDlet-Jar-URL" value="http://www.locify.com/download/Locify.jar?device=${polish.name}" if="absolute-urls"/>
                     <attribute name="MIDlet-Install-Notify" value="http://client.locify.com/log/install?version=${polish.version}&amp;web=${absolute-urls}&amp;release=${release}&amp;device=${polish.name}" if="release" />
                     <attribute name="MIDlet-Install-Notify" value="http://client.stage.locify.com/log/install?version=${polish.version}&amp;web=${absolute-urls}&amp;release=${release}&amp;device=${polish.name}" unless="release" />
-                    <attribute name="Shortcut-1" value="Wikipedia|http://services.locify.com/wikipedia/welcome"/>
-                    <attribute name="Shortcut-2" value="Geocaching|http://services.locify.com/nearestCaches/" />
-                    <attribute name="Shortcut-3" value="Twitter|http://services.locify.com/twitter/welcome" />
-                    <attribute name="Shortcut-4" value="Panoramio|http://services.locify.com/panoramio/welcome" />
-                    <attribute name="Shortcut-5" value="Eventful|http://services.locify.com/eventful/welcome"  unless="polish.Vendor == Nokia"/>
-                    <attribute name="Shortcut-6" value="OpenCaching|http://services.locify.com/opencaching/welcome"  unless="polish.Vendor == Nokia"/>
-                    <attribute name="Shortcut-7" value="FireEagle|http://services.locify.com/fireeagle/welcome"  unless="polish.Vendor == Nokia"/>
-                    <attribute name="Shortcut-8" value="Upcoming|http://services.locify.com/upcoming/welcome"  unless="polish.Vendor == Nokia"/>
-                    <attribute name="Shortcut-9" value="Zvents|http://services.locify.com/zvents/welcome"  unless="polish.Vendor == Nokia"/>
-                    <attribute name="Shortcut-10" value="AccuWeather|http://services.locify.com/accuweather/welcome"  unless="polish.Vendor == Nokia"/>
-                    <attribute name="Shortcut-11" value="GeoMail|http://locify.destil.cz/geomail/"  unless="polish.Vendor == Nokia"/>
+                    <attribute name="MIDlet-Permissions" value="javax.microedition.io.Connector.http, javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.microedition.pim.ContactList.read, javax.wireless.messaging.sms.send, javax.microedition.io.Connector.sms, javax.microedition.io.Connector.bluetooth.client" unless="polish.name == WM-big or polish.name == WM" />
+                    <attribute name="MIDlet-Permissions" value="javax.microedition.io.Connector.http, javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.wireless.messaging.sms.send, javax.microedition.io.Connector.sms" if="polish.name == WM-big or polish.name==WM" />
+                    <attribute name="MIDlet-Permissions-Opt" value="javax.microedition.location.LandmarkStore.category, javax.microedition.location.LandmarkStore.read, javax.microedition.location.LandmarkStore.write, javax.microedition.io.Connector.comm, javax.microedition.location.Location" unless="polish.name == WM-big or polish.name==WM"/>
+                    <attribute name="MIDlet-Permissions-Opt" value="javax.microedition.location.LandmarkStore.category, javax.microedition.location.LandmarkStore.read, javax.microedition.location.LandmarkStore.write, javax.microedition.io.Connector.comm, javax.microedition.location.Location, javax.microedition.io.Connector.bluetooth.client, javax.microedition.pim.ContactList.read" if="polish.name == WM-big or polish.name == WM"/>
+                    <attribute name="Shortcut-1" value="Geocaching|http://services.locify.com/nearestCaches/" />
+                    <attribute name="Shortcut-2" value="Twitter|http://services.locify.com/twitter/welcome" />
+                    <attribute name="Shortcut-3" value="GeoSMS|http://services.locify.com/geosms/" />
+                    <attribute name="Shortcut-4" value="FireEagle|http://services.locify.com/fireeagle/welcome" unless="polish.Vendor == Nokia" />
+                    <attribute name="Shortcut-5" value="Wikipedia|http://services.locify.com/wikipedia/welcome" unless="polish.Vendor == Nokia" />
+                    <attribute name="Shortcut-6" value="Panoramio|http://services.locify.com/panoramio/welcome" unless="polish.Vendor == Nokia" />
                     <attribute name="Device" value="${polish.name}" />
                 </jad>
                 <debug enable="false" showLogOnError="true" verbose="true" level="error">
