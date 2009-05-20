@@ -65,10 +65,12 @@ public class Variables {
             {
                 text = Utils.replaceString(text, "$client[device]", System.getProperty("microedition.platform"));
             }
-            if (text.indexOf("$client[ident]") >=0 )
-            {
-                text = Utils.replaceString(text, "$client[ident]", R.getPlanstudio().getPhoneIdentification());
-            }
+            //#if planstudio
+//#             if (text.indexOf("$client[ident]") >=0 )
+//#             {
+//#                 text = Utils.replaceString(text, "$client[ident]", R.getPlanstudio().getPhoneIdentification());
+//#             }
+            //#endif
             if (text.indexOf("$location[source]") >=0 )
             {
                 text = Utils.replaceString(text, "$location[source]", String.valueOf(R.getContext().getSource()));

@@ -81,7 +81,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private Command cmdChangeMapTile,  cmdChangeMapFile;
     private Command cmdItemManager;
     private Command[] providerCommandsTile;
-    private Command cmdPlanStudio;
+    //#if planstudio
+//#     private Command cmdPlanStudio;
+    //#endif
     private boolean drawLock;
     private static int TOP_MARGIN = R.getTopBar().height;
     private static int BOTTOM_MARGIN = R.getTopBar().height + 3;
@@ -179,14 +181,18 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
         cmdChangeMapTile = new Command(Locale.get("Change_map_tile"), Command.SCREEN, 5);
         cmdChangeMapFile = new Command(Locale.get("Change_map_file"), Command.SCREEN, 6);
         cmdItemManager = new Command(Locale.get("Item_manager"), Command.SCREEN, 7);
-        cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
+        //#if planstudio
+//#         cmdPlanStudio = new Command("PlanStudio", Command.SCREEN, 7);
+        //#endif
 
         this.addCommand(Commands.cmdBack);
         //#style imgHome
         this.addCommand(Commands.cmdHome);
 
         this.addCommand(cmdMapFunction);
-        this.addCommand(cmdPlanStudio);
+        //#if planstudio
+//#         this.addCommand(cmdPlanStudio);
+        //#endif
         UiAccess.addSubCommand(cmdZoomIn, cmdMapFunction, this);
         UiAccess.addSubCommand(cmdZoomOut, cmdMapFunction, this);
         UiAccess.addSubCommand(cmdMyLocation, cmdMapFunction, this);
@@ -685,9 +691,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     R.getMapOfflineChooseScreen().view(locs[0].getLatitude(),
                             locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
                 }
-
-            } else if (cmd.equals(cmdPlanStudio)) {
-                R.getPlanstudio().view();
+            //#if planstudio
+//#             } else if (cmd.equals(cmdPlanStudio)) {
+//#                 R.getPlanstudio().view();
+            //#endif
             } else if (cmd.equals(cmdZoomIn)) {
                 makeMapAction(MA_ZOOM_IN, null);
             } else if (cmd.equals(cmdZoomOut)) {

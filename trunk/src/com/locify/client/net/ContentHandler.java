@@ -18,7 +18,6 @@ import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.data.CacheData;
 import com.locify.client.data.ServicesData;
 import com.locify.client.data.items.GeoFiles;
-import com.locify.client.maps.planStudio.PlanStudioManager;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.UTF8;
@@ -85,11 +84,14 @@ public class ContentHandler {
                         R.getMapScreen().setDifferentScreenLock(true);
                     }
                 } //some other html or form
-                else if (data.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><mapList><map")) {
-                    R.getPlanstudio().parseDefinitionFile(data);
-                } else if (data.startsWith("<?xml version=\"1.0\"?>")) {
-                    R.getPlanstudio().parseDefinitionFile(data);
-                } else {
+                //#if planstudio
+//#                 else if (data.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><mapList><map")) {
+//#                     R.getPlanstudio().parseDefinitionFile(data);
+//#                 } else if (data.startsWith("<?xml version=\"1.0\"?>")) {
+//#                     R.getPlanstudio().parseDefinitionFile(data);
+//#                 }
+                //#endif
+                 else {
                     R.getHTMLScreen().view(data);
                     if (!response.isDisabledCaching()) {
                         CacheData.add(response.getUrl(), data);

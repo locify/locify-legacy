@@ -58,7 +58,9 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.net.ConnectionProblem;
 import com.locify.client.net.ExternalBrowser;
 import com.locify.client.net.PostData;
-import com.locify.client.maps.planStudio.PlanStudioManager;
+//#if planstudio
+//# import com.locify.client.maps.planStudio.PlanStudioManager;
+//#endif
 
 /**
  * This class store all references to other classes in this project. It quaranties the singleton structure of classes.
@@ -113,7 +115,9 @@ public class R {
     private static ContactsScreen contactsScreen;
     private static Backlight backlight;
     private static AudioData audioData;
-    private static PlanStudioManager planstudio;
+    //#if planstudio
+//#     private static PlanStudioManager planstudio;
+    //#endif
 
     public R(Midlet ref) {
         midlet = ref;
@@ -456,10 +460,12 @@ public class R {
         return audioData;
     }
 
-    public static PlanStudioManager getPlanstudio() {
-        if (planstudio == null) {
-            planstudio = new PlanStudioManager();
-        }
-        return planstudio;
-    }
+    //#if planstudio
+//#     public static PlanStudioManager getPlanstudio() {
+//#         if (planstudio == null) {
+//#             planstudio = new PlanStudioManager();
+//#         }
+//#         return planstudio;
+//#     }
+    //#endif
 }

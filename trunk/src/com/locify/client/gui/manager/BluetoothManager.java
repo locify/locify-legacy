@@ -14,6 +14,7 @@
 package com.locify.client.gui.manager;
 
 import com.locify.client.utils.Commands;
+import com.locify.client.utils.Logger;
 import de.enough.polish.util.Locale;
 import java.io.IOException;
 import java.util.Vector;
@@ -100,6 +101,7 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
      */
     public void searchDevices() {
         try {
+            Logger.debug("search devices");
             viewConnectionProgress(Locale.get("Bluetooth_searching"), Gauge.CONTINUOUS_RUNNING);
             devices = new Vector();
             lstDevices = null;
@@ -115,6 +117,7 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
      */
     public void searchForServices() {
         try {
+            Logger.debug("start service search");
             viewConnectionProgress(Locale.get("Connecting_to_device"), Gauge.CONTINUOUS_RUNNING);
             discoveryAgent.cancelInquiry(this);
             Thread thread = new Thread(this);
@@ -131,6 +134,7 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
      */
     public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
         try {
+            Logger.debug("device discovered");
             devices.addElement(btDevice);
             String name;
             //series 40 bug
@@ -150,6 +154,7 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
      * @param discType 
      */
     public void inquiryCompleted(int discType) {
+        Logger.debug("inquiry completed");
         if (devices.size() == 0) {
             viewConnectionProgress(Locale.get("No_bt_in_range"), Gauge.CONTINUOUS_IDLE);
         }
@@ -162,7 +167,9 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
      */
     public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
         try {
+            Logger.debug("service discovered");
             bluetoothAdress = servRecord[0].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+            Logger.debug("bluetooth address: "+bluetoothAdress);
             discoveryAgent.cancelServiceSearch(transID);
             R.getSettings().setLastDevice(bluetoothAdress);
         } catch (Exception e) {
@@ -177,6 +184,7 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
      * @param responseCode 
      */
     public void serviceSearchCompleted(int transID, int responseCode) {
+        Logger.debug("service search completed");
         if (bluetoothAdress.equals("")) {
             R.getCustomAlert().quickView(Locale.get("Already_connected"), "Error", "locify://back");
         }
@@ -200,17 +208,18 @@ public class BluetoothManager implements DiscoveryListener, Runnable, CommandLis
                         0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
                         0x0008, 0x0009, 0x000A, 0x000B, 0x000C
                     };
-
+                    Logger.debug("searching");
                     //
                     // search for L2CAP services, most services based on L2CAP
                     //
                     // note: Rococo simulator required a new instance of Listener for
                     // every search. not sure if this is also the case in real devices
-                    discoveryAgent.searchServices(attr, // attributes to retrieve from remote device
-                            new UUID[]{new UUID(0x0100)}, // search criteria, 0x0100 = L2CAP
+                    discoveryAgent.searchServices(null, // attributes to retrieve from remote device
+                            new UUID[]{new UUID(0x1101)}, // search criteria, 0x0100 = L2CAP
                             (RemoteDevice) this.devices.elementAt(lstDevices.getSelectedIndex()), this); // direct discovery response to Listener object
                     searching = false;
                 } catch (BluetoothStateException ex) {
+                    Logger.error("error:"+ex);
                     try {
                         Thread.sleep(150);
                     } catch (InterruptedException exc) {
