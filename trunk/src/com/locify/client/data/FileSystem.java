@@ -189,9 +189,9 @@ public class FileSystem {
             if (Capabilities.isSonyEricsson()) {
                 tryOuts.addElement("other/" + locifyFolder);
             }
-            tryOuts.addElement("images/");
             if (Capabilities.isNokia()) {
                 tryOuts.addElement("data/Images/" + locifyFolder);
+                tryOuts.addElement("Photos/"+ locifyFolder);
             }
 
             //ordering roots to prefer memory cards
