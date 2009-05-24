@@ -87,7 +87,7 @@ public class ContentHandler {
                 } //some other html or form
                 //#if planstudio
 //#                 else if (data.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><mapList><map")) {
-//#                     R.getPlanstudio().parseDefinitionFile(data);
+//#                     R.getPlanstudio().parseOnlineMapDefinitionFile(data, true);
 //#                 }
                 //#endif
                  else if (data.startsWith("<?xml version=\"1.0\"?>")) {

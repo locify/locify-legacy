@@ -36,7 +36,7 @@ import javax.microedition.lcdui.Image;
 public class TileCache extends Thread {
 
     /** max number of cached tiles in memory */
-    private int maxCacheTiles;
+//    private int maxCacheTiles;
     /** max value in bytes of cached tiles on filesystem */
     private long maxCacheTileSizeFilesystem = 2 * 1024 * 1024;
     /** actual value of cached tileSize on filesystem */
@@ -68,10 +68,10 @@ public class TileCache extends Thread {
      * @param tileSize
      */
     public TileCache() {
-        this.maxCacheTiles = (int) ((R.getSettings().getCacheSize() * 1024) / (256 * 256));
-        if (maxCacheTiles < 6) {
-            maxCacheTiles = 6;
-        }
+//        this.maxCacheTiles = (int) ((R.getSettings().getCacheSize() * 1024) / (256 * 256));
+//        if (maxCacheTiles < 6) {
+//            maxCacheTiles = 6;
+//        }
 
         // reduce max cache filesystem size if not enough space on disk
         long maxSize = R.getFileSystem().getSize(FileSystem.ROOT + FileSystem.CACHE_MAP_TILE_FOLDER,
@@ -83,6 +83,7 @@ public class TileCache extends Thread {
         this.actualCacheTileSizeFilesystem = R.getFileSystem().getSize(FileSystem.ROOT +
                 FileSystem.CACHE_MAP_TILE_FOLDER, FileSystem.SIZE_DIRECTORY_AND_SUBDIRECTORIES);
 //Logger.log("Actual size: " + actualCacheTileSizeFilesystem);
+        
         this.tileRequest = new Vector();
         this.tileNewRequest = new Vector();
         this.tileCache = new Vector();
@@ -298,38 +299,15 @@ public class TileCache extends Thread {
                 }
             }
 
-            boolean needGarbage = false;
-
             // clean cache
-            if (tileCache.size() > maxCacheTiles) {
-                needGarbage = true;
+
 //Logger.debug("\nTileCache: clear cache tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
-                for (int i = tileCache.size() - 1; i >= 0; i--) {
-                    actualR = (ImageRequest) tileCache.elementAt(i);
-                    if (!actualR.requiredTile) {
-//Logger.debug("\n  remove: " + actualR.fileName);
-                        tileCache.removeElementAt(i);
-                        if (tileCache.size() < ((3 * maxCacheTiles) / 5)) {
-                            break;
-                        }
-                    }
-                }
-            }
-            if (tileCache.size() > maxCacheTiles) {
-//Logger.debug("\nTileCache: clear cache FORCE tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
-                for (int i = tileCache.size() - 1; i >= 0; i--) {
-                    actualR = (ImageRequest) tileCache.elementAt(i);
+            for (int i = tileCache.size() - 1; i >= 0; i--) {
+                actualR = (ImageRequest) tileCache.elementAt(i);
+                if (!actualR.requiredTile) {
 //Logger.debug("\n  remove: " + actualR.fileName);
                     tileCache.removeElementAt(i);
-                    if (tileCache.size() < Math.floor((3 * maxCacheTiles) / 5)) {
-                        break;
-                    }
                 }
-            }
-
-            if (needGarbage) {
-//Logger.debug("Garbage collecting");
-                Runtime.getRuntime().gc();
             }
         }
     }

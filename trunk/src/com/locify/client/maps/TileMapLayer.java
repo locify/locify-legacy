@@ -30,6 +30,7 @@ import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.geometry.Rectangle2D;
 import com.locify.client.maps.tiles.TileFactory;
 import com.locify.client.maps.tiles.TileFactoryInfo;
+import com.locify.client.maps.tiles.impl.GoogleMapAerialTileFactory;
 import com.locify.client.maps.tiles.impl.GoogleMapTileFactory;
 import com.locify.client.maps.tiles.impl.OpenStreetMapMapnikTileFactory;
 import com.locify.client.maps.tiles.impl.VirtualEarthAerialTileFactory;
@@ -263,7 +264,8 @@ public class TileMapLayer implements MapLayer {
 
         tileProviders = new TileFactory[][]{
                     new TileFactory[]{
-                        new GoogleMapTileFactory(this)
+                        new GoogleMapTileFactory(this),
+                        new GoogleMapAerialTileFactory(this)
                     },
                     new TileFactory[]{
                         new YahooMapTileFactory(this),

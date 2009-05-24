@@ -41,58 +41,61 @@ public class GoogleMapAerialTileFactory extends AbstractTileFactory {
                 "Google Aerial",
                 "Maps",
                 8,
-                25,
+                29,
                 256,
                 true,
                 true,
-                "http://kh0.google.com/kh?n=404&v=23",
+                "http://khm0.google.com/kh/v=39&hl=en",
                 ""),
                 canvasToRepaintWhenLoaded
         );
     }
 
     protected String getCoordinatePart(int x, int y, int referenceZoom) {
-//System.out.println("\n x: " + x + " y: " + y + " zoom: " + getParticularZoomFromReferenceZoom(referenceZoom));
-        
-        String path = "&t=t";
-        int numOfTiles = (int) LMath.pow(2.0, getParticularZoomFromReferenceZoom(referenceZoom));
-        int startTileX = 0;
-        int startTileY = 0;
-        int middleTileX = 0;
-        int middleTileY = 0;
-        
-        for (int i = 1; i <= getParticularZoomFromReferenceZoom(referenceZoom); i++) {
-            int numOfTilesZoom = (int) LMath.pow(2, i);
-            middleTileX = startTileX + numOfTiles / numOfTilesZoom;
-            middleTileY = startTileY + numOfTiles / numOfTilesZoom;
-//System.out.println("numOfTilesZoom: " + numOfTilesZoom + " middleT x: " + middleTileX + " y: " + middleTileY);
-            if (y < middleTileY) {
-                if (x < middleTileX) {
-                    path += "q";
-                } else {
-                    path += "r";
-                    startTileX = middleTileX;
-                }
-            } else {
-                if (x < middleTileX) {
-                    path += "t";
-                } else {
-                    path += "s";
-                    startTileX = middleTileX;
-                }
-                startTileY = middleTileY;
-            }
-//System.out.println("\n" + path);
-        }
-        
-        return path;
+////System.out.println("\n x: " + x + " y: " + y + " zoom: " + getParticularZoomFromReferenceZoom(referenceZoom));
+//
+//        String path = "&t=t";
+//        int numOfTiles = (int) LMath.pow(2.0, getParticularZoomFromReferenceZoom(referenceZoom));
+//        int startTileX = 0;
+//        int startTileY = 0;
+//        int middleTileX = 0;
+//        int middleTileY = 0;
+//
+//        for (int i = 1; i <= getParticularZoomFromReferenceZoom(referenceZoom); i++) {
+//            int numOfTilesZoom = (int) LMath.pow(2, i);
+//            middleTileX = startTileX + numOfTiles / numOfTilesZoom;
+//            middleTileY = startTileY + numOfTiles / numOfTilesZoom;
+////System.out.println("numOfTilesZoom: " + numOfTilesZoom + " middleT x: " + middleTileX + " y: " + middleTileY);
+//            if (y < middleTileY) {
+//                if (x < middleTileX) {
+//                    path += "q";
+//                } else {
+//                    path += "r";
+//                    startTileX = middleTileX;
+//                }
+//            } else {
+//                if (x < middleTileX) {
+//                    path += "t";
+//                } else {
+//                    path += "s";
+//                    startTileX = middleTileX;
+//                }
+//                startTileY = middleTileY;
+//            }
+////System.out.println("\n" + path);
+//        }
+//
+//        return path;
+        return "&x=" + x +
+                "&y=" + y +
+                "&z=" + getParticularZoomFromReferenceZoom(referenceZoom);
     }
 
     protected int getParticularZoomFromReferenceZoom(int referenceZoom) {
-        return -8 + referenceZoom;
+        return referenceZoom - 8;
     }
 
     protected int getReferenceZoomFromParticularZoom(int particularZoom) {
-        return -8 + particularZoom;
+        return particularZoom - 8;
     }
 }
