@@ -429,6 +429,9 @@ Logger.log("Clear cache");
                         data = null;
                     } else {
                         Logger.error("Error while downloading map tile: " + connection.getResponseCode());
+                        if (connection.getResponseCode() == 404) {
+                            this.image = MapScreen.getImageNotExisted();
+                        }
                     }
                 } else {
 //System.out.println("Load from cache: " + path);
