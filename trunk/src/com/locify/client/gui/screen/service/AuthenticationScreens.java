@@ -19,6 +19,7 @@ import com.locify.client.net.Http;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Sha1;
 import com.locify.client.utils.Utils;
+import com.locify.client.utils.UTF8;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.data.ServiceSettingsData;
 import com.locify.client.utils.Commands;
@@ -214,7 +215,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
                 ServiceSettingsData.saveXML();
             }
             if (httpBasic) {
-                String basicResponse = Base64.encode(Utils.replaceString(login,":","{colon}") + ":" + password);
+                String basicResponse = Base64.encodeBytes(UTF8.encode(Utils.replaceString(login,":","{colon}") + ":" + password));
                 R.getHttp().repeat(basicResponse);
             } else {
                 R.getPostData().add("login", login);
