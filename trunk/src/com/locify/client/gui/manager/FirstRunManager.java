@@ -18,7 +18,6 @@ import com.locify.client.data.SettingsData;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
-import com.locify.client.utils.Utils;
 import de.enough.polish.util.Locale;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

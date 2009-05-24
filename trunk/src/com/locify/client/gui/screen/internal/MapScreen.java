@@ -14,13 +14,7 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.IconData;
-import com.locify.client.data.items.GeoData;
-import com.locify.client.data.items.GeoFiles;
-import com.locify.client.data.items.MultiGeoData;
-import com.locify.client.data.items.Route;
-import com.locify.client.data.items.Waypoint;
-import com.locify.client.data.items.NetworkLink;
-import com.locify.client.data.items.WaypointsCloud;
+import com.locify.client.data.items.*;
 import com.locify.client.data.SettingsData;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationContext;
@@ -58,6 +52,9 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+//#if planstudio
+//# import com.locify.client.maps.planStudio.PlanStudioManager;
+//#endif
 
 /**
  * Screen for viewing all maps and items on map
@@ -133,8 +130,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private static Image imageActualLocation;
     /** size of zoom icon */
     private static int imageIconZoomSideSize;
-    /** thread for painting */
-//    private PaintThread paintThread;
     /** if some mapItems are selected this isn't null */
     private Vector selectedMapItemWaypoints;
     /** index of selected items */
@@ -161,7 +156,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     private static TileCache cache;
     /** if item was added before map was inicialized, call it after that */
     private MapItem newMapItemAdded;
-   
+
     public MapScreen() {
         super(Locale.get("Maps"), true);
         this.setCommandListener(this);
@@ -211,12 +206,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
         if (!R.getSettings().isDefaultMapProviderOnline()) {
             map = mapFile;
-        //setMapFile = map.setProviderAndMode(R.getSettings().getDefaultMapProvider());
         } else {
             mapTile.setProviderAndMode(R.getSettings().getDefaultMapProvider());
             mapTile.setDefaultZoomLevel();
             map = mapTile;
-
         }
 
         //mapTile provider commands        
@@ -267,6 +260,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void view() {
         try {
             differentScreenLock = false;
+
             if (map instanceof FileMapLayer && !mapFile.isReady()) {
                 R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
                         R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude());
@@ -278,9 +272,6 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                     centerMap(R.getLocator().getLastLocation(), centerToActualLocation);
                 }
 
-                //if (nowDirectly && firstCenterAfterND && !this.isShown()) {
-                //    return;
-                //}
                 R.getMidlet().switchDisplayable(null, this);
                 selectNearestWaypointsAtCenter();
                 repaint();
@@ -421,19 +412,24 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void setFileMap(FileMapManager fmm, Location4D center) {
-        if (fmm != null && fmm.isReady()) {
-            //mapFile.setProviderAndMode(fmm);
-            mapFile.addNextMapManager(fmm, true, true);
-            map = mapFile;
-            if (newMapItemAdded != null) {
-                centerMap(newMapItemAdded.getItemCenter(), false);
-                objectZoomTo(newMapItemAdded);
-                newMapItemAdded = null;
+        try {
+            if (fmm != null && fmm.isReady()) {
+                mapFile.addNextMapManager(fmm, true, true);
+                map = mapFile;
+                if (newMapItemAdded != null) {
+                    centerMap(newMapItemAdded.getItemCenter(), false);
+                    objectZoomTo(newMapItemAdded);
+                    newMapItemAdded = null;
+                } else {
+                    centerMap(center, false);
+                }
             } else {
-                centerMap(center, false);
+                Logger.error("MapScreen.setFileMap() error");
             }
+            view();
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapScreen.SetFileMap()", null);
         }
-        view();
     }
 
     public void centerMap(Location4D newCenter, boolean centerToActualLocation) {

@@ -89,7 +89,7 @@ public abstract class FileMapManager {
     /** loaded image used for drawing*/
     protected Image image;
     /** data for Http transfer */
-    protected static String obtainedData;
+    public static String obtainedData;
 
     public FileMapManager(String mapPath) {
         this.ready = false;
@@ -498,11 +498,6 @@ if (debug)
         } else {
             return 0;
         }
-    }
-
-    public static void parseDefinitionFile(String data)
-    {
-        //child have to override this method
     }
 
     public abstract void setZoomLevel(int zoom);

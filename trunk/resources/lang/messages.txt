@@ -1,4 +1,4 @@
-# Locify translation file for language: English 
+#Locify translation file for language: English 
 
 #General words
 Locify=Locify

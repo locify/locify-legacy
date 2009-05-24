@@ -115,6 +115,7 @@ public class R {
     private static ContactsScreen contactsScreen;
     private static Backlight backlight;
     private static AudioData audioData;
+
     //#if planstudio
 //#     private static PlanStudioManager planstudio;
     //#endif

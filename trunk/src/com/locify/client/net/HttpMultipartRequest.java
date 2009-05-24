@@ -14,6 +14,7 @@
 package com.locify.client.net;
 
 import com.locify.client.data.CookieData;
+import com.locify.client.data.FileSystem;
 import com.locify.client.data.SettingsData;
 import com.locify.client.utils.R;
 import com.locify.client.gui.polish.TopBarBackground;
@@ -81,7 +82,7 @@ public class HttpMultipartRequest implements Runnable {
     }
 
     public void run() {
-        long fileSize = R.getFileSystem().getFileSize(path);
+        long fileSize = R.getFileSystem().getSize(path, FileSystem.SIZE_FILE);
 
         R.getUploadProgress().view((int) (fileSize / 1024));
 

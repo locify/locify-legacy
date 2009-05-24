@@ -15,6 +15,7 @@ package com.locify.client.data;
 
 import com.locify.client.utils.Capabilities;
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Enumeration;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
@@ -46,6 +47,7 @@ public class FileSystem {
     public static final String HTML_FOLDER = CACHE_FOLDER + "html/";
     public static final String AUDIO_FOLDER = CACHE_FOLDER + "audio/";
     public static final String CACHE_MAP_FOLDER = CACHE_FOLDER + "map/";
+    public static final String CACHE_MAP_TILE_FOLDER = CACHE_MAP_FOLDER + "tile/";
     public static final String ROUTE_FOLDER = CACHE_FOLDER + "route/";
     //files definition
     public static final String SETTINGS_FILE = SETTINGS_FOLDER + "mainSettings.xml";
@@ -205,6 +207,8 @@ public class FileSystem {
                 root.indexOf("card") != -1 || root.indexOf("SD") != -1 ||
                 root.indexOf("MMC") != -1 || root.indexOf("tflash") != -1) {
                     firstRoots.addElement(root);
+                } else if (root.indexOf("root") != -1 || root.indexOf("Root") != -1) {
+                    lastRoots.insertElementAt(root, 0);
                 } else {
                     lastRoots.addElement(root);
                 }
@@ -292,7 +296,7 @@ public class FileSystem {
                     filteredFiles.addElement(files.nextElement());
                 }
             } else {
-                // fix patterns (here are not used as usually
+                // fix patterns (here are not used as usually)
                 for (int i = 0; i < pattern.length; i++) {
                     pattern[i] = pattern[i].substring(pattern[i].lastIndexOf('.') + 1, pattern[i].length());
                 }
@@ -325,7 +329,7 @@ public class FileSystem {
         try {
             //#if !applet
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT + fileName);
-            if (fileConnection.exists()) {
+            if (fileConnection.exists() && !fileConnection.isDirectory()) {
                 fileConnection.delete();
             }
             fileConnection.close();
@@ -353,6 +357,47 @@ public class FileSystem {
             //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.deleteAll", folder);
+        }
+    }
+
+    private boolean cacheClearing = false;
+    /**
+     * Call this function if cache directory is full.
+     */
+    public void clearMapCacheDirectory() {
+        try {
+            //#if !applet
+            if (!cacheClearing) {
+                cacheClearing = true;
+                Enumeration files = getFiles(ROOT + CACHE_MAP_TILE_FOLDER);
+                long actualTime = System.currentTimeMillis();
+                long olderThen = 1000 * 3600 * 24; // 1 day
+                int deleteCount = 0;
+                String file;
+                FileConnection fc;
+                while (files.hasMoreElements()) {
+                    file = (String) files.nextElement();
+                    try {
+                        fc = (FileConnection) Connector.open("file:///" + ROOT + CACHE_MAP_TILE_FOLDER + file);
+                        if (actualTime - fc.lastModified() > olderThen) {
+                            fc.delete();
+                            deleteCount++;
+        //Logger.log("LastModified: " + file + " " + lastModified);
+                        }
+                        fc.close();
+                    } catch (IOException ex) {
+                        delete(CACHE_MAP_TILE_FOLDER + file);
+                    }
+                }
+
+                if (deleteCount == 0)
+                    deleteAll(CACHE_MAP_TILE_FOLDER);
+                cacheClearing = false;
+            }
+            //#endif
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "FileSystem.clearMapCacheDirectory()", "");
+            cacheClearing = false;
         }
     }
 
@@ -398,6 +443,21 @@ public class FileSystem {
             //#endif
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.renameFile()", oldFile + " to " + newName);
+        }
+    }
+
+    public synchronized long lastModifiedFile(String filePath) {
+        try {
+            //#if !applet
+            FileConnection fileConnection = (FileConnection) Connector.open("file:///" + ROOT + filePath);
+            if (fileConnection.exists()) {
+                return fileConnection.lastModified();
+            }
+            return 0;
+            //#endif
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "FileSystem.lastModifiedFile()", filePath);
+            return 0;
         }
     }
 
@@ -556,24 +616,39 @@ public class FileSystem {
         }
     }
 
+    public static final int SIZE_FILE = 1;
+    public static final int SIZE_DIRECTORY_AND_SUBDIRECTORIES = 2;
+    public static final int SIZE_DIRECTORY_WITHOUT_SUBDIRECTORIES = 3;
+    public static final int SIZE_AVAILABLE = 4;
+
     /**
      * Returns file size of some file (root need to be specified)
      * @param file
      * @return
      */
-    public synchronized long getFileSize(String file) {
+    public synchronized long getSize(String file, int type) {
         try {
             //#if applet
 //#             return -1;
             //#else
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + file);
+            long size;
             if (!fileConnection.exists()) {
                 return -1;
-            } else if (fileConnection.isDirectory()) {
-                fileConnection.close();
-                return -1;
+            } else {
+                if (type == SIZE_FILE && !fileConnection.isDirectory()) {
+                    size = fileConnection.fileSize();
+                } else if (type == SIZE_DIRECTORY_AND_SUBDIRECTORIES && fileConnection.isDirectory()) {
+                    size = fileConnection.directorySize(true);
+                } else if (type == SIZE_DIRECTORY_WITHOUT_SUBDIRECTORIES && fileConnection.isDirectory()) {
+                    size = fileConnection.directorySize(false);
+                } else if (type == SIZE_AVAILABLE) {
+                    size = fileConnection.availableSize();
+                } else {
+                    size = -1;
+                }
             }
-            long size = fileConnection.fileSize();
+
             fileConnection.close();
             return size;
             //#endif

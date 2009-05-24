@@ -113,7 +113,8 @@ public class StoreManager {
 //Logger.debug("  checking file: " + fileName + " (" + (System.currentTimeMillis() - time) + "ms)");
                                 if (temp.equalsIgnoreCase("tar") || temp.equalsIgnoreCase("xml") || temp.equalsIgnoreCase("map")) {
                                     temp = FileSystem.hashFileName("file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER + fileName);
-                                    long fileSize = R.getFileSystem().getFileSize(FileSystem.ROOT + FileSystem.MAP_FOLDER + fileName);
+                                    long fileSize = R.getFileSystem().getSize(FileSystem.ROOT +
+                                            FileSystem.MAP_FOLDER + fileName, FileSystem.SIZE_FILE);
 //Logger.debug("  fileName: " + fileName + " fileSize: " + fileSize);
                                     // map is already cached
                                     if (filesCached.contains(temp + fileSize)) {
@@ -420,7 +421,8 @@ public class StoreManager {
     }
 
     public static FileMapManager getInitializedOfflineMap(String fileName, boolean justInitialize) {
-        long fileSize = R.getFileSystem().getFileSize(FileSystem.ROOT + FileSystem.MAP_FOLDER + fileName);
+        long fileSize = R.getFileSystem().getSize(FileSystem.ROOT + FileSystem.MAP_FOLDER
+                + fileName, FileSystem.SIZE_FILE);
         String hashedFileName = FileSystem.hashFileName("file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER + fileName);
 
         return initializeOfflineMap(fileName, hashedFileName + fileSize, justInitialize);

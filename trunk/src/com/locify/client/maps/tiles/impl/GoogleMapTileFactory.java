@@ -31,7 +31,6 @@ import com.locify.client.maps.tiles.TileFactoryInfo;
  * @version 14 juin 2008, 15:51:46
  */
 public class GoogleMapTileFactory extends AbstractTileFactory {
-    private final static String PROTOCOL_VERSION = "";
 
     /**
      * Creates a new instance of TileFactory
@@ -45,7 +44,7 @@ public class GoogleMapTileFactory extends AbstractTileFactory {
                 256,
                 true,
                 true,
-                "http://mt0.google.com/mt?n=404&v=" + PROTOCOL_VERSION,
+                "http://mt0.google.com/mt/v=w2.95&hl=en",
                 ""),
                 canvasToRepaintWhenLoaded
         );
@@ -54,14 +53,14 @@ public class GoogleMapTileFactory extends AbstractTileFactory {
     protected String getCoordinatePart(int x, int y, int referenceZoom) {
         return "&x=" + x +
                 "&y=" + y +
-                "&zoom=" + getParticularZoomFromReferenceZoom(referenceZoom);
+                "&z=" + getParticularZoomFromReferenceZoom(referenceZoom);
     }
 
     protected int getParticularZoomFromReferenceZoom(int referenceZoom) {
-        return 25 - referenceZoom;
+        return referenceZoom - 8;
     }
 
     protected int getReferenceZoomFromParticularZoom(int particularZoom) {
-        return 25 - particularZoom;
+        return particularZoom - 8;
     }
 }

@@ -17,8 +17,6 @@ import com.locify.client.data.*;
 import com.locify.client.data.items.*;
 import com.locify.client.gui.screen.internal.MainScreen;
 import com.locify.client.utils.R;
-import de.enough.polish.util.Locale;
-import java.util.Vector;
 import com.locify.client.net.Http;
 import com.locify.client.net.Sms;
 import com.locify.client.data.Service;

@@ -355,10 +355,11 @@ public class StorageTar {
         }
     }
 
-    public void setMpxFile(String filePath, String imageDir, byte[] index) {
+    public void setMpxFile(String filePath, String imageDir, byte[] index, byte[] palette) {
         this.tarPath = filePath;
         this.imageDir = imageDir;
         this.index = index;
+        this.pngHeader = palette;
     }
 
     private byte[] loadFileWithPalette(TarRecord record) throws IOException {

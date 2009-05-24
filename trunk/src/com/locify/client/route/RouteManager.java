@@ -289,7 +289,6 @@ public class RouteManager implements LocationEventListener {
     public boolean loadUnfinishedRoute() {
         try {
             if (GeoFiles.isUnfinishedRoute()) {
-                //routeVariables = (RouteVariables) R.getFileSystem().loadObject(FileSystem.RUNNING_ROUTE_DATA);
                 rv = (new RouteVariables()).loadRouteVariables();
                 if (rv == null) {
                     rv = new RouteVariables();

@@ -62,6 +62,7 @@ public abstract class GeoFiles {
     private static final int STATE_SCREEN_OVERLAY = 5;
     // gpx tags
     private static final int STATE_RTE = 11;
+    private static final int STATE_WPT = 12;
 
     private static int sActual;
     private static int sBefore;
@@ -185,21 +186,23 @@ public abstract class GeoFiles {
         XmlPullParser parser;
 
         try {
-
+//System.out.println("\n " + "file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
             fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
             if (!fileConnection.exists()) {
                 return null;
             }
-
+//System.out.println("\n " + fileName);
             is = fileConnection.openInputStream();
             parser = new KXmlParser();
             parser.setInput(is, "utf-8");
 
+            MultiGeoData multiGeoData = new MultiGeoData();
+            multiGeoData.name = fileName;
             if (fileName.endsWith("kml"))
-                return parseKml(parser, firstNameOnly);
+                multiGeoData = parseKml(parser, firstNameOnly, multiGeoData);
             else if (fileName.endsWith("gpx"))
-                return parseGpx(parser, firstNameOnly);
-            return new MultiGeoData();
+                multiGeoData = parseGpx(parser, firstNameOnly, multiGeoData);
+            return multiGeoData;
         } catch (Exception e) {
             //R.getErrorScreen().view(e, "RouteData.isRoute", null);
             Logger.error("GeoFiles.parseKmlFile() - wrong file: " + fileName + " ex: " + e.toString());
@@ -227,11 +230,13 @@ public abstract class GeoFiles {
             parser = new KXmlParser();
             parser.setInput(new InputStreamReader(stream));
 
+            MultiGeoData multiGeoData = new MultiGeoData();
+            multiGeoData.name = "unname data";
             if (data.indexOf("<kml xmlns=") != -1)
-                return parseKml(parser, firstNameOnly);
+                multiGeoData = parseKml(parser, firstNameOnly, multiGeoData);
             else if (data.indexOf("<gpx xmlns=") != -1)
-                return parseGpx(parser, firstNameOnly);
-            return new MultiGeoData();
+                multiGeoData = parseGpx(parser, firstNameOnly, multiGeoData);
+            return multiGeoData;
         } catch (Exception e) {
             Logger.error("Parsing: wrongFile or data: " + data + " ex: " + e.toString());
             return null;
@@ -246,8 +251,7 @@ public abstract class GeoFiles {
         }
     }
 
-    private static MultiGeoData parseKml(XmlPullParser parser, boolean firstNameOnly) {
-        MultiGeoData multiData = new MultiGeoData();
+    private static MultiGeoData parseKml(XmlPullParser parser, boolean firstNameOnly, MultiGeoData multiData) {
         GeoData actualGeoData = null;
 
         try {
@@ -635,12 +639,12 @@ public abstract class GeoFiles {
         }
     }
 
-    private static MultiGeoData parseGpx(XmlPullParser parser, boolean firstNameOnly) {
-        MultiGeoData multiData = new MultiGeoData();
+    private static MultiGeoData parseGpx(XmlPullParser parser, boolean firstNameOnly, MultiGeoData multiData) {
         GeoData actualGeoData = null;
 
         try {
             Waypoint waypoint = null;
+            WaypointsCloud waypointCloud = new WaypointsCloud();
 
             int event;
             String tagName;
@@ -673,28 +677,43 @@ public abstract class GeoFiles {
                                 double lon = GpsUtils.parseDouble(parser.getAttributeValue(null, "lon"));
 
                                 route.points.addElement(new Location4D(lat, lon, 0.0f));
-
-//                                waypoint = new Waypoint(lat, lon, "", "", "");
-//                                while (true) {
-//                                    event = parser.nextToken();
-//                                    if (event == XmlPullParser.START_TAG) {
-//                                        tagName = parser.getName();
-//                                        if (tagName.equalsIgnoreCase("name")) {
-//                                            waypoint.name = parser.nextText();
-//                                        } else if (tagName.equalsIgnoreCase("cmt")) {
-//                                            waypoint.description = parser.nextText();
-//                                        }
-//                                    } else if (event == XmlPullParser.END_TAG) {
-//                                        tagName = parser.getName();
-//                                        if (tagName.equalsIgnoreCase("rtept")) {
-//                                            break;
-//                                        }
-//                                    }
-//                                }
-//                                ((WaypointsCloud) actualGeoData).addWaypoint(waypoint);
                             }
                         } catch(Exception ex) {
                             Logger.warning("GeoFiles.parseGpx() - 'rtept' tag error!!!");
+                        }
+                    } else if (tagName.equalsIgnoreCase("wpt")) {
+                        try {
+                            if (sActual == STATE_NONE || sActual == STATE_RTE) {
+                                double lat = GpsUtils.parseDouble(parser.getAttributeValue(null, "lat"));
+                                double lon = GpsUtils.parseDouble(parser.getAttributeValue(null, "lon"));
+                                waypoint = new Waypoint(lat, lon, "", "", "");
+
+                                while (true) {
+                                    event = parser.nextToken();
+                                    if (event == XmlPullParser.START_TAG) {
+                                        tagName = parser.getName();
+                                        if (tagName.equalsIgnoreCase("name")) {
+                                            waypoint.name = parser.nextText();
+                                        } else if (tagName.equalsIgnoreCase("desc")) {
+                                            waypoint.description = parser.nextText();
+                                        } else if (tagName.equalsIgnoreCase("ele")) {
+                                            waypoint.setAltitude(GpsUtils.parseFloat(parser.nextText()));
+                                        }
+                                    } else if (event == XmlPullParser.END_TAG) {
+                                        tagName = parser.getName();
+                                        if (tagName.equalsIgnoreCase("wpt")) {
+                                            break;
+                                        }
+                                    }
+                                }
+//Logger.log("Add WPT: " + waypoint.toString());
+                                waypointCloud.addWaypoint(waypoint);
+                            } else {
+                                Logger.warning("GeoFiles.parseGpx() - 'rte' name error!!!");
+                                return null;
+                            }
+                        } catch (Exception e) {
+                            Logger.warning("GeoFiles.parseGpx() - 'rte' error!!!");
                         }
                     }
                 } else if (event == XmlPullParser.END_TAG) {
@@ -710,6 +729,8 @@ public abstract class GeoFiles {
                 }
             }
 
+            if (waypointCloud.getWaypointsCount() > 0)
+                multiData.addGeoData(waypointCloud);
             multiData.finalizeData();
             return multiData;
         } catch (Exception e) {
@@ -737,7 +758,7 @@ public abstract class GeoFiles {
 
         try {
 //Logger.debug("GeoFiles.getDataTypeFile() - " + fileName);
-            fileSize = R.getFileSystem().getFileSize(FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName);
+            fileSize = R.getFileSystem().getSize(FileSystem.ROOT + FileSystem.FILES_FOLDER + fileName, FileSystem.SIZE_FILE);
             type = getDataTypeDatabase(fileName, fileSize);
 
 //Logger.debug("  testFile: " + fileName + " type: " + type + " size: " + fileSize);
@@ -756,7 +777,7 @@ public abstract class GeoFiles {
                     type = getDataTypeKml(parser);
                 else if (fileName.endsWith("gpx"))
                     type = getDataTypeGpx(parser);
-//Logger.debug("  return parser type: " + type);
+//Logger.debug(fileName + " return parser type: " + type);
             }
             return type;
         } catch (Exception e) {
@@ -883,6 +904,12 @@ public abstract class GeoFiles {
                     if (tagName.equalsIgnoreCase("rte")) {
                         if (actualType == TYPE_CORRUPT || actualType == TYPE_ROUTE) {
                             actualType = TYPE_ROUTE;
+                        } else {
+                            return TYPE_MULTI;
+                        }
+                    } else if (tagName.equalsIgnoreCase("wpt")) {
+                        if (actualType == TYPE_CORRUPT || actualType == TYPE_WAYPOINTS_CLOUD) {
+                            actualType = TYPE_WAYPOINTS_CLOUD;
                         } else {
                             return TYPE_MULTI;
                         }

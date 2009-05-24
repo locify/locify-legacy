@@ -35,7 +35,13 @@ import javax.microedition.lcdui.Image;
  */
 public class TileCache extends Thread {
 
-    private int maxSize;
+    /** max number of cached tiles in memory */
+    private int maxCacheTiles;
+    /** max value in bytes of cached tiles on filesystem */
+    private long maxCacheTileSizeFilesystem = 2 * 1024 * 1024;
+    /** actual value of cached tileSize on filesystem */
+    private long actualCacheTileSizeFilesystem;
+    /** hash table containg http donwloaders */
     private HashMap runningHttpDownloaders;
     /** if new requestsAdded started */
     private boolean cleanRequest;
@@ -62,11 +68,21 @@ public class TileCache extends Thread {
      * @param tileSize
      */
     public TileCache() {
-        this.maxSize = (int) ((R.getSettings().getCacheSize() * 1024) / (256 * 256));
-        if (maxSize < 6) {
-            maxSize = 6;
+        this.maxCacheTiles = (int) ((R.getSettings().getCacheSize() * 1024) / (256 * 256));
+        if (maxCacheTiles < 6) {
+            maxCacheTiles = 6;
         }
 
+        // reduce max cache filesystem size if not enough space on disk
+        long maxSize = R.getFileSystem().getSize(FileSystem.ROOT + FileSystem.CACHE_MAP_TILE_FOLDER,
+                FileSystem.SIZE_AVAILABLE);
+//Logger.log("Max size on disk: " + maxSize);
+        if (maxSize != -1 && maxSize < maxCacheTileSizeFilesystem)
+            maxCacheTileSizeFilesystem = maxSize;
+//Logger.log("Max size actual: " + maxCacheTileSizeFilesystem);
+        this.actualCacheTileSizeFilesystem = R.getFileSystem().getSize(FileSystem.ROOT +
+                FileSystem.CACHE_MAP_TILE_FOLDER, FileSystem.SIZE_DIRECTORY_AND_SUBDIRECTORIES);
+//Logger.log("Actual size: " + actualCacheTileSizeFilesystem);
         this.tileRequest = new Vector();
         this.tileNewRequest = new Vector();
         this.tileCache = new Vector();
@@ -285,7 +301,7 @@ public class TileCache extends Thread {
             boolean needGarbage = false;
 
             // clean cache
-            if (tileCache.size() > maxSize) {
+            if (tileCache.size() > maxCacheTiles) {
                 needGarbage = true;
 //Logger.debug("\nTileCache: clear cache tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
                 for (int i = tileCache.size() - 1; i >= 0; i--) {
@@ -293,19 +309,19 @@ public class TileCache extends Thread {
                     if (!actualR.requiredTile) {
 //Logger.debug("\n  remove: " + actualR.fileName);
                         tileCache.removeElementAt(i);
-                        if (tileCache.size() < ((3 * maxSize) / 5)) {
+                        if (tileCache.size() < ((3 * maxCacheTiles) / 5)) {
                             break;
                         }
                     }
                 }
             }
-            if (tileCache.size() > maxSize) {
+            if (tileCache.size() > maxCacheTiles) {
 //Logger.debug("\nTileCache: clear cache FORCE tileCache.size(): " + tileCache.size() + " maxSize: " + maxSize);
                 for (int i = tileCache.size() - 1; i >= 0; i--) {
                     actualR = (ImageRequest) tileCache.elementAt(i);
 //Logger.debug("\n  remove: " + actualR.fileName);
                     tileCache.removeElementAt(i);
-                    if (tileCache.size() < Math.floor((3 * maxSize) / 5)) {
+                    if (tileCache.size() < Math.floor((3 * maxCacheTiles) / 5)) {
                         break;
                     }
                 }
@@ -385,43 +401,60 @@ public class TileCache extends Thread {
 
         public void run() {
             try {
-//Logger.debug("Load: " + path);
-                connection = (HttpConnection) Connector.open(path, Connector.READ);
-                connection.setRequestMethod(HttpConnection.GET);
-                connection.setRequestProperty("User-Agent", "Profile/MIDP-2.0 Configuration/CLDC-1.1");
-                connection.setRequestProperty("Accept", "image/png");
-                connection.setRequestProperty("Connection", "close");
+                if (actualCacheTileSizeFilesystem > maxCacheTileSizeFilesystem) {
+                    R.getFileSystem().clearMapCacheDirectory();
+Logger.log("Clear cache");
+                }
 
-                //receiving data
-                if (connection.getResponseCode() == HttpConnection.HTTP_OK) {
-                    dis = connection.openDataInputStream();
-                    byte[] data;
+                String hashedName = FileSystem.hashFileName(path);
+                // check cache for image
+                byte[] data = R.getFileSystem().loadBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName);
+                if (data == null) {
+//System.out.println("Load from web: " + path);
+                    connection = (HttpConnection) Connector.open(path, Connector.READ);
+                    connection.setRequestMethod(HttpConnection.GET);
+                    connection.setRequestProperty("User-Agent", "Profile/MIDP-2.0 Configuration/CLDC-1.1");
+                    connection.setRequestProperty("Accept", "image/png");
+                    connection.setRequestProperty("Connection", "close");
 
-                    int length = (int) connection.getLength();
-                    if (length != -1) {
-                        if (length > 300000) {
-                            this.image = MapScreen.getImageTooBigSize();
-                            return;
+                    //receiving data
+                    if (connection.getResponseCode() == HttpConnection.HTTP_OK) {
+                        dis = connection.openDataInputStream();
+
+                        int length = (int) connection.getLength();
+                        if (length != -1) {
+                            if (length > 300000) {
+                                this.image = MapScreen.getImageTooBigSize();
+                                return;
+                            }
+                            data = new byte[length];
+                            dis.readFully(data);
+                        } else {
+                            baos = new ByteArrayOutputStream();
+                            dos = new DataOutputStream(baos);
+                            int onebyte;
+                            while ((onebyte = dis.read()) != -1) {
+                                dos.write(onebyte);
+                            }
+                            data = baos.toByteArray();
+
+                            dos.close();
+                            baos.close();
                         }
-                        data = new byte[length];
-                        dis.readFully(data);
+
+                        this.image = Image.createImage(data, 0, data.length);
+
+                        // cache data at the end
+                        R.getFileSystem().saveBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName, data);
+                        actualCacheTileSizeFilesystem += data.length;
+                        
+                        data = null;
                     } else {
-                        baos = new ByteArrayOutputStream();
-                        dos = new DataOutputStream(baos);
-                        int onebyte;
-                        while ((onebyte = dis.read()) != -1) {
-                            dos.write(onebyte);
-                        }
-                        data = baos.toByteArray();
-
-                        dos.close();
-                        baos.close();
+                        Logger.error("Error while downloading map tile: " + connection.getResponseCode());
                     }
-
-                    this.image = Image.createImage(data, 0, data.length);
-                    data = null;
                 } else {
-                    Logger.error("Error while downloading map tile: " + connection.getResponseCode());
+//System.out.println("Load from cache: " + path);
+                    this.image = Image.createImage(data, 0, data.length);
                 }
             } catch (IOException e) {
                 Logger.error("TileCache.HttpImageDownloader() - imageDownloadError: " + e.toString() + " tile: " + path);

@@ -18,6 +18,7 @@ import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.data.CacheData;
 import com.locify.client.data.ServicesData;
 import com.locify.client.data.items.GeoFiles;
+import com.locify.client.maps.fileMaps.FileMapManager;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.UTF8;
@@ -87,10 +88,11 @@ public class ContentHandler {
                 //#if planstudio
 //#                 else if (data.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><mapList><map")) {
 //#                     R.getPlanstudio().parseDefinitionFile(data);
-//#                 } else if (data.startsWith("<?xml version=\"1.0\"?>")) {
-//#                     R.getPlanstudio().parseDefinitionFile(data);
 //#                 }
                 //#endif
+                 else if (data.startsWith("<?xml version=\"1.0\"?>")) {
+                     FileMapManager.obtainedData = data;
+                 }
                  else {
                     R.getHTMLScreen().view(data);
                     if (!response.isDisabledCaching()) {

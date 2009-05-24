@@ -37,7 +37,6 @@ import com.locify.client.maps.tiles.impl.VirtualEarthHybridTileFactory;
 import com.locify.client.maps.tiles.impl.VirtualEarthRoadTileFactory;
 import com.locify.client.maps.tiles.impl.YahooMapTileFactory;
 import com.locify.client.maps.tiles.impl.YahooSatelliteTileFactory;
-import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Capabilities;
@@ -81,9 +80,6 @@ public class TileMapLayer implements MapLayer {
     private Image tileImage;
 
     private MapScreen parent; //component which should be repaint
-    private Graphics graphics; //form.graphics
-    /** memory monitoring */
-    private long initialMemory;
     /**
      * An array of all the available providers.
      * The first dimension corresponds to providers: Microsoft, Google, Yahoo, etc.
@@ -264,7 +260,6 @@ public class TileMapLayer implements MapLayer {
 
     public TileMapLayer(MapScreen parent) {
         this.parent = parent;
-        initialMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
         tileProviders = new TileFactory[][]{
                     new TileFactory[]{
@@ -287,7 +282,6 @@ public class TileMapLayer implements MapLayer {
 
     public boolean drawMap(Graphics g, int mapPanX, int mapPanY) {
         try {
-            graphics = g;
             viewportBounds = getViewportBounds();
 
             tileSize = getTileFactory().getTileSize(zoom);
