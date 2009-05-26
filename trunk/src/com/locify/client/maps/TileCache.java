@@ -16,6 +16,7 @@ package com.locify.client.maps;
 import com.locify.client.data.FileSystem;
 import com.locify.client.gui.polish.TopBarBackground;
 import com.locify.client.gui.screen.internal.MapScreen;
+import com.locify.client.net.Http;
 import java.io.IOException;
 import com.locify.client.utils.*;
 import de.enough.polish.util.HashMap;
@@ -38,7 +39,7 @@ public class TileCache extends Thread {
     /** max number of cached tiles in memory */
 //    private int maxCacheTiles;
     /** max value in bytes of cached tiles on filesystem */
-    private long maxCacheTileSizeFilesystem = 2 * 1024 * 1024;
+    private long maxCacheTileSizeFilesystem = 10 * 1024 * 1024;
     /** actual value of cached tileSize on filesystem */
     private long actualCacheTileSizeFilesystem;
     /** hash table containg http donwloaders */
@@ -381,7 +382,6 @@ public class TileCache extends Thread {
             try {
                 if (actualCacheTileSizeFilesystem > maxCacheTileSizeFilesystem) {
                     R.getFileSystem().clearMapCacheDirectory();
-Logger.log("Clear cache");
                 }
 
                 String hashedName = FileSystem.hashFileName(path);
@@ -429,7 +429,9 @@ Logger.log("Clear cache");
                         data = null;
                     } else {
                         Logger.error("Error while downloading map tile: " + connection.getResponseCode());
-                        if (connection.getResponseCode() == 404) {
+                        if (connection.getResponseCode() == HttpConnection.HTTP_NOT_FOUND) {
+                            this.image = MapScreen.getImageNotExisted();
+                        } else if (connection.getResponseCode() == HttpConnection.HTTP_FORBIDDEN) {
                             this.image = MapScreen.getImageNotExisted();
                         }
                     }

@@ -58,7 +58,7 @@ public class FileSystem {
     public static final String SERVICE_SETTINGS_FILE = SETTINGS_FOLDER + "serviceSettings.xml";
     /** file for saving running route serializated data before midlet is killed */
     public static final String RUNNING_ROUTE_VARIABLES = ROUTE_FOLDER + "runningRoute.lcf";
-    public static final String RUNNING_TEMP_ROUTE = ROUTE_FOLDER + "runningRoute.tmp";
+    public static final String RUNNING_TEMP_ROUTE = FILES_FOLDER + "runningRoute.tmp";
     public static String ROOT = null;
 
     public FileSystem() {
