@@ -60,6 +60,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
     private ChoiceGroup cgPanning;
     private ChoiceGroup cgAutoload;
     private ChoiceGroup cgMapLoading;
+    private ChoiceGroup cgFilecache;
     private TextField tfCacheSize;
     private StringItem btnSaveAdvancedMaps;
     // maps variables
@@ -234,7 +235,13 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         cgAutoload.setSelectedIndex(R.getSettings().getAutoload(), true);
         frmAdvancedMaps.append(cgAutoload);
 
-        tfCacheSize = new TextField(Locale.get("Cache_size"),String.valueOf(R.getSettings().getCacheSize()),10,TextField.NUMERIC);
+        cgFilecache = new ChoiceGroup(Locale.get("File_cache"), Choice.EXCLUSIVE);
+        cgFilecache.append(Locale.get("On"), null);
+        cgFilecache.append(Locale.get("Off"), null);
+        cgFilecache.setSelectedIndex(R.getSettings().getFilecache(), true);
+        frmAdvancedMaps.append(cgFilecache);
+
+        tfCacheSize = new TextField(Locale.get("Cache_size"),String.valueOf(R.getSettings().getFilecacheSize()),10,TextField.NUMERIC);
         frmAdvancedMaps.append(tfCacheSize);
 
         cgPanning = new ChoiceGroup(Locale.get("Panning_behaviour"), Choice.EXCLUSIVE);
@@ -305,7 +312,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
             viewAdvancedMapSettings();
         } else if (item.equals(btnSaveAdvancedMaps))
         {
-            R.getSettings().saveAdvancedMaps(cgAutoload.getSelectedIndex(),Integer.parseInt(tfCacheSize.getString()),cgPanning.getSelectedIndex(),cgMapLoading.getSelectedIndex());
+            R.getSettings().saveAdvancedMaps(cgAutoload.getSelectedIndex(),cgFilecache.getSelectedIndex(),Integer.parseInt(tfCacheSize.getString()),cgPanning.getSelectedIndex(),cgMapLoading.getSelectedIndex());
         }
     }
 }

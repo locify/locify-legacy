@@ -224,6 +224,7 @@ Nowhere=Nowhere
 Maps_and_navigation=Maps and navigation
 Whole_application=Whole application
 Backlight_blink_frequency=Backlight blink frequency (s)
+File_cache=File cache
 
 #Check version
 Download_latest=Download Latest

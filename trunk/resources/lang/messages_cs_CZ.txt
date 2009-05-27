@@ -224,6 +224,7 @@ Nowhere=Nikde
 Maps_and_navigation=Mapy a navigace
 Whole_application=Celá aplikace
 Backlight_blink_frequency=Frekvence blikání podsvícení (s)
+File_cache=Cache v souborech
 
 #Check version
 Download_latest=Aktualizovat

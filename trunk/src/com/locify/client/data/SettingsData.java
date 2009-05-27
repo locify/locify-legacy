@@ -155,8 +155,12 @@ public class SettingsData {
         return Integer.parseInt((String) settings.get("autoload"));
     }
 
-    public int getCacheSize() {
-        return Integer.parseInt((String) settings.get("cacheSize"));
+    public int getFilecacheSize() {
+        return Integer.parseInt((String) settings.get("filecacheSize"));
+    }
+    
+    public int getFilecache() {
+        return Integer.parseInt((String) settings.get("filecache"));
     }
 
     public int getPanning() {
@@ -249,15 +253,8 @@ public class SettingsData {
             settings.put("autoLogin", String.valueOf(OFF));
             settings.put("prefferedGps", String.valueOf(AUTODETECT));
             settings.put("defaultMapProvider", "0"); //online google maps
-            if (Capabilities.isWindowsMobile()) {
-                settings.put("cacheSize", "330"); //kB
-            } else {
-                //#if applet
-//#                 settings.put("cacheSize", "1024");
-                //#else
-                settings.put("cacheSize", "512"); //kB
-            //#endif
-            }
+            settings.put("filecache", String.valueOf(ON));
+            settings.put("filecacheSize", "5120"); //kB = 5 MB
             //#if applet
 //#             settings.put("panning", String.valueOf(REPAINT_DURING));
             //#else
@@ -366,9 +363,10 @@ public class SettingsData {
         }
     }
 
-    public void saveAdvancedMaps(int autoload, int cacheSize, int panning, int mapLoading) {
+    public void saveAdvancedMaps(int autoload, int filecache, int cacheSize, int panning, int mapLoading) {
         settings.put("autoload", String.valueOf(autoload));
-        settings.put("cacheSize", String.valueOf(cacheSize));
+        settings.put("filecache", String.valueOf(filecache));
+        settings.put("filecacheSize", String.valueOf(cacheSize));
         settings.put("panning", String.valueOf(panning));
         settings.put("mapLoading", String.valueOf(mapLoading));
         saveXML();
