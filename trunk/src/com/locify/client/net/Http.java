@@ -169,7 +169,7 @@ public class Http implements Runnable {
                     } catch (ConnectionNotFoundException e) {
                         R.getConnectionProblem().view();
                     } catch (IOException e) {
-                        Logger.debug("IO Exception HTTP");
+                        Logger.debug("IO Exception HTTP "+e);
                         R.getConnectionProblem().view();
                     } catch (Exception e) {
                         R.getErrorScreen().view(e, "Http.run.request", request.getUrl());

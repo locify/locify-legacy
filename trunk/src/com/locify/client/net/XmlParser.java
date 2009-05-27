@@ -17,7 +17,6 @@ import com.locify.client.data.CookieData;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.Service;
 import com.locify.client.data.ServicesData;
-import com.locify.client.data.Sync;
 import com.locify.client.gui.screen.service.AlertScreen;
 import java.io.ByteArrayInputStream;
 import de.enough.polish.util.Locale;
@@ -113,10 +112,6 @@ public class XmlParser {
                     } else {
                         break;
                     }
-                }
-                if (name.equals("sync")) {
-                    parseSync();
-                    return false;
                 }
             }
 
@@ -268,10 +263,7 @@ public class XmlParser {
             } while (parser.nextTag() != KXmlParser.END_TAG);
 
             //provedeni akce
-            if (Sync.isRunning()) {
-                Service service = new Service(syncId, serviceName, serviceUrl, serviceDesc, syncTimestamp, serviceIcon, syncTimestamp, serviceSettings);
-                ServicesData.add(service);
-            } else if (autoInstall) {
+            if (autoInstall) {
                 Service service = new Service(R.getHttp().getLastUrl(), serviceName, serviceUrl, serviceDesc, syncTimestamp, serviceIcon, syncTimestamp, serviceSettings);
                 ServicesData.add(service);
                 R.getMainScreen().autoInstallNext();
@@ -342,50 +334,6 @@ public class XmlParser {
             R.getUpdate().view(updateText);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "XmlParser.parseUpdate", null);
-        }
-    }
-
-    // -------------------------- SYNCHRONIZATION PARSING --------------------------
-    /**
-     * Parses xml tag "sync"
-     */
-    public void parseSync() {
-        try {
-            R.getSync().resetDatabase();
-            while (parser.nextTag() != XmlPullParser.END_TAG) {
-                String name = parser.getName();
-                Logger.logNoBreak("<" + name + ">");
-
-                String id = "";
-                String type = "";
-                String action = "";
-                String timestamp = "";
-                String content = "";
-                while (parser.nextTag() != XmlPullParser.END_TAG) {
-                    Logger.logNoBreak("<" + parser.getName() + ">");
-                    name = parser.getName();
-                    if (name.equals("id")) {
-                        id = parser.nextText();
-                    } else if (name.equals("type")) {
-                        type = parser.nextText();
-                    } else if (name.equals("action")) {
-                        action = parser.nextText();
-                    } else if (name.equals("ts")) {
-                        timestamp = parser.nextText();
-                    } else if (name.equals("content")) {
-                        content = subtreeToString("content");
-                        parser.skipSubTree();
-                    } else {
-                        parser.skipSubTree();
-                    }
-                }
-                Sync.receiveSyncItem(id, type, action, timestamp, content);
-            }
-            //ukonceni syncu
-            Sync.syncComplete();
-
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "XmlParser.parseSync", null);
         }
     }
 

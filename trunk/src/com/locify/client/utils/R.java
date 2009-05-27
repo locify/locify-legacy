@@ -29,7 +29,6 @@ import com.locify.client.locator.LocatorModel;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.SettingsData;
 import com.locify.client.data.AudioData;
-import com.locify.client.data.Sync;
 import com.locify.client.gui.manager.FirstRunManager;
 import com.locify.client.gui.manager.InternalURLManager;
 import com.locify.client.gui.manager.ServiceManager;
@@ -58,6 +57,7 @@ import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.net.ConnectionProblem;
 import com.locify.client.net.ExternalBrowser;
 import com.locify.client.net.PostData;
+import com.locify.client.gui.screen.internal.ProgressScreen;
 //#if planstudio
 //# import com.locify.client.maps.planStudio.PlanStudioManager;
 //#endif
@@ -102,7 +102,6 @@ public class R {
     private static LocationContext locationContext;
     private static SettingsScreen settingsScreen;
     private static ServiceManager serviceManager;
-    private static Sync sync;
     private static UpdateScreen update;
     private static ExternalBrowser external;
     private static ErrorScreen errorScreen;
@@ -115,6 +114,7 @@ public class R {
     private static ContactsScreen contactsScreen;
     private static Backlight backlight;
     private static AudioData audioData;
+    private static ProgressScreen progressScreen;
 
     //#if planstudio
 //#     private static PlanStudioManager planstudio;
@@ -370,13 +370,6 @@ public class R {
         return serviceManager;
     }
 
-    public static Sync getSync() {
-        if (sync == null) {
-            sync = new Sync();
-        }
-        return sync;
-    }
-
     public static UpdateScreen getUpdate() {
         if (update == null) {
             update = new UpdateScreen();
@@ -459,6 +452,12 @@ public class R {
             audioData = new AudioData();
         }
         return audioData;
+    }
+    public static ProgressScreen getProgress() {
+        if (progressScreen == null) {
+            progressScreen = new ProgressScreen();
+        }
+        return progressScreen;
     }
 
     //#if planstudio

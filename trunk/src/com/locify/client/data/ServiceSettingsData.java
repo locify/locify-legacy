@@ -75,22 +75,19 @@ public class ServiceSettingsData {
                 Logger.log("Adding setting " + name + " with value " + value + " of service " + service);
                 settings.addElement(new ServiceSetting(name, value, service));
             }
-            if (!Sync.isRunning()) {
-                ServicesData.setSettingsTimestamp(service, Utils.timestamp());
-            }
+            ServicesData.setSettingsTimestamp(service, Utils.timestamp());
         } catch (Exception e) {
             R.getErrorScreen().view(e, "ServiceSettingsData.addEdit", name);
         }
     }
 
-    public static void delete(String service)
-    {
+    public static void delete(String service) {
         for (int i = 0; i < settings.size(); i++) {
-                ServiceSetting setting = (ServiceSetting) settings.elementAt(i);
-                if (setting.getService().equals(service)) {
-                    settings.removeElementAt(i);
-                    i--;
-                }
+            ServiceSetting setting = (ServiceSetting) settings.elementAt(i);
+            if (setting.getService().equals(service)) {
+                settings.removeElementAt(i);
+                i--;
+            }
         }
     }
 

@@ -34,7 +34,6 @@ Saved=Saved
 Save_place=Save Place
 Record_route=Record route
 Browse=Browse
-Sync=Sync
 Maps=Maps
 View_location=View Location
 View_place=View Place
@@ -44,8 +43,6 @@ Compass=Compass
 To_place=To Place
 Along_route=Along Route
 Dock_more=More
-Login=Login
-Logout=Logout
 Settings=Settings
 Check_version=Check Version
 Help=Help
@@ -167,20 +164,10 @@ Add_service=Add Service
 #Login & Register
 Login_field=Login
 Save_password=Save password
-If_not_registered=If you are not registered 
-Please_register=please register
-Email=E-mail
-Tel=Phone number
-Repeat_password=Repeat password
-Passwords_dont_match=Passwords don't match
 Password=Password
+Email=Email
+Tel=Phone number
 Credentials_to=Credentials to
-
-#Synchronization
-Sync_in_progress=Synchronization in progress
-Sending_sync_data=Sending data to server...
-Receiving_sync_data=Receiving data from server...
-Sync_complete=Synchronization complete
 
 #Settings
 Location=Location
@@ -332,14 +319,10 @@ About_text=
 What_is_locify_for=What is Locify for?
 What_is_locify_for_text=Locify is a mobile application containing many location services, for free and available for most phones. It also contains useful features like maps, navigation, place and route recording.
 How_to_add_service=How to add a service?
-How_to_add_service_text=You can add a service from the list of verified services on our server. You will find it at 'Home->Options->Add->Service From List'.\n\nIf a service is not listed in the Locify service list, you can add it manually with the URL. You can do that at 'Home->Options->Add->Add By Link'.\n\nYou can also add a service to your account via the web at http://www.locify.com. After you synchronize, the service will appear in your mobile phone.
+How_to_add_service_text=You can add a service from the list of verified services on our server. You will find it at 'Home->Options->Add->Service From List'.\n\nIf a service is not listed in the Locify service list, you can add it manually with the URL. You can do that at 'Home->Options->Add->Add By Link'.
 How_to_connect_gps=How to connect GPS?
 How_to_connect_gps_text=When you select 'Set Location->GPS', Locify will try to connect to most suitable GPS. If you want to connect different GPS, go to 'More->Settings->Location'. For Windows mobile devices, small program called Locify Porter has to be running on background. Read more at http://www.locify.com/help/windows-mobile. Locify can also be used without GPS - you can acquire location by entering address, selecting saved point etc.
 What_coloured_satellites_mean=What coloured satellites mean?
-What_is_login_for=What is login for?
-What_is_login_for_text=If you select 'More->Login', you can log in to your Locify account. After login you can synchronize all the data in your phone with the Locify server.
-What_is_synchronized=What is synchronized?
-What_is_synchronized_text=Everything. All data is synchronized, so you can switch phones and after synchronization you will see the Locify client the same as before. You can also manage your services on the web and these changes will be visible on your phone after synchronization.
 How_to_manage_services=How to manage items on main screen?
 How_to_manage_services_text=You have various options in managing items. You can add new services, shortcuts, delete them, move their position on the main screen etc. Everything is done by selecting Service in the main screen and then 'Options->Service/Shortcut'.  
 Credits=Credits

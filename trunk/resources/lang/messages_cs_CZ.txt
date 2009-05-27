@@ -34,7 +34,6 @@ Saved=Uložené
 Save_place=Uložit místo
 Record_route=Nahrát trasu
 Browse=Procházet
-Sync=Synchronizovat
 Maps=Mapy
 View_location=Zobrazit polohu
 View_place=Zobrazit místo
@@ -44,8 +43,6 @@ Compass=Kompas
 To_place=Na místo
 Along_route=Podél trasy
 Dock_more=Další
-Login=Přihlásit
-Logout=Odhlásit
 Settings=Nastavení
 Check_version=Kontrola verze
 Help=Nápověda
@@ -167,20 +164,10 @@ Add_service=Přidat službu
 #Login & Register
 Login_field=Login
 Save_password=Uložit heslo
-If_not_registered=Pokud nejste zaregistrován 
-Please_register=registrujte se prosím
-Email=E-mail
-Tel=Tel. číslo
-Repeat_password=Opakovat heslo
-Passwords_dont_match=Hesla se neshodují
 Password=Heslo
+Email=Email
+Tel=Telefon. číslo
 Credentials_to=Zadejte přihlašovací údaje k
-
-#Synchronization
-Sync_in_progress=Synchronizace probíhá
-Sending_sync_data=Odesílám data na server...
-Receiving_sync_data=Přijímám data ze serveru...
-Sync_complete=Synchronizace dokončena
 
 #Settings
 Location=Poloha
@@ -333,14 +320,10 @@ About_text=
 What_is_locify_for=K čemu Locify slouží?
 What_is_locify_for_text=Locify je mobilní aplikace obsahující mnoho lokačních služeb, přístupných zdarma a na většině telefonů. Obsahuje také zajímavé vlastnosti jako podporu GPS, mapy, navigaci a nahrávání míst a tras.
 How_to_add_service=Jak přidat službu?
-How_to_add_service_text=Službu si můžete přidat z našeho seznamu služeb: 'Doma->Možnosti->Přidat->Službu ze seznamu'\n\nSlužbu jde přidat manuálně, pokud znáte její URL: 'Doma->Možnosti->Přidat->Službu z odkazu'\n\nSlužbu si také můžete přidat na našem webu a po synchronizaci se objeví i ve vašem mobilu.
+How_to_add_service_text=Službu si můžete přidat z našeho seznamu služeb: 'Doma->Možnosti->Přidat->Službu ze seznamu'\n\nSlužbu jde přidat manuálně, pokud znáte její URL: 'Doma->Možnosti->Přidat->Službu z odkazu'.
 How_to_connect_gps=Jak připojit GPS?
 How_to_connect_gps_text=Pokud zvolíte 'Nastavit polohu->GPS', Locify se pokusí připojit k nejvhodnějšímu GPS zařízení. Pokud chcete připojit jiné zařízení, jděte na 'Více->Nastavení->Poloha'. Pro Windows Mobile musí běžet na pozadí ještě program jménem Locify Porter - více na http://www.locify.com/help/windows-mobile. Locify lze používat i bez GPS - polohu můžete získat zadáním adresy, z uloženého bodu atd. 
 What_coloured_satellites_mean=Co znamenají barvy satelitků?
-What_is_login_for=Na co je přihlášení?
-What_is_login_for_text=Po vybrání 'Více->Přihlásit' se můžete přihlásit k Locify účtu. Ten si můžete vytvořit buď na našem webu nebo přímo z mobilu. Po přihlášení máte možnost synchronizovat služby a soubory mezi webem a telefonem.
-What_is_synchronized=Co je synchronizováno?
-What_is_synchronized_text=Veškerá data. Můžete tedy vyměnit telefon a po synchronizaci budete mít stejné Locify jako na starém telefonu. Na webu máte navíc po synchronizaci přístupné služby a soubory. Synchronizace je obousměrná, takže se změny ve službách a souborech na webu promítnou i na mobilu.
 How_to_manage_services=Jak spravovat položky na hlavní obrazovce?
 How_to_manage_services_text=Máte mnoho možností, jak si přizpůsobit hlavní obrazovku. Můžete přidávat služby, zástupce, mazat je nebo přesunovat. Vše naleznete pod 'Doma->Možnosti->Služba/Zástupce'
 Credits=Credits

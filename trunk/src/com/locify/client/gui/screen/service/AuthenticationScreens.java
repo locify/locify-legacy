@@ -95,16 +95,6 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
             siLoginButton.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER);
             frmLogin.append(siLoginButton);
 
-            if (authUrl.equals("locify://authentication")) {
-                frmLogin.append(Locale.get("If_not_registered"));
-                siLinkRegister = new StringItem("", Locale.get("Please_register"), Item.HYPERLINK);
-                siLinkRegister.addCommand(cmdSelect);
-                siLinkRegister.setItemCommandListener(this);
-                siLinkRegister.setDefaultCommand(cmdSelect);
-                //#style a
-                frmLogin.append(siLinkRegister);
-            }
-
             frmLogin.addCommand(Commands.cmdBack);
             //#style imgHome
             frmLogin.addCommand(Commands.cmdHome);
@@ -115,36 +105,6 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
         }
     }
 
-    public void viewRegister() {
-        if (frmRegister == null) {
-            frmRegister = new Form(Locale.get("Register"));
-
-            tfLogin = new TextField(Locale.get("Login_field"), null, 32, TextField.ANY);
-            frmRegister.append(tfLogin);
-
-            tfPassword = new TextField(Locale.get("Password"), null, 32, TextField.ANY | TextField.PASSWORD | TextField.NON_PREDICTIVE | TextField.SENSITIVE);
-            frmRegister.append(tfPassword);
-
-            tfPassword2 = new TextField(Locale.get("Password"), null, 32, TextField.ANY | TextField.PASSWORD | TextField.NON_PREDICTIVE | TextField.SENSITIVE);
-            frmRegister.append(tfPassword2);
-
-            tfEmail = new TextField(Locale.get("Email"), null, 100, TextField.EMAILADDR);
-            frmRegister.append(tfEmail);
-
-            siRegisterButton = new StringItem("", Locale.get("Register"), Item.BUTTON);
-            siRegisterButton.addCommand(cmdSelect);
-            siRegisterButton.setItemCommandListener(this);
-            siRegisterButton.setDefaultCommand(cmdSelect);
-            siRegisterButton.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER);
-            frmRegister.append(siRegisterButton);
-
-            frmRegister.addCommand(Commands.cmdBack);
-            //#style imgHome
-            frmRegister.addCommand(Commands.cmdHome);
-            frmRegister.setCommandListener(this);
-        }
-        R.getMidlet().switchDisplayable(null, frmRegister);
-    }
 
     /**
      * Shows auth form - if auth is locify://authentication, locify login form is shown, otherwise normal service

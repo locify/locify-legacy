@@ -210,8 +210,6 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
                 cgSaved.append(Locale.get("Record_route"), IconData.get("locify://icons/recordRoute.png"));
                 //#style mainScreenListItem
                 cgSaved.append(Locale.get("Browse"), IconData.get("locify://icons/browse.png"));
-                //#style mainScreenListItem
-                cgSaved.append(Locale.get("Sync"), IconData.get("locify://icons/sync.png"));
                 break;
             case 3:
                 //#style mainScreenListItem
@@ -241,13 +239,6 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
             case 5:
                 //#style mainScreenListItem
                 cgMore.append(Locale.get("Settings"), IconData.get("locify://icons/settings.png"));
-                if (CookieData.getValue("session", R.getHttp().DEFAULT_URL).equals("")) { //ignore warning!
-                    //#style mainScreenListItem
-                    cgMore.append(Locale.get("Login"), IconData.get("locify://icons/login.png"));
-                } else {
-                    //#style mainScreenListItem
-                    cgMore.append(Locale.get("Logout"), IconData.get("locify://icons/logout.png"));
-                }
                 //#style mainScreenListItem
                 cgMore.append(Locale.get("Check_version"), IconData.get("locify://icons/checkVersion.png"));
                 //#style mainScreenListItem
@@ -490,7 +481,8 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
      * Automatically installs all preinstalled services
      */
     public void autoInstall() {
-        R.getSync().viewProgressScreen(Locale.get("Installing"), Locale.get("Downloading_services"));
+        Logger.debug("autoinstall");
+        R.getProgress().view(Locale.get("Installing"), Locale.get("Downloading_services"));
         R.getXmlParser().setAutoInstall(true);
         autoInstallUrls = new Vector();
         for (int i = 0; i < items.size(); i++) {

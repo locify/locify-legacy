@@ -74,9 +74,7 @@ public class ServicesData {
                 services.addElement(service);
             }
             saveXML();
-            if (!Sync.isRunning()) {
                 R.getMainScreen().addEdit(service);
-            }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "ServicesData.add", null);
         }

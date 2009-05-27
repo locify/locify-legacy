@@ -14,7 +14,6 @@
 package com.locify.client.data.items;
 
 import com.locify.client.data.FileSystem;
-import com.locify.client.data.Sync;
 import com.locify.client.locator.Location4D;
 import com.locify.client.route.RouteVariables;
 import com.locify.client.utils.GpsUtils;
@@ -51,7 +50,6 @@ public abstract class GeoFiles {
     public static final int TYPE_NETWORKLINK = 4;
     public static final int TYPE_MULTI = 9;
     public static final int TYPE_CORRUPT = 10;
-
     private static final int STATE_NONE = 0;
     // kml tags
     private static final int STATE_DOCUMENT = 1;
@@ -63,7 +61,6 @@ public abstract class GeoFiles {
     // gpx tags
     private static final int STATE_RTE = 11;
     private static final int STATE_WPT = 12;
-
     private static int sActual;
     private static int sBefore;
     private static final String GEO_FILES_RECORD_STORE = "GeoFilesDatabase";
@@ -84,9 +81,7 @@ public abstract class GeoFiles {
             // uniqueness handled by server
             R.getFileSystem().saveString(FileSystem.FILES_FOLDER + filename + ".kml", kml);
             //view alert
-            if (!Sync.isRunning()) {
-                R.getCustomAlert().quickView(Locale.get("Object_saved"), "info", "locify://refresh");
-            }
+            R.getCustomAlert().quickView(Locale.get("Object_saved"), "info", "locify://refresh");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GeoFile.save()", kml);
         }
@@ -148,9 +143,7 @@ public abstract class GeoFiles {
             //write file
             R.getFileSystem().saveString(FileSystem.FILES_FOLDER + fileName, kml);
             //view alert
-            if (!Sync.isRunning()) {
-                R.getCustomAlert().quickView(Locale.get("Waypoint_saved"), "info", "locify://back");
-            }
+            R.getCustomAlert().quickView(Locale.get("Waypoint_saved"), "info", "locify://back");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GeoFiles.saveWaypoint", name);
         }
@@ -168,9 +161,7 @@ public abstract class GeoFiles {
             if (type != TYPE_CORRUPT && name != null && name.length() > 0) {
                 R.getFileSystem().saveString(FileSystem.FILES_FOLDER + fileName(name), kml);
                 //view alert
-                if (!Sync.isRunning()) {
-                    R.getCustomAlert().quickView(Locale.get("Waypoint_saved"), "info", "locify://geoFileBrowser");
-                }
+                R.getCustomAlert().quickView(Locale.get("Waypoint_saved"), "info", "locify://geoFileBrowser");
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GeoFiles.saveWaypoint", kml);
@@ -198,10 +189,11 @@ public abstract class GeoFiles {
 
             MultiGeoData multiGeoData = new MultiGeoData();
             multiGeoData.name = fileName;
-            if (fileName.endsWith("kml"))
+            if (fileName.endsWith("kml")) {
                 multiGeoData = parseKml(parser, firstNameOnly, multiGeoData);
-            else if (fileName.endsWith("gpx"))
+            } else if (fileName.endsWith("gpx")) {
                 multiGeoData = parseGpx(parser, firstNameOnly, multiGeoData);
+            }
             return multiGeoData;
         } catch (Exception e) {
             //R.getErrorScreen().view(e, "RouteData.isRoute", null);
@@ -232,10 +224,11 @@ public abstract class GeoFiles {
 
             MultiGeoData multiGeoData = new MultiGeoData();
             multiGeoData.name = "unname data";
-            if (data.indexOf("<kml xmlns=") != -1)
+            if (data.indexOf("<kml xmlns=") != -1) {
                 multiGeoData = parseKml(parser, firstNameOnly, multiGeoData);
-            else if (data.indexOf("<gpx xmlns=") != -1)
+            } else if (data.indexOf("<gpx xmlns=") != -1) {
                 multiGeoData = parseGpx(parser, firstNameOnly, multiGeoData);
+            }
             return multiGeoData;
         } catch (Exception e) {
             Logger.error("Parsing: wrongFile or data: " + data + " ex: " + e.toString());
@@ -678,7 +671,7 @@ public abstract class GeoFiles {
 
                                 route.points.addElement(new Location4D(lat, lon, 0.0f));
                             }
-                        } catch(Exception ex) {
+                        } catch (Exception ex) {
                             Logger.warning("GeoFiles.parseGpx() - 'rtept' tag error!!!");
                         }
                     } else if (tagName.equalsIgnoreCase("wpt")) {
@@ -729,8 +722,9 @@ public abstract class GeoFiles {
                 }
             }
 
-            if (waypointCloud.getWaypointsCount() > 0)
+            if (waypointCloud.getWaypointsCount() > 0) {
                 multiData.addGeoData(waypointCloud);
+            }
             multiData.finalizeData();
             return multiData;
         } catch (Exception e) {
@@ -773,10 +767,11 @@ public abstract class GeoFiles {
                 parser = new KXmlParser();
                 parser.setInput(is, "utf-8");
 
-                if (fileName.endsWith("kml"))
+                if (fileName.endsWith("kml")) {
                     type = getDataTypeKml(parser);
-                else if (fileName.endsWith("gpx"))
+                } else if (fileName.endsWith("gpx")) {
                     type = getDataTypeGpx(parser);
+                }
 //Logger.debug(fileName + " return parser type: " + type);
             }
             return type;
@@ -807,10 +802,11 @@ public abstract class GeoFiles {
             parser = new KXmlParser();
             parser.setInput(new InputStreamReader(stream));
 
-            if (data.indexOf("<kml xmlns=") != -1)
+            if (data.indexOf("<kml xmlns=") != -1) {
                 return getDataTypeKml(parser);
-            else if (data.indexOf("<gpx xmlns=") != -1)
+            } else if (data.indexOf("<gpx xmlns=") != -1) {
                 return getDataTypeGpx(parser);
+            }
             return 0;
         } catch (Exception e) {
             Logger.debug("Parsing: wrongFile or data: " + data + "\n" + e.getMessage());

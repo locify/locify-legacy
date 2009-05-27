@@ -31,7 +31,7 @@ public class IconData {
      */
     public static Image get(String url) {
         try {
-            if (url == null || url.equals("") || Sync.isRunning() || R.getXmlParser().isAutoInstall()) {
+            if (url == null || url.equals("") || R.getXmlParser().isAutoInstall()) {
                 return null;
             }
             //JAR icons

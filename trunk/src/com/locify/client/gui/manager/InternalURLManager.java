@@ -142,9 +142,6 @@ public class InternalURLManager {
             } else if (url.equals("locify://settings/other")) {
                 //view other settings
                 R.getSettingsScreen().viewOtherSettings();
-            } else if (url.equals("locify://synchronize")) {
-                //parseSyncItem synchronization
-                R.getSync().sendSync();
             } else if (url.equals("locify://checkVersion")) {
                 //display current version and check it
                 R.getUpdate().checkVersion();
@@ -181,9 +178,6 @@ public class InternalURLManager {
             } else if (url.equals("locify://selectBTDevice")) {
                 //parseSyncItem to connecting to selected BT device
                 R.getBluetoothManager().searchForServices();
-            } else if (url.equals("locify://register")) {
-                //display registration form
-                R.getAuthentication().viewRegister();
             } else if (url.equals("locify://logger")) {
                 //view one selected helptext
                 R.getLoggerScreen().view();
