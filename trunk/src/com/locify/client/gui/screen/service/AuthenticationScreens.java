@@ -50,7 +50,6 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
     private TextField tfEmail;
     private StringItem siLinkRegister;
     private StringItem siLoginButton;
-    private StringItem siRegisterButton;
     private ChoiceGroup cgAuto;
     private Command cmdSelect = new Command(Locale.get("Select"), Command.ITEM, 10);
     private String authUrl;
@@ -196,15 +195,6 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
             R.getURL().call("locify://register");
         } else if (item == siLoginButton) {
             sendLogin(tfLogin.getString(), tfPassword.getString(), cgAuto.isSelected(0), cgAuto.isSelected(1));
-        } else if (item == siRegisterButton) {
-            if (!tfPassword.getString().equals(tfPassword2.getString())) {
-                R.getCustomAlert().quickView(Locale.get("Passwords_dont_match"), "Error", "locify://register");
-            } else {
-                R.getPostData().add("login", tfLogin.getString());
-                R.getPostData().add("password", tfPassword.getString());
-                R.getPostData().add("email", tfEmail.getString());
-                R.getHttp().start(Http.DEFAULT_URL + "user/register",Http.AUTH);
-            }
         }
     }
 }
