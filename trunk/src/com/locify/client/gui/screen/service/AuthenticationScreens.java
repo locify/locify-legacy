@@ -46,8 +46,6 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
     private Form frmLogin;
     private TextField tfLogin;
     private TextField tfPassword;
-    private TextField tfPassword2;
-    private TextField tfEmail;
     private StringItem siLinkRegister;
     private StringItem siLoginButton;
     private ChoiceGroup cgAuto;
