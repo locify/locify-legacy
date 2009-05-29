@@ -42,25 +42,21 @@ public class HelpScreen implements CommandListener, ItemCommandListener {
     private StringItem btnDontShow;
 
     public HelpScreen() {
-        titles = new String[8];
+        titles = new String[6];
         titles[0] = Locale.get("What_is_locify_for");
         titles[1] = Locale.get("How_to_add_service");
         titles[2] = Locale.get("How_to_connect_gps");
         titles[3] = Locale.get("What_coloured_satellites_mean");
-        titles[4] = Locale.get("What_is_login_for");
-        titles[5] = Locale.get("What_is_synchronized");
-        titles[6] = Locale.get("How_to_manage_services");
-        titles[7] = Locale.get("Credits");
+        titles[4] = Locale.get("How_to_manage_services");
+        titles[5] = Locale.get("Credits");
 
-        texts = new String[8];
+        texts = new String[6];
         texts[0] = Locale.get("What_is_locify_for_text");
         texts[1] = Locale.get("How_to_add_service_text");
         texts[2] = Locale.get("How_to_connect_gps_text");
         texts[3] = "";
-        texts[4] = Locale.get("What_is_login_for_text");
-        texts[5] = Locale.get("What_is_synchronized_text");
-        texts[6] = Locale.get("How_to_manage_services_text");
-        texts[7] = Locale.get("Credits_text");
+        texts[4] = Locale.get("How_to_manage_services_text");
+        texts[5] = Locale.get("Credits_text");
     }
 
     /**
