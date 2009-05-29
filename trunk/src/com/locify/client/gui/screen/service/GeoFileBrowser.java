@@ -30,6 +30,7 @@ import com.locify.client.utils.UTF8;
 import com.locify.client.utils.R;
 import com.locify.client.net.XHTMLBrowser;
 import com.locify.client.net.Http;
+import com.locify.client.utils.Logger;
 import de.enough.polish.ui.ChoiceGroup;
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.Screen;
@@ -276,6 +277,7 @@ public class GeoFileBrowser implements CommandListener {
         addCommands(formWaypointCloud);
         //#style imgMap
         formWaypointCloud.addCommand(cmdMapAll);
+        formWaypointCloud.addCommand(Commands.cmdNavigate);
         R.getMidlet().switchDisplayable(null, formWaypointCloud);
     }
 
@@ -307,81 +309,86 @@ public class GeoFileBrowser implements CommandListener {
     }
 
     public void commandAction(Command c, Displayable d) {
-        if (c == Commands.cmdSave) {
-            GeoFiles.saveGeoFileData(geoData);
-        } else if (c == cmdMap && d != formWaypointCloud) {
-            R.getURL().call("locify://maps");
-            if (dataType == GeoFiles.TYPE_WAYPOINT) {
-                R.getMapScreen().view(waypoint);
-            } else if (dataType == GeoFiles.TYPE_ROUTE) {
-                if (route.isRouteOnlyInfo()) {
-                    route = (Route) GeoFiles.parseGeoDataFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
-                }
-                R.getMapScreen().view(route);
-            } else if (dataType == GeoFiles.TYPE_MULTI) {
-                R.getMapScreen().view(multiData);
-            }
-        } else if (c == Commands.cmdBack) {
-            R.getBack().goBack();
-        } else if (c == Commands.cmdHome) {
-            R.getURL().call("locify://mainScreen");
-        } else if (d == formMultiGeoData) {
-        } else if (d == formRoute) {
-            if (c == cmdExportFirst || c == cmdExportLast) {
-                Waypoint way;
-                if (route.isRouteOnlyInfo()) {
-                    route = (Route) GeoFiles.parseGeoDataFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
-                }
-
-                if (c == cmdExportFirst) {
-                    way = route.getFirstWaypoint();
-                } else {
-                    way = route.getLastWaypoint();
-                }
-                LandmarksExport.export(way, "locify://geoFileBrowser");
-            } else if (c == cmdNavigateToFirst || c == cmdNavigateToLast) {
-                Waypoint way;
-                if (route.isRouteOnlyInfo()) {
-                    route = (Route) GeoFiles.parseGeoDataFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
-                }
-                if (c == cmdNavigateToFirst) {
-                    way = route.getFirstWaypoint();
-                } else {
-                    way = route.getLastWaypoint();
-                }
-                if (way != null) {
-                    R.getURL().call("locify://navigation?lat=" + way.getLatitude() + "&lon=" + way.getLongitude() + "&name=" + way.getName());
-                } else {
-                    R.getCustomAlert().quickView(Locale.get("Unexpected_problem"), Locale.get("Error"), "locify://refresh");
-                }
-            } else if (c == cmdNavigateAlong) {
-                R.getURL().call("locify://navigation?file=" + fileName);
-            }
-        } else if (d == formWaypoint) {
-            if (c == cmdExport) {
-                LandmarksExport.export(waypoint, "locify://geoFileBrowser");
-            } else if (c == Commands.cmdNavigate) {
-                R.getURL().call("locify://navigation?lat=" + waypoint.getLatitude() + "&lon=" + waypoint.getLongitude() + "&name=" + waypoint.getName());
-            }
-        } else if (d == formWaypointCloud) {
-            if (c == cmdNavigateToNearest) {
-                R.getURL().call("locify://navigation?" +
-                        "lat=" + waypointCloud.getCenterLocation().getLatitude() + "&" +
-                        "lon=" + waypointCloud.getCenterLocation().getLongitude() + "&" +
-                        "name=" + waypointCloud.getName() + " - not yet function");
-            } else if (c == cmdMap) {
-                boolean[] flags = new boolean[waypointCloudItems.size()];
-                waypointCloudItems.getSelectedFlags(flags);
-                WaypointsCloud mapCloud = new WaypointsCloud(waypointCloud.getName());
-                for (int i = 0; i < flags.length; i++) {
-                    if (flags[i]) {
-                        mapCloud.addWaypoint(waypointCloud.getWaypoint(i));
+        try {
+            if (c == Commands.cmdSave) {
+                GeoFiles.saveGeoFileData(geoData);
+            } else if (c == cmdMap && d != formWaypointCloud) {
+                R.getURL().call("locify://maps");
+                if (dataType == GeoFiles.TYPE_WAYPOINT) {
+                    R.getMapScreen().view(waypoint);
+                } else if (dataType == GeoFiles.TYPE_ROUTE) {
+                    if (route.isRouteOnlyInfo()) {
+                        route = (Route) GeoFiles.parseGeoDataFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
                     }
+                    R.getMapScreen().view(route);
+                } else if (dataType == GeoFiles.TYPE_MULTI) {
+                    R.getMapScreen().view(multiData);
                 }
-                R.getMapScreen().view(mapCloud);
-            } else if (c == cmdMapAll) {
-                R.getMapScreen().view(waypointCloud);
+            } else if (c == Commands.cmdBack) {
+                R.getBack().goBack();
+            } else if (c == Commands.cmdHome) {
+                R.getURL().call("locify://mainScreen");
+            } else if (d == formRoute) {
+                if (c == cmdExportFirst || c == cmdExportLast) {
+                    Waypoint way;
+                    if (route.isRouteOnlyInfo()) {
+                        route = (Route) GeoFiles.parseGeoDataFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                    }
+
+                    if (c == cmdExportFirst) {
+                        way = route.getFirstWaypoint();
+                    } else {
+                        way = route.getLastWaypoint();
+                    }
+                    LandmarksExport.export(way, "locify://geoFileBrowser");
+                } else if (c == cmdNavigateToFirst || c == cmdNavigateToLast) {
+                    Waypoint way;
+                    if (route.isRouteOnlyInfo()) {
+                        route = (Route) GeoFiles.parseGeoDataFile(fileName, false).getGeoData(GeoFiles.TYPE_ROUTE, 0);
+                    }
+                    if (c == cmdNavigateToFirst) {
+                        way = route.getFirstWaypoint();
+                    } else {
+                        way = route.getLastWaypoint();
+                    }
+                    if (way != null) {
+                        R.getURL().call("locify://navigation?lat=" + way.getLatitude() + "&lon=" + way.getLongitude() + "&name=" + way.getName());
+                    } else {
+                        R.getCustomAlert().quickView(Locale.get("Unexpected_problem"), Locale.get("Error"), "locify://refresh");
+                    }
+                } else if (c == cmdNavigateAlong) {
+                    R.getURL().call("locify://navigation?file=" + fileName);
+                }
+            } else if (d == formWaypoint) {
+                if (c == cmdExport) {
+                    LandmarksExport.export(waypoint, "locify://geoFileBrowser");
+                } else if (c == Commands.cmdNavigate) {
+                    R.getURL().call("locify://navigation?lat=" + waypoint.getLatitude() + "&lon=" + waypoint.getLongitude() + "&name=" + waypoint.getName());
+                }
+            } else if (d == formWaypointCloud) {
+                if (c == cmdNavigateToNearest) {
+                    R.getURL().call("locify://navigation?" +
+                            "lat=" + waypointCloud.getCenterLocation().getLatitude() + "&" +
+                            "lon=" + waypointCloud.getCenterLocation().getLongitude() + "&" +
+                            "name=" + waypointCloud.getName() + " - not yet function");
+                } else if (c == cmdMap) {
+                    boolean[] flags = new boolean[waypointCloudItems.size()];
+                    waypointCloudItems.getSelectedFlags(flags);
+                    WaypointsCloud mapCloud = new WaypointsCloud(waypointCloud.getName());
+                    for (int i = 0; i < flags.length; i++) {
+                        if (flags[i]) {
+                            mapCloud.addWaypoint(waypointCloud.getWaypoint(i));
+                        }
+                    }
+                    R.getMapScreen().view(mapCloud);
+                } else if (c == cmdMapAll) {
+                    R.getMapScreen().view(waypointCloud);
+                } else if (c == Commands.cmdNavigate) {
+                    R.getNavigationScreen().view(waypointCloud.getWaypoint(waypointCloudItems.getFocusedIndex()));
+                }
             }
+        } catch (Exception ex) {
+            Logger.error("Exception");
         }
     }
 }

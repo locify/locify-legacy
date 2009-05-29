@@ -14,9 +14,9 @@
 package com.locify.client.maps;
 
 import com.locify.client.data.FileSystem;
+import com.locify.client.data.SettingsData;
 import com.locify.client.gui.polish.TopBarBackground;
 import com.locify.client.gui.screen.internal.MapScreen;
-import com.locify.client.net.Http;
 import java.io.IOException;
 import com.locify.client.utils.*;
 import de.enough.polish.util.HashMap;
@@ -39,7 +39,7 @@ public class TileCache extends Thread {
     /** max number of cached tiles in memory */
 //    private int maxCacheTiles;
     /** max value in bytes of cached tiles on filesystem */
-    private long maxCacheTileSizeFilesystem = 10 * 1024 * 1024;
+    private long maxCacheTileSizeFilesystem;
     /** actual value of cached tileSize on filesystem */
     private long actualCacheTileSizeFilesystem;
     /** hash table containg http donwloaders */
@@ -69,21 +69,20 @@ public class TileCache extends Thread {
      * @param tileSize
      */
     public TileCache() {
-//        this.maxCacheTiles = (int) ((R.getSettings().getCacheSize() * 1024) / (256 * 256));
-//        if (maxCacheTiles < 6) {
-//            maxCacheTiles = 6;
-//        }
-
         // reduce max cache filesystem size if not enough space on disk
-        long maxSize = R.getFileSystem().getSize(FileSystem.ROOT + FileSystem.CACHE_MAP_TILE_FOLDER,
-                FileSystem.SIZE_AVAILABLE);
-//Logger.log("Max size on disk: " + maxSize);
-        if (maxSize != -1 && maxSize < maxCacheTileSizeFilesystem)
-            maxCacheTileSizeFilesystem = maxSize;
-//Logger.log("Max size actual: " + maxCacheTileSizeFilesystem);
-        this.actualCacheTileSizeFilesystem = R.getFileSystem().getSize(FileSystem.ROOT +
-                FileSystem.CACHE_MAP_TILE_FOLDER, FileSystem.SIZE_DIRECTORY_AND_SUBDIRECTORIES);
-//Logger.log("Actual size: " + actualCacheTileSizeFilesystem);
+        if (R.getSettings().getFilecache() == SettingsData.ON) {
+            maxCacheTileSizeFilesystem = R.getSettings().getFilecacheSize() * 1024;
+            long maxSize = R.getFileSystem().getSize(FileSystem.ROOT + FileSystem.CACHE_MAP_TILE_FOLDER,
+                    FileSystem.SIZE_AVAILABLE);
+    //Logger.log("Max size on disk: " + maxSize);
+            if (maxSize != -1 && maxSize < maxCacheTileSizeFilesystem)
+                maxCacheTileSizeFilesystem = maxSize;
+    //Logger.log("Max size actual: " + maxCacheTileSizeFilesystem);
+            this.actualCacheTileSizeFilesystem = R.getFileSystem().getSize(FileSystem.ROOT +
+                    FileSystem.CACHE_MAP_TILE_FOLDER, FileSystem.SIZE_DIRECTORY_AND_SUBDIRECTORIES);
+    //Logger.log("Actual size: " + actualCacheTileSizeFilesystem);
+        }
+
         
         this.tileRequest = new Vector();
         this.tileNewRequest = new Vector();
@@ -164,7 +163,6 @@ public class TileCache extends Thread {
                     try {
                         actualRequest = (ImageRequest) tileRequest.elementAt(0);
                         if (actualRequest.fileName.startsWith("http://")) {
-                            TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
 //long tic = System.currentTimeMillis();
 //System.out.println((System.currentTimeMillis() - tic) + " start");
                         /* check if same ImageRequest is not already downloading */
@@ -380,14 +378,20 @@ public class TileCache extends Thread {
 
         public void run() {
             try {
-                if (actualCacheTileSizeFilesystem > maxCacheTileSizeFilesystem) {
-                    R.getFileSystem().clearMapCacheDirectory();
+                byte[] data = null;
+                String hashedName = null;
+
+                if (R.getSettings().getFilecache() == SettingsData.ON) {
+                    if (actualCacheTileSizeFilesystem > maxCacheTileSizeFilesystem) {
+                        R.getFileSystem().clearMapCacheDirectory();
+                    }
+                    hashedName = FileSystem.hashFileName(path);
+                    // check cache for image
+                    data = R.getFileSystem().loadBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName);
                 }
 
-                String hashedName = FileSystem.hashFileName(path);
-                // check cache for image
-                byte[] data = R.getFileSystem().loadBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName);
                 if (data == null) {
+                    TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
 //System.out.println("Load from web: " + path);
                     connection = (HttpConnection) Connector.open(path, Connector.READ);
                     connection.setRequestMethod(HttpConnection.GET);
@@ -423,16 +427,22 @@ public class TileCache extends Thread {
                         this.image = Image.createImage(data, 0, data.length);
 
                         // cache data at the end
-                        R.getFileSystem().saveBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName, data);
-                        actualCacheTileSizeFilesystem += data.length;
+                        if (R.getSettings().getFilecache() == SettingsData.ON) {
+                            R.getFileSystem().saveBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName, data);
+                            actualCacheTileSizeFilesystem += data.length;
+                        }
                         
                         data = null;
                     } else {
                         Logger.error("Error while downloading map tile: " + connection.getResponseCode());
                         if (connection.getResponseCode() == HttpConnection.HTTP_NOT_FOUND) {
-                            this.image = MapScreen.getImageNotExisted();
+                            this.image = MapScreen.getImageConnectionNotFound();
                         } else if (connection.getResponseCode() == HttpConnection.HTTP_FORBIDDEN) {
                             this.image = MapScreen.getImageNotExisted();
+                        } else if (connection.getResponseCode() == HttpConnection.HTTP_NO_CONTENT) {
+                            this.image = MapScreen.getImageNotExisted();
+                        } else if (connection.getResponseCode() == HttpConnection.HTTP_INTERNAL_ERROR) {
+                            this.image = MapScreen.getImageConnectionNotFound();
                         }
                     }
                 } else {

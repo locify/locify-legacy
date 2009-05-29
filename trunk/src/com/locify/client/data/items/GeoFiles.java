@@ -922,9 +922,9 @@ public abstract class GeoFiles {
             }
 
             if (actualType == TYPE_CORRUPT) {
-//Logger.debug("  almost result - containPlacemark: " + containPlacemark);
                 return TYPE_CORRUPT;
             } else {
+//Logger.log("ActualType: " + actualType);
                 return actualType;
             }
         } catch (Exception e) {

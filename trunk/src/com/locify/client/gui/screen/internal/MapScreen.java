@@ -304,6 +304,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void view(GeoData data) {
+//System.out.println("AddItem: " + data.getName());
         if (data.getName().equals("")) {
             return;
         }
