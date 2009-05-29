@@ -44,7 +44,6 @@ import javax.microedition.lcdui.TextField;
 public class AuthenticationScreens implements CommandListener, ItemCommandListener {
 
     private Form frmLogin;
-    private Form frmRegister;
     private TextField tfLogin;
     private TextField tfPassword;
     private TextField tfPassword2;
@@ -53,7 +52,6 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
     private StringItem siLoginButton;
     private StringItem siRegisterButton;
     private ChoiceGroup cgAuto;
-    private ChoiceGroup cgAutologin;
     private Command cmdSelect = new Command(Locale.get("Select"), Command.ITEM, 10);
     private String authUrl;
     private String next;
@@ -65,7 +63,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
 
     private void viewLogin(String loginTo, String savedLogin, String savedPassword) {
         try {
-            frmLogin = new Form(Locale.get("Login"));
+            frmLogin = new Form(Locale.get("Login_field"));
             StringItem siLoginTo = new StringItem("", Locale.get("Credentials_to") + " " + loginTo + ":");
             frmLogin.append(siLoginTo);
             tfLogin = new TextField(Locale.get("Login_field"), savedLogin, 32, TextField.ANY);
@@ -88,7 +86,7 @@ public class AuthenticationScreens implements CommandListener, ItemCommandListen
             frmLogin.append(cgAuto);
 
 
-            siLoginButton = new StringItem("", Locale.get("Login"), Item.BUTTON);
+            siLoginButton = new StringItem("", Locale.get("Login_field"), Item.BUTTON);
             siLoginButton.addCommand(cmdSelect);
             siLoginButton.setItemCommandListener(this);
             siLoginButton.setDefaultCommand(cmdSelect);
