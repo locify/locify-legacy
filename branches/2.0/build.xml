@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<project name="lwuit_test" default="jar" basedir=".">
+    <description>Locify</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <target name="pre-init">
+        <!-- turn this true to build all release versions of Locify, it turned off stage generic version is generated -->
+        <property name="release" value="false" />
+        <!-- turn this true to build versions with absolute URLs -->
+        <property name="absolute-urls" value="false" />
+        <!-- test is launched in netbeans when i click to run, when i click to build is false -->
+        <property name="test" value="false" />
+        <!-- this is for generating aplet for web, turns off filesystem and other apis -->
+        <property name="applet" value="false" />
+        <!-- planstuido property -->
+        <property name="planstudio" value="true" />
+
+        <property name="WM" value="true"/>
+        <property name="WMbig" value="false"/>
+        <property name="BlackBerry" value="false"/>
+    </target>
+
+    <target name="post-init" depends="pre-init">
+<!--       <manifest file="MANIFEST.MF">
+        <attribute name="Built-By" value="${user.name}"/>
+        <section name="common">
+          <attribute name="Specification-Title" value="Example"/>
+          <attribute name="Specification-Version" value="${version}"/>
+          <attribute name="Specification-Vendor" value="Example Organization"/>
+          <attribute name="Implementation-Title" value="common"/>
+          <attribute name="Implementation-Version" value="${version} ${TODAY}"/>
+          <attribute name="Implementation-Vendor" value="Example Corp."/>
+        </section>
+        <section name="common/class1.class">
+          <attribute name="Sealed" value="false"/>
+        </section>
+      </manifest>
+
+       <deviceRequirements if="!release or absolute-urls">
+            <requirement name="Identifier" value="Generic/Generic" />
+            <requirement name="Identifier" value="Generic/WM"/>
+        </deviceRequirements>
+        <deviceRequirements if="release and !absolute-urls">
+            <requirement name="Identifier" value="Generic/Generic, Nokia/N6230i, Generic/WM, Generic/WM-big" />
+            <requirement name="Identifier" value="Generic/WM"/>
+            <requirement name="Identifier" value="Generic/WM, Generic/WM-big"/>
+        </deviceRequirements>
+        <info copyright="Copyright 2008 Locify Ltd. All rights reserved."
+            description="Maps, navigation, places, route recording and GPS - all connected to third party web services such as geocaching, wikipedia, twitter etc. Location Matters - Locify Yourself!"
+            infoUrl="http://www.locify.com"
+            jarName="Locify.jar"
+            jarUrl="${polish.jarName}"
+            name="Locify"
+            vendorName="Locify Ltd."
+            version="1.5.2"
+            optionalPermissions="javax.microedition.io.Connector.http, javax.microedition.location.Location, javax.microedition.io.Connector.bluetooth.client, javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.microedition.io.Connector.socket, javax.microedition.io.Connector.comm, javax.microedition.location.LandmarkStore.category, javax.microedition.location.LandmarkStore.read, javax.microedition.location.LandmarkStore.write, javax.wireless.messaging.sms.send, javax.microedition.io.Connector.sms, javax.microedition.pim.ContactList.read"
+        />
+
+        <obfuscator name="ProGuard" if="release" unless="polish.Vendor == BlackBerry"/>
+        <obfuscator name="ProGuard" unless="polish.Vendor == BlackBerry"/>
+        <sign key="locify" keystore="locify.ks" password="l2o0c0i8!" />
+        <jad>
+            <attribute name="Nokia-MIDlet-Category" value="Application" />
+            <attribute name="MIDlet-Name" value="Locify-nightly" unless="release"/>
+            <attribute name="MIDlet-Jar-URL" value="http://www.locify.com/download/Locify.jar?device=${polish.name}" if="absolute-urls"/>
+            <attribute name="MIDlet-Install-Notify" value="http://client.locify.com/log/install?version=${polish.version}&amp;web=${absolute-urls}&amp;release=${release}&amp;device=${polish.name}" if="release" />
+            <attribute name="MIDlet-Install-Notify" value="http://client.stage.locify.com/log/install?version=${polish.version}&amp;web=${absolute-urls}&amp;release=${release}&amp;device=${polish.name}" unless="release" />
+            <attribute name="Shortcut-1" value="Wikipedia|http://services.locify.com/wikipedia/welcome"/>
+            <attribute name="Shortcut-2" value="Geocaching|http://services.locify.com/nearestCaches/" />
+            <attribute name="Shortcut-3" value="Twitter|http://services.locify.com/twitter/welcome" />
+            <attribute name="Shortcut-4" value="Panoramio|http://services.locify.com/panoramio/welcome" />
+            <attribute name="Shortcut-5" value="Eventful|http://services.locify.com/eventful/welcome"  unless="polish.Vendor == Nokia"/>
+            <attribute name="Shortcut-6" value="OpenCaching|http://services.locify.com/opencaching/welcome"  unless="polish.Vendor == Nokia"/>
+            <attribute name="Shortcut-7" value="FireEagle|http://services.locify.com/fireeagle/welcome"  unless="polish.Vendor == Nokia"/>
+            <attribute name="Shortcut-8" value="Upcoming|http://services.locify.com/upcoming/welcome"  unless="polish.Vendor == Nokia"/>
+            <attribute name="Shortcut-9" value="Zvents|http://services.locify.com/zvents/welcome"  unless="polish.Vendor == Nokia"/>
+            <attribute name="Shortcut-10" value="AccuWeather|http://services.locify.com/accuweather/welcome"  unless="polish.Vendor == Nokia"/>
+            <attribute name="Shortcut-11" value="GeoMail|http://locify.destil.cz/geomail/"  unless="polish.Vendor == Nokia"/>
+            <attribute name="Device" value="${polish.name}" if="polish.Vendor == Generic"/>
+            <attribute name="Device" value="WM" if="polish.Vendor == WM"/>
+            <attribute name="Device" value="WM" if="polish.Vendor == WM-big"/>
+        </jad>
+        <debug enable="false" showLogOnError="true" verbose="true" level="error"></debug>-->
+    </target>
+
+    <!--
+
+            There exist several targets which are by default empty and which can be
+            used for execution of your tasks. These targets are usually executed
+            before and after some main targets. They are:
+
+            pre-init:                 called before initialization of project properties
+            post-init:                called after initialization of project properties
+            pre-preprocess:           called before text preprocessing of sources
+            post-preprocess:          called after text preprocessing of sources
+            pre-compile:              called before source compilation
+            post-compile:             called after source compilation
+            pre-obfuscate:            called before obfuscation 
+            post-obfuscate:           called after obfuscation
+            pre-preverify:            called before preverification
+            post-preverify:           called after preverification
+            pre-jar:                  called before jar building
+            post-jar:                 called after jar building
+            pre-build:                called before final distribution building
+            post-build:               called after final distribution building
+            pre-clean:                called before cleaning build products
+            post-clean:               called after cleaning build products
+
+            Example of pluging a my-special-task after the compilation could look like
+
+            <target name="post-compile">
+            <my-special-task>
+            <fileset dir="${build.classes.dir}"/>
+            </my-special-task>
+            </target>
+
+            For list of available properties check the imported
+            nbproject/build-impl.xml file.
+
+            Other way how to customize the build is by overriding existing main targets.
+            The target of interest are:
+
+            preprocess:               preprocessing
+            extract-libs:             extraction of libraries and resources
+            compile:                  compilation
+            create-jad:               construction of jad and jar manifest source
+            obfuscate:                obfuscation
+            preverify:                preverification
+            jar:                      jar archive building
+            run:                      execution
+            debug:                    execution in debug mode
+            build:                    building of the final distribution
+            javadoc:                  javadoc generation
+
+            Example of overriding the target for project execution could look like
+
+            <target name="run" depends="init,jar">
+            <my-special-exec jadfile="${dist.dir}/${dist.jad}"/>
+            </target>
+
+            Be careful about correct dependencies when overriding original target. 
+            Again, for list of available properties which you can use check the target 
+            you are overriding in nbproject/build-impl.xml file.
+
+            A special target for-all-configs can be used to run some specific targets for
+            all project configurations in a sequence. File nbproject/build-impl.xml 
+            already contains some "for-all" targets:
+    
+            jar-all
+            javadoc-all
+            clean-all
+      
+            Example of definition of target iterating over all project configurations:
+    
+            <target name="jar-all">
+            <property name="target.to.call" value="jar"/>
+            <antcall target="for-all-configs"/>
+            </target>
+
+            -->
+			
+    <target name="post-compile">
+        <taskdef classpath="ResourceBuilder.jar" classname="com.sun.lwuit.resource.Builder" name="build" />
+        <build dest="build/compiled/resource_main.res">
+            <image file="resources/img/icon.png"/>
+            <image file="resources/img/loading.png"/>
+
+            <image file="resources/img/filetypes/corruptedFile.png"/>
+            <image file="resources/img/filetypes/multiSymbol.png"/>
+            <image file="resources/img/filetypes/routeSymbol.png"/>
+            <image file="resources/img/filetypes/waypointCloudSymbol.png"/>
+            <image file="resources/img/filetypes/waypointSymbol.png"/>
+
+            <image file="resources/img/gps-status/manual.png"/>
+            <image file="resources/img/gps-status/status_animation.png"/>
+            <image file="resources/img/gps-status/status_connecting.png"/>
+            <image file="resources/img/gps-status/status_normal.png"/>
+            <image file="resources/img/gps-status/status_nosignal.png"/>
+            <image file="resources/img/gps-status/status_strong.png"/>
+            <image file="resources/img/gps-status/status_weak.png"/>
+
+            <image file="resources/img/html/broken.png"/>
+            <image file="resources/img/html/checkbox.png"/>
+            <image file="resources/img/html/checkbox-checked.png"/>
+            <image file="resources/img/html/popup.png"/>
+            <image file="resources/img/html/radio.png"/>
+            <image file="resources/img/html/radio.png"/>
+
+            <image file="resources/img/http-status/connecting_21x21.png"/>
+            <image file="resources/img/http-status/connecting_animation_21x21.png"/>
+            <image file="resources/img/http-status/receiving_21x21.png"/>
+            <image file="resources/img/http-status/sending_21x21.png"/>
+
+            <image file="resources/img/maps/map_icon_actualLoc.png"/>
+            <image file="resources/img/maps/map_icon_minus.png"/>
+            <image file="resources/img/maps/map_icon_plus.png"/>
+            <image file="resources/img/maps/map_icon_zoom_minus.png"/>
+            <image file="resources/img/maps/map_icon_zoom_plus.png"/>
+            <image file="resources/img/maps/map_point_orange_21x21.png"/>
+            <image file="resources/img/maps/map_tile_64x64.png"/>
+            <image file="resources/img/maps/online.png"/>
+            <image file="resources/img/maps/wpt_description_01.png"/>
+            <image file="resources/img/maps/wpt_description_02.png"/>
+            <image file="resources/img/maps/wpt_description_03.png"/>
+            <image file="resources/img/maps/wpt_description_background.png"/>
+
+            <image file="resources/img/menu/add.png"/>
+            <image file="resources/img/menu/addFromLink.png"/>
+            <image file="resources/img/menu/addFromList.png"/>
+            <image file="resources/img/menu/address.png"/>
+            <image file="resources/img/menu/browse.png"/>
+            <image file="resources/img/menu/compass.png"/>
+            <image file="resources/img/menu/coordinates.png"/>
+            <image file="resources/img/menu/delete.png"/>
+            <image file="resources/img/menu/exit.png"/>
+            <image file="resources/img/menu/gps.png"/>
+            <image file="resources/img/menu/help.png"/>
+            <image file="resources/img/menu/home.png"/>
+            <image file="resources/img/menu/checkVersion.png"/>
+            <image file="resources/img/menu/lastKnown.png"/>
+            <image file="resources/img/menu/left.png"/>
+            <image file="resources/img/menu/login.png"/>
+            <image file="resources/img/menu/logout.png"/>
+            <image file="resources/img/menu/manage.png"/>
+            <image file="resources/img/menu/maps.png"/>
+            <image file="resources/img/menu/more.png"/>
+            <image file="resources/img/menu/moreInfo.png"/>
+            <image file="resources/img/menu/navigateAlong.png"/>
+            <image file="resources/img/menu/navigateTo.png"/>
+            <image file="resources/img/menu/navigation.png"/>
+            <image file="resources/img/menu/recordRoute.png"/>
+            <image file="resources/img/menu/renameService.png"/>
+            <image file="resources/img/menu/right.png"/>
+            <image file="resources/img/menu/saved.png"/>
+            <image file="resources/img/menu/savedLocation.png"/>
+            <image file="resources/img/menu/savePlace.png"/>
+            <image file="resources/img/menu/select.png"/>
+            <image file="resources/img/menu/serviceSettings.png"/>
+            <image file="resources/img/menu/settings.png"/>
+            <image file="resources/img/menu/shortcut_to_download_25x25.png"/>
+            <image file="resources/img/menu/sync.png"/>
+            <image file="resources/img/menu/updateService.png"/>
+            <image file="resources/img/menu/viewLocation.png"/>
+            <image file="resources/img/menu/viewPlace.png"/>
+            <image file="resources/img/menu/viewRoute.png"/>
+            <image file="resources/img/menu/where.png"/>
+
+            <image file="resources/img/navigation/number000.png"/>
+            <image file="resources/img/navigation/number030.png"/>
+            <image file="resources/img/navigation/number060.png"/>
+            <image file="resources/img/navigation/number090.png"/>
+            <image file="resources/img/navigation/number120.png"/>
+            <image file="resources/img/navigation/number150.png"/>
+            <image file="resources/img/navigation/number180.png"/>
+            <image file="resources/img/navigation/number210.png"/>
+            <image file="resources/img/navigation/number240.png"/>
+            <image file="resources/img/navigation/number270.png"/>
+            <image file="resources/img/navigation/number300.png"/>
+            <image file="resources/img/navigation/number330.png"/>
+            <image file="resources/img/navigation/numberE.png"/>
+            <image file="resources/img/navigation/numberN.png"/>
+            <image file="resources/img/navigation/numberS.png"/>
+            <image file="resources/img/navigation/numberW.png"/>
+
+            <image file="resources/img/route-status/state_pause_21x21.png"/>
+            <image file="resources/img/route-status/state_recording_21x21.png"/>
+        </build>
+        <build dest="build/compiled/resource_lang_en.res">
+            <l10n name="localize">
+                <locale name="en" file="resources/lang/messages.txt" />
+            </l10n>
+        </build>
+        <build dest="build/compiled/resource_lang_cs.res">
+            <l10n name="localize">
+                <locale name="cs" file="resources/lang/messages_cs_CZ.txt" />
+            </l10n>
+        </build>
+        <build dest="build/compiled/fonts.res">
+            <!--<font logicalName="Arial" size="10" charset=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-02" />-->
+            <font logicalName="Arial" size="10" name="arial_10" />
+            <font logicalName="Arial" size="14" name="arial_14" />
+            <font logicalName="Arial" size="16" name="arial_16" />
+            <font logicalName="Arial" size="18" name="arial_18" />
+            <font logicalName="Arial" size="18" name="arial_18_white_big_bold_letters_only" />
+            <font logicalName="Arial" size="20" name="arial_20" />
+        </build>
+
+    </target>
+</project>
