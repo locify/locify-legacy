@@ -207,8 +207,10 @@ public class GeoFileBrowser implements CommandListener {
 
     private void viewDataRoute() {
         formRoute = new Form(route.getName());
-        formRoute.append(new StringItem(Locale.get("Route_length") + " ", GpsUtils.formatDistance(route.getRouteDist())));
-        formRoute.append(new StringItem(Locale.get("Travel_time") + " ", GpsUtils.formatTime(route.getRouteTime())));
+        if (route.getRouteDist() > 0)
+            formRoute.append(new StringItem(Locale.get("Route_length") + " ", GpsUtils.formatDistance(route.getRouteDist())));
+        if (route.getRouteTime() > 0)
+            formRoute.append(new StringItem(Locale.get("Travel_time") + " ", GpsUtils.formatTime(route.getRouteTime())));
         formRoute.append(new StringItem(Locale.get("Waypoints_count") + " ", route.getWaypointCount() + ""));
 
         if (route.getFirstPoint() != null) {
