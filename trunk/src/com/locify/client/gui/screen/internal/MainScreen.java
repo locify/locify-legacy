@@ -121,20 +121,17 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
             if (!R.getFileSystem().exists(FileSystem.MAINSCREEN_FILE)) {  //prvni start aplikace
                 items = new Vector();
                 //#if applet
-//#                 addEdit("http://localhost/m", "", R.getURL().getIcon("locify://shortcut"));
-//#                 /*
-//#                 addEdit("http://services.locify.com/wikipedia/welcome", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://services.locify.com/nearestCaches/", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://services.locify.com/twitter/welcome", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://services.locify.com/panoramio/welcome", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://services.locify.com/eventful/welcome", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://services.locify.com/opencaching/welcome", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://services.locify.com/fireeagle/welcome", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://services.locify.com/upcoming/welcome", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://services.locify.com/zvents/welcome", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://services.locify.com/accuweather/welcome", "", R.getURL().getIcon("locify://shortcut"));
-//#                 addEdit("http://locify.destil.cz/geomail/", "", R.getURL().getIcon("locify://shortcut"));
-//#                  * */
+//#                  addEdit("http://services.locify.com/wikipedia/welcome", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://services.locify.com/nearestCaches/", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://services.locify.com/twitter/welcome", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://services.locify.com/panoramio/welcome", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://services.locify.com/eventful/welcome", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://services.locify.com/opencaching/welcome", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://services.locify.com/fireeagle/welcome", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://services.locify.com/upcoming/welcome", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://services.locify.com/zvents/welcome", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://services.locify.com/accuweather/welcome", "", "locify://icons/shortcut_to_download_25x25.png");
+//#                 addEdit("http://locify.destil.cz/geomail/", "", "locify://icons/shortcut_to_download_25x25.png");
                 //#else
                 //nacitani zastupcu na download z JADu
                 Logger.log("Loading shortcuts from JAD file");

@@ -452,8 +452,8 @@ public class FileSystem {
             if (fileConnection.exists()) {
                 return fileConnection.lastModified();
             }
-            return 0;
             //#endif
+            return 0;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FileSystem.lastModifiedFile()", filePath);
             return 0;
