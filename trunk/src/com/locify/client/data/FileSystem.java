@@ -202,7 +202,6 @@ public class FileSystem {
             Enumeration roots = FileSystemRegistry.listRoots();
             while (roots.hasMoreElements()) {
                 String root = (String) roots.nextElement();
-                Logger.debug("root "+root);
                 if (root.equalsIgnoreCase("e:/") || root.indexOf("Card") != -1 ||
                 root.indexOf("card") != -1 || root.indexOf("SD") != -1 ||
                 root.indexOf("MMC") != -1 || root.indexOf("tflash") != -1) {

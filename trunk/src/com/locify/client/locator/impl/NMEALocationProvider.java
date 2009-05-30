@@ -313,7 +313,6 @@ public class NMEALocationProvider extends LocationProvider {
     }
 
     public void setConnectionUrl(String connectionUrl) {
-        Logger.debug("set connection url");
         this.connectionUrl = connectionUrl;
 
         try {

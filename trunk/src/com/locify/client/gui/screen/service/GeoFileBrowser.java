@@ -279,6 +279,7 @@ public class GeoFileBrowser implements CommandListener {
         addCommands(formWaypointCloud);
         //#style imgMap
         formWaypointCloud.addCommand(cmdMapAll);
+        //#style imgNavigate
         formWaypointCloud.addCommand(Commands.cmdNavigate);
         R.getMidlet().switchDisplayable(null, formWaypointCloud);
     }
@@ -390,7 +391,7 @@ public class GeoFileBrowser implements CommandListener {
                 }
             }
         } catch (Exception ex) {
-            Logger.error("Exception");
+            R.getErrorScreen().view(ex, "geoFileBrowser.commandaction", null);
         }
     }
 }

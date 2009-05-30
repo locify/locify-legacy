@@ -481,7 +481,6 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
      * Automatically installs all preinstalled services
      */
     public void autoInstall() {
-        Logger.debug("autoinstall");
         R.getProgress().view(Locale.get("Installing"), Locale.get("Downloading_services"));
         R.getXmlParser().setAutoInstall(true);
         autoInstallUrls = new Vector();
