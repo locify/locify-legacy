@@ -30,6 +30,7 @@ import com.sun.lwuit.TextArea;
 import com.sun.lwuit.TextField;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
+import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import java.util.Vector;
 
@@ -69,11 +70,12 @@ public class SettingsScreen implements ActionListener {
 
     public SettingsScreen() {
         form = new FormLocify();
-        form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
     }
 
     public void view() {
         form.setAsNew(Locale.get("Settings"));
+        form.setLayout(new BorderLayout());
+
         lstSettings = new ListLocify();
         lstSettings.addItem(new ListLabelItem(Locale.get("Location"), null));
         lstSettings.addItem(new ListLabelItem(Locale.get("Interface"), null));
@@ -81,6 +83,7 @@ public class SettingsScreen implements ActionListener {
         lstSettings.addItem(new ListLabelItem(Locale.get("Other"), null));
         lstSettings.addActionListener(this);
 
+        form.addComponent(BorderLayout.CENTER, lstSettings);
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
         form.setCommandListener(this);
@@ -89,8 +92,9 @@ public class SettingsScreen implements ActionListener {
 
     public void viewLocationSettings() {
         form.setAsNew(Locale.get("Location"));
+        form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
+
         form.addComponent(new Label(Locale.get("Preffered_gps")));
-        
         bgPrefferedGps = new ButtonGroup();
         bgPrefferedGps.add(new RadioButton(Locale.get("Autodetect"), null));
         String[] names = R.getLocator().getProviderNames();
@@ -127,8 +131,9 @@ public class SettingsScreen implements ActionListener {
 
     public void viewInterfaceSettings() {
         form.setAsNew(Locale.get("Interface"));
-        form.addComponent(new Label(Locale.get("Language")));
+        form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
 
+        form.addComponent(new Label(Locale.get("Language")));
         bgLanguage = new ButtonGroup();
         for (int i = 0; i < R.getSettings().locales.length; i++) {
             bgLanguage.add(new RadioButton(R.getSettings().languageNames[i]));
@@ -176,8 +181,9 @@ public class SettingsScreen implements ActionListener {
 
     public void viewMapSettings() {
         form.setAsNew(Locale.get("Maps"));
+        form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
+
         form.addComponent(new Label(Locale.get("Default_map_provider")));
-        
         bgMapProvider = new ButtonGroup();
         Vector providers = (new TileMapLayer(null)).getProvidersAndModes();
         int onlineProviders = providers.size();
@@ -211,6 +217,7 @@ public class SettingsScreen implements ActionListener {
 
     public void viewOtherSettings() {
         form.setAsNew(Locale.get("Other"));
+        form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         
         form.addComponent(new Label(Locale.get("Autologin")));
         bgAutoLogin = new ButtonGroup();
@@ -243,7 +250,8 @@ public class SettingsScreen implements ActionListener {
 
     public void viewAdvancedMapSettings() {
         form.setAsNew(Locale.get("Advanced_settings"));
-
+        form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
+        
         form.addComponent(new Label(Locale.get("Autoload")));
         bgAutoload = new ButtonGroup();
         bgAutoload.add(new RadioButton(Locale.get("On")));

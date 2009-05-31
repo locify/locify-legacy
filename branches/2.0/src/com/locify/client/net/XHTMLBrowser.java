@@ -25,8 +25,8 @@ package com.locify.client.net;
 //// * Disables some J2ME Polish HTML browser features and leaves the work to Locify
 //// * @author Destil
 //// */
-public class XHTMLBrowser 
-////        extends HtmlBrowser 
+public class XHTMLBrowser
+////        extends HtmlBrowser
 {
 ////
 ////    private XHTMLTagHandler tagHandler;
@@ -88,7 +88,7 @@ public class XHTMLBrowser
 ////                add(stringItem);
 ////            }
 ////        }
-    }
+                }
 ////
 ////
 ////    /**
@@ -138,7 +138,7 @@ public class XHTMLBrowser
 ////        //#style contextButton
 ////        container.add(btnChange);
 ////        add(container);
-    }
+                }
 ////
 ////    /**
 ////     * Updates <locify:where />
@@ -181,7 +181,7 @@ public class XHTMLBrowser
 ////        } catch (Exception e) {
 ////            R.getErrorScreen().view(e, "XHTMLBrowser.updateContextItem", null);
 ////        }
-    }
+                            }
 ////
 ////    /**
 ////     * Adds file browser item <input type="file" />
@@ -231,7 +231,7 @@ public class XHTMLBrowser
 ////            container.add(btnBrowse);
 ////        }
 ////        add(container);
-    }
+        }
 ////
 ////    /**
 ////     * Update contact item
@@ -263,7 +263,7 @@ public class XHTMLBrowser
 ////        }
 ////
 ////        add(container);
-    }
+        }
 ////
 ////    /**
 ////     * Update contact item
@@ -284,4 +284,4 @@ public class XHTMLBrowser
 ////    public String getContactEmail() {
 ////        return contactEmailText.getText();
 ////    }
-}
+    }

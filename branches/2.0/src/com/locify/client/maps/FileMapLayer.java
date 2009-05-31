@@ -26,7 +26,6 @@ import com.locify.client.maps.projection.MercatorProjection;
 import com.locify.client.maps.projection.ReferenceEllipsoid;
 import com.locify.client.maps.projection.S42Projection;
 import com.locify.client.maps.projection.UTMProjection;
-import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Graphics;
@@ -334,8 +333,8 @@ public static long TIME;
     }
 
     private void setProviderAndMode(FileMapManager fmm) {
-        mapScaleW = fmm.getFileMapConfig().getLonDiffPerPixel() * Capabilities.getWidth();
-        mapScaleH = fmm.getFileMapConfig().getLatDiffPerPixel() * Capabilities.getHeight();
+        mapScaleW = fmm.getFileMapConfig().getLonDiffPerPixel() * R.getMapScreen().getContentPane().getWidth();
+        mapScaleH = fmm.getFileMapConfig().getLatDiffPerPixel() * R.getMapScreen().getContentPane().getHeight();
 
         Location4D center;
         if (viewPort != null)
@@ -347,10 +346,10 @@ public static long TIME;
                 center,
                 mapScaleW,
                 mapScaleH,
-                Capabilities.getWidth(),
-                Capabilities.getHeight());
-        this.moveCoefPerPixelX = viewPort.getLongitudeDimension() / Capabilities.getWidth();
-        this.moveCoefPerPixelY = viewPort.getLatitudeDimension() / Capabilities.getHeight();
+                R.getMapScreen().getContentPane().getWidth(),
+                R.getMapScreen().getContentPane().getHeight());
+        this.moveCoefPerPixelX = viewPort.getLongitudeDimension() / R.getMapScreen().getContentPane().getWidth();
+        this.moveCoefPerPixelY = viewPort.getLatitudeDimension() / R.getMapScreen().getContentPane().getHeight();
 //Logger.log("    mapScaleW: " + mapScaleW + " mapScaleH: " + mapScaleH);
 //Logger.log("    Xcoef: " + moveCoefPerPixelX + " Ycoef: " + moveCoefPerPixelY);
 //Logger.log("    lonDim: " + viewPort.getLongitudeDimension() + " latDim: " + viewPort.getLatitudeDimension());

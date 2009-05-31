@@ -378,8 +378,8 @@ public class TileMapLayer implements MapLayer {
      */
     private RectangleViewPort calculateViewportBounds(Point2D center) {
         //System.out.println("\n w" + getWidth() + " h" + getHeight());
-        int viewportWidth = Capabilities.getWidth();
-        int viewportHeight = Capabilities.getHeight();
+        int viewportWidth = R.getMapScreen().getContentPane().getWidth();
+        int viewportHeight = R.getMapScreen().getContentPane().getHeight();
         double viewportX = (center.getX() - viewportWidth / 2);
         double viewportY = (center.getY() - viewportHeight / 2);
         return new RectangleViewPort((int) viewportX, (int) viewportY, viewportWidth, viewportHeight);

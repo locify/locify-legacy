@@ -45,9 +45,11 @@ import com.locify.client.utils.math.LMath;
 import com.locify.client.utils.R;
 import com.locify.client.utils.ResourcesLocify;
 import com.sun.lwuit.Command;
+import com.sun.lwuit.Container;
 import com.sun.lwuit.Display;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
+import com.sun.lwuit.layouts.BorderLayout;
 import java.util.Vector;
 import javax.microedition.lcdui.game.GameCanvas;
 //#if planstudio
@@ -74,9 +76,9 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
     private Command[] providerCommandsTile;
 
+    private Container container;
+    
     private boolean drawLock;
-    private static int TOP_MARGIN = R.getTopBar().height;
-    private static int BOTTOM_MARGIN = R.getTopBar().height + 10;
     private MapLayer map;
     /** map manager for online maps */
     private TileMapLayer mapTile;
@@ -206,6 +208,29 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
         } else {
             showAllDuringPanning = false;
         }
+
+        setLayout(new BorderLayout());
+        container = new Container() {
+
+            public void paint(Graphics g) {
+                try {
+//System.out.println("Paint");
+                    super.paint(g);
+                    if (drawLock) {
+                        return;
+                    }
+                    drawLock = true;
+
+                    if (g.getClipHeight() > 40) {
+                        drawMap(g);
+                    }
+                    drawLock = false;
+                } catch (Exception e) {
+                    R.getErrorScreen().view(e, "MapScreen.paint()", null);
+                }
+            }
+        };
+        addComponent(BorderLayout.CENTER, container);
     }
 
     public static TileCache getTileCache() {
@@ -234,7 +259,9 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
                     centerMap(R.getLocator().getLastLocation(), centerToActualLocation);
                 }
 
-                this.show();
+                show();
+//System.out.println("Container: " + getContentPane().getWidth() + " " + getContentPane().getHeight());
+
                 selectNearestWaypointsAtCenter();
                 repaint();
                 resumeNetworkLink();
@@ -415,31 +442,17 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
         return mapFile;
     }
 
-    public void paint(Graphics g) {
-        try {
-            super.paint(g);
-            if (drawLock) {
-                return;
-            }
-            drawLock = true;
-//System.out.println(g.getClipHeight() + " " + Capabilities.getHeight() + " " + TOP_MARGIN);
-            if (g.getClipHeight() > 40) {
-//                g.setClip(0, TOP_MARGIN + 2, g.getClipWidth(), Capabilities.getHeight() - TOP_MARGIN - BOTTOM_MARGIN);
-                drawMap(g);
-            }
-            drawLock = false;
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapScreen.paint()", null);
-        }
-    }
+//    public void paint(Graphics g) {
+//
+//    }
 
     /** 
      * Draws map background (tiles) and other screen components like zoom scale,
      * location pointer etc.
      */
     private void drawMap(Graphics g) {
-        g.setColor(ColorsFonts.LIGHT_ORANGE);
-        g.fillRect(0, 0, Capabilities.getWidth(), Capabilities.getHeight());
+//        g.setColor(ColorsFonts.LIGHT_ORANGE);
+//        g.fillRect(0, 0, Capabilities.getWidth(), getContentPane().getHeight());
 
         try {
             map.drawMap(g, -1 * panMoveX, -1 * panMoveY);
@@ -453,7 +466,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
         // draw selection circle
         g.setColor(ColorsFonts.BLACK);
-        g.drawArc(Capabilities.getWidth() / 2 - 2, Capabilities.getHeight() / 2 - 2, 4, 4, 0, 360);
+        g.drawArc(getContentPane().getWidth() / 2 - 2, getContentPane().getHeight() / 2 - 2, 4, 4, 0, 360);
 
         try {
             mapItemManager.drawItems(g, MapItem.PRIORITY_HIGH);
@@ -520,19 +533,19 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
                     if (!MainScreen.hasPointerEvents) {
                         g.drawImage(getMapIconPlus(), 20 - getMapIconPlus().getWidth() / 2,
-                                TOP_MARGIN + 10 - getMapIconPlus().getHeight() / 2);
+                                10 - getMapIconPlus().getHeight() / 2);
                         g.drawImage(getMapIconMinus(), 20 - getMapIconMinus().getWidth() / 2,
-                                Capabilities.getHeight() - BOTTOM_MARGIN - 10 - getMapIconMinus().getHeight() / 2);
+                                getContentPane().getHeight() - 10 - getMapIconMinus().getHeight() / 2);
                     }
 
                     g.setColor(ColorsFonts.BLACK);
-                    g.drawLine(moveX + 5, TOP_MARGIN + 10, moveX + 5, Capabilities.getHeight() - BOTTOM_MARGIN - 10);
-                    g.fillRect(moveX, TOP_MARGIN + 10, 10, 3);
-                    g.fillRect(moveX, Capabilities.getHeight() - BOTTOM_MARGIN - 10, 10, 3);
-                    double pxPerZoom = (Capabilities.getHeight() - TOP_MARGIN - BOTTOM_MARGIN - 20.0) /
+                    g.drawLine(moveX + 5, 10, moveX + 5, getContentPane().getHeight() - 10);
+                    g.fillRect(moveX, 10, 10, 3);
+                    g.fillRect(moveX, getContentPane().getHeight() - 10, 10, 3);
+                    double pxPerZoom = (getContentPane().getHeight() - 20.0) /
                             (map.getMaxZoomLevel() - map.getMinZoomLevel());
 
-                    int actZoomPixel = (int) (TOP_MARGIN + 10 + (map.getMaxZoomLevel() -
+                    int actZoomPixel = (int) (10 + (map.getMaxZoomLevel() -
                             (map.getActualZoomLevel() + zoomTotalValue)) * pxPerZoom);
 
                     g.setColor(ColorsFonts.RED);
@@ -545,9 +558,9 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
         try {
             if (MainScreen.hasPointerEvents && map.getMaxZoomLevel() - map.getMinZoomLevel() > 0) {
-                g.drawImage(getMapIconZoomPlus(), 0, TOP_MARGIN + 2);
+                g.drawImage(getMapIconZoomPlus(), 0, 2);
                 g.drawImage(getMapIconZoomMinus(), 0,
-                        Capabilities.getHeight() - BOTTOM_MARGIN - getMapIconMinus().getHeight());
+                        getContentPane().getHeight() - getMapIconMinus().getHeight());
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapZoomButtons");
@@ -815,6 +828,10 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
         }
     }
 
+    public void longKeyPress(int keyCode) {
+        System.out.println("Long key: " + keyCode);
+    }
+
     /** operation with map. Allowed actions:
      * <ul>
      * <li>"pan-up" scroll map up</li> 
@@ -887,7 +904,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
                     if (!mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
                         if (zoomProcess) {
                             makeZoomAction(ZOOM_PAN, -1 * pxMoveX, -1 * pxMoveY);
-                            makeZoomAction(ZOOM_PAN, -1 * (pxMoveX - Capabilities.getWidth() / 2), -1 * (pxMoveY - Capabilities.getHeight() / 2));
+                            makeZoomAction(ZOOM_PAN, -1 * (pxMoveX - Capabilities.getWidth() / 2), -1 * (pxMoveY - getContentPane().getHeight() / 2));
                         } else {
                             centerMap(R.getLocator().getLastLocation(), true);
                         }
@@ -1021,15 +1038,15 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
      * Called when the pointer is dragged.
      */
     public void pointerDragged(int x, int y) {
-        super.pointerDragged(x, y);
-        if (y > TOP_MARGIN && y < (Capabilities.getHeight() - BOTTOM_MARGIN)) {
+//System.out.println("Dragged: " + x + " " + y);
+        if (container.contains(x, y)) {
             try {
                 if (zoomProcess) {
                     makeZoomAction(ZOOM_PAN, -1 * (pointerX - x), -1 * (pointerY - y));
                 } else if ((pointerX - x) != 0 || (pointerY - y) != 0) {
                     if (showAllDuringPanning) {
                         map.pan(pointerX - x, pointerY - y);
-                        this.centerToActualLocation = false;
+                        centerToActualLocation = false;
                         mapItemManager.panItem(x - pointerX, y - pointerY);
                     } else {
                         makePanAction(pointerX - x, pointerY - y);
@@ -1037,16 +1054,15 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
                 } else {
                     return;
                 }
-                pointerX = x;
-                pointerY = y;
                 repaint();
             } catch (Exception e) {
                 R.getErrorScreen().view(e, "MapScreen.pointerDragged()", null);
             }
         } else {
-            pointerX = x;
-            pointerY = y;
+            super.pointerDragged(x, y);
         }
+        pointerX = x;
+        pointerY = y;
     }
 
     /**
@@ -1055,11 +1071,13 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
      * @param y
      */
     public void pointerPressed(int x, int y) {
-        super.pointerPressed(x, y);
-        if (y > TOP_MARGIN && y < (Capabilities.getHeight() - BOTTOM_MARGIN) && stylusTought == 0) {
+//System.out.println("Pressed: " + x + " " + y + " " + stylusTought);
+        if (container.contains(x, y) && stylusTought == 0) {
             stylusTought = System.currentTimeMillis();
             pointerX = x;
             pointerY = y;
+        } else {
+            super.pointerPressed(x, y);
         }
     }
 
@@ -1067,18 +1085,15 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
      * Called when the pointer is released.
      */
     public void pointerReleased(int x, int y) {
-        super.pointerReleased(x, y);
-        if (y > TOP_MARGIN && y < (Capabilities.getHeight() - BOTTOM_MARGIN)) {
+//System.out.println("Released: " + x + " " + y);
+        if (container.contains(x, y)) {
             if ((System.currentTimeMillis() - stylusTought) < 250) {
-                if (x < imageIconZoomSideSize &&
-                        y > TOP_MARGIN &&
-                        y < TOP_MARGIN + imageIconZoomSideSize &&
-                        y < -1 * x + (TOP_MARGIN + imageIconZoomSideSize)) {
+                if (x < imageIconZoomSideSize && y > 0 && y < 0 + imageIconZoomSideSize &&
+                        y < -1 * x + imageIconZoomSideSize) {
                     makeMapAction(MA_ZOOM_IN, null);
                 } else if (x < imageIconZoomSideSize &&
-                        y > (Capabilities.getHeight() - BOTTOM_MARGIN - imageIconZoomSideSize) &&
-                        y < Capabilities.getHeight() - BOTTOM_MARGIN &&
-                        y > x + (Capabilities.getHeight() - BOTTOM_MARGIN - imageIconZoomSideSize)) {
+                        y > (getContentPane().getHeight() - imageIconZoomSideSize) && y < getContentPane().getHeight() &&
+                        y > x + (getContentPane().getHeight() - imageIconZoomSideSize)) {
                     makeMapAction(MA_ZOOM_OUT, null);
                 } else if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
                     if (Math.sqrt((lastSelectedX - x) * (lastSelectedX - x) + (lastSelectedY - y) *
@@ -1093,6 +1108,8 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
                     selectNextFromSelected(false);
                 }
             }
+        } else {
+            super.pointerReleased(x, y);
         }
         stylusTought = 0;
         repaint();
@@ -1189,26 +1206,26 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
         return image;
     }
 
-    private static Image getMapIconPlus() {
+    private Image getMapIconPlus() {
         if (imageIconPlus == null) {
             imageIconPlus = ResourcesLocify.getImage("map_icon_plus.png");
         }
         return imageIconPlus;
     }
 
-    private static Image getMapIconMinus() {
+    private Image getMapIconMinus() {
         if (imageIconMinus == null) {
             imageIconMinus = ResourcesLocify.getImage("map_icon_minus.png");
         }
         return imageIconMinus;
     }
 
-    private static Image getMapIconZoomPlus() {
+    private Image getMapIconZoomPlus() {
         if (imageIconZoomPlus == null) {
             imageIconZoomPlus = ResourcesLocify.getImage("map_icon_zoom_plus.png");
 
             if (imageIconZoomSideSize == 0) {
-                int size = Capabilities.getHeight() * imageIconZoomPlus.getHeight() / 1000;
+                int size = getContentPane().getHeight() * imageIconZoomPlus.getHeight() / 1000;
                 imageIconZoomSideSize = size < 35 ? 35 : size;
             }
 
@@ -1217,12 +1234,12 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
         return imageIconZoomPlus;
     }
 
-    private static Image getMapIconZoomMinus() {
+    private Image getMapIconZoomMinus() {
         if (imageIconZoomMinus == null) {
             imageIconZoomMinus = ResourcesLocify.getImage("map_icon_zoom_minus.png");
 
             if (imageIconZoomSideSize == 0) {
-                int size = Capabilities.getHeight() * imageIconZoomPlus.getHeight() / 1000;
+                int size = getContentPane().getHeight() * imageIconZoomPlus.getHeight() / 1000;
                 imageIconZoomSideSize = size < 35 ? 35 : size;
             }
 
@@ -1231,7 +1248,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
         return imageIconZoomMinus;
     }
 
-    private static Image getMapIconActualLocation() {
+    private Image getMapIconActualLocation() {
         if (imageActualLocation == null) {
             imageActualLocation = ResourcesLocify.getImage("map_icon_actualLoc.png");
         }
@@ -1329,9 +1346,9 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
             zoomTotalValue = 0;
 
             borderW = borderWdef = Capabilities.getWidth();
-            borderH = borderHdef = Capabilities.getHeight() - TOP_MARGIN - BOTTOM_MARGIN;
+            borderH = borderHdef = getContentPane().getHeight();
             pxMoveX = Capabilities.getWidth() / 2;
-            pxMoveY = Capabilities.getHeight() / 2;
+            pxMoveY = getContentPane().getHeight() / 2;
         }
 
         if (actionType == ZOOM_IN || actionType == ZOOM_OUT) {
@@ -1380,8 +1397,8 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
                     }
                 }
                 zoomProcess = false;
-                if ((pxMoveX - Capabilities.getWidth() / 2) != 0 || (pxMoveY - Capabilities.getHeight() / 2) != 0) {
-                    map.pan(pxMoveX - Capabilities.getWidth() / 2, pxMoveY - Capabilities.getHeight() / 2);
+                if ((pxMoveX - Capabilities.getWidth() / 2) != 0 || (pxMoveY - getContentPane().getHeight() / 2) != 0) {
+                    map.pan(pxMoveX - Capabilities.getWidth() / 2, pxMoveY - getContentPane().getHeight() / 2);
                 }
                 if (zoomTotalValue != 0) {
                     map.setZoomLevel(map.getActualZoomLevel() + zoomTotalValue);
@@ -1399,7 +1416,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
     /*           SELECTION ACTION SECTION             */
     /**************************************************/
     private void selectNearestWaypointsAtCenter() {
-        selectNearestWaypoints(Capabilities.getWidth() / 2, Capabilities.getHeight() / 2, map.PAN_PIXELS * 2 / 3, false);
+        selectNearestWaypoints(Capabilities.getWidth() / 2, getContentPane().getHeight() / 2, map.PAN_PIXELS * 2 / 3, false);
     }
 
     private void selectNearestWaypoints(int x, int y, int radius, boolean deleteDescription) {

@@ -128,11 +128,14 @@ public class ScreenItem extends Item {
 
     private Image getBackgroundImage() {
         if (backgroundImage == null) {
+System.out.println("1");
             backgroundImage = Image.createImage(w, h);
+System.out.println("2");
             Graphics g = backgroundImage.getGraphics();
+System.out.println("3");
             g.setColor(ColorsFonts.LIGHT_ORANGE);
             g.fillRect(0, 0, w, h);
-
+System.out.println("4");
             // draw background
             if (colorBackground == 0 && !selected && active) {
                 // nothing to draw
@@ -146,7 +149,7 @@ public class ScreenItem extends Item {
                 }
                 g.fillRoundRect(0, 0, w, h, cornerRadius, cornerRadius);
             }
-
+System.out.println("5");
             g.setColor(colorBorder);
             g.drawRoundRect(0, 0, w-1, h-1, cornerRadius, cornerRadius);
         }
@@ -156,7 +159,7 @@ public class ScreenItem extends Item {
     public void paint(Graphics g) {
         try {
             if (visible) {
-                g.drawImage(getBackgroundImage(), x, y);
+//                g.drawImage(getBackgroundImage(), x, y);
 
                 // draw label
                 if (imageLabel != null) {
