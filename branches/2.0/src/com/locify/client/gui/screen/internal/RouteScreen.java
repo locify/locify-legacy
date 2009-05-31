@@ -13,55 +13,60 @@
  */
 package com.locify.client.gui.screen.internal;
 
+import com.locify.client.gui.extension.FormLocify;
+import com.locify.client.gui.extension.ImprovedLabel;
 import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.gui.extension.TopBarBackground;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.route.*;
-import com.locify.client.route.routeStyle.RouteStyleSimple;
-import com.locify.client.route.routeStyle.RouteStyleExtended;
-import com.locify.client.route.routeStyle.RouteStyle;
-import com.locify.client.route.routeStyle.RouteStyleGraph;
 import com.locify.client.utils.ColorsFonts;
-import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
-import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
+import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
+import com.sun.lwuit.Button;
 import com.sun.lwuit.Command;
+import com.sun.lwuit.Container;
 import com.sun.lwuit.Display;
-import com.sun.lwuit.Form;
-import com.sun.lwuit.Graphics;
+import com.sun.lwuit.Label;
+import com.sun.lwuit.TabbedPane;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
-import java.util.Vector;
+import com.sun.lwuit.events.SelectionListener;
+import com.sun.lwuit.layouts.BorderLayout;
+import com.sun.lwuit.layouts.GridLayout;
 
 
 /**
  * Screen for showing running route progress
  * @author Menion
  */
-public class RouteScreen extends Form implements ActionListener {
+public class RouteScreen extends FormLocify implements ActionListener {
+
+    private TabbedPane tabbedPane;
+    private Container tabPanel01;
+    private Container tabPanel02;
+    private Container tabPanel03;
+    
+    private Container buttonContainer;
+
+    private Button buttonStart;
+    private Button buttonStop;
+
+    private ImprovedLabel labelRouteTime;
+    private ImprovedLabel labelRouteDist;
+    private ImprovedLabel labelSpeedMax;
+    private ImprovedLabel labelSpeedAverage;
+    private ImprovedLabel labelSpeedActual;
+    private ImprovedLabel labelLatitude;
+    private ImprovedLabel labelLongitude;
+    private ImprovedLabel labelAltitude;
+    private ImprovedLabel labelHDOP;
+    private ImprovedLabel labelVDOP;
 
     private RouteManager routeManager;
     private Thread thread;
-    // index vybrané položky
-    protected int selected = 0;
-
-    // prepared item for display
-    private Vector items;
-    public static final int ITEM_ROUTE_TIME = 0;
-    public static final int ITEM_ROUTE_DIST = 1;
-    public static final int ITEM_SPEED_MAX = 2;
-    public static final int ITEM_SPEED_AVERAGE = 3;
-    public static final int ITEM_SPEED_ACTUAL = 4;
-    public static final int ITEM_LATITUDE = 5;
-    public static final int ITEM_LONGITUDE = 6;
-    public static final int ITEM_ALTITUDE = 7;
-    public static final int ITEM_HDOP = 8;
-    public static final int ITEM_VDOP = 9;
-    public static final int ITEM_GRAPH_ALTITUDE_BY_DIST = 10;
-    public static final int ITEM_GRAPH_ALTITUDE_BY_TIME = 11;
-    private ScreenItem buttonStart,  buttonStop;
+   
     // actual set items to display
     public static int[] displayItems;
     private ScreenItem routeItem;
@@ -69,14 +74,10 @@ public class RouteScreen extends Form implements ActionListener {
     public static final int STYLE_SIMPLE = 0;
     public static final int STYLE_EXTENDED = 1;
     public static final int STYLE_GRAPHS = 2;
-    private RouteStyle actualStyleScreen;
 
     // size of items
     // value increased for bottom buttons (start, stop, etc .., def 22)
     private static int MAIN_BUTTON_HEIGHT = 30;
-    public static int BOTTOM_MARGIN;
-    // huge value due to date painting (def 22)
-    public static int TOP_MARGIN;
     public static int itemWidth;
     public static int itemWidthCount;
     public static int itemHeight;
@@ -88,7 +89,9 @@ public class RouteScreen extends Form implements ActionListener {
     private ParentCommand actionCommand;
 
     public RouteScreen() {
-        super("");
+        super(Locale.get("Record_route"));
+        setLayout(new BorderLayout());
+
         routeManager = new RouteManager();
         actionCommand = new ParentCommand(Locale.get("Record_route"), null, new Command[1]);
     }
@@ -101,67 +104,43 @@ public class RouteScreen extends Form implements ActionListener {
             R.getURL().call("locify://setLocationGPS");
         } else {
             if (!alreadyInitialized) {
-                this.setTitle(Locale.get("Record_route"));
-                RouteScreen.TOP_MARGIN = R.getTopBar().height + 2;// + 20;
-                RouteScreen.BOTTOM_MARGIN = R.getTopBar().height + MAIN_BUTTON_HEIGHT + 10;
-
                 addMenu();
-                initializeMainButtons();
                 initializeItems();
-                buttonStart.setActive(true);
-                buttonStop.setActive(false);
+                initializeContainers();
 
-                setStyle(STYLE_SIMPLE);
+                addComponent(BorderLayout.CENTER, tabbedPane);
+                addComponent(BorderLayout.SOUTH, buttonContainer);
+                
+                buttonStart.setEnabled(true);
+                buttonStop.setEnabled(false);
+
+                //setStyle(STYLE_SIMPLE);
                 //setStyle(STYLE_GRAPHS);
                 startRouteScreen();
 
                 if (initializePaused) {
                     actualizeItems();
-                    buttonStart.setTextLabel(Locale.get("Resume_route"));
-                    buttonStart.setActive(true);
-                    buttonStop.setActive(true);
+                    buttonStart.setText(Locale.get("Resume_route"));
+                    buttonStart.setEnabled(true);
+                    buttonStop.setEnabled(true);
 
                     // menu buttons
                     actionCommand.setCommand(new Command[] {Commands.cmdActionResume, Commands.cmdActionStop, Commands.cmdActionReset});
                 }
+                showTab(0);
                 alreadyInitialized = true;
             }
-            selected = items.size() - 2;
-            this.show();
+            show();
         }
     }
 
     private void addMenu() {
         this.addCommand(Commands.cmdBack);
 
-        this.addCommand(new ParentCommand(Locale.get("Style"), null, new Command[] {
-            Commands.cmdStyleSimple, Commands.cmdStyleExtended, Commands.cmdStyleGraphs}));
-
         this.addCommand(new ParentCommand(Locale.get("Record_route"), null,
                 new Command[] {Commands.cmdActionStart}));
 
         this.setCommandListener(this);
-    }
-
-    private void initializeMainButtons() {
-        int width = (Capabilities.getWidth() - 3 * itemBetweenSpace) / 2;
-
-        // ITEM_BUTTON_START
-        buttonStart = new ScreenItem(Locale.get("Start_route"));
-        buttonStart.setFont(ColorsFonts.FONT_BMF_20, ColorsFonts.FONT_BMF_20);
-        buttonStart.setSelectable(true);
-        buttonStart.setSizePos(itemBetweenSpace, Capabilities.getHeight() - BOTTOM_MARGIN,
-                width, MAIN_BUTTON_HEIGHT);
-        buttonStart.setColors(ColorsFonts.DARK_GRAY, ColorsFonts.LIGHT_GRAY, ColorsFonts.GREEN_SHINY, ColorsFonts.ORANGE);
-
-        // ITEM_BUTTON_STOP
-        buttonStop = new ScreenItem(Locale.get("Stop_route"));
-        buttonStop.setFont(ColorsFonts.FONT_BMF_20, ColorsFonts.FONT_BMF_20);
-        buttonStop.setSelectable(true);
-        buttonStop.setSizePos(itemBetweenSpace * 2 + width, Capabilities.getHeight() - BOTTOM_MARGIN,
-                width, MAIN_BUTTON_HEIGHT);
-        buttonStop.setColors(ColorsFonts.DARK_GRAY, ColorsFonts.LIGHT_GRAY, ColorsFonts.GREEN_SHINY, ColorsFonts.ORANGE);
-
     }
 
     /**
@@ -170,161 +149,167 @@ public class RouteScreen extends Form implements ActionListener {
      * !!! important !!! right order for adding have to be !!!
      */
     private void initializeItems() {
-        if (items == null) {
-            items = new Vector();
+        buttonStart = new Button(Locale.get("Start_route"));
+        buttonStart.getStyle().setFont(ColorsFonts.FONT_BMF_20);
+//        buttonStart.getStyle().setBgColor(ColorsFonts.DARK_GRAY);
+        buttonStart.addActionListener(new ActionListener() {
 
-            // ITEM_ROUTE_TIME
-            ScreenItem button00 = new ScreenItem(Locale.get("Time"));
-            items.addElement(button00);
-            // ITEM_ROUTE_DIST
-            ScreenItem button01 = new ScreenItem(Locale.get("Distance"));
-            items.addElement(button01);
-            // ITEM_SPEED_MAX
-            ScreenItem button02 = new ScreenItem(Locale.get("Max_speed"));
-            items.addElement(button02);
-            // ITEM_SPEED_AVERAGE
-            ScreenItem button03 = new ScreenItem(Locale.get("Average_speed"));
-            items.addElement(button03);
-            // ITEM_SPEED_ACTUAL
-            ScreenItem button04 = new ScreenItem(Locale.get("Speed"));
-            items.addElement(button04);
-            // ITEM_LATITUDE
-            ScreenItem button05 = new ScreenItem(Locale.get("Latitude"));
-            items.addElement(button05);
-            // ITEM_LONGITUDE
-            ScreenItem button06 = new ScreenItem(Locale.get("Longitude"));
-            items.addElement(button06);
-            // ITEM_ALTITUDE
-            ScreenItem button07 = new ScreenItem(Locale.get("Altitude"));
-            items.addElement(button07);
-            // ITEM_HDOP
-            ScreenItem button08 = new ScreenItem(Locale.get("Hdop_route"));
-            items.addElement(button08);
-            // ITEM_VDOP
-            ScreenItem button09 = new ScreenItem(Locale.get("Vdop_route"));
-            items.addElement(button09);
-            // ITEM_GRAPH_ALTITUDE_BY_DIST
-            GraphItem button10 = new GraphItem("Altitude / distance", GraphItem.VALUE_X_TOTAL_DIST, GraphItem.VALUE_Y_ALTITUDE, 1000.0);
-            button10.setAlignment(Item.ALIGN_RIGHT, Item.ALIGN_TOP);
-            items.addElement(button10);
-            // ITEM_GRAPH_ALTITUDE_BY_TIME
-            GraphItem button11 = new GraphItem("Altitude / time", GraphItem.VALUE_X_TOTAL_TIME, GraphItem.VALUE_Y_ALTITUDE, 300.0);
-            button11.setAlignment(Item.ALIGN_RIGHT, Item.ALIGN_TOP);
-            items.addElement(button11);
-
-            // ITEM_BUTTON_START
-            items.addElement(buttonStart);
-            // ITEM_BUTTON_STOP
-            items.addElement(buttonStop);
-        }
-
-        /* set variables for all items exept buttons */
-        for (int i = 0; i < items.size() - 2; i++) {
-            if (items.elementAt(i) instanceof ScreenItem) {
-                ((ScreenItem) items.elementAt(i)).setFont(
-                        ColorsFonts.FONT_BMF_10, ColorsFonts.FONT_BMF_10);
-            } else if (items.elementAt(i) instanceof GraphItem) {
-                ((GraphItem) items.elementAt(i)).setFont(
-                        ColorsFonts.FONT_BMF_20);
+            public void actionPerformed(ActionEvent evt) {
+                if (routeManager.isRunning()) {
+                    routePause(false);
+                } else {
+                    routeStart();
+                }
             }
+        });
+
+        buttonStop = new Button(Locale.get("Stop_route"));
+        buttonStop.getStyle().setFont(ColorsFonts.FONT_BMF_20);
+//        buttonStop.getStyle().setBgColor(ColorsFonts.DARK_GRAY);
+        buttonStop.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent evt) {
+                 routePause(true);
+            }
+        });
+        
+        labelAltitude = new ImprovedLabel(BorderLayout.NORTH);
+        labelAltitude.setTitle(Locale.get("Altitude"));
+        labelAltitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+        labelHDOP = new ImprovedLabel(BorderLayout.NORTH);
+        labelHDOP.setTitle(Locale.get("Hdop_route"));
+        labelHDOP.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+        labelLatitude = new ImprovedLabel(BorderLayout.NORTH);
+        labelLatitude.setTitle(Locale.get("Latitude"));
+        labelLatitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+        labelLongitude = new ImprovedLabel(BorderLayout.NORTH);
+        labelLongitude.setTitle(Locale.get("Longitude"));
+        labelLongitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+        labelRouteDist = new ImprovedLabel(BorderLayout.NORTH);
+        labelRouteDist.setTitle(Locale.get("Distance"));
+        labelRouteDist.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+        labelRouteTime = new ImprovedLabel(BorderLayout.NORTH);
+        labelRouteTime.setTitle(Locale.get("Time"));
+        labelRouteTime.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+        labelSpeedActual = new ImprovedLabel(BorderLayout.NORTH);
+        labelSpeedActual.setTitle(Locale.get("Speed"));
+        labelSpeedActual.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+        labelSpeedAverage = new ImprovedLabel(BorderLayout.NORTH);
+        labelSpeedAverage.setTitle(Locale.get("Average_speed"));
+        labelSpeedAverage.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+        labelSpeedMax = new ImprovedLabel(BorderLayout.NORTH);
+        labelSpeedMax.setTitle(Locale.get("Max_speed"));
+        labelSpeedMax.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+        labelVDOP = new ImprovedLabel(BorderLayout.NORTH);
+        labelVDOP.setTitle(Locale.get("Vdop_route"));
+        labelVDOP.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
+
+
+//            // ITEM_GRAPH_ALTITUDE_BY_DIST
+//            GraphItem button10 = new GraphItem("Altitude / distance", GraphItem.VALUE_X_TOTAL_DIST, GraphItem.VALUE_Y_ALTITUDE, 1000.0);
+//            button10.setAlignment(Item.ALIGN_RIGHT, Item.ALIGN_TOP);
+//            items.addElement(button10);
+//            // ITEM_GRAPH_ALTITUDE_BY_TIME
+//            GraphItem button11 = new GraphItem("Altitude / time", GraphItem.VALUE_X_TOTAL_TIME, GraphItem.VALUE_Y_ALTITUDE, 300.0);
+//            button11.setAlignment(Item.ALIGN_RIGHT, Item.ALIGN_TOP);
+//            items.addElement(button11);
+    }
+
+    private void initializeContainers() {
+        tabbedPane = new TabbedPane();
+        tabbedPane.addTabsListener(new SelectionListener() {
+
+            public void selectionChanged(int oldSelected, int newSelected) {
+                showTab(newSelected);
+            }
+        });
+
+        tabPanel01 = new Container(new GridLayout(2, 2));
+        tabbedPane.addTab("Simple", tabPanel01);
+
+        tabPanel02 = new Container(new GridLayout(4, 3));
+        tabbedPane.addTab("Advanced", tabPanel02);
+
+        tabPanel03 = new Container(new GridLayout(2, 1));
+        tabbedPane.addTab("Graphs", tabPanel03);
+
+        buttonContainer = new Container(new GridLayout(1, 2));
+        buttonContainer.addComponent(buttonStart);
+        buttonContainer.addComponent(buttonStop);
+    }
+
+    private void clearTabs() {
+        tabPanel01.removeAll();
+        tabPanel02.removeAll();
+        tabPanel03.removeAll();
+    }
+
+    private void showTab(int index) {
+        clearTabs();
+        switch (index) {
+            case 0:
+                tabPanel01.addComponent(labelRouteDist);
+                tabPanel01.addComponent(labelRouteTime);
+                tabPanel01.addComponent(labelSpeedActual);
+                tabPanel01.addComponent(labelSpeedAverage);
+                break;
+            case 1:
+                tabPanel02.addComponent(labelSpeedActual);
+                tabPanel02.addComponent(labelSpeedAverage);
+                tabPanel02.addComponent(labelSpeedMax);
+                tabPanel02.addComponent(labelRouteDist);
+                tabPanel02.addComponent(labelRouteTime);
+                tabPanel02.addComponent(new Label());
+                tabPanel02.addComponent(labelLatitude);
+                tabPanel02.addComponent(labelLongitude);
+                tabPanel02.addComponent(labelAltitude);
+                tabPanel02.addComponent(labelHDOP);
+                tabPanel02.addComponent(labelVDOP);
+                break;
+            case 2:
+                break;
         }
     }
 
     private void actualizeItems() {
-        if (this.isVisible()) {
-            if (actualStyleScreen instanceof RouteStyleGraph) {
-                graphItem = (GraphItem) items.elementAt(ITEM_GRAPH_ALTITUDE_BY_DIST);
-                graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION *
-                        routeManager.getSpeedAverage());
-                graphItem.refreshGraph(routeManager.getRouteVariables());
+        labelRouteTime.setValue(GpsUtils.formatTimeShort(routeManager.getRouteTime()));
 
-                graphItem = (GraphItem) items.elementAt(ITEM_GRAPH_ALTITUDE_BY_TIME);
-                graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION);
-                graphItem.refreshGraph(routeManager.getRouteVariables());
-            } else {
-                routeItem = (ScreenItem) items.elementAt(ITEM_ROUTE_TIME);
-                routeItem.setTextValue(GpsUtils.formatTimeShort(routeManager.getRouteTime()));
-
-                if (routeManager.isNewData()) {
-                    routeItem = (ScreenItem) items.elementAt(ITEM_HDOP);
-                    routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getHdop(), 1));
-
-                    routeItem = (ScreenItem) items.elementAt(ITEM_VDOP);
-                    routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getVdop(), 1));
-
-                    routeItem = (ScreenItem) items.elementAt(ITEM_LATITUDE);
-                    routeItem.setTextValue(
-                            GpsUtils.formatLatitude(routeManager.getLatitude(), R.getSettings().getCoordsFormat()));
-
-                    routeItem = (ScreenItem) items.elementAt(ITEM_LONGITUDE);
-                    routeItem.setTextValue(
-                            GpsUtils.formatLongitude(routeManager.getLongitude(), R.getSettings().getCoordsFormat()));
-
-                    routeItem = (ScreenItem) items.elementAt(ITEM_ALTITUDE);
-                    routeItem.setTextValue(GpsUtils.formatDouble(routeManager.getAltitude(), 0) + " m");
-
-                    routeItem = (ScreenItem) items.elementAt(ITEM_SPEED_ACTUAL);
-                    routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeed()));
-
-                    routeItem = (ScreenItem) items.elementAt(ITEM_ROUTE_DIST);
-                    routeItem.setTextValue(GpsUtils.formatDistance(routeManager.getRouteDist()));
-
-                    routeItem = (ScreenItem) items.elementAt(ITEM_SPEED_AVERAGE);
-                    routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeedAverage()));
-
-                    routeItem = (ScreenItem) items.elementAt(ITEM_SPEED_MAX);
-                    routeItem.setTextValue(GpsUtils.formatSpeed(routeManager.getSpeedMax()));
-
-                    routeManager.setNewData(false);
-                }
-            }
-            repaint();
+        if (routeManager.isNewData()) {
+            labelAltitude.setValue(GpsUtils.formatDouble(routeManager.getAltitude(), 0) + " m");
+            labelHDOP.setValue(GpsUtils.formatDouble(routeManager.getHdop(), 1));
+            labelLatitude.setValue(
+                    GpsUtils.formatLatitude(routeManager.getLatitude(), R.getSettings().getCoordsFormat()));
+            labelLongitude.setValue(
+                    GpsUtils.formatLongitude(routeManager.getLongitude(), R.getSettings().getCoordsFormat()));
+            labelRouteDist.setValue(GpsUtils.formatDistance(routeManager.getRouteDist()));
+            labelSpeedActual.setValue(GpsUtils.formatSpeed(routeManager.getSpeed()));
+            labelSpeedAverage.setValue(GpsUtils.formatSpeed(routeManager.getSpeedAverage()));
+            labelSpeedMax.setValue(GpsUtils.formatSpeed(routeManager.getSpeedMax()));
+            labelVDOP.setValue(GpsUtils.formatDouble(routeManager.getVdop(), 1));
+            
+            routeManager.setNewData(false);
         }
+//        if (actualStyleScreen instanceof RouteStyleGraph) {
+//            graphItem = (GraphItem) items.elementAt(ITEM_GRAPH_ALTITUDE_BY_DIST);
+//            graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION *
+//                    routeManager.getSpeedAverage());
+//            graphItem.refreshGraph(routeManager.getRouteVariables());
+//
+//            graphItem = (GraphItem) items.elementAt(ITEM_GRAPH_ALTITUDE_BY_TIME);
+//            graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION);
+//            graphItem.refreshGraph(routeManager.getRouteVariables());
+//        }
     }
 
-    private void calculateBySize(int minItemWidth, int minItemHeight) {
-        itemWidthCount = Capabilities.getWidth() / (minItemWidth + itemBetweenSpace);
-        itemWidth = (Capabilities.getWidth() - (itemWidthCount + 1) * itemBetweenSpace) / itemWidthCount;
-
-        itemHeightCount = (Capabilities.getHeight() - BOTTOM_MARGIN - TOP_MARGIN) / (minItemHeight + itemBetweenSpace);
-        itemHeight = ((Capabilities.getHeight() - BOTTOM_MARGIN - TOP_MARGIN) - (itemHeightCount + 1) *
-                itemBetweenSpace) / itemHeightCount;
-    }
-
-    private void calculateByCount(int widthCount, int heightCount) {
-        itemWidthCount = widthCount;
-        itemWidth = (Capabilities.getWidth() - (itemWidthCount + 1) * itemBetweenSpace) / itemWidthCount;
-
-        itemHeightCount = heightCount;
-        itemHeight = ((Capabilities.getHeight() - BOTTOM_MARGIN - TOP_MARGIN) - (itemHeightCount + 1) *
-                itemBetweenSpace) / itemHeightCount;
-    }
-
-    private void setStyle(int RouteStyle) {
-        initializeItems();
-        if (RouteStyle == STYLE_SIMPLE) {
-            calculateByCount(2, 3);
-            while (itemHeight < 40 && itemHeightCount > 1) {
-                calculateByCount(2, itemHeightCount - 1);
-            }
-            this.actualStyleScreen = new RouteStyleSimple(this);
-        //this.setTitle(Locale.get("Route_screen"));
-        } else if (RouteStyle == STYLE_EXTENDED) {
-            calculateByCount(3, 4);
-            while (itemHeight < 40 && itemHeightCount > 1) {
-                calculateByCount(3, itemHeightCount - 1);
-            }
-            this.actualStyleScreen = new RouteStyleExtended(this);
-        //this.setTitle(Locale.get("Route_screen"));
-        } else if (RouteStyle == STYLE_GRAPHS) {
-            calculateByCount(1, 2);
-            while (itemHeight < 80 && itemHeightCount > 1) {
-                calculateByCount(1, itemHeightCount - 1);
-            }
-            this.actualStyleScreen = new RouteStyleGraph(this);
-        //this.setTitle(Locale.get("Route_screen"));
-        }
-    }
 
     /**
      * Called when a key is pressed.
@@ -334,79 +319,65 @@ public class RouteScreen extends Form implements ActionListener {
         int action = Display.getInstance().getGameAction(key);
         switch (action) {
             case Display.GAME_LEFT:
-                setPrevEnabled();
-                repaint();
+                if (tabbedPane.getSelectedIndex() > 0)
+                    tabbedPane.setSelectedIndex(tabbedPane.getSelectedIndex() - 1);
+                else
+                    tabbedPane.setSelectedIndex(tabbedPane.getTabCount());
                 break;
             case Display.GAME_RIGHT:
-                setNextEnabled();
-                repaint();
+                if (tabbedPane.getSelectedIndex() < tabbedPane.getTabCount())
+                    tabbedPane.setSelectedIndex(tabbedPane.getSelectedIndex() + 1);
+                else
+                    tabbedPane.setSelectedIndex(0);
                 break;
             case Display.GAME_FIRE:
-                selectedAction();
-                repaint();
                 break;
         }
     }
-
-    /**
-     * Called when a key is released.
-     */
-    public void keyReleased(int keyCode) {
-        super.keyReleased(keyCode);
-    }
-
-    /**
-     * Called when a key is repeated (held down).
-     */
-    public void keyRepeated(int keyCode) {
-        super.keyRepeated(keyCode);
-    }
-
-    /**
-     * Called when the pointer is dragged.
-     */
-    public void pointerDragged(int x, int y) {
-        super.pointerDragged(x, y);
-    }
-
-    /**
-     * Called when the pointer is pressed.
-     */
-    public void pointerPressed(int x, int y) {
-        super.pointerPressed(x, y);
-    }
-
-    /**
-     * Called when the pointer is released.
-     */
-    public void pointerReleased(int x, int y) {
-        super.pointerReleased(x, y);
-        for (int i = 0; i < items.size(); i++) {
-            if (items.elementAt(i) instanceof ScreenItem &&
-                    ((ScreenItem) items.elementAt(i)).isInside(x, y)) {
-                selected = i;
-                selectedAction();
-                repaint();
-                break;
-            }
-        }
-    }
-
-    private void selectedAction() {
-        if (selected > 0 && selected < items.size() && items.elementAt(selected) instanceof ScreenItem) {
-            if (((ScreenItem) items.elementAt(selected)).equals(buttonStart)) {
-                if (routeManager.isRunning()) {
-                    routePause(false);
-                } else {
-                    routeStart();
-                }
-
-            } else if (((ScreenItem) items.elementAt(selected)).equals(buttonStop)) {
-                //routeStop(true);
-                routePause(true);
-            }
-        }
-    }
+//
+//    /**
+//     * Called when a key is released.
+//     */
+//    public void keyReleased(int keyCode) {
+//        super.keyReleased(keyCode);
+//    }
+//
+//    /**
+//     * Called when a key is repeated (held down).
+//     */
+//    public void keyRepeated(int keyCode) {
+//        super.keyRepeated(keyCode);
+//    }
+//
+//    /**
+//     * Called when the pointer is dragged.
+//     */
+//    public void pointerDragged(int x, int y) {
+//        super.pointerDragged(x, y);
+//    }
+//
+//    /**
+//     * Called when the pointer is pressed.
+//     */
+//    public void pointerPressed(int x, int y) {
+//        super.pointerPressed(x, y);
+//    }
+//
+//    /**
+//     * Called when the pointer is released.
+//     */
+//    public void pointerReleased(int x, int y) {
+//        super.pointerReleased(x, y);
+//        for (int i = 0; i < items.size(); i++) {
+//            if (items.elementAt(i) instanceof ScreenItem &&
+//                    ((ScreenItem) items.elementAt(i)).isInside(x, y)) {
+//                selected = i;
+//                selectedAction();
+//                repaint();
+//                break;
+//            }
+//        }
+//    }
 
     private void startRouteScreen() {
         if (thread == null) {
@@ -439,10 +410,9 @@ public class RouteScreen extends Form implements ActionListener {
     private void routeStart() {
         routeManager.routeStart();
         // visibe buttons
-        buttonStart.setTextLabel(Locale.get("Pause_route"));
-        buttonStart.setActive(true);
-        buttonStop.setActive(true);
-        selected = items.size() - 2;
+        buttonStart.setText(Locale.get("Pause_route"));
+        buttonStart.setEnabled(true);
+        buttonStop.setEnabled(true);
 
         // menu buttons
         actionCommand.setCommand(new Command[] {Commands.cmdActionPause, Commands.cmdActionStop, Commands.cmdActionReset});
@@ -450,10 +420,9 @@ public class RouteScreen extends Form implements ActionListener {
 
     private void routePause(boolean save) {
         routeManager.routePause(save);
-        buttonStart.setTextLabel(Locale.get("Resume_route"));
-        buttonStart.setActive(true);
-        buttonStop.setActive(true);
-        selected = items.size() - 2;
+        buttonStart.setText(Locale.get("Resume_route"));
+        buttonStart.setEnabled(true);
+        buttonStop.setEnabled(true);
 
         // menu buttons
         actionCommand.setCommand(new Command[] {Commands.cmdActionResume, Commands.cmdActionStop, Commands.cmdActionReset});
@@ -463,75 +432,74 @@ public class RouteScreen extends Form implements ActionListener {
         routeManager.routeReset();
         actualizeItems();
 
-        buttonStart.setTextLabel(Locale.get("Start_route"));
-        buttonStart.setActive(true);
-        buttonStop.setActive(false);
-        selected = items.size() - 2;
+        buttonStart.setText(Locale.get("Start_route"));
+        buttonStart.setEnabled(true);
+        buttonStop.setEnabled(false);
 
         // menu buttons
         actionCommand.setCommand(new Command[] {Commands.cmdActionStart, Commands.cmdActionReset});
     }
 
-    public void paint(Graphics g) {
-        super.paint(g);
-        for (int i = 0; i < items.size(); i++) {
-            if (items.elementAt(i) instanceof ScreenItem) {
-                routeItem = (ScreenItem) items.elementAt(i);
-                if (selected == i) {
-                    routeItem.setSelected(true);
-                } else {
-                    routeItem.setSelected(false);
-                }
-            }
-        }
-
-        for (int i = 0; i < displayItems.length; i++) {
-            if (displayItems[i] != -1) {
-                ((Item) items.elementAt(displayItems[i])).paint(g);
-            }
-        }
-
-        buttonStart.paint(g);
-        buttonStop.paint(g);
-    }
-
-    public Item getItem(int item) {
-        if (item < items.size()) {
-            return (Item) items.elementAt(item);
-        } else {
-            return null;
-        }
-    }
-
-    private void setNextEnabled() {
-        if (selected < items.size() - 1) {
-            selected += 1;
-        } else {
-            selected = 0;
-        }
-
-        if (items.elementAt(selected) instanceof ScreenItem &&
-                !((ScreenItem) items.elementAt(selected)).isSelectable()) {
-            setNextEnabled();
-        } else if (!(items.elementAt(selected) instanceof ScreenItem)) {
-            setNextEnabled();
-        }
-    }
-
-    private void setPrevEnabled() {
-        if (selected > 0) {
-            selected -= 1;
-        } else {
-            selected = items.size() - 1;
-        }
-        //text01 = String.valueOf(selected);
-        if (items.elementAt(selected) instanceof ScreenItem &&
-                !((ScreenItem) items.elementAt(selected)).isSelectable()) {
-            setPrevEnabled();
-        } else if (!(items.elementAt(selected) instanceof ScreenItem)) {
-            setPrevEnabled();
-        }
-    }
+//    public void paint(Graphics g) {
+//        super.paint(g);
+//        for (int i = 0; i < items.size(); i++) {
+//            if (items.elementAt(i) instanceof ScreenItem) {
+//                routeItem = (ScreenItem) items.elementAt(i);
+//                if (selected == i) {
+//                    routeItem.setSelected(true);
+//                } else {
+//                    routeItem.setSelected(false);
+//                }
+//            }
+//        }
+//
+//        for (int i = 0; i < displayItems.length; i++) {
+//            if (displayItems[i] != -1) {
+//                ((Item) items.elementAt(displayItems[i])).paint(g);
+//            }
+//        }
+//
+//        buttonStart.paint(g);
+//        buttonStop.paint(g);
+//    }
+//
+//    public Item getItem(int item) {
+//        if (item < items.size()) {
+//            return (Item) items.elementAt(item);
+//        } else {
+//            return null;
+//        }
+//    }
+//
+//    private void setNextEnabled() {
+//        if (selected < items.size() - 1) {
+//            selected += 1;
+//        } else {
+//            selected = 0;
+//        }
+//
+//        if (items.elementAt(selected) instanceof ScreenItem &&
+//                !((ScreenItem) items.elementAt(selected)).isSelectable()) {
+//            setNextEnabled();
+//        } else if (!(items.elementAt(selected) instanceof ScreenItem)) {
+//            setNextEnabled();
+//        }
+//    }
+//
+//    private void setPrevEnabled() {
+//        if (selected > 0) {
+//            selected -= 1;
+//        } else {
+//            selected = items.size() - 1;
+//        }
+//        //text01 = String.valueOf(selected);
+//        if (items.elementAt(selected) instanceof ScreenItem &&
+//                !((ScreenItem) items.elementAt(selected)).isSelectable()) {
+//            setPrevEnabled();
+//        } else if (!(items.elementAt(selected) instanceof ScreenItem)) {
+//            setPrevEnabled();
+//        }
+//    }
 
     public void loadUnfinishedRoute() {
         try {
@@ -563,16 +531,9 @@ public class RouteScreen extends Form implements ActionListener {
     public void actionPerformed(ActionEvent evt) {
         if (evt.getCommand() == Commands.cmdBack) {
             R.getBack().goBack();
-        } else if (evt.getCommand() == Commands.cmdStyleSimple) {
-            setStyle(STYLE_SIMPLE);
-        } else if (evt.getCommand() == Commands.cmdStyleExtended) {
-            setStyle(STYLE_EXTENDED);
-        } else if (evt.getCommand() == Commands.cmdStyleGraphs) {
-            setStyle(STYLE_GRAPHS);
         } else if (evt.getCommand() == Commands.cmdActionStart) {
             routeStart();
         } else if (evt.getCommand() == Commands.cmdActionStop) {
-            //routeStop(true);
             routePause(true);
         } else if (evt.getCommand() == Commands.cmdActionReset) {
             routeReset();

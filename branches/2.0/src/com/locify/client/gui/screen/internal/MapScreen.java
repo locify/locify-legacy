@@ -76,7 +76,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
     private Command[] providerCommandsTile;
 
-    private Container container;
+    private Container mainContainer;
     
     private boolean drawLock;
     private MapLayer map;
@@ -210,7 +210,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
         }
 
         setLayout(new BorderLayout());
-        container = new Container() {
+        mainContainer = new Container() {
 
             public void paint(Graphics g) {
                 try {
@@ -230,7 +230,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
                 }
             }
         };
-        addComponent(BorderLayout.CENTER, container);
+        addComponent(BorderLayout.CENTER, mainContainer);
     }
 
     public static TileCache getTileCache() {
@@ -1039,7 +1039,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
      */
     public void pointerDragged(int x, int y) {
 //System.out.println("Dragged: " + x + " " + y);
-        if (container.contains(x, y)) {
+        if (mainContainer.contains(x, y)) {
             try {
                 if (zoomProcess) {
                     makeZoomAction(ZOOM_PAN, -1 * (pointerX - x), -1 * (pointerY - y));
@@ -1072,7 +1072,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
      */
     public void pointerPressed(int x, int y) {
 //System.out.println("Pressed: " + x + " " + y + " " + stylusTought);
-        if (container.contains(x, y) && stylusTought == 0) {
+        if (mainContainer.contains(x, y) && stylusTought == 0) {
             stylusTought = System.currentTimeMillis();
             pointerX = x;
             pointerY = y;
@@ -1086,7 +1086,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
      */
     public void pointerReleased(int x, int y) {
 //System.out.println("Released: " + x + " " + y);
-        if (container.contains(x, y)) {
+        if (mainContainer.contains(x, y)) {
             if ((System.currentTimeMillis() - stylusTought) < 250) {
                 if (x < imageIconZoomSideSize && y > 0 && y < 0 + imageIconZoomSideSize &&
                         y < -1 * x + imageIconZoomSideSize) {
