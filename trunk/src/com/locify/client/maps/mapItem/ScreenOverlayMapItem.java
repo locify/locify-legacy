@@ -19,6 +19,7 @@ import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.route.ScreenItem;
 import com.locify.client.utils.Capabilities;
+import com.locify.client.utils.StringTokenizer;
 import de.enough.polish.util.BitMapFont;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
@@ -42,8 +43,17 @@ public class ScreenOverlayMapItem extends MapItem {
             screenItem = new ScreenItem(description);
             BitMapFont font = ColorsFonts.BMF_ARIAL_14_BLACK;
             screenItem.setFont(font, font);
-            int textWidth = font.stringWidth(description);
-            screenItem.setSizePos(Capabilities.getWidth()-textWidth-10, R.getTopBar().height+4, textWidth+8, font.getFontHeight()+2);
+            String[] lines = StringTokenizer.getArray(description, "\n");
+            int numberOfBreaks = lines.length;
+            int textWidth = 0;
+            for (int i=0;i<lines.length;i++)
+            {
+                if (font.stringWidth(lines[i])>textWidth)
+                {
+                    textWidth = font.stringWidth(lines[i]);
+                }
+            }
+            screenItem.setSizePos(Capabilities.getWidth()-textWidth-10, R.getTopBar().height+4, textWidth+8, font.getFontHeight()*numberOfBreaks+2);
             initialized = true;
         } catch (Exception ex) {
             Logger.error("ScreenOverlayMapItem.initialize() " + ex.toString());
