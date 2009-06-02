@@ -383,14 +383,18 @@ public class StorageTar {
     }
 
     private byte[] loadFileWithoutPalette(TarRecord record) throws IOException {
-        fc = (FileConnection) Connector.open(tarPath, Connector.READ);
-        is = fc.openInputStream();
+        FileConnection fileConn = (FileConnection) Connector.open(tarPath, Connector.READ);
+        InputStream inputStream = fileConn.openInputStream();
 
-        skipBytes(is, record.recordStart);
+        skipBytes(inputStream, record.recordStart);
         byte[] arrayToLoad = new byte[record.recordLength];
-        is.read(arrayToLoad, 0, record.recordLength);
+        inputStream.read(arrayToLoad, 0, record.recordLength);
 
-        fc.close();
+        inputStream.close();
+        inputStream = null;
+        fileConn.close();
+        fileConn = null;
+        
         return arrayToLoad;
     }
 

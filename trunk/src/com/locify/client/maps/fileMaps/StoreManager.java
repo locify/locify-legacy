@@ -124,7 +124,7 @@ public class StoreManager {
 //Logger.debug("  start init (" + (System.currentTimeMillis() - time) + "ms)");
                                         initializeOfflineMap(fileName, temp + fileSize, true);
                                     //getInitializedOfflineMap(fileName, true);
-//Logger.debug("  initialized (" + (System.currentTimeMillis() - time) + "ms)");
+//Logger.debug("  initialized (" + (System.currentTimeMillis() - time) + "ms)" + " tempBuffer (null): " + (tempBuffer == null));
                                     }
 
                                     // add map to map database
