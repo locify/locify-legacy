@@ -13,6 +13,7 @@
  */
 package com.locify.client.gui.extension;
 
+import com.locify.client.data.IconData;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.locator.LocationEventGenerator;
@@ -21,7 +22,6 @@ import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
 import com.locify.client.route.RouteManager;
 import com.locify.client.utils.ColorsFonts;
-import com.locify.client.utils.ResourcesLocify;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
 import com.sun.lwuit.Painter;
@@ -69,10 +69,14 @@ public class TopBarBackground implements Painter, LocationEventListener {
     private static Image imgRouteRunning;
     private static Image imgRoutePaused;
     private static Image imgRouteUnfinished;
+    
     private static int routeImageRepeats;
+
+    private int backGroundColor;
 
     public TopBarBackground() {
         R.setTopBar(this);
+        backGroundColor = R.getMainScreen().getTitleStyle().getBgColor();
         createImages();
 
         this.height = 0;
@@ -80,8 +84,10 @@ public class TopBarBackground implements Painter, LocationEventListener {
     }
 
     public void paint(Graphics g, Rectangle rect) {
-        g.setColor(ColorsFonts.BLACK);
+        g.setColor(backGroundColor);
+        g.fillRect(g.getClipX(), g.getClipY(), g.getClipWidth(), g.getClipHeight());
 
+        g.setColor(ColorsFonts.BLACK);
         if (height == 0) {
             height = rect.getSize().getHeight();
             width = rect.getSize().getWidth();
@@ -111,21 +117,21 @@ public class TopBarBackground implements Painter, LocationEventListener {
 
     private void createImages() {
         try {
-            imgGpsAnimation = ResourcesLocify.getImage("status_animation.png");
-            imgGpsNoSignal = ResourcesLocify.getImage("status_nosignal.png");
-            imgGpsConnecting = ResourcesLocify.getImage("status_connecting.png");
-            imgGpsWeak = ResourcesLocify.getImage("status_weak.png");
-            imgGpsNormal = ResourcesLocify.getImage("status_normal.png");
-            imgGpsStrong = ResourcesLocify.getImage("status_strong.png");
-            imgGpsManual = ResourcesLocify.getImage("manual.png");
-            imgHttpConnecting = ResourcesLocify.getImage("connecting_21x21.png");
-            imgHttpAnimation = ResourcesLocify.getImage("connecting_animation_21x21.png");
-            imgHttpSending = ResourcesLocify.getImage("sending_21x21.png");
-            imgHttpReceiving = ResourcesLocify.getImage("receiving_21x21.png");
-            imgHttpReceiving = ResourcesLocify.getImage("receiving_21x21.png");
-            imgRouteRunning = ResourcesLocify.getImage("state_recording_21x21.png");
-            imgRoutePaused = ResourcesLocify.getImage("state_pause_21x21.png");
-            imgRouteUnfinished = ResourcesLocify.getImage("state_pause_21x21.png");
+            imgGpsAnimation = IconData.getLocalImage("status_animation.png");
+            imgGpsNoSignal = IconData.getLocalImage("status_nosignal.png");
+            imgGpsConnecting = IconData.getLocalImage("status_connecting.png");
+            imgGpsWeak = IconData.getLocalImage("status_weak.png");
+            imgGpsNormal = IconData.getLocalImage("status_normal.png");
+            imgGpsStrong = IconData.getLocalImage("status_strong.png");
+            imgGpsManual = IconData.getLocalImage("manual.png");
+            imgHttpConnecting = IconData.getLocalImage("connecting_21x21.png");
+            imgHttpAnimation = IconData.getLocalImage("connecting_animation_21x21.png");
+            imgHttpSending = IconData.getLocalImage("sending_21x21.png");
+            imgHttpReceiving = IconData.getLocalImage("receiving_21x21.png");
+            imgHttpReceiving = IconData.getLocalImage("receiving_21x21.png");
+            imgRouteRunning = IconData.getLocalImage("state_recording_21x21.png");
+            imgRoutePaused = IconData.getLocalImage("state_pause_21x21.png");
+            imgRouteUnfinished = IconData.getLocalImage("state_pause_21x21.png");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "TopBarBackground.createImages", null);
         }
@@ -181,7 +187,6 @@ public class TopBarBackground implements Painter, LocationEventListener {
                 }
             }
             return true;
-
         } catch (Exception e) {
             R.getErrorScreen().view(e, "TopBarBackground.animate", null);
             return false;
@@ -224,16 +229,11 @@ public class TopBarBackground implements Painter, LocationEventListener {
                     case STRONG:
                         gpsImage = imgGpsStrong;
                         break;
-
                 }
-
-
             }
-
         } catch (Exception e) {
             R.getErrorScreen().view(e, "TopBarBackground.setGpsStatus", String.valueOf(newStatus));
         }
-
     }
 
     /**
@@ -262,10 +262,7 @@ public class TopBarBackground implements Painter, LocationEventListener {
             case RouteManager.ROUTE_STATE_UNFINISHED_ROUTE:
                 routeImage = imgRouteUnfinished;
                 break;
-
         }
-
-
     }
 
     public void locationChanged(LocationEventGenerator sender, Location4D location) {
@@ -278,7 +275,6 @@ public class TopBarBackground implements Painter, LocationEventListener {
             } else {
                 setGpsStatus(TopBarBackground.WEAK);
             }
-
         }
     }
 
@@ -302,11 +298,9 @@ public class TopBarBackground implements Painter, LocationEventListener {
             } else {
                 setGpsStatus(TopBarBackground.WEAK);
             }
-
         } else if (state == LocationProvider.MANUAL) {
             setGpsStatus(TopBarBackground.MANUAL);
         }
-
     }
 
     public void errorMessage(LocationEventGenerator sender, String message) {

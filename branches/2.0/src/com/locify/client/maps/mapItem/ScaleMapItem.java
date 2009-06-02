@@ -19,7 +19,6 @@ import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Logger;
-import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
@@ -52,11 +51,11 @@ public class ScaleMapItem extends MapItem {
     
     public ScaleMapItem() {
         super();
-        this.posX = Capabilities.getWidth() - 5;
-        this.posY = Capabilities.getHeight() - R.getTopBar().height - 15;
-        this.scaleSizeX = Capabilities.getWidth() / 2;
+        this.posX = R.getMapScreen().getContentPane().getWidth() - 5;
+        this.posY = R.getMapScreen().getContentPane().getHeight() - 15;
+        this.scaleSizeX = R.getMapScreen().getContentPane().getWidth() / 2;
         this.scaleSizeY = 6;
-        
+
         createScaleImage();
     }
     
@@ -66,7 +65,7 @@ public class ScaleMapItem extends MapItem {
             p2 = mapScreen.getActualMapLayer().getLocationCoord(new Location4D(0.2, 14.0, 0.0f));
 
             distancePerPixel = (angleDistance / 10) / (Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y));
-            double distance = (Capabilities.getWidth() / 2) * distancePerPixel;
+            double distance = (R.getMapScreen().getContentPane().getWidth() / 2) * distancePerPixel;
             String units;
 
             if (distance > 0 && distance < 2000000) {
@@ -106,9 +105,9 @@ public class ScaleMapItem extends MapItem {
                 initialize();
             
             g.setColor(ColorsFonts.BLACK);
-            g.drawString(scale, posX, posY - 15);
+            g.drawString(scale, posX - g.getFont().stringWidth(scale), posY - 15);
             if (scaleImage != null)
-                g.drawImage(scaleImage, posX, posY);
+                g.drawImage(scaleImage, posX - scaleImage.getWidth(), posY);
         }
     }
 

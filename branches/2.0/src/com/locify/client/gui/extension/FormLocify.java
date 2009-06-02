@@ -67,7 +67,7 @@ public class FormLocify extends Form {
                 if (isSubMenu) {
                     int oldColor = g.getColor();
                     if (hasFocus()) {
-                        g.setColor(getStyle().getFgSelectionColor());
+                        g.setColor(getSelectedStyle().getFgColor());
                     } else {
                         g.setColor(getStyle().getFgColor());
                     }

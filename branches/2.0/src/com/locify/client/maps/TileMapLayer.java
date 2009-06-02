@@ -40,7 +40,6 @@ import com.locify.client.maps.tiles.impl.YahooMapTileFactory;
 import com.locify.client.maps.tiles.impl.YahooSatelliteTileFactory;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
-import com.locify.client.utils.Capabilities;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
 import java.util.Vector;

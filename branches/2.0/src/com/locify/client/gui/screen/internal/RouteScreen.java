@@ -14,7 +14,7 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.gui.extension.FormLocify;
-import com.locify.client.gui.extension.ImprovedLabel;
+import com.locify.client.gui.widgets.StateLabel;
 import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.gui.extension.TopBarBackground;
 import com.locify.client.locator.LocationContext;
@@ -53,36 +53,23 @@ public class RouteScreen extends FormLocify implements ActionListener {
     private Button buttonStart;
     private Button buttonStop;
 
-    private ImprovedLabel labelRouteTime;
-    private ImprovedLabel labelRouteDist;
-    private ImprovedLabel labelSpeedMax;
-    private ImprovedLabel labelSpeedAverage;
-    private ImprovedLabel labelSpeedActual;
-    private ImprovedLabel labelLatitude;
-    private ImprovedLabel labelLongitude;
-    private ImprovedLabel labelAltitude;
-    private ImprovedLabel labelHDOP;
-    private ImprovedLabel labelVDOP;
+    private StateLabel labelRouteTime;
+    private StateLabel labelRouteDist;
+    private StateLabel labelSpeedMax;
+    private StateLabel labelSpeedAverage;
+    private StateLabel labelSpeedActual;
+    private StateLabel labelLatitude;
+    private StateLabel labelLongitude;
+    private StateLabel labelAltitude;
+    private StateLabel labelHDOP;
+    private StateLabel labelVDOP;
+
+    private GraphItem gi01;
+    private GraphItem gi02;
 
     private RouteManager routeManager;
     private Thread thread;
    
-    // actual set items to display
-    public static int[] displayItems;
-    private ScreenItem routeItem;
-    private GraphItem graphItem;
-    public static final int STYLE_SIMPLE = 0;
-    public static final int STYLE_EXTENDED = 1;
-    public static final int STYLE_GRAPHS = 2;
-
-    // size of items
-    // value increased for bottom buttons (start, stop, etc .., def 22)
-    private static int MAIN_BUTTON_HEIGHT = 30;
-    public static int itemWidth;
-    public static int itemWidthCount;
-    public static int itemHeight;
-    public static int itemHeightCount;
-    public static int itemBetweenSpace = 5;
     private boolean alreadyInitialized = false;
     private boolean initializePaused = false;
 
@@ -173,55 +160,49 @@ public class RouteScreen extends FormLocify implements ActionListener {
             }
         });
         
-        labelAltitude = new ImprovedLabel(BorderLayout.NORTH);
+        labelAltitude = new StateLabel(BorderLayout.NORTH);
         labelAltitude.setTitle(Locale.get("Altitude"));
         labelAltitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelHDOP = new ImprovedLabel(BorderLayout.NORTH);
+        labelHDOP = new StateLabel(BorderLayout.NORTH);
         labelHDOP.setTitle(Locale.get("Hdop_route"));
         labelHDOP.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelLatitude = new ImprovedLabel(BorderLayout.NORTH);
+        labelLatitude = new StateLabel(BorderLayout.NORTH);
         labelLatitude.setTitle(Locale.get("Latitude"));
         labelLatitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelLongitude = new ImprovedLabel(BorderLayout.NORTH);
+        labelLongitude = new StateLabel(BorderLayout.NORTH);
         labelLongitude.setTitle(Locale.get("Longitude"));
         labelLongitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelRouteDist = new ImprovedLabel(BorderLayout.NORTH);
+        labelRouteDist = new StateLabel(BorderLayout.NORTH);
         labelRouteDist.setTitle(Locale.get("Distance"));
         labelRouteDist.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelRouteTime = new ImprovedLabel(BorderLayout.NORTH);
+        labelRouteTime = new StateLabel(BorderLayout.NORTH);
         labelRouteTime.setTitle(Locale.get("Time"));
         labelRouteTime.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelSpeedActual = new ImprovedLabel(BorderLayout.NORTH);
+        labelSpeedActual = new StateLabel(BorderLayout.NORTH);
         labelSpeedActual.setTitle(Locale.get("Speed"));
         labelSpeedActual.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelSpeedAverage = new ImprovedLabel(BorderLayout.NORTH);
+        labelSpeedAverage = new StateLabel(BorderLayout.NORTH);
         labelSpeedAverage.setTitle(Locale.get("Average_speed"));
         labelSpeedAverage.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelSpeedMax = new ImprovedLabel(BorderLayout.NORTH);
+        labelSpeedMax = new StateLabel(BorderLayout.NORTH);
         labelSpeedMax.setTitle(Locale.get("Max_speed"));
         labelSpeedMax.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelVDOP = new ImprovedLabel(BorderLayout.NORTH);
+        labelVDOP = new StateLabel(BorderLayout.NORTH);
         labelVDOP.setTitle(Locale.get("Vdop_route"));
         labelVDOP.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
+        gi01 = new GraphItem("Altitude / distance", GraphItem.VALUE_X_TOTAL_DIST, GraphItem.VALUE_Y_ALTITUDE, 1000.0);
 
-//            // ITEM_GRAPH_ALTITUDE_BY_DIST
-//            GraphItem button10 = new GraphItem("Altitude / distance", GraphItem.VALUE_X_TOTAL_DIST, GraphItem.VALUE_Y_ALTITUDE, 1000.0);
-//            button10.setAlignment(Item.ALIGN_RIGHT, Item.ALIGN_TOP);
-//            items.addElement(button10);
-//            // ITEM_GRAPH_ALTITUDE_BY_TIME
-//            GraphItem button11 = new GraphItem("Altitude / time", GraphItem.VALUE_X_TOTAL_TIME, GraphItem.VALUE_Y_ALTITUDE, 300.0);
-//            button11.setAlignment(Item.ALIGN_RIGHT, Item.ALIGN_TOP);
-//            items.addElement(button11);
+        gi02 = new GraphItem("Altitude / time", GraphItem.VALUE_X_TOTAL_TIME, GraphItem.VALUE_Y_ALTITUDE, 300.0);
     }
 
     private void initializeContainers() {
@@ -276,6 +257,8 @@ public class RouteScreen extends FormLocify implements ActionListener {
                 tabPanel02.addComponent(labelVDOP);
                 break;
             case 2:
+                tabPanel03.addComponent(gi01);
+                tabPanel03.addComponent(gi02);
                 break;
         }
     }
@@ -295,19 +278,18 @@ public class RouteScreen extends FormLocify implements ActionListener {
             labelSpeedAverage.setValue(GpsUtils.formatSpeed(routeManager.getSpeedAverage()));
             labelSpeedMax.setValue(GpsUtils.formatSpeed(routeManager.getSpeedMax()));
             labelVDOP.setValue(GpsUtils.formatDouble(routeManager.getVdop(), 1));
-            
+
+            gi01.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION *
+                    routeManager.getSpeedAverage());
+            gi01.refreshGraph(routeManager.getRouteVariables());
+            gi01.repaint();
+
+            gi02.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION);
+            gi02.refreshGraph(routeManager.getRouteVariables());
+            gi02.repaint();
+
             routeManager.setNewData(false);
         }
-//        if (actualStyleScreen instanceof RouteStyleGraph) {
-//            graphItem = (GraphItem) items.elementAt(ITEM_GRAPH_ALTITUDE_BY_DIST);
-//            graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION *
-//                    routeManager.getSpeedAverage());
-//            graphItem.refreshGraph(routeManager.getRouteVariables());
-//
-//            graphItem = (GraphItem) items.elementAt(ITEM_GRAPH_ALTITUDE_BY_TIME);
-//            graphItem.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION);
-//            graphItem.refreshGraph(routeManager.getRouteVariables());
-//        }
     }
 
 

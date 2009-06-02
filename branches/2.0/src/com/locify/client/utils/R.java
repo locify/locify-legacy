@@ -16,6 +16,7 @@ package com.locify.client.utils;
 
 import com.locify.client.data.*;
 import com.locify.client.gui.Midlet;
+import com.locify.client.gui.extension.BackgroundRunner;
 import com.locify.client.gui.extension.TopBarBackground;
 import com.locify.client.gui.manager.*;
 import com.locify.client.gui.screen.internal.*;
@@ -81,6 +82,7 @@ public class R {
     private static Backlight backlight;
     private static AudioData audioData;
     private static ProgressScreen progressScreen;
+    private static BackgroundRunner backgroundRunner;
 
     //#if planstudio
 //#     private static PlanStudioManager planstudio;
@@ -438,4 +440,12 @@ public class R {
 //#         return planstudio;
 //#     }
     //#endif
+
+    public static BackgroundRunner getBackgroundRunner() {
+        if (backgroundRunner == null) {
+            backgroundRunner = new BackgroundRunner();
+            backgroundRunner.start();
+        }
+        return backgroundRunner;
+    }
 }

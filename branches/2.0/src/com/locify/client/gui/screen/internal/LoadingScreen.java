@@ -13,6 +13,7 @@
  */
 package com.locify.client.gui.screen.internal;
 
+import com.locify.client.data.IconData;
 import com.locify.client.utils.ResourcesLocify;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Image;
@@ -30,7 +31,7 @@ public class LoadingScreen extends Form {
 
     public LoadingScreen() {
         super();
-        image = ResourcesLocify.getImage("loading.png");
+        image = IconData.getLocalImage("loading.png");
         text = "Loading ...";
 
         this.setLayout(new BorderLayout());

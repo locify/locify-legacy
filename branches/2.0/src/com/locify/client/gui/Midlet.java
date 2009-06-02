@@ -1,6 +1,5 @@
 package com.locify.client.gui;
 
-
 import com.locify.client.data.CookieData;
 import com.locify.client.data.DeletedData;
 import com.locify.client.data.ServiceSettingsData;
@@ -10,6 +9,7 @@ import com.locify.client.data.items.GeoFiles;
 import com.locify.client.locator.LocationProvider;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.R;
+import com.locify.client.utils.ResourcesLocify;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Display;
 import javax.microedition.midlet.MIDlet;
@@ -44,7 +44,7 @@ public class Midlet extends MIDlet {
     }
 
     protected void startApp() throws MIDletStateChangeException {
-Utils.printMemoryState("Init - start");
+//Utils.printMemoryState("Init - start");
         try {
             if (!midletPaused) {
                 startMIDlet();
@@ -78,23 +78,24 @@ Utils.printMemoryState("Init - end");
 
     public void startMIDlet() {
         try {
-Utils.printMemoryState("01");
+//Utils.printMemoryState("01");
             new R(this);
-Utils.printMemoryState("02");
+//Utils.printMemoryState("02");
             //init the LWUIT Display
             Display.init(this);
-Utils.printMemoryState("03");
+            ResourcesLocify.setTheme();
+//Utils.printMemoryState("03");
             R.getLoading().view();
-Utils.printMemoryState("04");
+//Utils.printMemoryState("04");
             //#if !applet
             if (R.getFirstRun().isFirstTime()) {
                 R.getFirstRun().start();
-Utils.printMemoryState("06");
+//Utils.printMemoryState("06");
             } else {
-Utils.printMemoryState("07");
+//Utils.printMemoryState("07");
                 R.getFirstRun().loadLanguage();
                 if (R.getFirstRun().permissionsTest()) {
-Utils.printMemoryState("08");
+//Utils.printMemoryState("08");
                     R.getFirstRun().loadRoot();
                     //#else
 //#                     R.getFirstRun().loadEnglish();
@@ -103,10 +104,10 @@ Utils.printMemoryState("08");
                     R.getSettings().load();
                     R.getLocator().load();
                     DeletedData.load();
-Utils.printMemoryState("09");
+//Utils.printMemoryState("09");
                     ServicesData.load();
                     ServiceSettingsData.load();
-Utils.printMemoryState("10");
+//Utils.printMemoryState("10");
                     //#if !applet
                     if (!Capabilities.isWindowsMobile()) {
                         R.getContactsScreen().load();
@@ -115,9 +116,9 @@ Utils.printMemoryState("10");
                         R.getRouteScreen().loadUnfinishedRoute();
                     }
                     //#endif
-Utils.printMemoryState("21");
+//Utils.printMemoryState("21");
                     R.getMainScreen().load();
-Utils.printMemoryState("22");
+//Utils.printMemoryState("22");
                     R.getContext().loadLastKnown();
                     //#if !applet
                     if (R.getSettings().getBacklight() == SettingsData.WHOLE_APPLICATION) {

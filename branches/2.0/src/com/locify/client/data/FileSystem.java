@@ -38,10 +38,6 @@ import java.util.Vector;
 public class FileSystem {
 
     //folders definition
-    public static final String SETTINGS_FOLDER = "settings/";
-    public static final String FILES_FOLDER = "files/";
-    public static final String LOG_FOLDER = "log/";
-    public static final String MAP_FOLDER = "maps/";
     public static final String CACHE_FOLDER = "cache/";
     public static final String IMAGES_FOLDER = CACHE_FOLDER + "images/";
     public static final String HTML_FOLDER = CACHE_FOLDER + "html/";
@@ -49,16 +45,27 @@ public class FileSystem {
     public static final String CACHE_MAP_FOLDER = CACHE_FOLDER + "map/";
     public static final String CACHE_MAP_TILE_FOLDER = CACHE_MAP_FOLDER + "tile/";
     public static final String ROUTE_FOLDER = CACHE_FOLDER + "route/";
-    //files definition
+    /** file for saving running route serializated data before midlet is killed */
+    public static final String RUNNING_ROUTE_VARIABLES = ROUTE_FOLDER + "runningRoute.lcf";
+
+    public static final String FILES_FOLDER = "files/";
+    public static final String RUNNING_TEMP_ROUTE = FILES_FOLDER + "runningRoute.tmp";
+
+    public static final String LOG_FOLDER = "log/";
+    
+    public static final String MAP_FOLDER = "maps/";
+
+    public static final String SETTINGS_FOLDER = "settings/";
     public static final String SETTINGS_FILE = SETTINGS_FOLDER + "mainSettings.xml";
     public static final String COOKIES_FILE = SETTINGS_FOLDER + "cookies.xml";
     public static final String DELETED_FILE = SETTINGS_FOLDER + "deleted.xml";
     public static final String SERVICES_FILE = SETTINGS_FOLDER + "services.xml";
     public static final String MAINSCREEN_FILE = SETTINGS_FOLDER + "mainScreen.xml";
     public static final String SERVICE_SETTINGS_FILE = SETTINGS_FOLDER + "serviceSettings.xml";
-    /** file for saving running route serializated data before midlet is killed */
-    public static final String RUNNING_ROUTE_VARIABLES = ROUTE_FOLDER + "runningRoute.lcf";
-    public static final String RUNNING_TEMP_ROUTE = FILES_FOLDER + "runningRoute.tmp";
+    
+    public static final String SKINS_FOLDER = "skins/";
+    public static final String SKINS_FOLDER_NAVIGATION = SKINS_FOLDER + "navigation/";
+
     public static String ROOT = null;
 
     public FileSystem() {
@@ -113,6 +120,11 @@ public class FileSystem {
         }
     }
 
+    /**
+     * Get list of all direcotires in given folder
+     * @param folder Folder for search must be defined from with root !!
+     * @return list of all directories
+     */
     public Enumeration getFolders(String folder) {
         try {
             //#if applet
@@ -491,6 +503,7 @@ public class FileSystem {
             //get the stream
             FileConnection fileConnection = null;
             fileConnection = (FileConnection) Connector.open("file:///" + ROOT + fileName);
+//System.out.println("\nFileSystem.loadBytes: " + fileConnection.exists() + (" file:///" + ROOT + fileName));
             if (!fileConnection.exists()) {
                 return null;
             }

@@ -16,17 +16,14 @@ package com.locify.client.locator;
 import com.locify.client.data.SettingsData;
 import java.util.Enumeration;
 import java.util.Vector;
-
 import com.locify.client.utils.R;
 import com.locify.client.locator.impl.BTNMEALocationProvider;
 import com.locify.client.locator.impl.COMNMEALocationProvider;
 import com.locify.client.locator.impl.JSR179LocationProvider;
-
 import com.locify.client.locator.impl.SimulatorLocationProvider;
 import com.locify.client.locator.impl.TCPNMEALocationProvider;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Locale;
-import com.locify.client.utils.Logger;
 import java.util.Date;
 import java.util.Hashtable;
 

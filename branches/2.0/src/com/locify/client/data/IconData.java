@@ -15,8 +15,8 @@ package com.locify.client.data;
 
 import com.locify.client.utils.R;
 import com.locify.client.net.Http;
-import com.locify.client.utils.ResourcesLocify;
 import com.sun.lwuit.Image;
+import java.io.IOException;
 
 /**
  * This class takes cares about storing icons downloaded from web,
@@ -35,14 +35,17 @@ public class IconData {
             if (url == null || url.equals("") || R.getXmlParser().isAutoInstall()) {
                 return null;
             }
-System.out.println("GetImage: " + url);
+//System.out.println("GetImage: " + url);
             //JAR icons
             if (url.startsWith("locify://icons/")) {
-//                return Image.createImage(url.substring(14));
-                return ResourcesLocify.getImage(url.substring(15));
+                return getLocalImage(url.substring(15));
             }
             //filesystem icons
-            byte[] imageData = R.getFileSystem().loadBytes(FileSystem.IMAGES_FOLDER + FileSystem.hashFileName(url) + ".png");
+            byte[] imageData = R.getFileSystem().loadBytes(url);
+            if (imageData == null) {
+                imageData = R.getFileSystem().loadBytes(FileSystem.IMAGES_FOLDER + FileSystem.hashFileName(url) + ".png");
+            }
+
             if (imageData != null) //icon available
             {
                 try {
@@ -58,6 +61,18 @@ System.out.println("GetImage: " + url);
             return null;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "IconData.get", url);
+            return null;
+        }
+    }
+
+    public static Image getLocalImage(String image) {
+        //return null;
+        try {
+            if (!image.endsWith(".png"))
+                image += ".png";
+            return Image.createImage(image);
+        } catch (IOException ex) {
+            System.out.println("GetLocalImage: " + image + " ex: " + ex.toString());
             return null;
         }
     }

@@ -13,6 +13,7 @@
  */
 package com.locify.client.maps.mapItem;
 
+import com.locify.client.data.IconData;
 import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.gui.screen.internal.MapScreen;
@@ -22,7 +23,6 @@ import com.locify.client.maps.RectangleViewPort;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.R;
-import com.locify.client.utils.ResourcesLocify;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
 import java.util.Vector;
@@ -65,7 +65,8 @@ public abstract class MapItem {
 
     public MapItem() {
         mapScreen = R.getMapScreen();
-        screenViewPort = new RectangleViewPort(0, 0, Capabilities.getWidth(), Capabilities.getHeight());
+        screenViewPort = new RectangleViewPort(0, 0, R.getMapScreen().getContentPane().getWidth(),
+                R.getMapScreen().getContentPane().getHeight());
 
         if (stylePointIconNormal == null) {
             stylePointIconNormal = new GeoFileStyle("StylePointNormal");
@@ -78,16 +79,16 @@ public abstract class MapItem {
                     (int) (stylePointIconNormal.getIcon().getHeight() * 1.5)));
         }
         if (waypointDescriptionBackground == null) {
-            waypointDescriptionBackground = ResourcesLocify.getImage("wpt_description_background.png");
+            waypointDescriptionBackground = IconData.getLocalImage("wpt_description_background.png");
         }
         if (waypointDescription01 == null) {
-            waypointDescription01 = ResourcesLocify.getImage("wpt_description_01.png");
+            waypointDescription01 = IconData.getLocalImage("wpt_description_01.png");
         }
         if (waypointDescription02 == null) {
-            waypointDescription02 = ResourcesLocify.getImage("wpt_description_02.png");
+            waypointDescription02 = IconData.getLocalImage("wpt_description_02.png");
         }
         if (waypointDescription03 == null) {
-            waypointDescription03 = ResourcesLocify.getImage("wpt_description_03.png");
+            waypointDescription03 = IconData.getLocalImage("wpt_description_03.png");
         }
 
         actualState = STATE_WAITING;

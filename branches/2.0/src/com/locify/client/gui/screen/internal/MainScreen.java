@@ -15,12 +15,10 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.gui.extension.MainScreenItem;
 import com.locify.client.gui.extension.ListLabelItem;
-import com.locify.client.data.CookieData;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.IconData;
 import com.locify.client.data.Service;
 import com.locify.client.data.ServicesData;
-import com.locify.client.data.SettingsData;
 import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.gui.extension.ListLocify;
@@ -30,13 +28,12 @@ import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
-import com.locify.client.utils.ResourcesLocify;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Command;
+import com.sun.lwuit.Display;
 import com.sun.lwuit.TabbedPane;
-import com.sun.lwuit.animations.Transition;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.events.SelectionListener;
@@ -62,8 +59,9 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
     private ListLocify cgMore;
     private boolean autoInstallRequest = false;
     private Vector autoInstallUrls;
-    private int lastSelectedIndex = 0;
-    public static boolean hasPointerEvents = false;
+
+    // how to check it? hmmm ... only idea throught user interaction
+    public static boolean hasPointerEvents = Display.getInstance().isTouchScreenDevice();
 
     /**
      * Contructs a new <code>MainScreen</code> object.
@@ -72,6 +70,7 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
         super();
         setLayout(new BorderLayout());
         tabbedPane = new TabbedPane();
+        tabbedPane.setTabbedPaneBorderWidth(0);
         addComponent(BorderLayout.CENTER, tabbedPane);
         this.items = new Vector();
     }
@@ -94,12 +93,12 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
             cgMore = new ListLocify();
             cgMore.addActionListener(this);
 
-            tabbedPane.addTab(null, ResourcesLocify.getImage("home.png"), cgServices);
-            tabbedPane.addTab(null, ResourcesLocify.getImage("where.png"), cgWhere);
-            tabbedPane.addTab(null, ResourcesLocify.getImage("saved.png"), cgSaved);
-            tabbedPane.addTab(null, ResourcesLocify.getImage("maps.png"), cgMaps);
-            tabbedPane.addTab(null, ResourcesLocify.getImage("navigation.png"), cgNavigation);
-            tabbedPane.addTab(null, ResourcesLocify.getImage("more.png"), cgMore);
+            tabbedPane.addTab(null, IconData.getLocalImage("home.png"), cgServices);
+            tabbedPane.addTab(null, IconData.getLocalImage("where.png"), cgWhere);
+            tabbedPane.addTab(null, IconData.getLocalImage("saved.png"), cgSaved);
+            tabbedPane.addTab(null, IconData.getLocalImage("maps.png"), cgMaps);
+            tabbedPane.addTab(null, IconData.getLocalImage("navigation.png"), cgNavigation);
+            tabbedPane.addTab(null, IconData.getLocalImage("more.png"), cgMore);
             tabbedPane.addTabsListener(this);
 
             //loading
@@ -372,7 +371,7 @@ System.out.println("ActionPerformed: " + evt.getCommand() + " " + evt.getSource(
         checkServiceMenu();
         this.addCommand(Commands.cmdExit);
         this.addCommand(Commands.cmdSelect);
-        this.addCommand(new ParentCommand(Locale.get("Add"), ResourcesLocify.getImage("add"),
+        this.addCommand(new ParentCommand(Locale.get("Add"), IconData.getLocalImage("add"),
                 new Command[]{Commands.cmdAddService, Commands.cmdAddByLink}));
     }
 
@@ -720,7 +719,68 @@ System.out.println("ActionPerformed: " + evt.getCommand() + " " + evt.getSource(
                 loadTab(5);
                 break;
         }
-        lastSelectedIndex = 0;
+    }
+
+    public void keyPressed(int keyCode) {
+        if (keyCode < 0) {
+            ListLocify list;
+            int index;
+
+            switch (Display.getInstance().getGameAction(keyCode)) {
+                case Display.GAME_DOWN:
+                    list = (ListLocify) tabbedPane.getTabComponentAt(tabbedPane.getSelectedIndex());
+                    list.setSmoothScrolling(true);
+                    index = list.getSelectedIndex();
+                    if (index < list.getSize() - 1)
+                        list.setSelectedIndex(index + 1, true);
+                    else
+                        list.setSelectedIndex(0, true);
+                    break;
+                case Display.GAME_UP:
+                    list = (ListLocify) tabbedPane.getTabComponentAt(tabbedPane.getSelectedIndex());
+                    index = list.getSelectedIndex();
+                    if (index > 0)
+                        list.setSelectedIndex(index - 1);
+                    else
+                        list.setSelectedIndex(list.getSize() - 1);
+                    break;
+                case Display.GAME_LEFT:
+                    index = tabbedPane.getSelectedIndex();
+                    if (index > 0)
+                        tabbedPane.setSelectedIndex(index - 1);
+                    else
+                        tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
+                    break;
+                case Display.GAME_RIGHT:
+                    index = tabbedPane.getSelectedIndex();
+                    if (index < tabbedPane.getTabCount() - 1)
+                        tabbedPane.setSelectedIndex(index + 1);
+                    else
+                        tabbedPane.setSelectedIndex(0);
+                    break;
+                case Display.GAME_FIRE:
+                    actionPerformed(new ActionEvent(tabbedPane.getTabComponentAt(tabbedPane.getSelectedIndex())));
+                    break;
+            }
+        } else {
+            super.keyPressed(keyCode);
+        }
+
+//        if (Display.getInstance().getGameAction(keyCode) == Display.GAME_LEFT) {
+//            int index = tabbedPane.getSelectedIndex();
+//            if (index > 0)
+//                tabbedPane.setSelectedIndex(index - 1);
+//            else
+//                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
+//        } else if (Display.getInstance().getGameAction(keyCode) == Display.GAME_RIGHT) {
+//            int index = tabbedPane.getSelectedIndex();
+//            if (index < tabbedPane.getTabCount() - 1)
+//                tabbedPane.setSelectedIndex(index + 1);
+//            else
+//                tabbedPane.setSelectedIndex(0);
+//        } else {
+//            super.keyPressed(keyCode);
+//        }
     }
 
 ////    public void itemStateChanged(Item item) {

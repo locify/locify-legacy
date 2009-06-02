@@ -361,7 +361,8 @@ public class Utils {
     public static String getDate() {
         String time = (new Date()).toString();
         Vector vec = StringTokenizer.getVector(time, " ");
-        return vec.elementAt(2) + "." + numericMonth((String)vec.elementAt(1)) + "." +
+        int numMonth = numericMonth((String)vec.elementAt(1));
+        return vec.elementAt(2) + "." + (numMonth < 10 ? "0" : "") + numMonth + "." +
                 vec.elementAt(5);
     }
 

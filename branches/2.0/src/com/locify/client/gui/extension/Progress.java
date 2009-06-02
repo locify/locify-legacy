@@ -144,7 +144,7 @@ public class Progress extends Component {
             g.setColor(s.getFgColor());
             g.drawRoundRect(getX(), getY(), getWidth() - 1, getHeight() - 1, curve, curve);
             g.clipRect(getX(), getY(), width - 1, getHeight() - 1);
-            g.setColor(s.getBgSelectionColor());
+            g.setColor(s.getBgColor());
             g.fillRoundRect(getX(), getY(), getWidth() - 1, getHeight() - 1, curve, curve);
         }
     }

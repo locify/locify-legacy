@@ -42,8 +42,8 @@ public class FlowPanel extends Container {
 
         if (imgHor == null) {
             try {
-                imgHor = Image.createImage("/3Dhor.png");
-                imgVer = Image.createImage("/3Dver.png");
+                imgHor = Image.createImage("/3Dhor.png").scaledHeight(3);
+                imgVer = Image.createImage("/3Dver.png").scaledWidth(3);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -52,7 +52,8 @@ public class FlowPanel extends Container {
         visibleButton = new Button();
         visibleButton.setAlignment(Label.CENTER);
         visibleButton.setVerticalAlignment(Label.CENTER);
-        visibleButton.getStyle().setBgColor(ColorsFonts.CYAN);
+//        visibleButton.getStyle().setBorder(null);
+//        visibleButton.getStyle().setBgColor(ColorsFonts.CYAN);
         visibleButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent evt) {

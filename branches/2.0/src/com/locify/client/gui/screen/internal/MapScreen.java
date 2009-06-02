@@ -13,6 +13,7 @@
  */
 package com.locify.client.gui.screen.internal;
 
+import com.locify.client.data.IconData;
 import com.locify.client.data.items.*;
 import com.locify.client.data.SettingsData;
 import com.locify.client.gui.extension.ParentCommand;
@@ -43,7 +44,6 @@ import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.math.LMath;
 import com.locify.client.utils.R;
-import com.locify.client.utils.ResourcesLocify;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Display;
@@ -252,7 +252,6 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
                 R.getMapOfflineChooseScreen().view(R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude(),
                         R.getLocator().getLastLocation().getLatitude(), R.getLocator().getLastLocation().getLongitude());
             } else {
-                mapItemManager.init();
                 if (lastCenterPoint != null) {
                     centerMap(lastCenterPoint, centerToActualLocation);
                 } else {
@@ -260,6 +259,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
                 }
 
                 show();
+                mapItemManager.init();
 //System.out.println("Container: " + getContentPane().getWidth() + " " + getContentPane().getHeight());
 
                 selectNearestWaypointsAtCenter();
@@ -558,9 +558,9 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
         try {
             if (MainScreen.hasPointerEvents && map.getMaxZoomLevel() - map.getMinZoomLevel() > 0) {
-                g.drawImage(getMapIconZoomPlus(), 0, 2);
+                g.drawImage(getMapIconZoomPlus(), 0, 0);
                 g.drawImage(getMapIconZoomMinus(), 0,
-                        getContentPane().getHeight() - getMapIconMinus().getHeight());
+                        getContentPane().getHeight() - getMapIconZoomMinus().getHeight());
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapZoomButtons");
@@ -1190,7 +1190,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
     private static final Image getLoadingImage() {
         if (loadingImage == null) {
-            loadingImage = ResourcesLocify.getImage("map_tile_64x64.png");
+            loadingImage = IconData.getLocalImage("map_tile_64x64.png");
         }
         return loadingImage;
     }
@@ -1208,21 +1208,21 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
     private Image getMapIconPlus() {
         if (imageIconPlus == null) {
-            imageIconPlus = ResourcesLocify.getImage("map_icon_plus.png");
+            imageIconPlus = IconData.getLocalImage("map_icon_plus.png");
         }
         return imageIconPlus;
     }
 
     private Image getMapIconMinus() {
         if (imageIconMinus == null) {
-            imageIconMinus = ResourcesLocify.getImage("map_icon_minus.png");
+            imageIconMinus = IconData.getLocalImage("map_icon_minus.png");
         }
         return imageIconMinus;
     }
 
     private Image getMapIconZoomPlus() {
         if (imageIconZoomPlus == null) {
-            imageIconZoomPlus = ResourcesLocify.getImage("map_icon_zoom_plus.png");
+            imageIconZoomPlus = IconData.getLocalImage("map_icon_zoom_plus.png");
 
             if (imageIconZoomSideSize == 0) {
                 int size = getContentPane().getHeight() * imageIconZoomPlus.getHeight() / 1000;
@@ -1236,7 +1236,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
     private Image getMapIconZoomMinus() {
         if (imageIconZoomMinus == null) {
-            imageIconZoomMinus = ResourcesLocify.getImage("map_icon_zoom_minus.png");
+            imageIconZoomMinus = IconData.getLocalImage("map_icon_zoom_minus.png");
 
             if (imageIconZoomSideSize == 0) {
                 int size = getContentPane().getHeight() * imageIconZoomPlus.getHeight() / 1000;
@@ -1250,7 +1250,7 @@ public class MapScreen extends FormLocify implements LocationEventListener, Runn
 
     private Image getMapIconActualLocation() {
         if (imageActualLocation == null) {
-            imageActualLocation = ResourcesLocify.getImage("map_icon_actualLoc.png");
+            imageActualLocation = IconData.getLocalImage("map_icon_actualLoc.png");
         }
         return imageActualLocation;
     }

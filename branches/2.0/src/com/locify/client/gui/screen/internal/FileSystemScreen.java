@@ -15,6 +15,7 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.DeletedData;
 import com.locify.client.data.FileSystem;
+import com.locify.client.data.IconData;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
@@ -66,11 +67,11 @@ public class FileSystemScreen implements ActionListener {
         comparingDistance = false;
         canCompareDistance = false;
         try {
-            imgRouteSymbol = ResourcesLocify.getImage("routeSymbol.png");
-            imgWaypointSymbol = ResourcesLocify.getImage("waypointSymbol.png");
-            imgWaypointCloudSymbol = ResourcesLocify.getImage("waypointCloudSymbol.png");
-            imgCorruptedFile = ResourcesLocify.getImage("corruptedFile.png");
-            imgMultiDataSymbol = ResourcesLocify.getImage("multiSymbol.png");
+            imgRouteSymbol = IconData.getLocalImage("routeSymbol.png");
+            imgWaypointSymbol = IconData.getLocalImage("waypointSymbol.png");
+            imgWaypointCloudSymbol = IconData.getLocalImage("waypointCloudSymbol.png");
+            imgCorruptedFile = IconData.getLocalImage("corruptedFile.png");
+            imgMultiDataSymbol = IconData.getLocalImage("multiSymbol.png");
         } catch (Exception ex) {
             R.getErrorScreen().view(ex, "FileSystemScreen.FileSystemScreen()", null);
         }

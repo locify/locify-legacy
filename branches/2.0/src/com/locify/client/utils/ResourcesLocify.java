@@ -15,6 +15,7 @@ package com.locify.client.utils;
 
 import com.sun.lwuit.Font;
 import com.sun.lwuit.Image;
+import com.sun.lwuit.plaf.UIManager;
 import com.sun.lwuit.util.Resources;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,34 +30,42 @@ public class ResourcesLocify {
 
     private static boolean localResources = true;
 
-    private static final String[] RESOURCE_NAMES = {"resource_main", "fonts"};
-
-    private static Resources images;
     private static Resources fonts;
 
-    public static Image getImage(String image) {
-        try {
-            if (images == null) {
-                images = getResource(RESOURCE_NAMES[0]);
-            }
-            if (!image.endsWith(".png"))
-                image += ".png";
-            return images.getImage(image);
-        } catch (IOException ex) {
-            return null;
-        }
-    }
+//    public static Image getImage(String image) {
+//        try {
+//            if (images == null) {
+//                images = getResource(RESOURCE_NAMES[0]);
+//            }
+//            if (!image.endsWith(".png"))
+//                image += ".png";
+//            return images.getImage(image);
+//        } catch (IOException ex) {
+//            return null;
+//        }
+//    }
 
     public static Font getFont(String fontName) {
         try {
             if (fonts == null) {
                 // do selection of fonts due to device
-                fonts = getResource(RESOURCE_NAMES[1]);
+                fonts = getResource("fonts");
             }
             return fonts.getFont(fontName);
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;
+        }
+    }
+    
+    public static void setTheme() {
+        try {
+            Resources res = getResource("locify");
+            String[] resName = res.getThemeResourceNames();
+            if (resName.length > 0)
+                UIManager.getInstance().setThemeProps(res.getTheme(resName[0]));
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 

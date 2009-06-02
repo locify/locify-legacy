@@ -12,6 +12,8 @@
  */
 package com.locify.client.gui.screen.internal;
 
+import com.locify.client.data.FileSystem;
+import com.locify.client.data.IconData;
 import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.data.items.MultiGeoData;
@@ -19,10 +21,14 @@ import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.WaypointsCloud;
 import com.locify.client.data.SettingsData;
+import com.locify.client.gui.extension.BackgroundListener;
 import com.locify.client.gui.extension.FlowPanel;
 import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.gui.extension.FormLocify;
-import com.locify.client.gui.extension.ImprovedLabel;
+import com.locify.client.gui.widgets.Compass;
+import com.locify.client.gui.widgets.StateLabel;
+import com.locify.client.gui.widgets.Widget;
+import com.locify.client.gui.widgets.WidgetContainer;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationEventGenerator;
 import com.locify.client.locator.LocationEventListener;
@@ -34,202 +40,130 @@ import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
-import com.locify.client.utils.math.LMath;
+import com.sun.lwuit.Button;
 import com.sun.lwuit.Container;
-import com.sun.lwuit.Graphics;
-import com.sun.lwuit.Image;
+import com.sun.lwuit.Font;
+import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
+import com.sun.lwuit.layouts.BoxLayout;
+import com.sun.lwuit.layouts.FlowLayout;
 import com.sun.lwuit.layouts.GridLayout;
+import com.sun.lwuit.layouts.Layout;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Vector;
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.game.GameCanvas;
-
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParser;
 
 /** 
  * Screen shows compas, GPS infomation, speed. In case of navigation displays navigation arrow
  * @author Jiri Stepan
  */
-public class NavigationScreen extends FormLocify implements ActionListener, LocationEventListener {
+public class NavigationScreen extends FormLocify implements
+        ActionListener, LocationEventListener, BackgroundListener {
 
     // components
-    private Container mainCont;
-    // top container
-    private FlowPanel topPanel;
-    private ImprovedLabel labelTime;
-    private ImprovedLabel labelDate;
-    // bootom container
-    private FlowPanel bottomPanel;
-    private ImprovedLabel labelDist;
-    // left container
+    private WidgetContainer mainContainer;
+
+    // bindable widgets
+    private StateLabel slAlt;
+    private StateLabel slDate;
+    private StateLabel slDist;
+    private StateLabel slHdop;
+    private StateLabel slLat;
+    private StateLabel slLon;
+    private StateLabel slSpeed;
+    private StateLabel slTime;
+    private StateLabel slVdop;
+    private Compass compass;
+    // flow panel
     private FlowPanel leftPanel;
-    private ImprovedLabel labelSpeed;
-    private ImprovedLabel labelHDOP;
-    private ImprovedLabel labelVDOP;
-    //right container
-    private FlowPanel rightPanel;
-    private ImprovedLabel labelLatitude;
-    private ImprovedLabel labelLongitude;
-    private ImprovedLabel labelAltitude;
-
+    // actual navigator
     private static Navigator navigator;
-    
     private Location4D location;
-    // navigation angle (heading)
-    public static double nAngle;
-    // diference angle beetween heading and navigated point
-    public static double dAngle;
-    // angles images
-    private Image[] numbers;
-
-    
-    private boolean smallRadius;
     private Backlight backLight;
-
-    // temp items
-    private boolean drawLock;
-    // center of compas X coordinate
-    private int cX;
-    // center of compas Y coordinate
-    private int cY;
-    // compas radius
-    private int radius;
+    // skin container
+    private Vector skins;
 
     public NavigationScreen() {
         super(Locale.get("Navigation"));
-
-        this.addCommand(Commands.cmdBack);
-        this.addCommand(Commands.cmdHome);
-
-        if (R.getBacklight().isOn()) {
-            this.addCommand(Commands.cmdBacklightOff);
-        } else {
-            this.addCommand(Commands.cmdBacklightOn);
-        }
-        
-        // i know about added gps ... actualy i'm lazy :)
-        this.addCommand(new ParentCommand(Locale.get("Another_location"), null, R.getContext().commands));
-        this.setCommandListener(this);
-
-        smallRadius = false;
-        
         try {
-            numbers = new Image[12];
-            numbers[0] = Image.createImage("/numberN.png");
-            numbers[1] = Image.createImage("/number030.png");
-            numbers[2] = Image.createImage("/number060.png");
-            numbers[3] = Image.createImage("/numberE.png");
-            numbers[4] = Image.createImage("/number120.png");
-            numbers[5] = Image.createImage("/number150.png");
-            numbers[6] = Image.createImage("/numberS.png");
-            numbers[7] = Image.createImage("/number210.png");
-            numbers[8] = Image.createImage("/number240.png");
-            numbers[9] = Image.createImage("/numberW.png");
-            numbers[10] = Image.createImage("/number300.png");
-            numbers[11] = Image.createImage("/number330.png");
 
-            R.getLocator().addLocationChangeListener(this);
+            this.addCommand(Commands.cmdBack);
+            this.addCommand(Commands.cmdHome);
+
+            if (R.getBacklight().isOn()) {
+                this.addCommand(Commands.cmdBacklightOff);
+            } else {
+                this.addCommand(Commands.cmdBacklightOn);
+            }
+
+            // i know about added gps ... actualy i'm lazy :)
+            this.addCommand(new ParentCommand(Locale.get("Another_location"), null, R.getContext().commands));
+            this.setCommandListener(this);
 
             setLayout(new BorderLayout());
-            mainCont = new Container() {
+            this.mainContainer = new WidgetContainer(new BorderLayout());
+            addComponent(BorderLayout.CENTER, mainContainer);
 
-                public void paint(Graphics g) {
-                    try {
-//                        super.paint(g);
-                        if (drawLock) {
-                            return;
-                        }
-                        drawLock = true;
+            R.getLocator().addLocationChangeListener(this);
+            R.getBackgroundRunner().registerBackgroundListener(this, 1);
 
-//                        g.setColor(ColorsFonts.BLUE);
-//                        g.fillRect(g.getClipX(), g.getClipY(), g.getClipWidth(), g.getClipHeight());
-
-                        cX = g.getClipWidth() / 2 + g.getClipX();
-                        cY = g.getClipHeight() / 2 + g.getClipY();
-                        radius = Math.min(g.getClipWidth(), g.getClipHeight()) / 2 - 5;
-                        smallRadius = radius < 60 ? true : false;
-                        
-                        setCompas(g);
-                        setArrow(g);
-
-                        //actualize date and time
-                        labelTime.setValue(Utils.getTime());
-                        labelDate.setValue(Utils.getDate());
-                        drawLock = false;
-                    } catch (Exception e) {
-                        R.getErrorScreen().view(e, "MapScreen.paint()", null);
+            skins = new Vector();
+            Enumeration skinFolders = R.getFileSystem().getFolders(FileSystem.ROOT + FileSystem.SKINS_FOLDER_NAVIGATION);
+            if (skinFolders != null) {
+                while (skinFolders.hasMoreElements()) {
+                    String dir = (String) skinFolders.nextElement();
+//System.out.println("Dir: " + (FileSystem.ROOT + FileSystem.SKINS_FOLDER_NAVIGATION + dir));
+                    Vector xmlFiles = R.getFileSystem().listFiles(FileSystem.SKINS_FOLDER_NAVIGATION + dir, new String[] {"*.xml"});
+                    if (xmlFiles.size() > 0) {
+                        skins.addElement(FileSystem.SKINS_FOLDER_NAVIGATION + dir + xmlFiles.elementAt(0));
                     }
                 }
-            };
-            addComponent(BorderLayout.CENTER, mainCont);
-
-            topPanel = new FlowPanel(BorderLayout.NORTH);
-            topPanel.getContentPane().setLayout(new GridLayout(1, 2));
-
-            labelTime = new ImprovedLabel(BorderLayout.NORTH);
-            labelTime.setTitle(Locale.get("Time"));
-            labelTime.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
-            topPanel.getContentPane().addComponent(labelTime);
-
-            labelDate = new ImprovedLabel(BorderLayout.NORTH);
-            labelDate.setTitle(Locale.get("Date"));
-            labelDate.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
-            topPanel.getContentPane().addComponent(labelDate);
-
-            addComponent(BorderLayout.NORTH, topPanel);
-
-            bottomPanel = new FlowPanel(BorderLayout.SOUTH);
-            bottomPanel.getContentPane().setLayout(new BorderLayout());
-
-            labelDist = new ImprovedLabel(BorderLayout.NORTH);
-            labelDist.setTitle(Locale.get("Distance"));
-            labelDist.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
-            bottomPanel.getContentPane().addComponent(BorderLayout.CENTER, labelDist);
-
-            addComponent(BorderLayout.SOUTH, bottomPanel);
+            }
 
             leftPanel = new FlowPanel(BorderLayout.WEST);
-            leftPanel.getContentPane().setLayout(new GridLayout(3, 1));
-
-            labelSpeed = new ImprovedLabel(BorderLayout.NORTH);
-            labelSpeed.setTitle(Locale.get("Speed"));
-            labelSpeed.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
-            leftPanel.getContentPane().addComponent(labelSpeed);
-
-            labelHDOP = new ImprovedLabel(BorderLayout.NORTH);
-            labelHDOP.setTitle(Locale.get("Hdop_route"));
-            labelHDOP.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
-            leftPanel.getContentPane().addComponent(labelHDOP);
-
-            labelVDOP = new ImprovedLabel(BorderLayout.NORTH);
-            labelVDOP.setTitle(Locale.get("Vdop_route"));
-            labelVDOP.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
-            leftPanel.getContentPane().addComponent(labelVDOP);
-
+            leftPanel.getContentPane().setLayout(new BoxLayout(BoxLayout.Y_AXIS));
             addComponent(BorderLayout.WEST, leftPanel);
 
-            rightPanel = new FlowPanel(BorderLayout.EAST);
-            rightPanel.getContentPane().setLayout(new GridLayout(3, 1));
+            for (int i = 0; i < skins.size(); i++) {
+                final String path = (String) skins.elementAt(i);
+//System.out.println("Add: " + path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')));
+                Button button = new Button(path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')));
+                button.addActionListener(new ActionListener() {
 
-            labelLatitude = new ImprovedLabel(BorderLayout.NORTH);
-            labelLatitude.setTitle(Locale.get("Latitude"));
-            labelLatitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
-            rightPanel.getContentPane().addComponent(labelLatitude);
+                    public void actionPerformed(ActionEvent evt) {
+                        setNavigationScreenSkin(path);
+                    }
+                });
+                leftPanel.getContentPane().addComponent(button);
+            }
 
-            labelLongitude = new ImprovedLabel(BorderLayout.NORTH);
-            labelLongitude.setTitle(Locale.get("Longitude"));
-            labelLongitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
-            rightPanel.getContentPane().addComponent(labelLongitude);
+            if (skins.size() > 0) {
+                setNavigationScreenSkin((String) skins.elementAt(0));
+            }
 
-            labelAltitude = new ImprovedLabel(BorderLayout.NORTH);
-            labelAltitude.setTitle(Locale.get("Altitude"));
-            labelAltitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
-            rightPanel.getContentPane().addComponent(labelAltitude);
 
-            addComponent(BorderLayout.EAST, rightPanel);
-        } catch (IOException ex) {
+            
+//            labelTime.setTitle(IconData.getLocalImage("alarm"));
+//            labelDate.setTitle(IconData.getLocalImage("calendar"));
+//            labelDist.setTitle(IconData.getLocalImage("forward"));
+//            labelSpeed.setTitle(Locale.get("Speed"));
+//            labelHDOP.setTitle(Locale.get("Hdop_route"));
+//            labelVDOP.setTitle(Locale.get("Vdop_route"));
+//            labelLatitude.setTitle(Locale.get("Latitude"));
+//            labelLongitude.setTitle(Locale.get("Longitude"));
+//            labelAltitude.setTitle(Locale.get("Altitude"));
+        } catch (Exception ex) {
             R.getErrorScreen().view(ex, "NavigationScreen.constructor()", null);
         }
     }
@@ -238,9 +172,6 @@ public class NavigationScreen extends FormLocify implements ActionListener, Loca
         try {
             //init variables
             location = R.getLocator().getLastLocation();
-            nAngle = 0;
-
-            drawLock = false;
 
             locationChanged(null, location);
             if (R.getSettings().getBacklight() == SettingsData.NAVIGATION || R.getSettings().getBacklight() == SettingsData.MAP_NAVIGATION) {
@@ -329,174 +260,6 @@ public class NavigationScreen extends FormLocify implements ActionListener, Loca
         }
     }
 
-    // angle in degres
-    private void setCompas(Graphics g) {
-        g.setColor(ColorsFonts.WHITE);
-        g.fillArc(cX - radius, cY - radius, 2 * radius, 2 * radius, 0, 360);
-
-        g.setColor(ColorsFonts.BLACK);
-        g.drawArc(cX - radius, cY - radius, 2 * radius, 2 * radius, 0, 360);
-
-        double a;
-        int x1, x2, y1, y2;
-        int lineLength = radius - 10;
-        int stringPosition = radius - 23;
-        if (smallRadius) {
-            lineLength = radius - 5;
-            stringPosition = radius - 18;
-        }
-
-        for (int i = 0; i < 36; i++) {
-            if (smallRadius && i % 3 != 0) {
-                continue;
-            }
-
-            a = (i * 10 - nAngle) / LMath.RHO;
-
-            double aSin = Math.sin(a);
-            double aCos = Math.cos(a);
-            x1 = (int) (aSin * lineLength);
-            y1 = (int) (aCos * lineLength);
-            x2 = (int) (aSin * radius);
-            y2 = (int) (aCos * radius);
-            g.drawLine(cX + x1, cY - y1, cX + x2, cY - y2);
-
-            int separator = 3;
-            if (smallRadius) {
-                separator = 9;
-            }
-
-            if (i % separator == 0) {
-                x1 = (int) (aSin * stringPosition);
-                y1 = (int) (aCos * stringPosition);
-
-                g.drawImage(numbers[i / 3], cX + x1 - numbers[i / 3].getWidth() / 2,
-                        cY - y1 - numbers[i / 3].getHeight() / 2);
-            }
-        }
-    }
-
-    private void setArrow(Graphics g) {
-        if (navigator != null) {
-            g.setColor(ColorsFonts.WHITE);
-
-            double a;
-            int x1, x2, x3, x4, y1, y2, y3, y4;
-
-            a = dAngle / LMath.RHO;
-            x1 = (int) (Math.sin(a) * radius * 0.65);
-            y1 = (int) (Math.cos(a) * radius * 0.65);
-
-            a = (dAngle + 180) / LMath.RHO;
-            x2 = (int) (Math.sin(a) * (radius * 0.2));
-            y2 = (int) (Math.cos(a) * (radius * 0.2));
-
-            a = (dAngle + 140) / LMath.RHO;
-            x3 = (int) (Math.sin(a) * (radius * 0.5));
-            y3 = (int) (Math.cos(a) * (radius * 0.5));
-
-            a = (dAngle + 220) / LMath.RHO;
-            x4 = (int) (Math.sin(a) * (radius * 0.5));
-            y4 = (int) (Math.cos(a) * (radius * 0.5));
-
-            g.setColor(ColorsFonts.RED);
-
-            g.drawLine(cX + x1, cY - y1, cX + x3, cY - y3);
-            g.drawLine(cX + x3, cY - y3, cX + x2, cY - y2);
-            g.drawLine(cX + x2, cY - y2, cX + x4, cY - y4);
-            g.drawLine(cX + x4, cY - y4, cX + x1, cY - y1);
-
-            g.fillTriangle(cX + x1, cY - y1, cX + x2, cY - y2, cX + x3, cY - y3);
-            g.fillTriangle(cX + x1, cY - y1, cX + x2, cY - y2, cX + x4, cY - y4);
-        }
-    }
-
-    /**
-     * Function which rotate arrow and compas (angles in degrees)
-     * @param nAngle new angle for compas north
-     * @param dAngle new angle for arrow
-     */
-    public void moveAngles(final double nAngle, final double dAngle) {
-        boolean move = true;
-//Logger.log("nAngle: " + nAngle + " dAngle: " + dAngle);
-        if (move) {
-            final double nDiff = getDiffAngle(NavigationScreen.nAngle, nAngle);
-            final double dDiff = getDiffAngle(NavigationScreen.dAngle, dAngle);
-            final int numOfSteps = 5;
-
-            Thread thread = new Thread(new Runnable() {
-
-                public void run() {
-                    try {
-                        for (int i = 0; i < numOfSteps; i++) {
-                            NavigationScreen.nAngle = fixDegAngle(NavigationScreen.nAngle + (nDiff / numOfSteps));
-                            NavigationScreen.dAngle = fixDegAngle(NavigationScreen.dAngle + (dDiff / numOfSteps));
-                            mainCont.repaint();
-                            try {
-                                Thread.sleep(40);
-                            } catch (InterruptedException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-
-                        NavigationScreen.nAngle = nAngle;
-                        NavigationScreen.dAngle = dAngle;
-                        mainCont.repaint();
-                    } catch (Exception e) {
-                        R.getErrorScreen().view(e, "NavigationScreen.moveAngles.run()", null);
-                    }
-                }
-            });
-
-            if (nDiff != 0 || dDiff != 0) {
-                thread.start();
-            }
-        } else {
-            NavigationScreen.nAngle = nAngle;
-            NavigationScreen.dAngle = dAngle;
-        }
-    }
-
-    private double getDiffAngle(double oldA, double newA) {
-        if (oldA < -360) {
-            oldA += 360;
-        } else if (oldA > 360) {
-            oldA -= 360;
-        }
-        if (newA < -360) {
-            newA += 360;
-        } else if (newA > 360) {
-            newA -= 360;
-        }
-        double ang;
-        if (newA - oldA <= -180) {
-            ang = 360 - (oldA - newA);
-        } else if (newA - oldA <= 0) {
-            ang = newA - oldA;
-        } else if (newA - oldA <= 180) {
-            ang = newA - oldA;
-        } else {
-            ang = (newA - oldA) - 360;
-        }
-        if (ang < -360) {
-            ang += 360;
-        }
-        if (ang > 360) {
-            ang -= 360;
-        }
-        return ang;
-    }
-
-    private double fixDegAngle(double ang) {
-        if (ang < 0) {
-            ang += 360;
-        }
-        if (ang > 360) {
-            ang -= 360;
-        }
-        return ang;
-    }
-
     public void locationChanged(LocationEventGenerator sender, Location4D location) {
         if (this.isVisible() || sender == null) {
             this.location = location;
@@ -506,21 +269,51 @@ public class NavigationScreen extends FormLocify implements ActionListener, Loca
             if (navigator != null) {
                 setTitle(navigator.getToName());
                 angleD = navigator.getAzimuthToTaget(location) - angleN;
-                labelDist.setValue(GpsUtils.formatDistance(navigator.getDistanceToTarget(location)));
+                if (slDist != null) {
+                    slDist.setValue(GpsUtils.formatDistance(navigator.getDistanceToTarget(location)));
+                }
             }
-            moveAngles(angleN, angleD);
 
-            labelHDOP.setValue(GpsUtils.formatDouble(R.getLocator().getAccuracyHorizontal(), 1));
-            labelVDOP.setValue(GpsUtils.formatDouble(R.getLocator().getAccuracyVertical(), 1));
-            labelSpeed.setValue(GpsUtils.formatSpeed(R.getLocator().getSpeed()));
-            labelLatitude.setValue(GpsUtils.formatLatitude(location.getLatitude(), R.getSettings().getCoordsFormat()));
-            labelLongitude.setValue(GpsUtils.formatLongitude(location.getLongitude(), R.getSettings().getCoordsFormat()));
-            labelAltitude.setValue(GpsUtils.formatDouble(location.getAltitude(), 1) + "m");
+            if (compass != null) {
+                compass.moveAngles(angleN, angleD);
+            }
+
+            if (slAlt != null) {
+                slAlt.setValue(GpsUtils.formatDouble(location.getAltitude(), 1) + "m");
+            }
+            if (slHdop != null) {
+                slHdop.setValue(GpsUtils.formatDouble(R.getLocator().getAccuracyHorizontal(), 1));
+            }
+            if (slLat != null) {
+                slLat.setValue(GpsUtils.formatLatitude(location.getLatitude(), R.getSettings().getCoordsFormat()));
+            }
+            if (slLon != null) {
+                slLon.setValue(GpsUtils.formatLongitude(location.getLongitude(), R.getSettings().getCoordsFormat()));
+            }
+            if (slSpeed != null) {
+                slSpeed.setValue(GpsUtils.formatSpeed(R.getLocator().getSpeed()));
+            }
+            if (slVdop != null) {
+                slVdop.setValue(GpsUtils.formatDouble(R.getLocator().getAccuracyVertical(), 1));
+            }
 
 //Logger.debug("NS (" + System.currentTimeMillis() + "), lat: " + location.getLatitude() +
 //        ", lon: " + location.getLongitude() + ", angleN: " + angleN + ", angleD: " + angleD);
-            repaint();
+//            repaint();
         }
+    }
+
+    private int backgroundTaskCount = 0;
+
+    public void runBackgroundTask() {
+        if (slTime != null) {
+            slTime.setValue(Utils.getTime());
+        }
+        if (slDate != null && (backgroundTaskCount % 60 == 0 || slDate.getValue().length() == 0)) {
+            slDate.setValue(Utils.getDate());
+        }
+
+        backgroundTaskCount++;
     }
 
     public void errorMessage(LocationEventGenerator sender, String message) {
@@ -553,17 +346,8 @@ public class NavigationScreen extends FormLocify implements ActionListener, Loca
                     R.getBacklight().on();
                 }
                 break;
-            case GameCanvas.KEY_NUM2:
-                topPanel.switchVisibility();
-                break;
             case GameCanvas.KEY_NUM4:
                 leftPanel.switchVisibility();
-                break;
-            case GameCanvas.KEY_NUM6:
-                rightPanel.switchVisibility();
-                break;
-            case GameCanvas.KEY_NUM8:
-                bottomPanel.switchVisibility();
                 break;
         }
     }
@@ -602,6 +386,252 @@ public class NavigationScreen extends FormLocify implements ActionListener, Loca
                     return;
                 }
             }
+        }
+    }
+
+    private void setNavigationScreenSkin(String skinPath) {
+        mainContainer.removeAll();
+
+        FileConnection fileConnection = null;
+        InputStream is = null;
+        XmlPullParser parser;
+
+        String skinDirPath = skinPath.substring(0, skinPath.lastIndexOf('/') + 1);
+//System.out.println("\nSkin: " + skinDirPath);
+        int STATE_NONE = 0;
+        int STATE_WIDGET_STATE_LABEL = 10;
+        int STATE_WIDGET_COMPASS = 11;
+        int actualState = STATE_NONE;
+
+        Container parent = mainContainer;
+        Widget widget = null;
+
+        try {
+            fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + skinPath);
+            if (!fileConnection.exists()) {
+                return;
+            }
+
+            is = fileConnection.openInputStream();
+            parser = new KXmlParser();
+            parser.setInput(is, "utf-8");
+
+            int event;
+            String tagName;
+            String value;
+
+            while (true) {
+                event = parser.nextToken();
+                if (event == XmlPullParser.START_TAG) {
+                    tagName = parser.getName();
+//                    Logger.debug("  parseKML - tagName: " + tagName);
+                    if (tagName.equalsIgnoreCase("bindTo")) {
+                        value = parser.nextText();
+                        if (value != null) {
+                            if (widget instanceof StateLabel) {
+                                bindStateLabel((StateLabel) widget, value);
+                            } else if (widget instanceof Compass) {
+                                bindCompass((Compass) widget, value);
+                            }
+                        }
+                    } else if (tagName.equalsIgnoreCase("labels")) {
+                        if (actualState == STATE_WIDGET_COMPASS) {
+                            ((Compass) widget).setLabelsFont(getFont(parser.getAttributeValue(null, "fontSize")));
+                        }
+                    } else if (tagName.equalsIgnoreCase("lcf")) {
+                        value = parser.getAttributeValue(null, "layout");
+                        if (value == null) {
+                            return;
+                        } else if (value.equalsIgnoreCase("BorderLayout")) {
+                            parent.setLayout(new BorderLayout());
+                        }
+                    } else if (tagName.equalsIgnoreCase("title")) {
+                        if (actualState == STATE_WIDGET_STATE_LABEL) {
+                            ((StateLabel) widget).setTitleHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
+                            ((StateLabel) widget).setTitleVAlign(getAlignValue(parser.getAttributeValue(null, "vAlign")));
+                            ((StateLabel) widget).setTitlePosition(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), false));
+                            ((StateLabel) widget).setTitleFont(getFont(parser.getAttributeValue(null, "fontSize")));
+                            value = parser.nextText();
+                            if (value != null && value.startsWith("file:")) {
+                                value = skinDirPath + value.substring("file:".length());
+                                ((StateLabel) widget).setTitle(IconData.get(value));
+                            } else {
+                                ((StateLabel) widget).setTitle(value);
+                            }
+                        }
+                    } else if (tagName.equalsIgnoreCase("value")) {
+                        if (actualState == STATE_WIDGET_STATE_LABEL) {
+                            ((StateLabel) widget).setValueHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
+                            ((StateLabel) widget).setValueVAlign(getAlignValue(parser.getAttributeValue(null, "vAlign")));
+                            ((StateLabel) widget).setValueFont(getFont(parser.getAttributeValue(null, "fontSize")));
+                            value = parser.nextText();
+                            if (value != null && value.startsWith("file:")) {
+                                value = skinDirPath + value.substring("file:".length());
+                                ((StateLabel) widget).setValue(IconData.get(value));
+                            } else {
+                                ((StateLabel) widget).setValue(value);
+                            }
+                        }
+                    } else if (tagName.equalsIgnoreCase("widget")) {
+                        widget = null;
+                        value = parser.getAttributeValue(null, "type");
+                        if (value.equalsIgnoreCase("Container")) {
+                            widget = new WidgetContainer(getLayout(parser));
+                            widget.setWidgetParent(parent);
+                            if (parent.getLayout() instanceof BorderLayout) {
+                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
+                            }
+                            actualState = STATE_NONE;
+                            parent = widget;
+                        } else if (value.equalsIgnoreCase("StateLabel")) {
+                            widget = new StateLabel();
+                            widget.setWidgetParent(parent);
+                            if (parent.getLayout() instanceof BorderLayout) {
+                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
+                            }
+                            actualState = STATE_WIDGET_STATE_LABEL;
+                        } else if (value.equalsIgnoreCase("Compass")) {
+                            widget = new Compass();
+                            widget.setWidgetParent(parent);
+                            if (parent.getLayout() instanceof BorderLayout) {
+                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
+                            }
+                            actualState = STATE_WIDGET_COMPASS;
+                        }
+                    }
+                } else if (event == XmlPullParser.END_TAG) {
+                    tagName = parser.getName();
+//                    Logger.debug("  parseKML - tagNameEnd:" + tagName);
+                    if (tagName.equalsIgnoreCase("widget")) {
+                        widget.addToParent();
+                        if (widget instanceof WidgetContainer) {
+                            parent = widget.getWidgetParent();
+                        }
+                        widget = (Widget) widget.getWidgetParent();
+                    }
+                } else if (event == XmlPullParser.END_DOCUMENT) {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            //R.getErrorScreen().view(e, "RouteData.isRoute", null);
+            Logger.error("NavigationScreen.createNavigationScreen() - file: " + skinPath + " ex: " + e.toString());
+            return;
+        } finally {
+            try {
+                if (fileConnection != null) {
+                    fileConnection.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            mainContainer.repaint();
+        }
+    }
+
+    private int getAlignValue(String text) {
+        if (text == null || text.equalsIgnoreCase("center")) {
+            return Label.CENTER;
+        } else if (text.equalsIgnoreCase("right")) {
+            return Label.RIGHT;
+        } else if (text.equalsIgnoreCase("left")) {
+            return Label.LEFT;
+        } else if (text.equalsIgnoreCase("top")) {
+            return Label.TOP;
+        } else if (text.equalsIgnoreCase("bottom")) {
+            return Label.BOTTOM;
+        } else {
+            return Label.CENTER;
+        }
+    }
+
+    private Layout getLayout(XmlPullParser parser) {
+        String text = parser.getAttributeValue(null, "layout");
+
+        if (text.equalsIgnoreCase("BorderLayout")) {
+            return new BorderLayout();
+        } else if (text.equalsIgnoreCase("GridLayout")) {
+            int rows = GpsUtils.parseInt(parser.getAttributeValue(null, "rows"));
+            int columns = GpsUtils.parseInt(parser.getAttributeValue(null, "columns"));
+            if (rows == 0) {
+                rows = 1;
+            }
+            if (columns == 0) {
+                columns = 1;
+            }
+            return new GridLayout(rows, columns);
+        } else {
+            return new FlowLayout();
+        }
+    }
+
+    private Font getFont(String text) {
+        if (text == null || text.length() > 1 || text.equals("1")) {
+            return ColorsFonts.FONT_BMF_10;
+        } else if (text.equals("2")) {
+            return ColorsFonts.FONT_BMF_14;
+        } else if (text.equals("3")) {
+            return ColorsFonts.FONT_BMF_16;
+        } else if (text.equals("4")) {
+            return ColorsFonts.FONT_BMF_18;
+        } else if (text.equals("5")) {
+            return ColorsFonts.FONT_BMF_20;
+        }
+        return ColorsFonts.FONT_BMF_10;
+    }
+
+    private String getBorderLayoutPositionValue(String text, boolean allowCenter) {
+        if (text == null) {
+            if (allowCenter) {
+                return BorderLayout.CENTER;
+            } else {
+                return BorderLayout.NORTH;
+            }
+        } else if (text.equalsIgnoreCase("north")) {
+            return BorderLayout.NORTH;
+        } else if (text.equalsIgnoreCase("south")) {
+            return BorderLayout.SOUTH;
+        } else if (text.equalsIgnoreCase("west")) {
+            return BorderLayout.WEST;
+        } else if (text.equalsIgnoreCase("east")) {
+            return BorderLayout.EAST;
+        } else if (allowCenter) {
+            return BorderLayout.CENTER;
+        } else {
+            return BorderLayout.NORTH;
+        }
+    }
+
+    private void bindStateLabel(StateLabel widget, String text) {
+        if (text.equalsIgnoreCase("alt")) {
+            slAlt = widget;
+        } else if (text.equalsIgnoreCase("date")) {
+            slDate = widget;
+            slDate.setValue("");
+        } else if (text.equalsIgnoreCase("dist")) {
+            slDist = widget;
+        } else if (text.equalsIgnoreCase("hdop")) {
+            slHdop = widget;
+        } else if (text.equalsIgnoreCase("lat")) {
+            slLat = widget;
+        } else if (text.equalsIgnoreCase("lon")) {
+            slLon = widget;
+        } else if (text.equalsIgnoreCase("speed")) {
+            slSpeed = widget;
+        } else if (text.equalsIgnoreCase("time")) {
+            slTime = widget;
+        } else if (text.equalsIgnoreCase("vdop")) {
+            slVdop = widget;
+        }
+    }
+
+    private void bindCompass(Compass widget, String text) {
+        if (text.equalsIgnoreCase("compass")) {
+            compass = widget;
         }
     }
 }

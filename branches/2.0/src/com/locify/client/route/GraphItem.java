@@ -17,15 +17,21 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Container;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
+import com.sun.lwuit.Label;
+import com.sun.lwuit.Painter;
+import com.sun.lwuit.geom.Dimension;
+import com.sun.lwuit.geom.Rectangle;
+import com.sun.lwuit.layouts.BorderLayout;
 import java.util.Vector;
 
 /**
  * Graph for showing altitude
  * @author Menion
  */
-public class GraphItem extends Item {
+public class GraphItem extends Container {
     /* text varibables */
     private int typeValueX;
     private int typeValueY;
@@ -48,20 +54,24 @@ public class GraphItem extends Item {
     private String unitY;
 
     private Vector values;
-
-    private Image graphImage;
     
     /**
      * Basic constructor
      * @param label text label of item
      */
     public GraphItem(String textLabel, int typeValueX, int typeValueY, double measureX) {
-        super(textLabel);
-        
+        super(new BorderLayout());
+
         this.typeValueX = typeValueX;
         this.typeValueY = typeValueY;
         this.measureX = measureX;
         this.values = new Vector();
+
+        Label title = new Label(textLabel);
+        addComponent(BorderLayout.NORTH, title);
+
+        Label measure = new Label("" + measureX);
+        addComponent(BorderLayout.SOUTH, measure);
 
         if (typeValueX == VALUE_X_TOTAL_DIST) {
             unitX = "m";
@@ -74,12 +84,6 @@ public class GraphItem extends Item {
                 typeValueY == VALUE_Y_LONGITUDE)
             unitY = "m";
     }
-
-/*    public void reset() {
-        values = new Vector();
-        printGraph();
-    }
- */
 
     public void refreshGraph(RouteVariables variables) {
         try {
@@ -118,7 +122,6 @@ public class GraphItem extends Item {
                     }
                 }
                 lastSize = variables.routePoints.size();
-                printGraph();
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GraphItem.refreshGraph()", null);
@@ -127,114 +130,6 @@ public class GraphItem extends Item {
 
     public void setMeasureX(double measureX) {
         this.measureX = measureX;
-    }
-
-    private void printGraph() {
-        Image image = createEmptyImage();
-        if (image != null) {
-            Graphics g = image.getGraphics();
-
-            int move = 0;
-            if (vAlign == ALIGN_TOP)
-                move = hIntend;
-            else if (vAlign == ALIGN_CENTER)
-                move = hIntend + (h - 10) / 2;
-            else if (vAlign == ALIGN_BOTTOM)
-                move = hIntend + (h - 10);
-            g.drawString(unitX, textLabelXPos, move);
-
-            // variables
-            int transX = 15;
-            int transY = 15;
-            int border = 5;
-            int graphWidth = g.getClipWidth() - transX - 2 * border;
-            int graphHeight = g.getClipHeight() - transY - 2 * border;
-            double yMin = Double.MAX_VALUE;
-            double yMax = Double.MIN_VALUE;
-            GraphValues value;
-            for (int i = 0; i < values.size(); i++) {
-                value = (GraphValues) values.elementAt(i);
-                yMin = yMin < value.yDouble ? yMin : value.yDouble;
-                yMax = yMax > value.yDouble ? yMax : value.yDouble;
-            }
-
-            // lines and texts
-            g.setColor(colorText);
-            g.drawLine(transX, border, transX, g.getClipHeight() - border);
-            g.drawLine(border, g.getClipHeight() - transY, g.getClipWidth() - border, g.getClipHeight() - transY);
-            g.drawLine(g.getClipWidth() - border, g.getClipHeight() - transY, g.getClipWidth() - border, g.getClipHeight() - border);
-
-            g.setFont(ColorsFonts.FONT_BOLD_MEDIUM);
-            String text = GpsUtils.formatDouble(measureX, 0) + " " + unitX;
-            g.drawString(text, (g.getClipWidth() - ColorsFonts.FONT_BOLD_MEDIUM.stringWidth(text)) / 2,
-                    g.getClipHeight() - 15);
-
-            Math.ceil(yMin);
-            Math.floor(yMax);
-            int det = 1;
-            if ((yMax - yMin) < 50)
-                det = 10;
-            else if ((yMax - yMin) < 500)
-                det = 100;
-            else if ((yMax - yMin) < 5000)
-                det = 1000;
-
-            g.setColor(ColorsFonts.GRAY);
-            for (int i = (int) Math.ceil(yMin / det); i <= Math.floor(yMax / det); i++) {
-                int yValue = border + graphHeight - ((int) ((i * det - yMin) / (yMax - yMin) * graphHeight));
-                text = i * det + unitY;
-                g.drawLine(transX, yValue, g.getClipWidth() - border - ColorsFonts.FONT_BOLD_MEDIUM.stringWidth(text) - 5, yValue);
-                g.drawString(text, g.getClipWidth() - border, yValue - 7);
-            }
-
-            for (int i = 0; i < values.size(); i++) {
-                value = (GraphValues) values.elementAt(i);
-                value.x = transX + 2 + (int) (value.xDouble / measureX * graphWidth);
-                value.y = border + graphHeight - ((int) ((value.yDouble - yMin) / (yMax - yMin) * graphHeight));
-            }
-
-            g.setColor(colorGraph);
-            for (int i = 1; i < values.size(); i++) {
-                g.drawLine(((GraphValues) values.elementAt(i - 1)).x, ((GraphValues) values.elementAt(i - 1)).y,
-                        ((GraphValues) values.elementAt(i)).x, ((GraphValues) values.elementAt(i)).y);
-            }
-
-            graphImage = image;
-        }
-    }
-
-    public void setSize(int width, int height) {
-        super.setSize(width, height);
-        graphImage = createEmptyImage();
-        printGraph();
-    }
-
-    private Image createEmptyImage() {
-        if (w != 0 && h != 0) {
-            Image image = Image.createImage(w, h);
-            Graphics g = image.getGraphics();
-
-            // background
-            g.setColor(colorAround);
-            g.fillRect(0, 0, w, h);
-            g.setColor(colorBackground);
-            g.fillRoundRect(0, 0, w, h, cornerRadius, cornerRadius);
-            g.setColor(colorBorder);
-            g.drawRoundRect(0, 0, w-1, h-1, cornerRadius, cornerRadius);
-
-            return image;
-        } else {
-            return null;
-        }
-    }
-
-    public void setColors(int colorAroundItem, int colorBackground, int colorBorder,
-            int colorText, int colorGraph) {
-        super.setColors(colorBackground, -1, colorBorder);
-        this.colorAround = colorAroundItem;
-        this.colorText = colorText;
-        this.colorGraph = colorGraph;
-
     }
 
     private void addValues(double value, Location4D loc) {
@@ -247,12 +142,71 @@ public class GraphItem extends Item {
     }
 
     public void paint(Graphics g) {
-        try {
-            if (visible && graphImage != null) {
-                g.drawImage(graphImage, x, y);
-            }
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "ScreenItem.paint(Graphics g)", null);
+        super.paint(g);
+//System.out.println("PrintRect: " + rect.toString());
+        int move = 0;
+//        if (vAlign == ALIGN_TOP)
+//            move = hIntend;
+//        else if (vAlign == ALIGN_CENTER)
+//            move = hIntend + (h - 10) / 2;
+//        else if (vAlign == ALIGN_BOTTOM)
+//            move = hIntend + (h - 10);
+//        g.drawString(unitX, textLabelXPos, move);
+
+        // variables
+        int transX = 15;
+        int transY = 15;
+        int border = 5;
+        int graphWidth = g.getClipWidth() - transX - 2 * border;
+        int graphHeight = g.getClipHeight() - transY - 2 * border;
+        double yMin = Double.MAX_VALUE;
+        double yMax = Double.MIN_VALUE;
+        GraphValues value;
+        for (int i = 0; i < values.size(); i++) {
+            value = (GraphValues) values.elementAt(i);
+            yMin = yMin < value.yDouble ? yMin : value.yDouble;
+            yMax = yMax > value.yDouble ? yMax : value.yDouble;
+        }
+
+        // lines and texts
+        g.setColor(colorText);
+        g.drawLine(transX, border, transX, g.getClipHeight() - border);
+        g.drawLine(border, g.getClipHeight() - transY, g.getClipWidth() - border, g.getClipHeight() - transY);
+        g.drawLine(g.getClipWidth() - border, g.getClipHeight() - transY, g.getClipWidth() - border, g.getClipHeight() - border);
+
+        g.setFont(ColorsFonts.FONT_BOLD_MEDIUM);
+        String text = GpsUtils.formatDouble(measureX, 0) + " " + unitX;
+        g.drawString(text, (g.getClipWidth() - ColorsFonts.FONT_BOLD_MEDIUM.stringWidth(text)) / 2,
+                g.getClipHeight() - 15);
+
+        Math.ceil(yMin);
+        Math.floor(yMax);
+        int det = 1;
+        if ((yMax - yMin) < 50)
+            det = 10;
+        else if ((yMax - yMin) < 500)
+            det = 100;
+        else if ((yMax - yMin) < 5000)
+            det = 1000;
+
+        g.setColor(ColorsFonts.GRAY);
+        for (int i = (int) Math.ceil(yMin / det); i <= Math.floor(yMax / det); i++) {
+            int yValue = border + graphHeight - ((int) ((i * det - yMin) / (yMax - yMin) * graphHeight));
+            text = i * det + unitY;
+            g.drawLine(transX, yValue, g.getClipWidth() - border - ColorsFonts.FONT_BOLD_MEDIUM.stringWidth(text) - 5, yValue);
+            g.drawString(text, g.getClipWidth() - border, yValue - 7);
+        }
+
+        for (int i = 0; i < values.size(); i++) {
+            value = (GraphValues) values.elementAt(i);
+            value.x = transX + 2 + (int) (value.xDouble / measureX * graphWidth);
+            value.y = border + graphHeight - ((int) ((value.yDouble - yMin) / (yMax - yMin) * graphHeight));
+        }
+
+        g.setColor(colorGraph);
+        for (int i = 1; i < values.size(); i++) {
+            g.drawLine(((GraphValues) values.elementAt(i - 1)).x, ((GraphValues) values.elementAt(i - 1)).y,
+                    ((GraphValues) values.elementAt(i)).x, ((GraphValues) values.elementAt(i)).y);
         }
     }
 
