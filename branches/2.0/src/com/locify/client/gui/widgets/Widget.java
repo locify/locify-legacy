@@ -15,7 +15,6 @@ package com.locify.client.gui.widgets;
 
 import com.sun.lwuit.Container;
 import com.sun.lwuit.layouts.BorderLayout;
-import com.sun.lwuit.layouts.Layout;
 
 /**
  *
@@ -26,8 +25,8 @@ public class Widget extends Container {
     private Container parent;
     private String constraints;
 
-    public Widget(Layout layout) {
-        super(layout);
+    public Widget() {
+        super();
     }
 
     public void setWidgetParent(Container parent) {

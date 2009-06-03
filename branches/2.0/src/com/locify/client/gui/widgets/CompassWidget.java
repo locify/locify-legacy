@@ -13,12 +13,12 @@
  */
 package com.locify.client.gui.widgets;
 
+import com.locify.client.gui.screen.internal.NavigationScreen;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
 import com.locify.client.utils.math.LMath;
 import com.sun.lwuit.Font;
 import com.sun.lwuit.Graphics;
-import com.sun.lwuit.layouts.BorderLayout;
 
 /**
  *
@@ -30,8 +30,6 @@ public class CompassWidget extends Widget {
     public double nAngle;
     // diference angle beetween heading and navigated point
     public double dAngle;
-    // if navigation is active, to show arrow
-    private boolean activeNavigation;
     
     // temp items
     private boolean drawLock;
@@ -48,11 +46,10 @@ public class CompassWidget extends Widget {
     private Font font;
     
     public CompassWidget() {
-        super(new BorderLayout());
+        super();
         this.drawLock = false;
         this.nAngle = 0;
         this.dAngle = 0;
-        this.activeNavigation = false;
 
         this.font = ColorsFonts.FONT_BMF_10;
     }
@@ -78,8 +75,8 @@ public class CompassWidget extends Widget {
             smallRadius = radius < 60 ? true : false;
 
             g.setFont(font);
-            setCompas(g);
-            setArrow(g);
+            drawCompas(g);
+            drawArrow(g);
 
             drawLock = false;
         } catch (Exception e) {
@@ -88,7 +85,7 @@ public class CompassWidget extends Widget {
     }
 
     // angle in degres
-    private void setCompas(Graphics g) {
+    private void drawCompas(Graphics g) {
         g.setColor(ColorsFonts.WHITE);
         g.fillArc(cX - radius, cY - radius, 2 * radius, 2 * radius, 0, 360);
 
@@ -166,8 +163,8 @@ public class CompassWidget extends Widget {
         return "";
     }
 
-    private void setArrow(Graphics g) {
-        if (activeNavigation) {
+    private void drawArrow(Graphics g) {
+        if (NavigationScreen.isRunning()) {
             g.setColor(ColorsFonts.WHITE);
 
             double a;

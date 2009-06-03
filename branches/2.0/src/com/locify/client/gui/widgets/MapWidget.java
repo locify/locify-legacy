@@ -15,10 +15,8 @@ package com.locify.client.gui.widgets;
 
 import com.locify.client.gui.extension.BackgroundListener;
 import com.locify.client.maps.MapContent;
-import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Graphics;
-import com.sun.lwuit.layouts.FlowLayout;
 
 /**
  *
@@ -29,7 +27,7 @@ public class MapWidget extends Widget implements BackgroundListener {
     private MapContent mapContent;
 
     public MapWidget() {
-        super(new FlowLayout());
+        super();
         mapContent = R.getMapContent();
         mapContent.registerParent(this);
         R.getBackgroundRunner().registerBackgroundListener(this, 1);

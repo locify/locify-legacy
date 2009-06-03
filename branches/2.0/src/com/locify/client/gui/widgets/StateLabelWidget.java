@@ -37,7 +37,9 @@ public class StateLabelWidget extends Widget {
     }
 
     public StateLabelWidget(String titlePosition, int titleHAlign, int titleVAlign, int valueHAlign, int valueVAlign) {
-        super(new BorderLayout());
+        super();
+        setLayout(new BorderLayout());
+        
         if (titlePosition.equals(BorderLayout.CENTER))
             titlePosition = BorderLayout.NORTH;
 

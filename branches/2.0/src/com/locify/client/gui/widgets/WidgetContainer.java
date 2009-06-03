@@ -13,15 +13,13 @@
  */
 package com.locify.client.gui.widgets;
 
-import com.sun.lwuit.layouts.Layout;
-
 /**
  *
  * @author menion
  */
 public class WidgetContainer extends Widget {
 
-    public WidgetContainer(Layout layout) {
-        super(layout);
+    public WidgetContainer() {
+        super();
     }
 }

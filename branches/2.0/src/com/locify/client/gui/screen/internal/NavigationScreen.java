@@ -52,7 +52,6 @@ import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
-import com.sun.lwuit.layouts.FlowLayout;
 import com.sun.lwuit.layouts.GridLayout;
 import com.sun.lwuit.layouts.Layout;
 import java.io.IOException;
@@ -113,7 +112,7 @@ public class NavigationScreen extends FormLocify implements
             this.setCommandListener(this);
 
             setLayout(new BorderLayout());
-            this.mainContainer = new WidgetContainer(new BorderLayout());
+            this.mainContainer = new WidgetContainer();
             addComponent(BorderLayout.CENTER, mainContainer);
 
             R.getLocator().addLocationChangeListener(this);
@@ -426,7 +425,7 @@ public class NavigationScreen extends FormLocify implements
                 event = parser.nextToken();
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
-//                    Logger.debug("  parseKML - tagName: " + tagName);
+                    Logger.debug("  parseKML - tagName: " + tagName);
                     if (tagName.equalsIgnoreCase("bindTo")) {
                         value = parser.nextText();
                         if (value != null) {
@@ -440,13 +439,10 @@ public class NavigationScreen extends FormLocify implements
                         if (actualState == STATE_WIDGET_COMPASS) {
                             ((CompassWidget) widget).setLabelsFont(getFont(parser.getAttributeValue(null, "fontSize")));
                         }
+                    } else if (tagName.equalsIgnoreCase("layout")) {
+                        parent.setLayout(getLayout(parser));
                     } else if (tagName.equalsIgnoreCase("lcf")) {
-                        value = parser.getAttributeValue(null, "layout");
-                        if (value == null) {
-                            return;
-                        } else if (value.equalsIgnoreCase("BorderLayout")) {
-                            parent.setLayout(new BorderLayout());
-                        }
+
                     } else if (tagName.equalsIgnoreCase("title")) {
                         if (actualState == STATE_WIDGET_STATE_LABEL) {
                             ((StateLabelWidget) widget).setTitleHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
@@ -485,7 +481,7 @@ public class NavigationScreen extends FormLocify implements
                             }
                             actualState = STATE_WIDGET_COMPASS;
                         } else if (value.equalsIgnoreCase("Container")) {
-                            widget = new WidgetContainer(getLayout(parser));
+                            widget = new WidgetContainer();
                             widget.setWidgetParent(parent);
                             if (parent.getLayout() instanceof BorderLayout) {
                                 widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
@@ -523,7 +519,7 @@ public class NavigationScreen extends FormLocify implements
                 }
             }
         } catch (Exception e) {
-            //R.getErrorScreen().view(e, "RouteData.isRoute", null);
+            R.getErrorScreen().view(e, "RouteData.isRoute", null);
             Logger.error("NavigationScreen.createNavigationScreen() - file: " + skinPath + " ex: " + e.toString());
             return;
         } finally {
@@ -559,10 +555,10 @@ public class NavigationScreen extends FormLocify implements
     }
 
     private Layout getLayout(XmlPullParser parser) {
-        String text = parser.getAttributeValue(null, "layout");
+        String text = parser.getAttributeValue(null, "type");
 
         if (text == null) {
-            return new FlowLayout();
+            return new BoxLayout(BoxLayout.Y_AXIS);
         } else if (text.equalsIgnoreCase("BorderLayout")) {
             return new BorderLayout();
         } else if (text.equalsIgnoreCase("GridLayout")) {
@@ -576,7 +572,7 @@ public class NavigationScreen extends FormLocify implements
             }
             return new GridLayout(rows, columns);
         } else {
-            return new FlowLayout();
+            return new BoxLayout(BoxLayout.Y_AXIS);
         }
     }
 
