@@ -1,5 +1,5 @@
 /*
- * Compass.java
+ * CompassWidget.java
  * This file is part of Locify.
  *
  * Locify is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@ import com.sun.lwuit.layouts.BorderLayout;
  *
  * @author menion
  */
-public class Compass extends Widget {
+public class CompassWidget extends Widget {
 
     // navigation angle (heading)
     public double nAngle;
@@ -47,7 +47,7 @@ public class Compass extends Widget {
     // font for labels
     private Font font;
     
-    public Compass() {
+    public CompassWidget() {
         super(new BorderLayout());
         this.drawLock = false;
         this.nAngle = 0;

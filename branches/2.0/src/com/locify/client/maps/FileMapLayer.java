@@ -38,8 +38,6 @@ import java.util.Vector;
  */
 public class FileMapLayer implements MapLayer {
 
-    /** parent screen of this layer */
-    private MapScreen mapScreen;
     /** map scale in Width*/
     private double mapScaleW;
     /** map scale in Height*/
@@ -57,8 +55,7 @@ public class FileMapLayer implements MapLayer {
 
 public static long TIME;
 
-    public FileMapLayer(MapScreen parent) {
-        this.mapScreen = parent;
+    public FileMapLayer() {
         this.managers = new Vector();
         this.imageExist = new Vector();
         this.imageNotExist = new Vector();
@@ -139,7 +136,6 @@ public static long TIME;
                 viewPort.getCenter().getLatitude() - (moveCoefPerPixelY * latMultiplicator),
                 viewPort.getCenter().getLongitude() + (moveCoefPerPixelX * lonMultiplicator),
                 0));
-        repaint();
     }
 
     public void panRight() {
@@ -175,7 +171,7 @@ public static long TIME;
                         managers.removeElementAt(i);
                     }
                 }
-                MapScreen.getTileCache().newRequest(imageExist);
+                R.getMapTileCache().newRequest(imageExist);
 //Logger.log("Step 1: " + (System.currentTimeMillis() - TIME) + " managers: " + managers.size() +
 //        ", imageExist: " + imageExist.size() + ", imageNotExist: " + imageNotExist.size());
 
@@ -183,7 +179,7 @@ public static long TIME;
                 ImageRequest ir;
                 for (int i = 0; i < imageNotExist.size(); i++) {
                     ir = (ImageRequest) imageNotExist.elementAt(i);
-                    image = MapScreen.getImageNotExisted();
+                    image = MapImages.getImageNotExisted();
                     if (image != null) {
 //Logger.log("  FileMapLayer.drawImages() NotExist: x: " + ir.x + " y: " + ir.y + " wi: " + image.getWidth() + " he: " + image.getHeight());
                         gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()) / 2,
@@ -196,13 +192,13 @@ public static long TIME;
 //Logger.log("Step 2: " + (System.currentTimeMillis() - TIME));
                 for (int i = 0; i < imageExist.size(); i++) {
                     ir = (ImageRequest) imageExist.elementAt(i);
-                    image = MapScreen.getTileCache().getImage(ir.fileName);
+                    image = R.getMapTileCache().getImage(ir.fileName);
                     if (image != null) {
 //Logger.log("  FileMapLayer.drawImages() Exist: x: " + ir.x + " y: " + ir.y + " wi: " + image.getWidth() + " he: " + image.getHeight());
-                        if (image.equals(MapScreen.getImageConnectionNotFound()) ||
-                        image.equals(MapScreen.getImageLoading()) ||
-                        image.equals(MapScreen.getImageLoading()) ||
-                        image.equals(MapScreen.getImageLoading())) {
+                        if (image.equals(MapImages.getImageConnectionNotFound()) ||
+                        image.equals(MapImages.getImageLoading()) ||
+                        image.equals(MapImages.getImageLoading()) ||
+                        image.equals(MapImages.getImageLoading())) {
                             gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()) / 2,
                                 ir.y + (ir.tileSizeY - image.getHeight()) / 2);
                             gr.setColor(ColorsFonts.BLACK);
@@ -433,10 +429,7 @@ public static long TIME;
             setProviderAndMode(getFirstManager());
         }
     }
-
-    public void repaint() {
-    }
-
+    
     public void calculateZoomFrom(Location4D[] positions) {
         return;
     }
@@ -465,5 +458,9 @@ public static long TIME;
         } else {
             return null;
         }
+    }
+
+    public Location4D getLocationCoord(int x, int y) {
+        return convertMapToGeo(getFirstManager().getFileMapConfig(), x, y);
     }
 }

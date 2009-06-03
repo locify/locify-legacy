@@ -61,8 +61,8 @@ public class ScaleMapItem extends MapItem {
     
     public void initialize() {
         try {
-            p1 = mapScreen.getActualMapLayer().getLocationCoord(new Location4D(0.1, 14.0, 0.0f));
-            p2 = mapScreen.getActualMapLayer().getLocationCoord(new Location4D(0.2, 14.0, 0.0f));
+            p1 = R.getMapContent().getActualMapLayer().getLocationCoord(new Location4D(0.1, 14.0, 0.0f));
+            p2 = R.getMapContent().getActualMapLayer().getLocationCoord(new Location4D(0.2, 14.0, 0.0f));
 
             distancePerPixel = (angleDistance / 10) / (Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y));
             double distance = (R.getMapScreen().getContentPane().getWidth() / 2) * distancePerPixel;

@@ -132,19 +132,19 @@ public class MapOfflineChooseScreen implements ActionListener {
         } else if (evt.getCommand() == Commands.cmdSearchMaps) {
             view(lastLat1, lastLon1, lastLat2, lastLon2);
         } else if (evt.getCommand() == Commands.cmdOnlineMaps) {
-            R.getMapScreen().setOnlineMaps();
+            R.getMapContent().setOnlineMaps();
         } else if (evt.getSource() == lstAvailableMaps || evt.getCommand() == Commands.cmdSelectAndCenter && findedData.size() > 0) {
             StoreManagerMapInfo smmi = (StoreManagerMapInfo) findedData.elementAt(lstAvailableMaps.getSelectedIndex());
             FileMapManager fmm = StoreManager.getInitializedOfflineMap(smmi.mapName, false);
             if (evt.getSource() == lstAvailableMaps) {
                 if (fmm != null) {
-                    R.getMapScreen().setFileMap(fmm, new Location4D((lastLat1 + lastLat2) / 2,
+                    R.getMapContent().setFileMap(fmm, new Location4D((lastLat1 + lastLat2) / 2,
                             (lastLon1 + lastLon2) / 2, 0.0f));
                 }
             } else if (evt.getCommand() == Commands.cmdSelectAndCenter) {
                 if (fmm != null) {
                     Location4D center = fmm.getFileMapConfig().getMapViewPort().getCenter();
-                    R.getMapScreen().setFileMap(fmm,
+                    R.getMapContent().setFileMap(fmm,
                             FileMapLayer.convertMapToGeo(fmm.getFileMapConfig(), center.getLatitude(), center.getLongitude()));
                 }
             }

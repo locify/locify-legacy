@@ -1,5 +1,5 @@
 /*
- * StateLabel.java
+ * StateLabelWidget.java
  * This file is part of Locify.
  *
  * Locify is free software; you can redistribute it and/or modify
@@ -23,20 +23,20 @@ import com.sun.lwuit.plaf.Border;
  *
  * @author menion
  */
-public class StateLabel extends Widget {
+public class StateLabelWidget extends Widget {
 
     private Label labelTitle;
     private Label labelValue;
 
-    public StateLabel() {
+    public StateLabelWidget() {
         this(BorderLayout.NORTH, Label.CENTER, Label.CENTER, Label.CENTER, Label.CENTER);
     }
 
-    public StateLabel(String titlePosition) {
+    public StateLabelWidget(String titlePosition) {
         this(titlePosition, Label.CENTER, Label.CENTER, Label.CENTER, Label.CENTER);
     }
 
-    public StateLabel(String titlePosition, int titleHAlign, int titleVAlign, int valueHAlign, int valueVAlign) {
+    public StateLabelWidget(String titlePosition, int titleHAlign, int titleVAlign, int valueHAlign, int valueVAlign) {
         super(new BorderLayout());
         if (titlePosition.equals(BorderLayout.CENTER))
             titlePosition = BorderLayout.NORTH;

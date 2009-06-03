@@ -341,7 +341,7 @@ public class FirstRunManager {
     }
     
     private void setDirectory() {
-System.out.println("Set");
+//System.out.println("Set");
         String selected = (String) lstRoots.getSelectedItem();
         //#if release
 //#     String locifyFolder = "Locify/";

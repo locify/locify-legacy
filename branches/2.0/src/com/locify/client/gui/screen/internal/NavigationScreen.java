@@ -25,8 +25,9 @@ import com.locify.client.gui.extension.BackgroundListener;
 import com.locify.client.gui.extension.FlowPanel;
 import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.gui.extension.FormLocify;
-import com.locify.client.gui.widgets.Compass;
-import com.locify.client.gui.widgets.StateLabel;
+import com.locify.client.gui.widgets.CompassWidget;
+import com.locify.client.gui.widgets.MapWidget;
+import com.locify.client.gui.widgets.StateLabelWidget;
 import com.locify.client.gui.widgets.Widget;
 import com.locify.client.gui.widgets.WidgetContainer;
 import com.locify.client.locator.Location4D;
@@ -75,16 +76,16 @@ public class NavigationScreen extends FormLocify implements
     private WidgetContainer mainContainer;
 
     // bindable widgets
-    private StateLabel slAlt;
-    private StateLabel slDate;
-    private StateLabel slDist;
-    private StateLabel slHdop;
-    private StateLabel slLat;
-    private StateLabel slLon;
-    private StateLabel slSpeed;
-    private StateLabel slTime;
-    private StateLabel slVdop;
-    private Compass compass;
+    private StateLabelWidget slAlt;
+    private StateLabelWidget slDate;
+    private StateLabelWidget slDist;
+    private StateLabelWidget slHdop;
+    private StateLabelWidget slLat;
+    private StateLabelWidget slLon;
+    private StateLabelWidget slSpeed;
+    private StateLabelWidget slTime;
+    private StateLabelWidget slVdop;
+    private CompassWidget compass;
     // flow panel
     private FlowPanel leftPanel;
     // actual navigator
@@ -401,6 +402,7 @@ public class NavigationScreen extends FormLocify implements
         int STATE_NONE = 0;
         int STATE_WIDGET_STATE_LABEL = 10;
         int STATE_WIDGET_COMPASS = 11;
+        int STATE_WIDGET_MAP = 12;
         int actualState = STATE_NONE;
 
         Container parent = mainContainer;
@@ -428,15 +430,15 @@ public class NavigationScreen extends FormLocify implements
                     if (tagName.equalsIgnoreCase("bindTo")) {
                         value = parser.nextText();
                         if (value != null) {
-                            if (widget instanceof StateLabel) {
-                                bindStateLabel((StateLabel) widget, value);
-                            } else if (widget instanceof Compass) {
-                                bindCompass((Compass) widget, value);
+                            if (widget instanceof StateLabelWidget) {
+                                bindStateLabel((StateLabelWidget) widget, value);
+                            } else if (widget instanceof CompassWidget) {
+                                bindCompass((CompassWidget) widget, value);
                             }
                         }
                     } else if (tagName.equalsIgnoreCase("labels")) {
                         if (actualState == STATE_WIDGET_COMPASS) {
-                            ((Compass) widget).setLabelsFont(getFont(parser.getAttributeValue(null, "fontSize")));
+                            ((CompassWidget) widget).setLabelsFont(getFont(parser.getAttributeValue(null, "fontSize")));
                         }
                     } else if (tagName.equalsIgnoreCase("lcf")) {
                         value = parser.getAttributeValue(null, "layout");
@@ -447,35 +449,42 @@ public class NavigationScreen extends FormLocify implements
                         }
                     } else if (tagName.equalsIgnoreCase("title")) {
                         if (actualState == STATE_WIDGET_STATE_LABEL) {
-                            ((StateLabel) widget).setTitleHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
-                            ((StateLabel) widget).setTitleVAlign(getAlignValue(parser.getAttributeValue(null, "vAlign")));
-                            ((StateLabel) widget).setTitlePosition(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), false));
-                            ((StateLabel) widget).setTitleFont(getFont(parser.getAttributeValue(null, "fontSize")));
+                            ((StateLabelWidget) widget).setTitleHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
+                            ((StateLabelWidget) widget).setTitleVAlign(getAlignValue(parser.getAttributeValue(null, "vAlign")));
+                            ((StateLabelWidget) widget).setTitlePosition(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), false));
+                            ((StateLabelWidget) widget).setTitleFont(getFont(parser.getAttributeValue(null, "fontSize")));
                             value = parser.nextText();
                             if (value != null && value.startsWith("file:")) {
                                 value = skinDirPath + value.substring("file:".length());
-                                ((StateLabel) widget).setTitle(IconData.get(value));
+                                ((StateLabelWidget) widget).setTitle(IconData.get(value));
                             } else {
-                                ((StateLabel) widget).setTitle(value);
+                                ((StateLabelWidget) widget).setTitle(value);
                             }
                         }
                     } else if (tagName.equalsIgnoreCase("value")) {
                         if (actualState == STATE_WIDGET_STATE_LABEL) {
-                            ((StateLabel) widget).setValueHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
-                            ((StateLabel) widget).setValueVAlign(getAlignValue(parser.getAttributeValue(null, "vAlign")));
-                            ((StateLabel) widget).setValueFont(getFont(parser.getAttributeValue(null, "fontSize")));
+                            ((StateLabelWidget) widget).setValueHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
+                            ((StateLabelWidget) widget).setValueVAlign(getAlignValue(parser.getAttributeValue(null, "vAlign")));
+                            ((StateLabelWidget) widget).setValueFont(getFont(parser.getAttributeValue(null, "fontSize")));
                             value = parser.nextText();
                             if (value != null && value.startsWith("file:")) {
                                 value = skinDirPath + value.substring("file:".length());
-                                ((StateLabel) widget).setValue(IconData.get(value));
+                                ((StateLabelWidget) widget).setValue(IconData.get(value));
                             } else {
-                                ((StateLabel) widget).setValue(value);
+                                ((StateLabelWidget) widget).setValue(value);
                             }
                         }
                     } else if (tagName.equalsIgnoreCase("widget")) {
                         widget = null;
                         value = parser.getAttributeValue(null, "type");
-                        if (value.equalsIgnoreCase("Container")) {
+                        if (value.equalsIgnoreCase("Compass")) {
+                            widget = new CompassWidget();
+                            widget.setWidgetParent(parent);
+                            if (parent.getLayout() instanceof BorderLayout) {
+                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
+                            }
+                            actualState = STATE_WIDGET_COMPASS;
+                        } else if (value.equalsIgnoreCase("Container")) {
                             widget = new WidgetContainer(getLayout(parser));
                             widget.setWidgetParent(parent);
                             if (parent.getLayout() instanceof BorderLayout) {
@@ -483,20 +492,20 @@ public class NavigationScreen extends FormLocify implements
                             }
                             actualState = STATE_NONE;
                             parent = widget;
+                        } else if (value.equalsIgnoreCase("Map")) {
+                            widget = new MapWidget();
+                            widget.setWidgetParent(parent);
+                            if (parent.getLayout() instanceof BorderLayout) {
+                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
+                            }
+                            actualState = STATE_WIDGET_MAP;
                         } else if (value.equalsIgnoreCase("StateLabel")) {
-                            widget = new StateLabel();
+                            widget = new StateLabelWidget();
                             widget.setWidgetParent(parent);
                             if (parent.getLayout() instanceof BorderLayout) {
                                 widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
                             }
                             actualState = STATE_WIDGET_STATE_LABEL;
-                        } else if (value.equalsIgnoreCase("Compass")) {
-                            widget = new Compass();
-                            widget.setWidgetParent(parent);
-                            if (parent.getLayout() instanceof BorderLayout) {
-                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
-                            }
-                            actualState = STATE_WIDGET_COMPASS;
                         }
                     }
                 } else if (event == XmlPullParser.END_TAG) {
@@ -552,7 +561,9 @@ public class NavigationScreen extends FormLocify implements
     private Layout getLayout(XmlPullParser parser) {
         String text = parser.getAttributeValue(null, "layout");
 
-        if (text.equalsIgnoreCase("BorderLayout")) {
+        if (text == null) {
+            return new FlowLayout();
+        } else if (text.equalsIgnoreCase("BorderLayout")) {
             return new BorderLayout();
         } else if (text.equalsIgnoreCase("GridLayout")) {
             int rows = GpsUtils.parseInt(parser.getAttributeValue(null, "rows"));
@@ -606,7 +617,7 @@ public class NavigationScreen extends FormLocify implements
         }
     }
 
-    private void bindStateLabel(StateLabel widget, String text) {
+    private void bindStateLabel(StateLabelWidget widget, String text) {
         if (text.equalsIgnoreCase("alt")) {
             slAlt = widget;
         } else if (text.equalsIgnoreCase("date")) {
@@ -629,7 +640,7 @@ public class NavigationScreen extends FormLocify implements
         }
     }
 
-    private void bindCompass(Compass widget, String text) {
+    private void bindCompass(CompassWidget widget, String text) {
         if (text.equalsIgnoreCase("compass")) {
             compass = widget;
         }

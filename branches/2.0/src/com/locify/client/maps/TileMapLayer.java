@@ -21,9 +21,7 @@
  */
 package com.locify.client.maps;
 
-import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.locator.Location4D;
-import com.locify.client.locator.LocationEventGenerator;
 import com.locify.client.maps.geometry.Dimension;
 import com.locify.client.maps.geometry.Point;
 import com.locify.client.maps.geometry.Point2D;
@@ -79,7 +77,15 @@ public class TileMapLayer implements MapLayer {
     private RectangleViewPort tileBounds;
     private Image tileImage;
 
-    private MapScreen parent; //component which should be repaint
+    /** actual viewport position X */
+    private int viewportX;
+    /** actuual viewport position Y */
+    private int viewportY;
+    /** actual viewport width */
+    private int viewportWidth;
+    /** actual viewport height */
+    private int viewportHeight;
+    
     /**
      * An array of all the available providers.
      * The first dimension corresponds to providers: Microsoft, Google, Yahoo, etc.
@@ -135,6 +141,7 @@ public class TileMapLayer implements MapLayer {
         }
         return true;
     }
+
     /**
      * The position in latitude/longitude of the "address" being mapped. This
      * is a special coordinate that, when moved, will cause the map to be moved
@@ -146,16 +153,6 @@ public class TileMapLayer implements MapLayer {
     private Location4D centerLocation;
 
     /**
-     * Gets the current address location of the map. This property does not change when the user
-     * pans the map. This property is bound.
-     *
-     * @return the current map location (address)
-     */
-    public final Location4D centerLocation() {
-        return centerLocation;
-    }
-
-    /**
      * Gets the current address location of the map
      *
      * @param addressLocation the new address location
@@ -164,12 +161,15 @@ public class TileMapLayer implements MapLayer {
         this.centerLocation = loc;
         setCenter(getTileFactory().geoToPixel(centerLocation, getActualZoomLevel()));
     }
+
     /**
      * The position, in map coord system of the center point. This is defined
      * as the distance from the top and left edges of the map
      * in pixels. 
      */
     private Point2D center;
+    private boolean centerChanged;
+    private boolean screenChanged;
 
     public final Point2D getCenter() {
         return center;
@@ -225,6 +225,7 @@ public class TileMapLayer implements MapLayer {
 //            }
 //        }
         this.center = center;
+        this.centerChanged = true;
     }
 
     /** zoom level */
@@ -252,15 +253,14 @@ public class TileMapLayer implements MapLayer {
     public boolean isRestrictOutsidePanning() {
         return restrictOutsidePanning;
     }
+    
     private boolean horizontalWrapped = true;
 
     public boolean isHorizontalWrapped() {
         return horizontalWrapped;
     }
 
-    public TileMapLayer(MapScreen parent) {
-        this.parent = parent;
-
+    public TileMapLayer() {
         tileProviders = new TileFactory[][]{
                     new TileFactory[]{
                         new GoogleMapTileFactory(this),
@@ -283,7 +283,17 @@ public class TileMapLayer implements MapLayer {
 
     public boolean drawMap(Graphics g, int mapPanX, int mapPanY) {
         try {
-            viewportBounds = getViewportBounds();
+            if (viewportX != g.getClipX() || viewportY != g.getClipY() ||
+                    viewportWidth != g.getClipWidth() || viewportHeight != g.getClipHeight()) {
+                viewportX = g.getClipX();
+                viewportY = g.getClipY();
+                viewportWidth = g.getClipWidth();
+                viewportHeight = g.getClipHeight();
+                screenChanged = true;
+            }
+//System.out.println(g.getClipX() + " " + g.getClipY() + " " + g.getClipWidth() + " " + g.getClipHeight() + " " + screenChanged);
+
+            refreshViewport();
 
             tileSize = getTileFactory().getTileSize(zoom);
             mapSize = getTileFactory().getMapSize(zoom);
@@ -317,25 +327,25 @@ public class TileMapLayer implements MapLayer {
             }
 
             // IMPORTANT calling to tileCache !!!!
-            MapScreen.getTileCache().newRequest(requiredTiles);
+            R.getMapTileCache().newRequest(requiredTiles);
 
             //fetch the tiles from the tileFactory and store them in the tiles cache
             for (int i = 0; i < requiredTiles.size(); i++) {
                 ir = (ImageRequest) requiredTiles.elementAt(i);
                 //only proceed if the specified tile point lies within the area being painted
-                clipBounds = new RectangleViewPort(g.getClipX(), g.getClipY(), g.getClipWidth(), g.getClipHeight());
+                clipBounds = new RectangleViewPort(0, 0, viewportWidth, viewportHeight);
                 tileBounds = new RectangleViewPort(ir.x * tileSize - viewportBounds.x,
                         ir.y * tileSize - viewportBounds.y, tileSize, tileSize);
                 if (clipBounds.intersects(tileBounds)) {
                     //start downloading
-                    tileImage = MapScreen.getTileCache().getImage(ir.fileName);
+                    tileImage = R.getMapTileCache().getImage(ir.fileName);
                     //if the tile is off the map to the north/south, then just don't paint anything
                     if (isTileOffMap(ir.x, ir.y, mapSize)) {
                         g.setColor(ColorsFonts.GRAY);
                         g.fillRect(tileBounds.x, tileBounds.y, tileBounds.width, tileBounds.height);
                     } else {
-                        g.drawImage(tileImage, tileBounds.x + mapPanX + (tileSize - tileImage.getWidth()) / 2,
-                                tileBounds.y + mapPanY + (tileSize - tileImage.getHeight()) / 2);
+                        g.drawImage(tileImage, tileBounds.x + mapPanX + (tileSize - tileImage.getWidth()) / 2 + viewportX,
+                                tileBounds.y + mapPanY + (tileSize - tileImage.getHeight()) / 2 + viewportY);
                     }
                 }
             }
@@ -365,23 +375,16 @@ public class TileMapLayer implements MapLayer {
      *
      * @return the bounds in <em>pixels</em> of the "view" of this map
      */
-    public RectangleViewPort getViewportBounds() {
-        return calculateViewportBounds(getCenter());
-    }
+    private void refreshViewport() {
+        if (viewportBounds == null || centerChanged || screenChanged) {
+            centerChanged = false;
+            screenChanged = false;
 
-    /**
-     * Calculate the "visible" viewport area in pixels
-     *
-     * @param center the coordinates of the center of the screen on the whole map
-     * @return the bounds of the screen based on center coordinates and screen dimensions
-     */
-    private RectangleViewPort calculateViewportBounds(Point2D center) {
-        //System.out.println("\n w" + getWidth() + " h" + getHeight());
-        int viewportWidth = R.getMapScreen().getContentPane().getWidth();
-        int viewportHeight = R.getMapScreen().getContentPane().getHeight();
-        double viewportX = (center.getX() - viewportWidth / 2);
-        double viewportY = (center.getY() - viewportHeight / 2);
-        return new RectangleViewPort((int) viewportX, (int) viewportY, viewportWidth, viewportHeight);
+            double vpX = (center.getX() - viewportWidth / 2);
+            double vpY = (center.getY() - viewportHeight / 2);
+            viewportBounds = new RectangleViewPort((int) vpX, (int) vpY, viewportWidth, viewportHeight);
+//    System.out.println("Viewport: w" + viewportX + " " + viewportY + " " + viewportWidth + " h" + viewportHeight);
+        }
     }
 
     private boolean isTileOffMap(int x, int y, Dimension mapSize) {
@@ -409,54 +412,56 @@ public class TileMapLayer implements MapLayer {
             return;
         }
 
-        int zoom = getActualZoomLevel();
-        Rectangle2D rect = generateBoundingRect(positions, zoom);
+        int actualZoom = getActualZoomLevel();
+        Rectangle2D rect = generateBoundingRect(positions, actualZoom);
 
         if (rect.getWidth() == 0 || rect.getHeight() == 0)
             return;
 
         int count = 0;
-        
-        if (getViewportBounds().contains(rect)) {
-            while (getViewportBounds().contains(rect)) {
-                Point2D center = new Point2D.Double(
+
+        refreshViewport();
+
+        if (viewportBounds.contains(rect)) {
+            while (viewportBounds.contains(rect)) {
+                Point2D cent = new Point2D.Double(
                         rect.getX() + rect.getWidth() / 2,
                         rect.getY() + rect.getHeight() / 2);
-                Location4D px = getTileFactory().pixelToGeo(center, zoom);
+                Location4D px = getTileFactory().pixelToGeo(cent, actualZoom);
                 setCenterPosition(px);
                 count++;
                 if (count > 30) {
                     break;
                 }
-                zoom = zoom + 1;
-                if (zoom <= getMaxZoomLevel()) {
-                    setZoomLevel(zoom);
-                    rect = generateBoundingRect(positions, zoom);
+                actualZoom = actualZoom + 1;
+                if (actualZoom <= getMaxZoomLevel()) {
+                    setZoomLevel(actualZoom);
+                    rect = generateBoundingRect(positions, actualZoom);
                 } else {
                     break;
                 }
             }
                     
-            zoom = zoom - 1;
-            setZoomLevel(zoom);
+            actualZoom = actualZoom - 1;
+            setZoomLevel(actualZoom);
         } else {
-            while (!getViewportBounds().contains(rect)) {
-                Point2D center = new Point2D.Double(
+            while (!viewportBounds.contains(rect)) {
+                Point2D cent = new Point2D.Double(
                         rect.getX() + rect.getWidth() / 2,
                         rect.getY() + rect.getHeight() / 2);
-                Location4D px = getTileFactory().pixelToGeo(center, zoom);
+                Location4D px = getTileFactory().pixelToGeo(cent, actualZoom);
                 setCenterPosition(px);
                 count++;
                 if (count > 30) {
                     break;
                 }
-                if (getViewportBounds().contains(rect)) {
+                if (viewportBounds.contains(rect)) {
                     break;
                 }
-                if (zoom >= getMinZoomLevel()) {
-                    zoom = zoom - 1;
-                    setZoomLevel(zoom);
-                    rect = generateBoundingRect(positions, zoom);
+                if (actualZoom >= getMinZoomLevel()) {
+                    actualZoom = actualZoom - 1;
+                    setZoomLevel(actualZoom);
+                    rect = generateBoundingRect(positions, actualZoom);
                 } else {
                     break;
                 }
@@ -471,10 +476,10 @@ public class TileMapLayer implements MapLayer {
      * @param dy Number of clicks to move vertically
      */
     public void pan(int dx, int dy) {
+        refreshViewport();
         if (dx != 0 || dy != 0) {
-            RectangleViewPort bounds = getViewportBounds();
-            double x = bounds.getCenterX() + dx;
-            double y = bounds.getCenterY() + dy;
+            double x = viewportBounds.getCenterX() + dx;
+            double y = viewportBounds.getCenterY() + dy;
             setCenter(new Point2D.Double(x, y));
         }
 
@@ -490,22 +495,6 @@ public class TileMapLayer implements MapLayer {
             rect.add(point);
         }
         return rect;
-    }
-
-    public void locationChanged(LocationEventGenerator sender, Location4D location) {
-        this.setAddressLocation(location);
-    }
-
-    public void stateChanged(LocationEventGenerator sender, int state) {
-        //TODO:
-    }
-
-    public void errorMessage(LocationEventGenerator sender, String message) {
-        //TODO:
-    }
-
-    public void message(LocationEventGenerator sender, String message) {
-        //TODO:
     }
 
     public boolean setLocationCenter(Location4D loc) {
@@ -562,10 +551,6 @@ public class TileMapLayer implements MapLayer {
         setZoomLevel(19);
     }
 
-    public void repaint() {
-        parent.repaint();
-    }
-
     public int getProviderCount() {
         return this.tileProviders.length;
     }
@@ -599,11 +584,13 @@ public class TileMapLayer implements MapLayer {
     }
 
     public Point2D.Int getLocationCoord(Location4D loc) {
+        refreshViewport();
         Point2D point = tileFactory.geoToPixel(loc, zoom);
-        RectangleViewPort vp = getViewportBounds();
         //System.out.println("\nvp: " + vp.toString());
-        return new Point.Int((int) (point.getX() - vp.getX()), (int) (point.getY() - vp.getY()));
+        return new Point.Int((int) (point.getX() - viewportBounds.getX()),
+                (int) (point.getY() - viewportBounds.getY()));
     }
+
 
     public Location4D[] getActualBoundingBox() {
         Location4D[] points = new Location4D[2];
@@ -615,5 +602,13 @@ public class TileMapLayer implements MapLayer {
                 (int) (viewportBounds.getY() + viewportBounds.getHeight())),
                 getActualZoomLevel());
         return points;
+    }
+
+    public Location4D getLocationCoord(int x, int y) {
+        refreshViewport();
+//System.out.println(x + " " + y + " " + tileFactory.pixelToGeo(new Point2D.Int((int) (viewportBounds.getX() + x),
+//                (int) viewportBounds.getY() + y), getActualZoomLevel()));
+        return tileFactory.pixelToGeo(new Point2D.Int((int) (viewportBounds.getX() + x),
+                (int) viewportBounds.getY() + y), getActualZoomLevel());
     }
 }

@@ -222,7 +222,7 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
 
     public void actionPerformed(ActionEvent evt) {
         // handle Container items
-System.out.println("ActionPerformed: " + evt.getCommand() + " " + evt.getSource());
+//System.out.println("ActionPerformed: " + evt.getCommand() + " " + evt.getSource());
         if (evt.getSource() instanceof ListLocify) {
             ListLocify list = (ListLocify) evt.getSource();
             int listItem = list.getSelectedIndex();

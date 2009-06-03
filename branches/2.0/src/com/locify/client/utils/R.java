@@ -21,7 +21,9 @@ import com.locify.client.gui.extension.TopBarBackground;
 import com.locify.client.gui.manager.*;
 import com.locify.client.gui.screen.internal.*;
 import com.locify.client.gui.screen.service.*;
+import com.locify.client.maps.MapContent;
 import com.locify.client.locator.*;
+import com.locify.client.maps.TileCache;
 import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.net.*;
 
@@ -49,9 +51,6 @@ public class R {
     private static RouteScreen routeScreen;
     private static GeoFileBrowser geoDataBrowser;
     private static RouteSaveScreen routeSaveScreen;
-    private static MapScreen mapScreen;
-    private static MapOfflineChooseScreen mapOfflineChooseScreen;
-    private static MapItemManager mapItemManager;
     private static BackScreenManager backScreens;
     private static HTMLScreen htmlScreen;
     private static Redirection autoSend;
@@ -83,6 +82,12 @@ public class R {
     private static AudioData audioData;
     private static ProgressScreen progressScreen;
     private static BackgroundRunner backgroundRunner;
+
+    private static MapScreen mapScreen;
+    private static MapContent mapContent;
+    private static TileCache mapTileCache;
+    private static MapOfflineChooseScreen mapOfflineChooseScreen;
+    private static MapItemManager mapItemManager;
 
     //#if planstudio
 //#     private static PlanStudioManager planstudio;
@@ -169,6 +174,21 @@ public class R {
 
     public static boolean isMapScreenInitialized() {
         return mapScreen != null;
+    }
+
+    public static MapContent getMapContent() {
+        if (mapContent == null) {
+            mapContent = new MapContent();
+        }
+        return mapContent;
+    }
+
+    public static TileCache getMapTileCache() {
+        if (mapTileCache == null) {
+            mapTileCache = new TileCache();
+            mapTileCache.start();
+        }
+        return mapTileCache;
     }
 
     public static MapOfflineChooseScreen getMapOfflineChooseScreen() {

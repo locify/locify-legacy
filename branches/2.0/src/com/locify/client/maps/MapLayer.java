@@ -108,7 +108,8 @@ public interface MapLayer {
 
     public void panDown();
 
-    public void repaint();
+    /** returns coordinates in world coordinate system */
+    public Location4D getLocationCoord(int x, int y);
 
     /** returns coordinates in screen coord. system for given location */
     public Point2D.Int getLocationCoord(Location4D loc);

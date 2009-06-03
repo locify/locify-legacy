@@ -237,8 +237,8 @@ public abstract class MapItem {
      */
     protected Point2D.Int[] initializePoints(Vector points) {
         try {
-            if (points == null || mapScreen.getActualMapLayer() instanceof FileMapLayer &&
-                    !((FileMapLayer) mapScreen.getActualMapLayer()).isReady()) {
+            if (points == null || R.getMapContent().getActualMapLayer() instanceof FileMapLayer &&
+                    !((FileMapLayer) R.getMapContent().getActualMapLayer()).isReady()) {
                 return null;
             }
 
@@ -272,7 +272,7 @@ public abstract class MapItem {
                         }
 
 //                    Thread.sleep(5);
-                        items[i] = mapScreen.getActualMapLayer().getLocationCoord(tempLoc4D);
+                        items[i] = R.getMapContent().getActualMapLayer().getLocationCoord(tempLoc4D);
 //                    Thread.sleep(5);
 
                         top = Math.min(top, items[i].y);

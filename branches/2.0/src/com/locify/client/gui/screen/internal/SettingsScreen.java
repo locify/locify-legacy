@@ -185,7 +185,7 @@ public class SettingsScreen implements ActionListener {
 
         form.addComponent(new Label(Locale.get("Default_map_provider")));
         bgMapProvider = new ButtonGroup();
-        Vector providers = (new TileMapLayer(null)).getProvidersAndModes();
+        Vector providers = (new TileMapLayer()).getProvidersAndModes();
         int onlineProviders = providers.size();
         for (int i = 0; i < providers.size(); i++) {
             bgMapProvider.add(new RadioButton((String) providers.elementAt(i), IconData.get("locify://icons/online.png")));
@@ -332,7 +332,7 @@ public class SettingsScreen implements ActionListener {
         } else if (evt.getSource() == btnSaveOther) {
             R.getSettings().saveOtherSettings(bgAutoLogin.getSelectedIndex(), bgExternalClose.getSelectedIndex());
         } else if (evt.getSource() == btnSaveMap) {
-            int onlineProviders = ((new TileMapLayer(null)).getProvidersAndModes()).size();
+            int onlineProviders = ((new TileMapLayer()).getProvidersAndModes()).size();
             if (bgMapProvider.getSelectedIndex() < onlineProviders) {
                 R.getSettings().saveMapsSettings(bgMapProvider.getSelectedIndex(), false);
             } else {

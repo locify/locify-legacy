@@ -81,7 +81,7 @@ public class DescriptionMapItem extends MapItem {
         if (actualState == STATE_WAITING) {
             actualState = STATE_INITIALIZING;
 
-            actualItem = mapScreen.getActualMapLayer().getLocationCoord(
+            actualItem = R.getMapContent().getActualMapLayer().getLocationCoord(
                     new Location4D(item.getLatitude(), item.getLongitude(), 0.0f));
 
             this.itemViewPort = new RectangleViewPort(actualItem.x, actualItem.y, 1, 1);

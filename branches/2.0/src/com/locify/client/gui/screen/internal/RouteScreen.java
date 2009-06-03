@@ -14,9 +14,9 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.gui.extension.FormLocify;
-import com.locify.client.gui.widgets.StateLabel;
 import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.gui.extension.TopBarBackground;
+import com.locify.client.gui.widgets.StateLabelWidget;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.route.*;
 import com.locify.client.utils.ColorsFonts;
@@ -53,16 +53,16 @@ public class RouteScreen extends FormLocify implements ActionListener {
     private Button buttonStart;
     private Button buttonStop;
 
-    private StateLabel labelRouteTime;
-    private StateLabel labelRouteDist;
-    private StateLabel labelSpeedMax;
-    private StateLabel labelSpeedAverage;
-    private StateLabel labelSpeedActual;
-    private StateLabel labelLatitude;
-    private StateLabel labelLongitude;
-    private StateLabel labelAltitude;
-    private StateLabel labelHDOP;
-    private StateLabel labelVDOP;
+    private StateLabelWidget labelRouteTime;
+    private StateLabelWidget labelRouteDist;
+    private StateLabelWidget labelSpeedMax;
+    private StateLabelWidget labelSpeedAverage;
+    private StateLabelWidget labelSpeedActual;
+    private StateLabelWidget labelLatitude;
+    private StateLabelWidget labelLongitude;
+    private StateLabelWidget labelAltitude;
+    private StateLabelWidget labelHDOP;
+    private StateLabelWidget labelVDOP;
 
     private GraphItem gi01;
     private GraphItem gi02;
@@ -160,43 +160,43 @@ public class RouteScreen extends FormLocify implements ActionListener {
             }
         });
         
-        labelAltitude = new StateLabel(BorderLayout.NORTH);
+        labelAltitude = new StateLabelWidget(BorderLayout.NORTH);
         labelAltitude.setTitle(Locale.get("Altitude"));
         labelAltitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelHDOP = new StateLabel(BorderLayout.NORTH);
+        labelHDOP = new StateLabelWidget(BorderLayout.NORTH);
         labelHDOP.setTitle(Locale.get("Hdop_route"));
         labelHDOP.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelLatitude = new StateLabel(BorderLayout.NORTH);
+        labelLatitude = new StateLabelWidget(BorderLayout.NORTH);
         labelLatitude.setTitle(Locale.get("Latitude"));
         labelLatitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelLongitude = new StateLabel(BorderLayout.NORTH);
+        labelLongitude = new StateLabelWidget(BorderLayout.NORTH);
         labelLongitude.setTitle(Locale.get("Longitude"));
         labelLongitude.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelRouteDist = new StateLabel(BorderLayout.NORTH);
+        labelRouteDist = new StateLabelWidget(BorderLayout.NORTH);
         labelRouteDist.setTitle(Locale.get("Distance"));
         labelRouteDist.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelRouteTime = new StateLabel(BorderLayout.NORTH);
+        labelRouteTime = new StateLabelWidget(BorderLayout.NORTH);
         labelRouteTime.setTitle(Locale.get("Time"));
         labelRouteTime.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelSpeedActual = new StateLabel(BorderLayout.NORTH);
+        labelSpeedActual = new StateLabelWidget(BorderLayout.NORTH);
         labelSpeedActual.setTitle(Locale.get("Speed"));
         labelSpeedActual.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelSpeedAverage = new StateLabel(BorderLayout.NORTH);
+        labelSpeedAverage = new StateLabelWidget(BorderLayout.NORTH);
         labelSpeedAverage.setTitle(Locale.get("Average_speed"));
         labelSpeedAverage.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelSpeedMax = new StateLabel(BorderLayout.NORTH);
+        labelSpeedMax = new StateLabelWidget(BorderLayout.NORTH);
         labelSpeedMax.setTitle(Locale.get("Max_speed"));
         labelSpeedMax.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
-        labelVDOP = new StateLabel(BorderLayout.NORTH);
+        labelVDOP = new StateLabelWidget(BorderLayout.NORTH);
         labelVDOP.setTitle(Locale.get("Vdop_route"));
         labelVDOP.setFonts(ColorsFonts.FONT_PLAIN_SMALL, ColorsFonts.FONT_PLAIN_SMALL);
 
