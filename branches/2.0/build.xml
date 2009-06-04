@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- You may freely edit this file. See commented blocks below for -->
-<!-- some examples of how to customize the build. -->
-<!-- (If you delete it and reopen the project it will be recreated.) -->
 <project name="lwuit_test" default="jar" basedir=".">
     <description>Locify</description>
     <import file="nbproject/build-impl.xml"/>
@@ -23,7 +20,83 @@
         <property name="BlackBerry" value="false"/>
     </target>
 
-    <target name="post-init" depends="pre-init">
+    <target name="post-compile">
+        <copy file="resources/locify.res" tofile="build/compiled/locify.res" />
+
+        <copy file="resources/img/icon.png" tofile="build/compiled/icon.png"/>
+        <copy file="resources/img/loading.png" tofile="build/compiled/loading.png"/>
+
+        <copy  todir="build/compiled/">
+            <fileset dir="resources/img/http-status/" />
+        </copy>
+        <copy todir="build/compiled/">
+            <fileset dir="resources/img/gps-status/" />
+        </copy>
+        <copy todir="build/compiled/">
+            <fileset dir="resources/img/menu/" />
+        </copy>
+        <copy todir="build/compiled/">
+            <fileset dir="resources/img/route-status/" />
+        </copy>
+        <copy todir="build/compiled/">
+            <fileset dir="resources/img/maps/" />
+        </copy>
+        <copy todir="build/compiled/">
+            <fileset dir="resources/img/html/" />
+        </copy>
+        <copy todir="build/compiled/">
+            <fileset dir="resources/img/navigation/" />
+        </copy>
+        <copy todir="build/compiled/">
+            <fileset dir="resources/img/filetypes/" />
+        </copy>
+        <copy todir="build/compiled/" >
+            <fileset dir="resources/nightly" />
+        </copy>
+
+        <taskdef classpath="ResourceBuilder.jar" classname="com.sun.lwuit.resource.Builder" name="build" />
+
+        <!--
+        <build dest="src/myresourceFile.res">
+            <font logicalName="Serif" bold="true" />
+            <image file="images/background.png" name="myBackground" pack="true" />
+            <theme file="themes/myTheme.conf" name="myTheme" />
+        </build>
+        -->
+        
+        <build dest="build/compiled/resource_lang_en.res">
+            <l10n name="localize">
+                <locale name="en" file="resources/lang/messages.txt" />
+            </l10n>
+        </build>
+        <build dest="build/compiled/resource_lang_cs.res">
+            <l10n name="localize">
+                <locale name="cs" file="resources/lang/messages_cs_CZ.txt" />
+            </l10n>
+        </build>
+        <build dest="build/compiled/fonts.res">
+            <!--<font logicalName="Arial" size="10" charset=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-02" />-->
+            <font logicalName="Arial" size="10" name="arial_10" />
+            <font logicalName="Arial" size="14" name="arial_14" />
+            <font logicalName="Arial" size="16" name="arial_16" />
+            <font logicalName="Arial" size="18" name="arial_18" />
+            <font logicalName="Arial" size="18" name="arial_18_white_big_bold_letters_only" />
+            <font logicalName="Arial" size="20" name="arial_20" />
+        </build>
+    </target>
+
+    <target name="WM" depends="">
+        <import dest="resources/img/navigation" />
+    </target>
+
+    <target name="WMbig" depends="">
+
+    </target>
+
+    <target name="Others" depends="">
+
+    </target>
+
 <!--       <manifest file="MANIFEST.MF">
         <attribute name="Built-By" value="${user.name}"/>
         <section name="common">
@@ -84,7 +157,6 @@
             <attribute name="Device" value="WM" if="polish.Vendor == WM-big"/>
         </jad>
         <debug enable="false" showLogOnError="true" verbose="true" level="error"></debug>-->
-    </target>
 
     <!--
 
@@ -162,7 +234,8 @@
 
             -->
 			
-    <target name="post-compile">
+    <target name="post-compil">
+        <import dest="resources/img/navigation" />
         <taskdef classpath="ResourceBuilder.jar" classname="com.sun.lwuit.resource.Builder" name="build" />
         <build dest="build/compiled/resource_main.res">
             <image file="resources/img/icon.png"/>
@@ -287,6 +360,8 @@
             <font logicalName="Arial" size="18" name="arial_18_white_big_bold_letters_only" />
             <font logicalName="Arial" size="20" name="arial_20" />
         </build>
-
     </target>
+
+
+
 </project>
