@@ -21,7 +21,6 @@ import com.locify.client.locator.Location4D;
 import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.RectangleViewPort;
 import com.locify.client.maps.geometry.Point2D;
-import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
@@ -53,7 +52,6 @@ public abstract class MapItem {
     protected RectangleViewPort itemViewPort;
     protected Location4D positionTopLeft;
     protected Location4D positionBottomRight;
-    protected MapScreen mapScreen;
 
     /* images */
     protected static GeoFileStyle stylePointIconNormal;
@@ -64,19 +62,17 @@ public abstract class MapItem {
     protected static Image waypointDescription03;
 
     public MapItem() {
-        mapScreen = R.getMapScreen();
-        screenViewPort = new RectangleViewPort(0, 0, R.getMapScreen().getContentPane().getWidth(),
-                R.getMapScreen().getContentPane().getHeight());
-
         if (stylePointIconNormal == null) {
             stylePointIconNormal = new GeoFileStyle("StylePointNormal");
             stylePointIconNormal.setIcon("locify://icons/map_point_orange_21x21.png");
         }
         if (stylePointIconHighlight == null) {
-            stylePointIconHighlight = new GeoFileStyle("StylePOintHighLight");
+            stylePointIconHighlight = new GeoFileStyle("StylePointHighLight");
             stylePointIconHighlight.setIcon(stylePointIconNormal.getIcon().scaled(
                     (int) (stylePointIconNormal.getIcon().getWidth() * 1.5),
                     (int) (stylePointIconNormal.getIcon().getHeight() * 1.5)));
+//System.out.println(stylePointIconNormal.getIcon().getWidth() + " " + stylePointIconNormal.getIcon().getHeight());
+//System.out.println(stylePointIconHighlight.getIcon().getWidth() + " " + stylePointIconHighlight.getIcon().getHeight());
         }
         if (waypointDescriptionBackground == null) {
             waypointDescriptionBackground = IconData.getLocalImage("wpt_description_background.png");
@@ -144,14 +140,21 @@ public abstract class MapItem {
      */
     protected boolean isInside() {
         try {
-            if (screenViewPort != null && itemViewPort != null) {
-                return itemViewPort.intersects(screenViewPort);
+            if (itemViewPort != null) {
+                return itemViewPort.intersects(getScreenViewport());
             }
             return false;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapItem.isInside()", null);
             return false;
         }
+    }
+
+    private RectangleViewPort getScreenViewport() {
+        if (screenViewPort == null)
+            screenViewPort = new RectangleViewPort(0, 0, R.getMapScreen().getContentPane().getWidth(),
+                    R.getMapScreen().getContentPane().getHeight());
+        return screenViewPort;
     }
 
     public Location4D getItemCenter() {
@@ -177,6 +180,7 @@ public abstract class MapItem {
     }
 
     protected void disableInitializeState() {
+//System.out.println("Disable init!!!");
         this.initialized = false;
     }
 

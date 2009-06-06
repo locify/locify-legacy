@@ -29,9 +29,10 @@ import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
-import com.locify.client.net.XHTMLBrowser;
 import com.locify.client.net.Http;
+import com.locify.client.net.browser.XHtmlBrowser;
 import com.locify.client.utils.Locale;
+import com.locify.client.utils.UTF8;
 import com.sun.lwuit.CheckBox;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
@@ -65,7 +66,7 @@ public class GeoFileBrowser implements ActionListener {
     private String fileName;
     private Container containerWaypoint;
     private boolean inService;
-    private XHTMLBrowser htmlBrowser;
+    private XHtmlBrowser htmlBrowser;
     private boolean online = false;
 
     public GeoFileBrowser() {
@@ -194,10 +195,14 @@ public class GeoFileBrowser implements ActionListener {
     private void viewDataRoute() {
         actualForm = FORM_ROUTE;
         form.setAsNew(route.getName());
-        form.addComponent(new Label(Locale.get("Route_length")));
-        form.addComponent(new Label(GpsUtils.formatDistance(route.getRouteDist())));
-        form.addComponent(new Label(Locale.get("Travel_time")));
-        form.addComponent(new Label(GpsUtils.formatTime(route.getRouteTime())));
+        if (route.getRouteDist() > 0) {
+            form.addComponent(new Label(Locale.get("Route_length")));
+            form.addComponent(new Label(GpsUtils.formatDistance(route.getRouteDist())));
+        }
+        if (route.getRouteTime() > 0) {
+            form.addComponent(new Label(Locale.get("Travel_time")));
+            form.addComponent(new Label(GpsUtils.formatTime(route.getRouteTime())));
+        }
         form.addComponent(new Label(Locale.get("Waypoints_count")));
         form.addComponent(new Label(route.getWaypointCount() + ""));
 
@@ -278,13 +283,13 @@ public class GeoFileBrowser implements ActionListener {
 
     private void addDescription(Form form, GeoData data) {
         if (data.getDescription().length() > 0) {
-            htmlBrowser = new XHTMLBrowser();
+            htmlBrowser = new XHtmlBrowser();
             if (online) {
-////                htmlBrowser.loadPage(UTF8.decode(data.getDescription().getBytes(), 0, data.getDescription().getBytes().length));
+                htmlBrowser.loadPage(UTF8.decode(data.getDescription().getBytes(), 0, data.getDescription().getBytes().length));
             } else {
-////                htmlBrowser.loadPage(data.getDescription());
+                htmlBrowser.loadPage(data.getDescription());
             }
-////            form.addComponent(htmlBrowser);
+            form.addComponent(htmlBrowser);
         }
     }
 

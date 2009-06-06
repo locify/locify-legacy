@@ -6,15 +6,12 @@ import com.locify.client.data.ServiceSettingsData;
 import com.locify.client.data.ServicesData;
 import com.locify.client.data.SettingsData;
 import com.locify.client.data.items.GeoFiles;
-import com.locify.client.maps.MapContent;
 import com.locify.client.locator.LocationProvider;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.R;
 import com.locify.client.utils.ResourcesLocify;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Display;
-import com.sun.lwuit.Form;
-import com.sun.lwuit.layouts.BorderLayout;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
@@ -56,27 +53,6 @@ public class Midlet extends MIDlet {
         } catch (Exception e) {
             R.getErrorScreen().view(e, "Midlet.startApp", null);
         }
-//Utils.printMemoryState("Init - end");
-
-//        Resources r = null;
-//        Hashtable h = null;
-//        try {
-//            r = Resources.open("/resources.res");
-//            //UIManager.getInstance().setThemeProps(r.getTheme(r.getThemeResourceNames()[0]));
-//            h = Resources.open("/lang_en.res").getL10N("localize", "en");
-//            UIManager.getInstance().setResourceBundle(h);
-//        } catch (java.io.IOException e) {
-//        }
-//
-//        Form f = new Form();
-//        f.setTitle("Hello World");
-//        f.setLayout(new BorderLayout());
-//        Label lab = new Label((String) h.get("Ask_every_time"));
-//        lab.setIcon(r.getImage("corruptedFile.png"));
-//        lab.setAlignment(Label.CENTER);
-//        f.addComponent(BorderLayout.CENTER, new Label("I am a Label"));
-//        f.addComponent(BorderLayout.NORTH, lab);
-//        f.show();
     }
 
     public void startMIDlet() {
@@ -86,10 +62,11 @@ public class Midlet extends MIDlet {
 //Utils.printMemoryState("02");
             //init the LWUIT Display
             Display.init(this);
-            ResourcesLocify.setTheme();
 //Utils.printMemoryState("03");
-            R.getLoading().view();
+            ResourcesLocify.setTheme();
 //Utils.printMemoryState("04");
+            R.getLoading().view();
+//Utils.printMemoryState("05");
             //#if !applet
             if (R.getFirstRun().isFirstTime()) {
                 R.getFirstRun().start();
@@ -126,7 +103,12 @@ public class Midlet extends MIDlet {
                     //#if !applet
                     if (R.getSettings().getBacklight() == SettingsData.WHOLE_APPLICATION) {
                         R.getBacklight().on();
-                    }        
+                    }
+
+//                    R.getMainScreen().actionPerformed(evt);
+//                    R.getURL().call("http://services.locify.com/nearestCaches/");
+//                    R.getURL().call("http://services.locify.com/nearestCaches/first.php");
+Utils.printMemoryState("Init - end");
                 } else {
                     R.getFirstRun().viewPermissionsWarning();
                 }

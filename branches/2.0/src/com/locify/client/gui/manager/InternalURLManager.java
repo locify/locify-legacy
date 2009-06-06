@@ -202,8 +202,7 @@ public class InternalURLManager {
             } else if (url.equals("locify://back")) {
                 //returns to previous screen
                 R.getBack().goBack();
-            } else if (url.equals("locify://backBack"))
-            {
+            } else if (url.equals("locify://backBack")) {
                 R.getMapScreen().stopNetworkLink();
                 R.getBack().goBack(2);
             } else if (url.equals("locify://refresh")) {
@@ -224,7 +223,7 @@ public class InternalURLManager {
                     R.getLocationScreens().askForContext();
                 }
             } else if (url.equals("locify://htmlBrowser")) {
-                R.getHTMLScreen().view();
+                R.getHtmlScreen().view();
             } else if (url.startsWith("locify://contactsScreen")) {
                 R.getContactsScreen().viewFiltered((String) parameters.get("text"),
                         Integer.parseInt((String) parameters.get("type")));

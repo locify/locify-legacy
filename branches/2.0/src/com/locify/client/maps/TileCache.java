@@ -15,7 +15,6 @@ package com.locify.client.maps;
 
 import com.locify.client.data.FileSystem;
 import com.locify.client.gui.extension.TopBarBackground;
-import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Image;
@@ -385,7 +384,6 @@ public class TileCache extends Thread {
                 if (actualCacheTileSizeFilesystem > maxCacheTileSizeFilesystem) {
                     R.getFileSystem().clearMapCacheDirectory();
                 }
-
                 String hashedName = FileSystem.hashFileName(path);
                 // check cache for image
                 byte[] data = R.getFileSystem().loadBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName);

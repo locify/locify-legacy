@@ -15,15 +15,16 @@ package com.locify.client.gui.screen.service;
 
 import com.locify.client.data.Service;
 import com.locify.client.data.ServicesData;
+import com.locify.client.gui.extension.FormLocify;
+import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
-import com.sun.lwuit.Form;
-import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
+import com.sun.lwuit.layouts.BorderLayout;
 
 /**
  * Creates confirmation screen from HTML page
@@ -31,7 +32,7 @@ import com.sun.lwuit.events.ActionListener;
  */
 public class ConfirmScreen implements ActionListener {
 
-    private Form form;
+    private FormLocify form;
     //sluzba, ktera se pozdeji muze pridat
     private Service service;
     private String confirmUrl;
@@ -55,12 +56,16 @@ public class ConfirmScreen implements ActionListener {
      */
     public void view(String question) {
         //tvorba formulare
-        form = new Form(Locale.get("Confirmation"));
-        form.addComponent(new Label(question));
+        form = new FormLocify(Locale.get("Confirmation"));
+        form.setLayout(new BorderLayout());
+        HtmlTextArea label = new HtmlTextArea(question, false);
+        form.addComponent(BorderLayout.CENTER, label);
         form.addCommand(Commands.cmdYes);
         form.addCommand(Commands.cmdNo);
         form.setCommandListener(this);
         form.show();
+        label.setText(question);
+        label.repaint();
     }
 
     public void view(String question, int confirmAction) {

@@ -75,6 +75,7 @@ public class Waypoint extends GeoData {
     }
 
     public void paint(Graphics g, int x, int y) {
+//System.out.println("Style: " + state);
         if (state == Waypoint.STATE_NONE) {
             if (styleNormal != null && styleNormal.getIcon() != null) {
                 g.drawImage(styleNormal.getIcon(),
@@ -84,9 +85,10 @@ public class Waypoint extends GeoData {
                 g.drawArc(x - 2, y - 2, 4, 4, 0, 360);
             }
         } else if (state == Waypoint.STATE_HIGHLIGHT) {
+//System.out.println((styleHighlight != null) + " " + (styleHighlight.getIcon() != null));
             if (styleHighlight != null && styleHighlight.getIcon() != null) {
                 g.drawImage(styleHighlight.getIcon(),
-                        x - styleHighlight.getXMove(), y - styleHighlight.getYMove() - styleNormal.getIcon().getHeight());
+                        x - styleHighlight.getXMove(), y - styleHighlight.getYMove() - styleHighlight.getIcon().getHeight());
             } else {
                 g.setColor(ColorsFonts.MAP_WP_COLOR_HIGHLIGHT);
                 g.fillArc(x - 3, y - 3, 6, 6, 0, 360);

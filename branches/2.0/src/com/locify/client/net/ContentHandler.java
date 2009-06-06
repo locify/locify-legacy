@@ -50,7 +50,7 @@ public class ContentHandler {
                     Logger.log("No data");
                     return;
                 }
-                Logger.log("Data:");
+                Logger.log("Response data:");
                 Logger.log(data);
 
                 //kml
@@ -94,7 +94,7 @@ public class ContentHandler {
                      FileMapManager.obtainedData = data;
                  }
                  else {
-                    R.getHTMLScreen().view(data);
+                    R.getHtmlScreen().view(data);
                     if (!response.isDisabledCaching()) {
                         CacheData.add(response.getUrl(), data);
                     }

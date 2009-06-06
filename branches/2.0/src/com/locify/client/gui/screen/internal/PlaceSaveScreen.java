@@ -27,17 +27,17 @@ public class PlaceSaveScreen {
     }
 
     public void view() {
-        R.getHTMLScreen().reset();
-        R.getHTMLScreen().setTitle(Locale.get("Save_place"));
-        R.getHTMLScreen().addForm("locify://filesystem/waypoint");
-        R.getHTMLScreen().getHtmlBrowser().addContextItem();
-        R.getHTMLScreen().addHidden("latitude","$lat");
-        R.getHTMLScreen().addHidden("longitude","$lon");
-        R.getHTMLScreen().addNewLine();
-        R.getHTMLScreen().addTextField(Locale.get("Name"), "name", "");
-        R.getHTMLScreen().addNewLine();
-        R.getHTMLScreen().addTextField(Locale.get("Description"), "description", "");
-        R.getHTMLScreen().addButton(Locale.get("Save"), "save", "");
-        R.getHTMLScreen().view();
+        R.getHtmlScreen().reset();
+        R.getHtmlScreen().setTitle(Locale.get("Save_place"));
+        R.getHtmlScreen().addForm("locify://filesystem/waypoint");
+        R.getHtmlScreen().getHtmlBrowser().addContextItem();
+        R.getHtmlScreen().addHidden("latitude","$lat");
+        R.getHtmlScreen().addHidden("longitude","$lon");
+        R.getHtmlScreen().addNewLine();
+        R.getHtmlScreen().addTextField(Locale.get("Name"), "name", "");
+        R.getHtmlScreen().addNewLine();
+        R.getHtmlScreen().addTextField(Locale.get("Description"), "description", "");
+        R.getHtmlScreen().addButton(Locale.get("Save"), "save", "");
+        R.getHtmlScreen().view();
     }
 }

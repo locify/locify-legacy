@@ -17,6 +17,7 @@ import com.locify.client.data.CookieData;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.SettingsData;
 import com.locify.client.gui.extension.TopBarBackground;
+import com.locify.client.net.browser.XHtmlBrowser;
 import com.locify.client.utils.R;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -39,18 +40,18 @@ public class HttpMultipartRequest implements Runnable {
     String path = null;
     String startBoundary = null;
     String endBoundary = null;
-////    Browser browser = null;
+    XHtmlBrowser browser = null;
 
-////    public HttpMultipartRequest(String url, Hashtable params, String fileField, String fileName, String fileType, String fullPath, Browser browser) throws Exception {
-////        this.url = url;
-////        this.path = fullPath;
-////        this.browser = browser;
-////
-////        String boundary = getBoundaryString();
-////
-////        startBoundary = getBoundaryMessage(boundary, params, fileField, fileName, fileType);
-////        endBoundary = "\r\n--" + boundary + "--\r\n";
-////    }
+    public HttpMultipartRequest(String url, Hashtable params, String fileField, String fileName, String fileType, String fullPath, XHtmlBrowser browser) throws Exception {
+        this.url = url;
+        this.path = fullPath;
+        this.browser = browser;
+
+        String boundary = getBoundaryString();
+
+        startBoundary = getBoundaryMessage(boundary, params, fileField, fileName, fileType);
+        endBoundary = "\r\n--" + boundary + "--\r\n";
+    }
 
     String getBoundaryString() {
         return BOUNDARY;
@@ -84,23 +85,16 @@ public class HttpMultipartRequest implements Runnable {
         long fileSize = R.getFileSystem().getSize(path, FileSystem.SIZE_FILE);
 
         R.getUploadProgress().view((int) (fileSize / 1024));
-
         HttpConnection hc = null;
-
         InputStream is = null;
-
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
         byte[] res = null;
-
         try {
 
             TopBarBackground.setHttpStatus(TopBarBackground.CONNECTING);
 
             hc = (HttpConnection) Connector.open(url);
-
             hc.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + getBoundaryString());
-
             //cookies
             hc.setRequestProperty("Cookie", CookieData.getHeaderData(url));
             //user-agent
@@ -109,8 +103,6 @@ public class HttpMultipartRequest implements Runnable {
                 userAgent = "";
             }
             hc.setRequestProperty("User-Agent", "Locify/" + R.getMidlet().getAppProperty("MIDlet-Version") + "/" + SettingsData.getLanguage() + "/" + userAgent);
-
-
             hc.setRequestMethod(HttpConnection.POST);
 
             OutputStream os = hc.openOutputStream();
@@ -118,7 +110,6 @@ public class HttpMultipartRequest implements Runnable {
             os.write(startBoundary.getBytes());
 
             //read from file, write to net
-
             FileConnection fileConnection = (FileConnection) Connector.open("file:///" + path);
             InputStream fis = fileConnection.openInputStream();
             byte[] buffer = new byte[1024];

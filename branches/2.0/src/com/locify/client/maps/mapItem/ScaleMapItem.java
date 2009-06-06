@@ -51,16 +51,18 @@ public class ScaleMapItem extends MapItem {
     
     public ScaleMapItem() {
         super();
-        this.posX = R.getMapScreen().getContentPane().getWidth() - 5;
-        this.posY = R.getMapScreen().getContentPane().getHeight() - 15;
-        this.scaleSizeX = R.getMapScreen().getContentPane().getWidth() / 2;
-        this.scaleSizeY = 6;
-
-        createScaleImage();
     }
     
     public void initialize() {
         try {
+            if (scaleImage == null) {
+                this.posX = R.getMapScreen().getContentPane().getWidth() - 5;
+                this.posY = R.getMapScreen().getContentPane().getHeight() - 15;
+                this.scaleSizeX = R.getMapScreen().getContentPane().getWidth() / 2;
+                this.scaleSizeY = 6;
+                createScaleImage();
+            }
+            
             p1 = R.getMapContent().getActualMapLayer().getLocationCoord(new Location4D(0.1, 14.0, 0.0f));
             p2 = R.getMapContent().getActualMapLayer().getLocationCoord(new Location4D(0.2, 14.0, 0.0f));
 

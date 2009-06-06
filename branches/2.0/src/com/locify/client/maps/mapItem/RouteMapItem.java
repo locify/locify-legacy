@@ -66,11 +66,13 @@ public class RouteMapItem extends MapItem {
     }
 
     public void panItem(int moveX, int moveY) {
+System.out.println("PanItem: " + moveX + " " + moveY);
         panItems(items, moveX, moveY);
     }
     
     public void drawItem(Graphics g) {
         if (enabled) {
+System.out.println("RouteInit: " + initialized);
             if (!initialized)
                 initialize();
             

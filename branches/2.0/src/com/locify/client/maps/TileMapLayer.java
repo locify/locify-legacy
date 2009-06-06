@@ -38,6 +38,7 @@ import com.locify.client.maps.tiles.impl.YahooMapTileFactory;
 import com.locify.client.maps.tiles.impl.YahooSatelliteTileFactory;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Display;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
 import java.util.Vector;
@@ -78,13 +79,13 @@ public class TileMapLayer implements MapLayer {
     private Image tileImage;
 
     /** actual viewport position X */
-    private int viewportX;
+    private int viewportX = 0;
     /** actuual viewport position Y */
-    private int viewportY;
+    private int viewportY = 0;
     /** actual viewport width */
-    private int viewportWidth;
+    private int viewportWidth = Display.getInstance().getDisplayWidth();
     /** actual viewport height */
-    private int viewportHeight;
+    private int viewportHeight = Display.getInstance().getDisplayHeight();
     
     /**
      * An array of all the available providers.
@@ -441,7 +442,7 @@ public class TileMapLayer implements MapLayer {
                     break;
                 }
             }
-                    
+            
             actualZoom = actualZoom - 1;
             setZoomLevel(actualZoom);
         } else {
@@ -449,13 +450,16 @@ public class TileMapLayer implements MapLayer {
                 Point2D cent = new Point2D.Double(
                         rect.getX() + rect.getWidth() / 2,
                         rect.getY() + rect.getHeight() / 2);
+//System.out.println("Rect: " + rect + ", cent: " + cent + ", actZoom: " + actualZoom);
                 Location4D px = getTileFactory().pixelToGeo(cent, actualZoom);
+//System.out.println("New loc: " + px);
                 setCenterPosition(px);
                 count++;
                 if (count > 30) {
                     break;
                 }
                 if (viewportBounds.contains(rect)) {
+//System.out.println("Break");
                     break;
                 }
                 if (actualZoom >= getMinZoomLevel()) {
@@ -463,6 +467,7 @@ public class TileMapLayer implements MapLayer {
                     setZoomLevel(actualZoom);
                     rect = generateBoundingRect(positions, actualZoom);
                 } else {
+//System.out.println("Break2");
                     break;
                 }
             }

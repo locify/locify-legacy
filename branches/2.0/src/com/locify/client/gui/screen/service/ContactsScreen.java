@@ -218,9 +218,9 @@ public class ContactsScreen implements ActionListener {
             String text = (String) lstView.getSelectedItem();
             text = text.substring(text.lastIndexOf(',') + 1).trim();
             if (actualFilter == FILTER_TEL) {
-                R.getHTMLScreen().updateContactTelInfo(text);
+                R.getHtmlScreen().updateContactTelInfo(text);
             } else if (actualFilter == FILTER_EMAIL) {
-                R.getHTMLScreen().updateContactEmailInfo(text);
+                R.getHtmlScreen().updateContactEmailInfo(text);
             }
         }
     }

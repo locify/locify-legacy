@@ -121,6 +121,7 @@ public class LocationScreens implements ActionListener {
                 lstAddresses.addItem(result.getFullAddress());
             }
             lstAddresses.addActionListener(this);
+            form.addComponent(lstAddresses);
             
             form.addCommand(Commands.cmdBack);
             form.addCommand(Commands.cmdHome);
@@ -140,7 +141,9 @@ public class LocationScreens implements ActionListener {
         lstAsk.addItem(new ListLabelItem(Locale.get("Address"), IconData.get("locify://icons/address.png")));
         lstAsk.addItem(new ListLabelItem(Locale.get("Coordinates"), IconData.get("locify://icons/coordinates.png")));
         lstAsk.addItem(new ListLabelItem(Locale.get("Last_known"), IconData.get("locify://icons/lastKnown.png")));
-
+        lstAsk.addActionListener(this);
+        
+        form.addComponent(lstAsk);
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
         form.setCommandListener(this);

@@ -275,7 +275,6 @@ public class Utils {
         }
     }
 
-
     /**
      * Returns numeric month from three-letter name
      * @param month three-letter name
@@ -361,7 +360,7 @@ public class Utils {
     public static String getDate() {
         String time = (new Date()).toString();
         Vector vec = StringTokenizer.getVector(time, " ");
-        int numMonth = numericMonth((String)vec.elementAt(1));
+        int numMonth = numericMonth((String) vec.elementAt(1));
         return vec.elementAt(2) + "." + (numMonth < 10 ? "0" : "") + numMonth + "." +
                 vec.elementAt(5);
     }
@@ -377,22 +376,21 @@ public class Utils {
 
     public static int readInt(byte[] buffer, int start, int len) {
         int result = 0;
-		for (int i = 0; i < len; i++) {
-			int n = (buffer[start + i] < 0 ? (int) buffer[start + i] + 256 : (int) buffer[start + i]) << (8 * i);
-			result += n;
-		}
+        for (int i = 0; i < len; i++) {
+            int n = (buffer[start + i] < 0 ? (int) buffer[start + i] + 256 : (int) buffer[start + i]) << (8 * i);
+            result += n;
+        }
 
         return result;
     }
 
-	public static double readDouble(byte[] buffer, int start, int len) {
-		long result = 0;
-		for (int i = 0; i < len; i++) {
-			result |= ((long)(buffer[start + i] & 0xff)) << (i * 8);
-		}
-		return Double.longBitsToDouble(result);
-	}
-
+    public static double readDouble(byte[] buffer, int start, int len) {
+        long result = 0;
+        for (int i = 0; i < len; i++) {
+            result |= ((long) (buffer[start + i] & 0xff)) << (i * 8);
+        }
+        return Double.longBitsToDouble(result);
+    }
     private static long lastMemory = 0;
 
     /**
@@ -401,13 +399,13 @@ public class Utils {
     public static void printMemoryState(String label) {
         System.gc();
         Runtime rt = Runtime.getRuntime();
-        if (lastMemory == 0)
+        if (lastMemory == 0) {
             lastMemory = rt.freeMemory();
+        }
         System.out.println("\n*************** MemoryStatistics - " + label + " - ***********");
-        System.out.println(" consumed = " + ((rt.totalMemory() - rt.freeMemory())/1024) + " kB");
-        System.out.println(" from last = "+ ((lastMemory - rt.freeMemory())/1024) + " kB");
+        System.out.println(" consumed = " + ((rt.totalMemory() - rt.freeMemory()) / 1024) + " kB");
+        System.out.println(" from last = " + ((lastMemory - rt.freeMemory()) / 1024) + " kB");
         lastMemory = rt.freeMemory();
         System.out.println("*******************************************");
     }
-
 }

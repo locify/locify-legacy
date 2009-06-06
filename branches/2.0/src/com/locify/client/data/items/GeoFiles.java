@@ -357,6 +357,7 @@ public abstract class GeoFiles {
                                                 route.separating.addElement(new Integer(route.points.size()));
                                             }
                                             String coordinates = parser.nextText();
+//Logger.log("Route coo: " + coordinates);
                                             coordinates = coordinates.replace('\t', ' ');
                                             coordinates = coordinates.replace('\n', ' ');
                                             coordinates = coordinates.trim();
@@ -365,9 +366,10 @@ public abstract class GeoFiles {
 
                                             double lat = 0.0, lon = 0.0;
                                             float alt = 0.0f;
-
+//Logger.log("Route token: " + token.size() + " " + token.toString());
                                             for (int i = 0; i < token.size(); i++) {
                                                 Vector tokenPoint = StringTokenizer.getVector((String) token.elementAt(i), ",");
+//Logger.log("Route tokenSize: " + tokenPoint.size() + " " + tokenPoint.toString());
                                                 if (tokenPoint.size() > 1) {
                                                     lon = Double.parseDouble((String) tokenPoint.elementAt(0));
                                                     lat = Double.parseDouble((String) tokenPoint.elementAt(1));
@@ -377,8 +379,8 @@ public abstract class GeoFiles {
                                                     }
                                                     route.points.addElement(new Location4D(lat, lon, alt));
                                                 }
-                                            }
 //Logger.log("Route: " + route.points.size());
+                                            }
                                         }
                                     } else if (event == XmlPullParser.END_TAG) {
                                         tagName = parser.getName();

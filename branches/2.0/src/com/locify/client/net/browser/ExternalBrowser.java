@@ -11,7 +11,7 @@
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
-package com.locify.client.net;
+package com.locify.client.net.browser;
 
 import com.locify.client.data.SettingsData;
 import com.locify.client.utils.Commands;

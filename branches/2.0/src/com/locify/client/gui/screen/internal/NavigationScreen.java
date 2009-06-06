@@ -41,10 +41,10 @@ import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
-import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Button;
+import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Font;
 import com.sun.lwuit.Label;
@@ -94,6 +94,9 @@ public class NavigationScreen extends FormLocify implements
     // skin container
     private Vector skins;
 
+    private Vector widgetList;
+    private Widget selectedWidget;
+
     public NavigationScreen() {
         super(Locale.get("Navigation"));
         try {
@@ -115,6 +118,8 @@ public class NavigationScreen extends FormLocify implements
             this.mainContainer = new WidgetContainer();
             addComponent(BorderLayout.CENTER, mainContainer);
 
+            widgetList = new Vector();
+            
             R.getLocator().addLocationChangeListener(this);
             R.getBackgroundRunner().registerBackgroundListener(this, 1);
 
@@ -172,6 +177,7 @@ public class NavigationScreen extends FormLocify implements
         try {
             //init variables
             location = R.getLocator().getLastLocation();
+            selectedWidget = null;
 
             locationChanged(null, location);
             if (R.getSettings().getBacklight() == SettingsData.NAVIGATION || R.getSettings().getBacklight() == SettingsData.MAP_NAVIGATION) {
@@ -346,9 +352,71 @@ public class NavigationScreen extends FormLocify implements
                     R.getBacklight().on();
                 }
                 break;
-            case GameCanvas.KEY_NUM4:
+            case GameCanvas.KEY_NUM1:
                 leftPanel.switchVisibility();
                 break;
+            case GameCanvas.KEY_NUM4:
+                if (widgetList.size() > 0) {
+                    int index = -1;
+                    if (selectedWidget != null) {
+                        index = widgetList.indexOf(selectedWidget);
+                        selectedWidget.showFocused(false);
+                    }
+                    if (index == -1)
+                        index = 0;
+                    else if (index == 0)
+                        index = widgetList.size() - 1;
+                    else
+                        index -= 1;
+                    selectedWidget = (Widget) widgetList.elementAt(index);
+                    selectedWidget.showFocused(true);
+                }
+                repaint();
+                break;
+            case GameCanvas.KEY_NUM6:
+                if (widgetList.size() > 0) {
+                    int index = -1;
+                    if (selectedWidget != null) {
+                        index = widgetList.indexOf(selectedWidget);
+                        selectedWidget.showFocused(false);
+                        selectedWidget.repaint();
+                    }
+                    if (index == -1 || (index == widgetList.size() - 1))
+                        index = 0;
+                    else
+                        index += 1;
+                    selectedWidget = (Widget) widgetList.elementAt(index);
+                    selectedWidget.showFocused(true);
+                    selectedWidget.repaint();
+                }
+                repaint();
+                break;
+            case GameCanvas.KEY_NUM5:
+                widgetAction(selectedWidget);
+                break;
+        }
+    }
+
+    public void pointerPressed(int x, int y) {
+        selectedWidget = null;
+        Component comp = getContentPane().getComponentAt(x, y);
+        if (comp == null) {
+
+        } else if (comp instanceof Widget) {
+            selectedWidget = (Widget) comp;
+        } else if (comp.getParent() != null && comp.getParent() instanceof Widget) {
+            selectedWidget = (Widget) comp.getParent();
+        }
+
+        if (selectedWidget == null)
+            super.pointerPressed(x, y);
+        else
+            widgetAction(selectedWidget);
+    }
+
+    private void widgetAction(Widget widget) {
+        if  (widget != null && widget.getLinkTo() != null && widget.getLinkTo().length() > 0) {
+            R.getURL().call(widget.getLinkTo());
         }
     }
 
@@ -391,6 +459,7 @@ public class NavigationScreen extends FormLocify implements
 
     private void setNavigationScreenSkin(String skinPath) {
         mainContainer.removeAll();
+        widgetList.removeAllElements();
 
         FileConnection fileConnection = null;
         InputStream is = null;
@@ -425,7 +494,7 @@ public class NavigationScreen extends FormLocify implements
                 event = parser.nextToken();
                 if (event == XmlPullParser.START_TAG) {
                     tagName = parser.getName();
-                    Logger.debug("  parseKML - tagName: " + tagName);
+//                    Logger.debug("  parseKML - tagName: " + tagName);
                     if (tagName.equalsIgnoreCase("bindTo")) {
                         value = parser.nextText();
                         if (value != null) {
@@ -443,6 +512,12 @@ public class NavigationScreen extends FormLocify implements
                         parent.setLayout(getLayout(parser));
                     } else if (tagName.equalsIgnoreCase("lcf")) {
 
+                    } else if (tagName.equalsIgnoreCase("linkTo")) {
+                        value = parser.nextText();
+                        if (actualState != STATE_NONE) {
+                            widget.setFocusable(true);
+                            widget.setLinkTo(value);
+                        }
                     } else if (tagName.equalsIgnoreCase("title")) {
                         if (actualState == STATE_WIDGET_STATE_LABEL) {
                             ((StateLabelWidget) widget).setTitleHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
@@ -511,6 +586,8 @@ public class NavigationScreen extends FormLocify implements
                         widget.addToParent();
                         if (widget instanceof WidgetContainer) {
                             parent = widget.getWidgetParent();
+                        } else {
+                            widgetList.addElement(widget);
                         }
                         widget = (Widget) widget.getWidgetParent();
                     }
@@ -520,7 +597,7 @@ public class NavigationScreen extends FormLocify implements
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "RouteData.isRoute", null);
-            Logger.error("NavigationScreen.createNavigationScreen() - file: " + skinPath + " ex: " + e.toString());
+//            Logger.error("NavigationScreen.createNavigationScreen() - file: " + skinPath + " ex: " + e.toString());
             return;
         } finally {
             try {

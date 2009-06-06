@@ -13,7 +13,6 @@
  */
 package com.locify.client.gui.widgets;
 
-import com.locify.client.gui.extension.BackgroundListener;
 import com.locify.client.maps.MapContent;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Graphics;
@@ -22,28 +21,24 @@ import com.sun.lwuit.Graphics;
  *
  * @author menion
  */
-public class MapWidget extends Widget implements BackgroundListener {
+public class MapWidget extends Widget {
 
     private MapContent mapContent;
 
     public MapWidget() {
         super();
         mapContent = R.getMapContent();
-        mapContent.registerParent(this);
-        R.getBackgroundRunner().registerBackgroundListener(this, 1);
     }
 
     public void paint(Graphics g) {
-        mapContent.centerMap(R.getLocator().getLastLocation(), true);
-        mapContent.drawMap(g);
-        mapContent.drawActualLocationPoint(g);
+        mapContent.registerParent(this);
 
+        mapContent.centerMap(R.getLocator().getLastLocation(), true);
+        mapContent.paintAll(g);
+//        mapContent.drawActualLocationPoint(g);
+//System.out.println("DrawMap");
 //        g.setColor(ColorsFonts.BLACK);
 //        g.drawRect(g.getClipX(), g.getClipY(), 50, 50);
 //        g.drawRect(g.getClipWidth() + g.getClipX() - 50, g.getClipHeight() + g.getClipY() - 50, 50, 50);
-    }
-
-    public void runBackgroundTask() {
-        repaint();
     }
 }

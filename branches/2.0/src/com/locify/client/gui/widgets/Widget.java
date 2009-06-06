@@ -13,8 +13,10 @@
  */
 package com.locify.client.gui.widgets;
 
+import com.locify.client.utils.ColorsFonts;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.layouts.BorderLayout;
+import com.sun.lwuit.plaf.Border;
 
 /**
  *
@@ -24,9 +26,19 @@ public class Widget extends Container {
 
     private Container parent;
     private String constraints;
+    private String linkTo;
+    private Border defaultBorder;
+    private int defaultBgColor;
 
     public Widget() {
         super();
+        this.defaultBorder = getStyle().getBorder();
+        if (defaultBorder == null)
+            defaultBorder = Border.getDefaultBorder();
+        this.defaultBgColor = getStyle().getBgColor();
+
+//System.out.println("Border: " + defaultBorder);
+//System.out.println("Color: " + defaultBgColor);
     }
 
     public void setWidgetParent(Container parent) {
@@ -53,5 +65,23 @@ public class Widget extends Container {
             parent.addComponent(constraints, this);
         else
             parent.addComponent(this);
+    }
+
+    public void setLinkTo(String linkTo) {
+        this.linkTo = linkTo;
+    }
+
+    public String getLinkTo() {
+        return linkTo;
+    }
+
+    public void showFocused(boolean focused) {
+        if (focused) {
+            this.getStyle().setBorder(Border.createBevelRaised());
+            this.getStyle().setBgColor(ColorsFonts.RED);
+        } else {
+            this.getStyle().setBorder(defaultBorder);
+            this.getStyle().setBgColor(defaultBgColor);
+        }
     }
 }

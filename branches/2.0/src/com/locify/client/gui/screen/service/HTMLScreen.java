@@ -13,53 +13,49 @@
  */
 package com.locify.client.gui.screen.service;
 
+import com.locify.client.net.browser.HtmlForm;
 import com.locify.client.data.ServicesData;
+import com.locify.client.gui.extension.FormLocify;
+import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.locator.LocationEventGenerator;
 import com.locify.client.locator.LocationEventListener;
-import com.locify.client.net.Variables;
-import com.locify.client.net.XHTMLBrowser;
+import com.locify.client.net.browser.HtmlButton;
+import com.locify.client.net.browser.XHtmlBrowser;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
-import com.locify.client.utils.Utils;
-import com.locify.client.net.XHTMLTagHandler;
 import com.locify.client.utils.Locale;
 import com.sun.lwuit.Command;
-import com.sun.lwuit.Form;
+import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
+import com.sun.lwuit.layouts.BorderLayout;
 
 /**
  * This class uses Polish HTML Browser and extends its functionality
  * @author David Vavra
  */
-public class HTMLScreen implements ActionListener, LocationEventListener {
+public class HtmlScreen implements ActionListener, LocationEventListener {
 
-    private Form form;
-    private XHTMLBrowser htmlBrowser;
+    private FormLocify form;
+    private XHtmlBrowser htmlBrowser;
     private Command cmdRefresh = new Command(Locale.get("Refresh_gps"), 2);
     private HtmlForm currentForm;
 
-    public HTMLScreen() {
-////
-////        form = new Form("");
-////
-////        this.htmlBrowser = new XHTMLBrowser();
-////        form.append(this.htmlBrowser);
-////        form.addCommand(Commands.cmdBack);
-////        //#style imgHome
-////        form.addCommand(Commands.cmdHome);
-////        //another location commands
-////        //#style imgWhere
-////        form.addCommand(Commands.cmdAnotherLocation);
-////        for (int i = 0; i < R.getContext().commands.length; i++) {
-////            if (i != LocationContext.GPS) {
-////                UiAccess.addSubCommand(R.getContext().commands[i], Commands.cmdAnotherLocation, form);
-////            }
-////        }
-////        form.setCommandListener(this);
-////        R.getLocator().addLocationChangeListener(this);
+    public HtmlScreen() {
+        form = new FormLocify(" ");
+        form.setLayout(new BorderLayout());
+
+        htmlBrowser = new XHtmlBrowser();
+        form.addComponent(BorderLayout.CENTER, htmlBrowser);
+        form.addCommand(Commands.cmdBack);
+        form.addCommand(Commands.cmdHome);
+        //another location commands
+        // i know about added gps ... actualy i'm lazy :)
+        form.addCommand(new ParentCommand(Locale.get("Another_location"), null, R.getContext().commands));
+        form.setCommandListener(this);
+        R.getLocator().addLocationChangeListener(this);
     }
 
     /**
@@ -67,40 +63,37 @@ public class HTMLScreen implements ActionListener, LocationEventListener {
      * @param data html response
      */
     public void view(String data) {
-////        htmlBrowser.loadPage(data);
-////        if (R.getContext().getSource() == LocationContext.GPS) {
-////            //#style imgGps
-////            form.addCommand(cmdRefresh);
-////            R.getLocator().startWaitForLocation();
-////        } else {
-////            form.removeCommand(cmdRefresh);
-////        }
-////        //service commands
-////        if (ServicesData.getCurrent().equals("Locify")) {
-////            form.removeCommand(R.getMainScreen().cmdService);
-////        } else {
-////            //#style imgManage
-////            form.addCommand(R.getMainScreen().cmdService);
-////            Utils.removeSubCommand(R.getMainScreen().cmdMoreInfo, R.getMainScreen().cmdService, form);
-////            Utils.removeSubCommand(R.getMainScreen().cmdServiceSettings, R.getMainScreen().cmdService, form);
-////            Utils.removeSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, form);
-////            //#style imgInfo
-////            UiAccess.addSubCommand(R.getMainScreen().cmdMoreInfo, R.getMainScreen().cmdService, form);
-////            if (!"".equals(ServicesData.getService(ServicesData.getCurrent()).getSettingsUrl())) {
-////                //#style imgServiceSettings
-////                UiAccess.addSubCommand(R.getMainScreen().cmdServiceSettings, R.getMainScreen().cmdService, form);
-////            }
-////            //#style imgUpdateService
-////            UiAccess.addSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, form);
-////        }
-////        if (updateItemsWithVariables()) {
-////            form.show();
-////        }
-////        htmlBrowser.focus(0);
+        htmlBrowser.loadPage(data);
+        if (R.getContext().getSource() == LocationContext.GPS) {
+            form.addCommand(cmdRefresh);
+            R.getLocator().startWaitForLocation();
+        } else {
+            form.removeCommand(cmdRefresh);
+        }
+        //service commands
+        if (ServicesData.getCurrent().equals("Locify")) {
+            form.removeCommand(Commands.cmdService);
+        } else {
+            form.addCommand(Commands.cmdService);
+//            Utils.removeSubCommand(R.getMainScreen().cmdMoreInfo, R.getMainScreen().cmdService, form);
+//            Utils.removeSubCommand(R.getMainScreen().cmdServiceSettings, R.getMainScreen().cmdService, form);
+//            Utils.removeSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, form);
+//            //#style imgInfo
+//            UiAccess.addSubCommand(R.getMainScreen().cmdMoreInfo, R.getMainScreen().cmdService, form);
+//            if (!"".equals(ServicesData.getService(ServicesData.getCurrent()).getSettingsUrl())) {
+//                //#style imgServiceSettings
+//                UiAccess.addSubCommand(R.getMainScreen().cmdServiceSettings, R.getMainScreen().cmdService, form);
+//            }
+//            //#style imgUpdateService
+//            UiAccess.addSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, form);
+        }
+        if (updateItemsWithVariables()) {
+            form.show();
+        }
     }
 
     public void reset() {
-////        htmlBrowser.clear();
+        htmlBrowser.removeAll();
     }
 
     /**
@@ -142,26 +135,24 @@ public class HTMLScreen implements ActionListener, LocationEventListener {
      * @param value
      */
     public void addButton(String label, String name, String value) {
-////        //#style button
-////        StringItem buttonItem = new StringItem(null, label);
-////        buttonItem.setDefaultCommand(XHTMLTagHandler.CMD_SUBMIT);
-////        buttonItem.setItemCommandListener(htmlBrowser.getTagHandler());
-////        htmlBrowser.getTagHandler().addCommands("input", "type", "submit", buttonItem);
-////        htmlBrowser.add(buttonItem);
-////        this.currentForm.addItem(buttonItem);
-////        buttonItem.setAttribute("polish_form", this.currentForm);
-////        buttonItem.setAttribute("type", "submit");
-////        buttonItem.setAttribute("name", name);
-////        buttonItem.setAttribute("value", value);
+        HtmlButton buttonItem = new HtmlButton(label);
+//        buttonItem.setDefaultCommand(XHTMLTagHandler.CMD_SUBMIT);
+//        buttonItem.setItemCommandListener(htmlBrowser.getTagHandler());
+        htmlBrowser.getXHtmlTagHandler().addCommands("input", "type", "submit", buttonItem);
+        htmlBrowser.addItem(buttonItem);
+        this.currentForm.addItem(buttonItem);
+        buttonItem.setAttributeForm(this.currentForm);
+        buttonItem.setAttributeType("submit");
+        buttonItem.setAttributeName(name);
+        buttonItem.setAttributeValue(value);
     }
 
     /**
      * Adds new line to the page
      */
     public void addNewLine() {
-////        StringItem stringItem = new StringItem(null, null);
-////        stringItem.setLayout(Item.LAYOUT_NEWLINE_AFTER);
-////        htmlBrowser.add(stringItem);
+        Label stringItem = new Label("");
+        htmlBrowser.addItem(stringItem);
     }
 
 
@@ -178,16 +169,15 @@ public class HTMLScreen implements ActionListener, LocationEventListener {
      * Views current browser without reloading
      */
     public void view() {
-////        if (R.getContext().getSource() == LocationContext.GPS) {
-////            //#style imgGps
-////            form.addCommand(cmdRefresh);
-////            R.getLocator().startWaitForLocation();
-////        } else {
-////            form.removeCommand(cmdRefresh);
-////        }
-////        updateItemsWithVariables();
-////        htmlBrowser.updateContextItem();
-////        R.getMidlet().switchDisplayable(null, form);
+        if (R.getContext().getSource() == LocationContext.GPS) {
+            form.addCommand(cmdRefresh);
+            R.getLocator().startWaitForLocation();
+        } else {
+            form.removeCommand(cmdRefresh);
+        }
+        updateItemsWithVariables();
+        htmlBrowser.updateContextItem();
+        form.show();
     }
 
     /**
@@ -247,10 +237,10 @@ public class HTMLScreen implements ActionListener, LocationEventListener {
 ////                    }
 ////                }
 ////            }
-////            return true;
+            return true;
 ////        } catch (Exception e) {
 ////            R.getErrorScreen().view(e, "HTMLScreen.updateItemsWithVariables", null);
-            return false;
+////            return false;
 ////        }
     }
 
@@ -269,7 +259,7 @@ public class HTMLScreen implements ActionListener, LocationEventListener {
         R.getURL().call("locify://htmlBrowser");
     }
 
-    public XHTMLBrowser getHtmlBrowser() {
+    public XHtmlBrowser getHtmlBrowser() {
         return htmlBrowser;
     }
 

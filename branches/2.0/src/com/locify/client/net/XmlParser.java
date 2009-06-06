@@ -82,7 +82,7 @@ public class XmlParser {
             int redirectionTime = -1;
             while (parser.nextTag() != XmlPullParser.END_DOCUMENT) {
                 String name = parser.getName();
-                Logger.logNoBreak("<" + name + ">");
+                Logger.logNoBreak("tag: <" + name + ">");
                 if (name.equals("title")) {
                     title = parser.nextText();
                 }
@@ -276,6 +276,7 @@ public class XmlParser {
             } else {
                 Service service = new Service(R.getHttp().getLastUrl(), serviceName, serviceUrl, serviceDesc, Utils.timestamp(), serviceIcon, Utils.timestamp(), serviceSettings);
                 R.getConfirmScreen().setService(service);
+                //System.out.println("AddServ: " + serviceName + ":\n" + serviceDesc + "\n\n" + Locale.get("Really_add_service"));
                 R.getConfirmScreen().view(serviceName + ":\n" + serviceDesc + "\n\n" + Locale.get("Really_add_service"));
             }
         } catch (Exception e) {

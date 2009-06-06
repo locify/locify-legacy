@@ -85,16 +85,14 @@ public class Http implements Runnable {
     private void start(HttpRequest newRequest) {
         newRequest.setUrl(makeAbsoluteURL(newRequest.getUrl()));
         //cancel multiple same request - user is mad and clicking over and over
-        if (lastRequestTime != 0 && (System.currentTimeMillis()-lastRequestTime)<2000 && request.toString().equals(newRequest.toString()))
-        {
+        if (lastRequestTime != 0 && (System.currentTimeMillis() - lastRequestTime) < 2000 && request.toString().equals(newRequest.toString())) {
             Logger.log("Cancelling request - too soon before another");
             return;
         }
         requestQueue.addElement(newRequest);
         R.getPostData().reset();
         lastRequestTime = System.currentTimeMillis();
-        if (newRequest.getSource()!=GEOCODING)
-        {
+        if (newRequest.getSource() != GEOCODING) {
             lastUrl = newRequest.getUrl();
         }
         if (requestQueue.size() == 1) {
@@ -179,7 +177,7 @@ public class Http implements Runnable {
                 }
                 //process content
                 if (response.getData() != null) {
-                    if (request.getSource()!=STRAIGHT_TO_CACHE) {
+                    if (request.getSource() != STRAIGHT_TO_CACHE) {
                         ContentHandler.handle(response);
                     } else //dont display, save to cache instead
                     {
@@ -306,7 +304,7 @@ public class Http implements Runnable {
             {
                 R.getSettings().setAutologin(SettingsData.OFF);
             }
-            if ((response.getSource()==AUDIO_DOWNLOADER || response.getSource() == IMAGE_DOWNLOADER) && responseCode != 200) {
+            if ((response.getSource() == AUDIO_DOWNLOADER || response.getSource() == IMAGE_DOWNLOADER) && responseCode != 200) {
                 Logger.log("Media download failed: " + responseCode);
                 return true;
             }
@@ -358,7 +356,7 @@ public class Http implements Runnable {
         }
         if (url.startsWith("/")) {
             //root url
-            int thirdSlash = getLastUrl().indexOf('/',8);
+            int thirdSlash = getLastUrl().indexOf('/', 8);
             return getLastUrl().substring(0, thirdSlash) + url;
         } else {
             //relative url
@@ -414,7 +412,7 @@ class HttpRequest {
     }
 
     public String toString() {
-        return url+postData+postDataUrlEncoded+cookies+httpBasicResponse+source;
+        return url + postData + postDataUrlEncoded + cookies + httpBasicResponse + source;
     }
 
     public HttpRequest clone() {

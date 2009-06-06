@@ -51,13 +51,27 @@ public class ColorsFonts {
     
     public static int MAP_ACTUAL_LOCATION = RED;
 
+    // final version of fonts
+//    public static final Font FONT_SMALL = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
+    public static final Font FONT_SMALL = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
+    public static final Font FONT_MEDIUM = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+    public static final Font FONT_LARGE = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_LARGE);
+//    public static final Font FONT_LARGE = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_LARGE);
+
+
     /* bitMap fonts */
-    public static final Font FONT_BMF_10 = ResourcesLocify.getFont("arial_10");
-    public static final Font FONT_BMF_14 = ResourcesLocify.getFont("arial_14");
-    public static final Font FONT_BMF_16 = ResourcesLocify.getFont("arial_16");
-    public static final Font FONT_BMF_18 = ResourcesLocify.getFont("arial_18");
-    public static final Font FONT_BMF_18W = ResourcesLocify.getFont("arial_18_white_big_bold_letters_only");
-    public static final Font FONT_BMF_20 = ResourcesLocify.getFont("arial_20");
+    public static final Font FONT_BMF_10 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+    public static final Font FONT_BMF_14 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+    public static final Font FONT_BMF_16 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+    public static final Font FONT_BMF_18 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+    public static final Font FONT_BMF_18W = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+    public static final Font FONT_BMF_20 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+//    public static final Font FONT_BMF_10 = ResourcesLocify.getFont("arial_10");
+//    public static final Font FONT_BMF_14 = ResourcesLocify.getFont("arial_14");
+//    public static final Font FONT_BMF_16 = ResourcesLocify.getFont("arial_16");
+//    public static final Font FONT_BMF_18 = ResourcesLocify.getFont("arial_18");
+//    public static final Font FONT_BMF_18W = ResourcesLocify.getFont("arial_18_white_big_bold_letters_only");
+//    public static final Font FONT_BMF_20 = ResourcesLocify.getFont("arial_20");
     
     public static final Font FONT_PLAIN_SMALL = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
     public static final Font FONT_PLAIN_MEDIUM = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);

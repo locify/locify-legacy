@@ -33,7 +33,7 @@ import com.locify.client.maps.NetworkLinkDownloader;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.mapItem.DescriptionMapItem;
 import com.locify.client.maps.mapItem.MapItem;
-import com.locify.client.maps.mapItem.MapItemManager;
+import com.locify.client.maps.mapItem.MapItemInfoPanel;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
@@ -77,11 +77,8 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
     private Container mainContainer;
     /** downloader for network link */
     private NetworkLinkDownloader networkLinkDownloader;
-
     /** screen lock for drawing */
     private boolean drawLock;
-    /** manager for objects to show on screen */
-    private MapItemManager mapItemManager;
     /* selected item marked as desk with informations */
     public static String tempWaypointDescriptionItemName = "selectedItem";
     /** navigation item is highlited line */
@@ -122,7 +119,6 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
         drawLock = false;
         firstMove = true;
         setNewCenterAfterRepaint = false;
-        mapItemManager = R.getMapItemManager();
 
         selectedMapItemWaypoints = new Vector();
         selectedMapItemIndex = -1;
@@ -191,7 +187,6 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
             }
         };
         addComponent(BorderLayout.CENTER, mainContainer);
-        mapContent.registerParent(getContentPane());
         R.getLocator().addLocationChangeListener(this);
     }
 
@@ -212,8 +207,9 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                     centerMap(R.getLocator().getLastLocation(), mapContent.isCenterToActualLocation());
                 }
 
+                mapContent.registerParent(this);
+                
                 show();
-                mapItemManager.init();
 //System.out.println("Container: " + mainContainer.getWidth() + " " + mainContainer.getHeight());
 
                 selectNearestWaypointsAtCenter();
@@ -242,7 +238,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
     public void view(double lat, double lon, String name, String desc) {
         Vector waypoints = new Vector();
         waypoints.addElement(new Waypoint(lat, lon, name, desc, null));
-        mapItemManager.addItem(name, new PointMapItem(waypoints), MapItem.PRIORITY_MEDIUM);
+        mapContent.getMapItemManager().addItem(name, new PointMapItem(waypoints), MapItem.PRIORITY_MEDIUM);
         centerMap(new Location4D(lat, lon, 0f), false);
         view();
     }
@@ -255,7 +251,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
             Waypoint waypoint = (Waypoint) data;
             Vector waypoints = new Vector();
             waypoints.addElement(waypoint);
-            mapItemManager.addItem(waypoint.getName(), new PointMapItem(waypoints), MapItem.PRIORITY_MEDIUM);
+            mapContent.getMapItemManager().addItem(waypoint.getName(), new PointMapItem(waypoints), MapItem.PRIORITY_MEDIUM);
             if (!nowDirectly || !firstCenterAfterND) {
                 Location4D loc = new Location4D(waypoint.getLatitude(), waypoint.getLongitude(), 0);
                 //zooming map to point and actual location pair - by destil -- yeah yeah that's goood :)) by menion
@@ -266,7 +262,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
             WaypointsCloud cloud = (WaypointsCloud) data;
             PointMapItem mapItem = new PointMapItem(cloud.getWaypointsCloudPoints());
             //mapItemManager.removeAll();
-            mapItemManager.addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
+            mapContent.getMapItemManager().addItem(cloud.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
             if (cloud.getWaypointsCount() != 0 && (!nowDirectly || !firstCenterAfterND)) {
                 if (mapContent.getActualMapLayer() instanceof FileMapLayer && !mapContent.getFileMapLayer().isReady()) {
                     mapContent.setNewMapItem(mapItem);
@@ -277,10 +273,11 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
             }
         } else if (data instanceof Route) {
             Route route = (Route) data;
+//System.out.println("AddRoute: " + route.getDescription() + ", points: " + route.getWaypointCount());
             if (route.getWaypointCount() != 0) {
                 RouteMapItem mapItem = new RouteMapItem(route);
                 mapItem.setStyles(route.getStyleNormal(), route.getStyleHighLight());
-                mapItemManager.addItem(route.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
+                mapContent.getMapItemManager().addItem(route.getName(), mapItem, MapItem.PRIORITY_MEDIUM);
                 if (!nowDirectly || !firstCenterAfterND) {
                     if (mapContent.getActualMapLayer() instanceof FileMapLayer && !mapContent.getFileMapLayer().isReady()) {
                         mapContent.setNewMapItem(mapItem);
@@ -309,11 +306,11 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
 
     public void view(MultiGeoData data) {
         if (data.getScreenOverlay() != null) {
-            mapItemManager.removeItem("overlay");
+            mapContent.getMapItemManager().removeItem("overlay");
             MapItem overlay = new ScreenOverlayMapItem(data.getScreenOverlay());
             overlay.setPriority(MapItem.PRIORITY_LOW);
             overlay.setEnabled(true);
-            mapItemManager.addItemFixed("overlay", overlay);
+            mapContent.getMapItemManager().addItemFixed("overlay", overlay);
         }
         for (int i = 0; i < data.getDataSize(); i++) {
             view(data.getGeoData(i));
@@ -356,12 +353,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
             }
 
             mapContent.centerMap(newCenter, centerToActualLocation);
-            mapItemManager.disableInitializeState();
         }
-    }
-
-    public MapItemManager getMapItemManager() {
-        return mapItemManager;
     }
     
     /**
@@ -369,22 +361,14 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
      * location pointer etc.
      */
     private void drawMap(Graphics g) {
+//Utils.printMemoryState("Maps - draw");
         mapContent.drawMap(g);
         mapContent.drawActualLocationPoint(g);
         mapContent.drawSelectionCircle(g);
-
-        try {
-            mapItemManager.drawItems(g, MapItem.PRIORITY_HIGH);
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(PRIORITY_HIGH)");
-        }
+        mapContent.drawMapItem(g, MapItem.PRIORITY_HIGH);
 
         if (!mapContent.isPanProcess() || mapContent.isPaintDuringPanning()) {
-            try {
-                mapItemManager.drawItems(g, MapItem.PRIORITY_MEDIUM);
-            } catch (Exception e) {
-                R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(PRIORITY_MEDIUM)");
-            }
+            mapContent.drawMapItem(g, MapItem.PRIORITY_MEDIUM);
 
             try {
                 Waypoint wpt;
@@ -415,11 +399,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
         }
 
         if (!mapContent.isPanProcess() || mapContent.isPaintDuringPanning()) {
-            try {
-                mapItemManager.drawItems(g, MapItem.PRIORITY_LOW);
-            } catch (Exception e) {
-                R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(PRIORITY_LOW)");
-            }
+            mapContent.drawMapItem(g, MapItem.PRIORITY_LOW);
         }
     }
 
@@ -433,6 +413,10 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
         return bbox;
     }
 
+    public boolean isMapNavigationRunning() {
+        return mapContent.getMapItemManager().existItemTemp(tempMapNavigationItem);
+    }
+    
     public void locationChanged(LocationEventGenerator sender, Location4D location) {
         try {
             if (mapContent.isCenterToActualLocation()) {
@@ -441,7 +425,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
             }
 
             if (isMapNavigationRunning()) {
-                ((MapNavigationItem) mapItemManager.getItemTemp(tempMapNavigationItem)).actualizeActualPosition(location);
+                ((MapNavigationItem) mapContent.getMapItemManager().getItemTemp(tempMapNavigationItem)).actualizeActualPosition(location);
             }
             repaint();
         } catch (Exception e) {
@@ -449,20 +433,13 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
         }
     }
 
-    public boolean isMapNavigationRunning() {
-        return mapItemManager.existItemTemp(tempMapNavigationItem);
-    }
-
     public void stateChanged(LocationEventGenerator sender, int state) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void errorMessage(LocationEventGenerator sender, String message) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void message(LocationEventGenerator sender, String message) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void actionCommand(Command cmd) {
@@ -507,7 +484,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
             } else if (cmd == Commands.cmdMyLocation) {
                 makeMapAction(MA_MY_LOCATION, null);
             } else if (cmd == Commands.cmdItemManager) {
-                mapItemManager.viewMapSettings();
+                mapContent.getMapItemManager().viewMapSettings();
             } else if (cmd == Commands.cmdBacklightOn) {
                 R.getBacklight().on();
                 removeCommand(Commands.cmdBacklightOn);
@@ -566,7 +543,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                         makeMapAction(MA_PAN_RIGHT, null);
                         break;
                     case Display.GAME_FIRE:
-                        if (mapItemManager.getItemTemp(tempWaypointDescriptionItemName) != null) {
+                        if (mapContent.getMapItemManager().getItemTemp(tempWaypointDescriptionItemName) != null) {
                             makeSelectionActionFire();
                         } else {
                             makeMapAction(MA_SELECT, null);
@@ -663,40 +640,40 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
             switch (action) {
                 case MA_PAN_UP:
                     actionPanUp();
-                    if (!mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+                    if (!mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
                         moveWhenPressedThread = new Thread(this);
                         moveWhenPressedThread.start();
                     }
                     break;
                 case MA_PAN_DOWN:
                     actionPanDown();
-                    if (!mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+                    if (!mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
                         moveWhenPressedThread = new Thread(this);
                         moveWhenPressedThread.start();
                     }
                     break;
                 case MA_PAN_LEFT:
                     actionPanLeft();
-                    if (!mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+                    if (!mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
                         moveWhenPressedThread = new Thread(this);
                         moveWhenPressedThread.start();
                     }
                     break;
                 case MA_PAN_RIGHT:
                     actionPanRight();
-                    if (!mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+                    if (!mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
                         moveWhenPressedThread = new Thread(this);
                         moveWhenPressedThread.start();
                     }
                     break;
                 case MA_ZOOM_IN:
-                    if (!mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+                    if (!mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
                         mapContent.makeZoomAction(MapContent.ZOOM_IN, 0, 0);
                         selectNearestWaypointsAtCenter();
                     }
                     break;
                 case MA_ZOOM_OUT:
-                    if (!mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+                    if (!mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
                         mapContent.makeZoomAction(MapContent.ZOOM_OUT, 0, 0);
                         selectNearestWaypointsAtCenter();
                     }
@@ -708,7 +685,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                     mapContent.getActualMapLayer().nextMode();
                     break;
                 case MA_MY_LOCATION:
-                    if (!mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+                    if (!mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
                         if (mapContent.isZoomProcess()) {
 //                            mapWidget.makeZoomAction(MapContent.ZOOM_PAN, -1 * mapWidget.getActualZoomPanX(),
 //                                    -1 * mapWidget.getActualZoomPanY());
@@ -726,7 +703,6 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                 default:
                     return;
             }
-//System.out.println("Rep1");
             repaint();
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.makeMapAction()", "action type: " + action);
@@ -763,8 +739,8 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
     private void actionPanUp() {
         if (mapContent.isZoomProcess()) {
             mapContent.makeZoomAction(MapContent.ZOOM_UP, 0, 0);
-        } else if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
-            DescriptionMapItem item = (DescriptionMapItem) mapItemManager.getItemTemp(tempWaypointDescriptionItemName);
+        } else if (mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
+            DescriptionMapItem item = (DescriptionMapItem) mapContent.getMapItemManager().getItemTemp(tempWaypointDescriptionItemName);
             if (item != null) {
                 item.selectNext();
             }
@@ -773,7 +749,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                 mapContent.setCenterToActualLocation(false);
                 mapContent.getActualMapLayer().panUp();
                 setNewCenterAfterRepaint = true;
-                mapItemManager.panItem(0, 1 * mapContent.getActualMapLayer().PAN_PIXELS);
+                mapContent.getMapItemManager().panItem(0, 1 * mapContent.getActualMapLayer().PAN_PIXELS);
                 selectNearestWaypointsAtCenter();
             } else {
                 mapContent.makePanAction(0, -1 * mapContent.getActualMapLayer().PAN_PIXELS);
@@ -784,8 +760,8 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
     private void actionPanDown() {
         if (mapContent.isZoomProcess()) {
             mapContent.makeZoomAction(MapContent.ZOOM_DOWN, 0, 0);
-        } else if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
-            DescriptionMapItem item = (DescriptionMapItem) mapItemManager.getItemTemp(tempWaypointDescriptionItemName);
+        } else if (mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
+            DescriptionMapItem item = (DescriptionMapItem) mapContent.getMapItemManager().getItemTemp(tempWaypointDescriptionItemName);
             if (item != null) {
                 item.selectPrev();
             }
@@ -794,7 +770,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                 mapContent.setCenterToActualLocation(false);
                 mapContent.getActualMapLayer().panDown();
                 setNewCenterAfterRepaint = true;
-                mapItemManager.panItem(0, -1 * mapContent.getActualMapLayer().PAN_PIXELS);
+                mapContent.getMapItemManager().panItem(0, -1 * mapContent.getActualMapLayer().PAN_PIXELS);
                 selectNearestWaypointsAtCenter();
             } else {
                 mapContent.makePanAction(0, mapContent.getActualMapLayer().PAN_PIXELS);
@@ -805,14 +781,14 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
     private void actionPanLeft() {
         if (mapContent.isZoomProcess()) {
             mapContent.makeZoomAction(MapContent.ZOOM_LEFT, 0, 0);
-        } else if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+        } else if (mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
             selectNextFromSelected(true);
         } else {
             if (mapContent.isPaintDuringPanning()) {
                 mapContent.setCenterToActualLocation(false);
                 mapContent.getActualMapLayer().panLeft();
                 setNewCenterAfterRepaint = true;
-                mapItemManager.panItem(1 * mapContent.getActualMapLayer().PAN_PIXELS, 0);
+                mapContent.getMapItemManager().panItem(1 * mapContent.getActualMapLayer().PAN_PIXELS, 0);
                 selectNearestWaypointsAtCenter();
             } else {
                 mapContent.makePanAction(-1 * mapContent.getActualMapLayer().PAN_PIXELS, 0);
@@ -823,14 +799,14 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
     private void actionPanRight() {
         if (mapContent.isZoomProcess()) {
             mapContent.makeZoomAction(MapContent.ZOOM_RIGHT, 0, 0);
-        } else if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+        } else if (mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
             selectNextFromSelected(false);
         } else {
             if (mapContent.isPaintDuringPanning()) {
                 mapContent.setCenterToActualLocation(false);
                 mapContent.getActualMapLayer().panRight();
                 setNewCenterAfterRepaint = true;
-                mapItemManager.panItem(-1 * mapContent.getActualMapLayer().PAN_PIXELS, 0);
+                mapContent.getMapItemManager().panItem(-1 * mapContent.getActualMapLayer().PAN_PIXELS, 0);
                 selectNearestWaypointsAtCenter();
             } else {
                 mapContent.makePanAction(mapContent.getActualMapLayer().PAN_PIXELS, 0);
@@ -859,7 +835,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                         mapContent.getActualMapLayer().pan(pointerX - x, pointerY - y);
                         mapContent.setCenterToActualLocation(false);
                         setNewCenterAfterRepaint = true;
-                        mapItemManager.panItem(x - pointerX, y - pointerY);
+                        mapContent.getMapItemManager().panItem(x - pointerX, y - pointerY);
                     } else {
                         mapContent.makePanAction(pointerX - x, pointerY - y);
                     }
@@ -911,12 +887,12 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                         y < mainContainer.getAbsoluteY() + mainContainer.getHeight() &&
                         y - mainContainer.getAbsoluteY() > x + (mainContainer.getHeight() - MapImages.imageIconZoomSideSize)) {
                     makeMapAction(MA_ZOOM_OUT, null);
-                } else if (mapItemManager.existItemTemp(tempWaypointDescriptionItemName)) {
+                } else if (mapContent.getMapItemManager().existItemTemp(tempWaypointDescriptionItemName)) {
                     if (Math.sqrt((lastSelectedX - x) * (lastSelectedX - x) + (lastSelectedY - y) *
                             (lastSelectedY - y)) < (mapContent.getActualMapLayer().PAN_PIXELS * 1.0)) {
                         selectNextFromSelected(false);
                     } else {
-                        ((DescriptionMapItem) mapItemManager.getItemTemp(tempWaypointDescriptionItemName)).selectButtonAt(x, y);
+                        ((DescriptionMapItem) mapContent.getMapItemManager().getItemTemp(tempWaypointDescriptionItemName)).selectButtonAt(x, y);
                         makeSelectionActionFire();
                     }
                 } else {
@@ -937,17 +913,17 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
     public void objectZoomTo(MapItem item) {
         if (item != null) {
             mapContent.getActualMapLayer().calculateZoomFrom(item.getBoundingLocations());
-            mapItemManager.disableInitializeState();
+            mapContent.getMapItemManager().disableInitializeState();
         }
     }
 
     public void showActualRoute(RouteVariables routeVariables) {
         if (routeVariables.getPointsCount() > 0) {
-            if (!mapItemManager.existItemTemp(tempRunningRouteName)) {
-                mapItemManager.addItemTemp(tempRunningRouteName, new RouteMapItem(
+            if (!mapContent.getMapItemManager().existItemTemp(tempRunningRouteName)) {
+                mapContent.getMapItemManager().addItemTemp(tempRunningRouteName, new RouteMapItem(
                         routeVariables.getRoutePoints()), MapItem.PRIORITY_MEDIUM);
             } else {
-                RouteMapItem item = (RouteMapItem) mapItemManager.getItemTemp(tempRunningRouteName);
+                RouteMapItem item = (RouteMapItem) mapContent.getMapItemManager().getItemTemp(tempRunningRouteName);
                 item.setVectorLocation4D(routeVariables.getRoutePoints());
             }
         }
@@ -956,17 +932,17 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
     /**************************************************/
     /*           SELECTION ACTION SECTION             */
     /**************************************************/
-    private void selectNearestWaypointsAtCenter() {
+    public void selectNearestWaypointsAtCenter() {
         selectNearestWaypoints(mainContainer.getWidth() / 2, mainContainer.getHeight() / 2, mapContent.getActualMapLayer().PAN_PIXELS * 2 / 3, false);
     }
 
     private void selectNearestWaypoints(int x, int y, int radius, boolean deleteDescription) {
         lastSelectedX = x;
         lastSelectedY = y;
-        selectedMapItemWaypoints = mapItemManager.getWaypointsAtPosition(x, y, radius * radius);
+        selectedMapItemWaypoints = mapContent.getMapItemManager().getWaypointsAtPosition(x, y, radius * radius);
         selectedMapItemIndex = -1;
         if (deleteDescription) {
-            mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
+            mapContent.getMapItemManager().removeItemTemp(tempWaypointDescriptionItemName);
         }
     }
 
@@ -987,14 +963,15 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                 }
             }
             ((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)).state = Waypoint.STATE_SELECTED;
-            mapItemManager.addItemTemp(tempWaypointDescriptionItemName,
+//            addComponent(BorderLayout.NORTH, new MapItemInfoPanel());
+            mapContent.getMapItemManager().addItemTemp(tempWaypointDescriptionItemName,
                     new DescriptionMapItem((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)),
                     MapItem.PRIORITY_LOW);
         }
     }
 
     private void makeSelectionActionFire() {
-        DescriptionMapItem item = (DescriptionMapItem) mapItemManager.getItemTemp(tempWaypointDescriptionItemName);
+        DescriptionMapItem item = (DescriptionMapItem) mapContent.getMapItemManager().getItemTemp(tempWaypointDescriptionItemName);
         if (item != null) {
             if (item.getSelectedType() == -1) {
                 return;
@@ -1002,7 +979,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
 
             switch (item.getSelectedType()) {
                 case DescriptionMapItem.BUTTON_NAVIGATE:
-                    mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
+                    mapContent.getMapItemManager().removeItemTemp(tempWaypointDescriptionItemName);
                     differentScreenLock = true;
                     R.getNavigationScreen().updateWaypoint(item.getSelectedWaypoint());
                     R.getURL().call("locify://navigation");
@@ -1011,7 +988,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                     startMapNavigation(item.getSelectedWaypoint());
                     break;
                 case DescriptionMapItem.BUTTON_CLOSE:
-                    mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
+                    mapContent.getMapItemManager().removeItemTemp(tempWaypointDescriptionItemName);
                     ((Waypoint) selectedMapItemWaypoints.elementAt(selectedMapItemIndex)).state = Waypoint.STATE_HIGHLIGHT;
                     selectedMapItemIndex = -1;
                     repaint();
@@ -1022,12 +999,12 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
 
     public void startMapNavigation(Waypoint waypoint) {
         differentScreenLock = false;
-        mapItemManager.addItemTemp(tempMapNavigationItem,
+        mapContent.getMapItemManager().addItemTemp(tempMapNavigationItem,
                 new MapNavigationItem(
                 new Waypoint(R.getLocator().getLastLocation().getLatitude(),
                 R.getLocator().getLastLocation().getLongitude(), " ", " ", null),
                 waypoint), MapItem.PRIORITY_MEDIUM);
-        mapItemManager.removeItemTemp(tempWaypointDescriptionItemName);
+        mapContent.getMapItemManager().removeItemTemp(tempWaypointDescriptionItemName);
         selectNearestWaypointsAtCenter();
         view();
     }

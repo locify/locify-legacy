@@ -13,7 +13,6 @@
  */
 package com.locify.client.gui.extension;
 
-import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;

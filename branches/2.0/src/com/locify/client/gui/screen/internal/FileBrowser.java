@@ -132,7 +132,7 @@ public class FileBrowser implements ActionListener {
         fileSelected = true;
         selectedFileName = name;
         selectedFilePath = path;
-        R.getHTMLScreen().updateFileInfo(name);
+        R.getHtmlScreen().updateFileInfo(name);
     }
 
     public void actionPerformed(ActionEvent evt) {

@@ -14,6 +14,7 @@
 package com.locify.client.utils;
 
 
+import com.locify.client.net.browser.ExternalBrowser;
 import com.locify.client.data.*;
 import com.locify.client.gui.Midlet;
 import com.locify.client.gui.extension.BackgroundRunner;
@@ -37,57 +38,57 @@ import com.locify.client.net.*;
  */
 public class R {
 
-    private static Midlet midlet;
-    private static SettingsData settings;
-    private static Http http;
-    private static BluetoothManager bluetoothManager;
-    private static XmlParser xmlParser;
-    private static ConfirmScreen confirmScreen;
+    // KEEP SORTED :)
     private static AlertScreen customAlert;
-    private static MainScreen mainScreen;
-    private static AuthenticationScreens authentication;
-    private static HelpScreen help;
-    private static NavigationScreen navigationScreen;
-    private static RouteScreen routeScreen;
-    private static GeoFileBrowser geoDataBrowser;
-    private static RouteSaveScreen routeSaveScreen;
-    private static BackScreenManager backScreens;
-    private static HTMLScreen htmlScreen;
-    private static Redirection autoSend;
-    private static Logger logger;
-    private static FileSystem fileSystem;
-    private static LocatorModel locator;
-    private static PostData postData;
-    private static FileSystemScreen fileSystemScreen;
-    private static InternalURLManager internalUrlManager;
-    private static LoadingScreen loadingScreen;
-    private static TopBarBackground topBar;
-    private static LogScreen loggerScreen;
-    private static ConnectionProblem connectionProblem;
-    private static LocationScreens locationScreens;
-    private static LocationContext locationContext;
-    private static SettingsScreen settingsScreen;
-    private static ServiceManager serviceManager;
-    private static UpdateScreen update;
-    private static ExternalBrowser external;
-    private static ErrorScreen errorScreen;
-    private static FirstRunManager firstRun;
-    private static ListScreen customList;
-    private static PlaceSaveScreen savePlace;
-    private static FileBrowser fileBrowser;
-    private static UploadProgressScreen progress;
-    private static SatelliteScreen satelliteScreen;
-    private static ContactsScreen contactsScreen;
-    private static Backlight backlight;
     private static AudioData audioData;
-    private static ProgressScreen progressScreen;
+    private static AuthenticationScreens authentication;
     private static BackgroundRunner backgroundRunner;
-
-    private static MapScreen mapScreen;
+    private static Backlight backlight;
+    private static BackScreenManager backScreens;
+    private static BluetoothManager bluetoothManager;
+    private static ConnectionProblem connectionProblem;
+    private static ConfirmScreen confirmScreen;
+    private static ContactsScreen contactsScreen;
+    private static ErrorScreen errorScreen;
+    private static ExternalBrowser external;
+    private static FileBrowser fileBrowser;
+    private static FileSystem fileSystem;
+    private static FileSystemScreen fileSystemScreen;
+    private static FirstRunManager firstRun;
+    private static GeoFileBrowser geoDataBrowser;
+    private static HelpScreen help;
+    private static HtmlScreen htmlScreen;
+    private static Http http;
+    private static InternalURLManager internalUrlManager;
+    private static ListScreen customList;
+    private static LoadingScreen loadingScreen;
+    private static LocationContext locationContext;
+    private static LocationScreens locationScreens;
+    private static LocatorModel locator;
+    private static Logger logger;
+    private static LogScreen loggerScreen;
+    private static MainScreen mainScreen;
     private static MapContent mapContent;
-    private static TileCache mapTileCache;
-    private static MapOfflineChooseScreen mapOfflineChooseScreen;
     private static MapItemManager mapItemManager;
+    private static MapOfflineChooseScreen mapOfflineChooseScreen;
+    private static MapScreen mapScreen;
+    private static Midlet midlet;
+    private static NavigationScreen navigationScreen;
+    private static PlaceSaveScreen savePlace;
+    private static PostData postData;
+    private static ProgressScreen progressScreen;
+    private static Redirection autoSend;
+    private static RouteScreen routeScreen;
+    private static RouteSaveScreen routeSaveScreen;
+    private static SatelliteScreen satelliteScreen;
+    private static ServiceManager serviceManager;
+    private static SettingsData settings;
+    private static SettingsScreen settingsScreen;
+    private static TileCache mapTileCache;
+    private static TopBarBackground topBar;
+    private static UpdateScreen update;
+    private static UploadProgressScreen progress;
+    private static XmlParser xmlParser;
 
     //#if planstudio
 //#     private static PlanStudioManager planstudio;
@@ -233,9 +234,9 @@ public class R {
         return backScreens;
     }
 
-    public static HTMLScreen getHTMLScreen() {
+    public static HtmlScreen getHtmlScreen() {
         if (htmlScreen == null) {
-            htmlScreen = new HTMLScreen();
+            htmlScreen = new HtmlScreen();
         }
         return htmlScreen;
     }

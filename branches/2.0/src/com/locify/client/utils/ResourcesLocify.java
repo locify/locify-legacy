@@ -13,8 +13,6 @@
  */
 package com.locify.client.utils;
 
-import com.sun.lwuit.Font;
-import com.sun.lwuit.Image;
 import com.sun.lwuit.plaf.UIManager;
 import com.sun.lwuit.util.Resources;
 import java.io.ByteArrayInputStream;
@@ -45,18 +43,18 @@ public class ResourcesLocify {
 //        }
 //    }
 
-    public static Font getFont(String fontName) {
-        try {
-            if (fonts == null) {
-                // do selection of fonts due to device
-                fonts = getResource("fonts");
-            }
-            return fonts.getFont(fontName);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
+//    public static Font getFont(String fontName) {
+//        try {
+//            if (fonts == null) {
+//                // do selection of fonts due to device
+//                fonts = getResource("fonts");
+//            }
+//            return fonts.getFont(fontName);
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//            return null;
+//        }
+//    }
     
     public static void setTheme() {
         try {

@@ -23,10 +23,10 @@
  * refer to the accompanying LICENSE.txt or visit
  * http://www.j2mepolish.org for details.
  */
-package com.locify.client.gui.screen.service;
+package com.locify.client.net.browser;
 
-import com.locify.client.net.XHTMLTagHandler;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Component;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -76,13 +76,17 @@ public class HtmlForm {
         return this.formName;
     }
 
-////    public void addItem(Item item) {
-////        this.formItems.add(item);
-////    }
-////
-////    public Item[] getItems() {
-////        return (Item[]) this.formItems.toArray(new Item[this.formItems.size()]);
-////    }
+    public void addItem(Component item) {
+        this.formItems.addElement(item);
+    }
+
+    public Component[] getItems() {
+        Component[] components = new Component[formItems.size()];
+        for (int i = 0; i < formItems.size(); i++) {
+            components[i] = (Component) formItems.elementAt(i);
+        }
+        return components;
+    }
 
     /**
      * Adds a hidden element to this form. The hidden element will not be shown.
@@ -120,9 +124,9 @@ public class HtmlForm {
      * Retrieves all form input elements for submitting this form as string-pairs (name:value) in a Hashtable.
      * @return a hashtable with all input elements
      */
-////    public Hashtable getFormElements() {
-////        return getFormElements(null, null);
-////    }
+    public Hashtable getFormElements() {
+        return getFormElements(null);
+    }
 
     /**
      * Retrieves all form input elements for submitting this form as string-pairs (name:value) in a Hashtable.
@@ -130,29 +134,29 @@ public class HtmlForm {
      * @param submitItem the submitItem that triggered the submission of the form, can be null
      * @return a hashtable with all input elements
      */
-////    public Hashtable getFormElements(FormListener listener, Item submitItem) {
-////        int size = this.hiddenElements != null ? this.hiddenElements.size() + this.formItems.size() : this.formItems.size();
-////        Hashtable elements = new Hashtable(size);
-////        if (this.hiddenElements != null) {
-////            Enumeration enumeration = this.hiddenElements.keys();
-////            while (enumeration.hasMoreElements()) {
-////                String name = (String) enumeration.nextElement();
-////                String value = (String) this.hiddenElements.get(name);
-////                if (listener != null) {
-////                    value = listener.verifySubmitFormValue(this.actionUrl, name, value);
-////                }
-////                if (value == null) {
-////                    value = "";
-////                }
-////                elements.put(name, value);
-////            }
-////        }
-////        Object[] items = this.formItems.getInternalArray();
-////        for (int i = 0; i < items.length; i++) {
-////            Item item = (Item) items[i];
-////            if (item == null) {
-////                break;
-////            }
+    public Hashtable getFormElements(Component submitItem) {
+        int size = this.hiddenElements != null ? this.hiddenElements.size() + this.formItems.size() : this.formItems.size();
+        Hashtable elements = new Hashtable(size);
+        if (this.hiddenElements != null) {
+            Enumeration enumeration = this.hiddenElements.keys();
+            while (enumeration.hasMoreElements()) {
+                String name = (String) enumeration.nextElement();
+                String value = (String) this.hiddenElements.get(name);
+                
+                if (value == null) {
+                    value = "";
+                }
+                elements.put(name, value);
+            }
+        }
+
+        Component[] items = new Component[formItems.size()];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = (Component) formItems.elementAt(i);
+            Component item = items[i];
+            if (item == null) {
+                break;
+            }
 ////            if ("submit".equals(item.getAttribute(XHTMLTagHandler.ATTR_TYPE)) && item != submitItem) {
 ////                continue;
 ////            }
@@ -178,23 +182,22 @@ public class HtmlForm {
 ////                value = "";
 ////            }
 ////            elements.put(name, value);
-////
-////        }
-////
-////        Enumeration enu = this.locifyPIM.keys();
-////        while (enu.hasMoreElements()) {
-////            String name = (String) enu.nextElement();
-////            String type = (String) locifyPIM.get(name);
-////
-////            if ("tel".equals(type)) {
-////                elements.put(name, R.getHTMLScreen().getHtmlBrowser().getContactTel());
-////                continue;
-////            } else if ("email".equals(type)) {
-////                elements.put(name, R.getHTMLScreen().getHtmlBrowser().getContactEmail());
-////                continue;
-////            }
-////        }
-////
-////        return elements;
-////    }
+        }
+
+        Enumeration enu = this.locifyPIM.keys();
+        while (enu.hasMoreElements()) {
+            String name = (String) enu.nextElement();
+            String type = (String) locifyPIM.get(name);
+
+            if ("tel".equals(type)) {
+                elements.put(name, R.getHtmlScreen().getHtmlBrowser().getContactTel());
+                continue;
+            } else if ("email".equals(type)) {
+                elements.put(name, R.getHtmlScreen().getHtmlBrowser().getContactEmail());
+                continue;
+            }
+        }
+
+        return elements;
+    }
 }

@@ -15,10 +15,12 @@ package com.locify.client.maps;
 
 import com.locify.client.data.SettingsData;
 import com.locify.client.gui.screen.internal.MainScreen;
+import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.locator.*;
 import com.locify.client.maps.fileMaps.FileMapManager;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.mapItem.MapItem;
+import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
@@ -50,6 +52,8 @@ public class MapContent implements LocationEventListener {
     private TileMapLayer mapTile;
     /** map manager for file maps */
     private FileMapLayer mapFile;
+    /** manager for objects to show on screen */
+    private MapItemManager mapItemManager;
     /** if item was added before map was inicialized, call it after that */
     private MapItem newMapItem;
     /** actual content size width */
@@ -62,6 +66,9 @@ public class MapContent implements LocationEventListener {
         zoomProcess = false;
         centerToActualLocation = true;
 
+        mapItemManager = R.getMapItemManager();
+        mapItemManager.init();
+        
         // set map tiles and providers
         mapTile = new TileMapLayer();
         mapFile = new FileMapLayer();
@@ -138,6 +145,10 @@ public class MapContent implements LocationEventListener {
         this.newMapItem = item;
     }
 
+    public MapItemManager getMapItemManager() {
+        return mapItemManager;
+    }
+
     public void setOnlineMaps() {
         mapTile.setProviderAndMode(0);
         mapTile.setDefaultZoomLevel();
@@ -167,7 +178,9 @@ public class MapContent implements LocationEventListener {
     public void centerMap(Location4D newCenter, boolean centerToActualLocation) {
         this.lastCenterPoint = newCenter;
         this.centerToActualLocation = centerToActualLocation;
-        this.map.setLocationCenter(lastCenterPoint);
+        
+        map.setLocationCenter(lastCenterPoint);
+        mapItemManager.disableInitializeState();
     }
 
     public void registerParent(Container parent) {
@@ -193,7 +206,10 @@ public class MapContent implements LocationEventListener {
             drawMap(g);
             drawActualLocationPoint(g);
             drawSelectionCircle(g);
+            drawMapItem(g, MapItem.PRIORITY_HIGH);
+            drawMapItem(g, MapItem.PRIORITY_MEDIUM);
             drawZoomProcess(g);
+            drawMapItem(g, MapItem.PRIORITY_LOW);
             
             drawLock = false;
         } catch (Exception e) {
@@ -322,6 +338,13 @@ public class MapContent implements LocationEventListener {
         }
     }
 
+    public void drawMapItem(Graphics g, int priority) {
+        try {
+            mapItemManager.drawItems(g, priority);
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapItemManager.drawItems(), prioriry: " + priority);
+        }
+    }
     /*********************************************/
     /*           PAN ACTION SECTION             */
     /*********************************************/
@@ -370,10 +393,15 @@ public class MapContent implements LocationEventListener {
 
                 // set as center new location
                 centerToActualLocation = false;
-                
+                mapItemManager.panItem(-1 * panMoveX, -1 * panMoveY);
+
                 panMoveX = 0;
                 panMoveY = 0;
-                
+                // UGLY SPECIFIC ... grrrr
+
+                if (parent instanceof MapScreen)
+                    R.getMapScreen().selectNearestWaypointsAtCenter();
+//System.out.println("RepaintCall");
                 repaint();
                 // call this after repaint (need to refresh mapViewPort bounds in TileMapLayer)
                 lastCenterPoint = map.getLocationCoord(actualWidth / 2, actualHeight / 2);
@@ -483,6 +511,11 @@ public class MapContent implements LocationEventListener {
                 if (zoomTotalValue != 0) {
                     map.setZoomLevel(map.getActualZoomLevel() + zoomTotalValue);
                 }
+                mapItemManager.disableInitializeState();
+
+                // UGLY SPECIFIC ... grrrr
+                if (parent instanceof MapScreen)
+                    R.getMapScreen().selectNearestWaypointsAtCenter();
                 repaint();
             } catch (Exception e) {
                 R.getErrorScreen().view(e, "MapScreen.ZoomThread.run()", null);

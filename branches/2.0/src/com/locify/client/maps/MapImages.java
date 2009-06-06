@@ -17,6 +17,7 @@ import com.locify.client.data.IconData;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
+import com.locify.client.utils.Utils;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
 
@@ -109,8 +110,8 @@ public class MapImages {
         Graphics g = image.getGraphics();
 
         g.drawImage(getLoadingImage(), 0, 0);
-        g.setFont(ColorsFonts.FONT_BMF_14);
-        g.drawString(tileText, (64 - ColorsFonts.FONT_BMF_14.stringWidth(tileText)) / 2, (64 - 10) / 2);
+        g.setFont(ColorsFonts.FONT_MEDIUM);
+        g.drawString(tileText, (64 - ColorsFonts.FONT_MEDIUM.stringWidth(tileText)) / 2, (64 - 10) / 2);
 
         return image;
     }
