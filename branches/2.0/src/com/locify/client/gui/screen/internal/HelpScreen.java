@@ -15,16 +15,15 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.IconData;
 import com.locify.client.gui.extension.FormLocify;
+import com.locify.client.gui.extension.ListLocify;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.Label;
-import com.sun.lwuit.List;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BoxLayout;
-import com.sun.lwuit.list.DefaultListModel;
 
 /**
  * This class is used for showing help screens
@@ -34,7 +33,7 @@ public class HelpScreen implements ActionListener {
 
     private String[] titles;
     private String[] texts;
-    private List list;
+    private ListLocify list;
     private FormLocify form;
     private FormLocify frmIcons;
     private Button btnDontShow;
@@ -67,7 +66,7 @@ public class HelpScreen implements ActionListener {
     public void viewMenu() {
         try {
             form = new FormLocify(Locale.get("Help"));
-            list = new List(new DefaultListModel());
+            list = new ListLocify();
 
             for (int i = 0; i < titles.length; i++) {
                 list.addItem(titles[i]);

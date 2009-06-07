@@ -13,7 +13,6 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.FileSystem;
-import com.locify.client.data.IconData;
 import com.locify.client.data.items.GeoData;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.data.items.MultiGeoData;
@@ -21,15 +20,8 @@ import com.locify.client.data.items.Route;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.data.items.WaypointsCloud;
 import com.locify.client.data.SettingsData;
-import com.locify.client.gui.extension.BackgroundListener;
-import com.locify.client.gui.extension.FlowPanel;
 import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.gui.extension.FormLocify;
-import com.locify.client.gui.widgets.CompassWidget;
-import com.locify.client.gui.widgets.MapWidget;
-import com.locify.client.gui.widgets.StateLabelWidget;
-import com.locify.client.gui.widgets.Widget;
-import com.locify.client.gui.widgets.WidgetContainer;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationEventGenerator;
 import com.locify.client.locator.LocationEventListener;
@@ -37,70 +29,29 @@ import com.locify.client.locator.Navigator;
 import com.locify.client.locator.impl.WaypointNavigatorModel;
 import com.locify.client.locator.impl.WaypointRouteNavigatorModel;
 import com.locify.client.utils.Backlight;
-import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
-import com.locify.client.utils.Utils;
-import com.sun.lwuit.Button;
-import com.sun.lwuit.Component;
-import com.sun.lwuit.Container;
-import com.sun.lwuit.Font;
-import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
-import com.sun.lwuit.layouts.BorderLayout;
-import com.sun.lwuit.layouts.BoxLayout;
-import com.sun.lwuit.layouts.GridLayout;
-import com.sun.lwuit.layouts.Layout;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Vector;
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.game.GameCanvas;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParser;
 
 /** 
  * Screen shows compas, GPS infomation, speed. In case of navigation displays navigation arrow
  * @author Jiri Stepan
  */
 public class NavigationScreen extends FormLocify implements
-        ActionListener, LocationEventListener, BackgroundListener {
+        ActionListener, LocationEventListener {
 
-    // components
-    private WidgetContainer mainContainer;
-
-    // bindable widgets
-    private StateLabelWidget slAlt;
-    private StateLabelWidget slDate;
-    private StateLabelWidget slDist;
-    private StateLabelWidget slHdop;
-    private StateLabelWidget slLat;
-    private StateLabelWidget slLon;
-    private StateLabelWidget slSpeed;
-    private StateLabelWidget slTime;
-    private StateLabelWidget slVdop;
-    private CompassWidget compass;
-    // flow panel
-    private FlowPanel leftPanel;
     // actual navigator
     private static Navigator navigator;
     private Location4D location;
     private Backlight backLight;
-    // skin container
-    private Vector skins;
-
-    private Vector widgetList;
-    private Widget selectedWidget;
 
     public NavigationScreen() {
         super(Locale.get("Navigation"));
         try {
-
             this.addCommand(Commands.cmdBack);
             this.addCommand(Commands.cmdHome);
 
@@ -114,50 +65,10 @@ public class NavigationScreen extends FormLocify implements
             this.addCommand(new ParentCommand(Locale.get("Another_location"), null, R.getContext().commands));
             this.setCommandListener(this);
 
-            setLayout(new BorderLayout());
-            this.mainContainer = new WidgetContainer();
-            addComponent(BorderLayout.CENTER, mainContainer);
-
-            widgetList = new Vector();
-            
             R.getLocator().addLocationChangeListener(this);
-            R.getBackgroundRunner().registerBackgroundListener(this, 1);
 
-            skins = new Vector();
-            Enumeration skinFolders = R.getFileSystem().getFolders(FileSystem.ROOT + FileSystem.SKINS_FOLDER_NAVIGATION);
-            if (skinFolders != null) {
-                while (skinFolders.hasMoreElements()) {
-                    String dir = (String) skinFolders.nextElement();
-//System.out.println("Dir: " + (FileSystem.ROOT + FileSystem.SKINS_FOLDER_NAVIGATION + dir));
-                    Vector xmlFiles = R.getFileSystem().listFiles(FileSystem.SKINS_FOLDER_NAVIGATION + dir, new String[] {"*.xml"});
-                    if (xmlFiles.size() > 0) {
-                        skins.addElement(FileSystem.SKINS_FOLDER_NAVIGATION + dir + xmlFiles.elementAt(0));
-                    }
-                }
-            }
-
-            leftPanel = new FlowPanel(BorderLayout.WEST);
-            leftPanel.getContentPane().setLayout(new BoxLayout(BoxLayout.Y_AXIS));
-            addComponent(BorderLayout.WEST, leftPanel);
-
-            for (int i = 0; i < skins.size(); i++) {
-                final String path = (String) skins.elementAt(i);
-//System.out.println("Add: " + path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')));
-                Button button = new Button(path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')));
-                button.addActionListener(new ActionListener() {
-
-                    public void actionPerformed(ActionEvent evt) {
-                        setNavigationScreenSkin(path);
-                    }
-                });
-                leftPanel.getContentPane().addComponent(button);
-            }
-
-            if (skins.size() > 0) {
-                setNavigationScreenSkin((String) skins.elementAt(0));
-            }
-
-
+            initializeSkins(FileSystem.SKINS_FOLDER_NAVIGATION);
+            registerBackgroundListener();
             
 //            labelTime.setTitle(IconData.getLocalImage("alarm"));
 //            labelDate.setTitle(IconData.getLocalImage("calendar"));
@@ -279,11 +190,9 @@ public class NavigationScreen extends FormLocify implements
                     slDist.setValue(GpsUtils.formatDistance(navigator.getDistanceToTarget(location)));
                 }
             }
-
             if (compass != null) {
                 compass.moveAngles(angleN, angleD);
             }
-
             if (slAlt != null) {
                 slAlt.setValue(GpsUtils.formatDouble(location.getAltitude(), 1) + "m");
             }
@@ -296,8 +205,8 @@ public class NavigationScreen extends FormLocify implements
             if (slLon != null) {
                 slLon.setValue(GpsUtils.formatLongitude(location.getLongitude(), R.getSettings().getCoordsFormat()));
             }
-            if (slSpeed != null) {
-                slSpeed.setValue(GpsUtils.formatSpeed(R.getLocator().getSpeed()));
+            if (slSpeedAct != null) {
+                slSpeedAct.setValue(GpsUtils.formatSpeed(R.getLocator().getSpeed()));
             }
             if (slVdop != null) {
                 slVdop.setValue(GpsUtils.formatDouble(R.getLocator().getAccuracyVertical(), 1));
@@ -305,21 +214,7 @@ public class NavigationScreen extends FormLocify implements
 
 //Logger.debug("NS (" + System.currentTimeMillis() + "), lat: " + location.getLatitude() +
 //        ", lon: " + location.getLongitude() + ", angleN: " + angleN + ", angleD: " + angleD);
-//            repaint();
         }
-    }
-
-    private int backgroundTaskCount = 0;
-
-    public void runBackgroundTask() {
-        if (slTime != null) {
-            slTime.setValue(Utils.getTime());
-        }
-        if (slDate != null && (backgroundTaskCount % 60 == 0 || slDate.getValue().length() == 0)) {
-            slDate.setValue(Utils.getDate());
-        }
-
-        backgroundTaskCount++;
     }
 
     public void errorMessage(LocationEventGenerator sender, String message) {
@@ -345,6 +240,20 @@ public class NavigationScreen extends FormLocify implements
     public void keyPressed(int keyCode) {
         super.keyPressed(keyCode);
         switch (keyCode) {
+            case GameCanvas.KEY_NUM1:
+                switchLeftPanelVisibility();
+                break;
+            case GameCanvas.KEY_NUM5:
+                widgetAction(selectedWidget);
+                break;
+            case GameCanvas.KEY_NUM4:
+                selectPreviousWidget();
+                repaint();
+                break;
+            case GameCanvas.KEY_NUM6:
+                selectNextWidget();
+                repaint();
+                break;
             case GameCanvas.KEY_NUM7:
                 if (R.getBacklight().isOn()) {
                     R.getBacklight().off();
@@ -352,71 +261,6 @@ public class NavigationScreen extends FormLocify implements
                     R.getBacklight().on();
                 }
                 break;
-            case GameCanvas.KEY_NUM1:
-                leftPanel.switchVisibility();
-                break;
-            case GameCanvas.KEY_NUM4:
-                if (widgetList.size() > 0) {
-                    int index = -1;
-                    if (selectedWidget != null) {
-                        index = widgetList.indexOf(selectedWidget);
-                        selectedWidget.showFocused(false);
-                    }
-                    if (index == -1)
-                        index = 0;
-                    else if (index == 0)
-                        index = widgetList.size() - 1;
-                    else
-                        index -= 1;
-                    selectedWidget = (Widget) widgetList.elementAt(index);
-                    selectedWidget.showFocused(true);
-                }
-                repaint();
-                break;
-            case GameCanvas.KEY_NUM6:
-                if (widgetList.size() > 0) {
-                    int index = -1;
-                    if (selectedWidget != null) {
-                        index = widgetList.indexOf(selectedWidget);
-                        selectedWidget.showFocused(false);
-                        selectedWidget.repaint();
-                    }
-                    if (index == -1 || (index == widgetList.size() - 1))
-                        index = 0;
-                    else
-                        index += 1;
-                    selectedWidget = (Widget) widgetList.elementAt(index);
-                    selectedWidget.showFocused(true);
-                    selectedWidget.repaint();
-                }
-                repaint();
-                break;
-            case GameCanvas.KEY_NUM5:
-                widgetAction(selectedWidget);
-                break;
-        }
-    }
-
-    public void pointerPressed(int x, int y) {
-        selectedWidget = null;
-        Component comp = getContentPane().getComponentAt(x, y);
-        if (comp == null) {
-
-        } else if (comp instanceof Widget) {
-            selectedWidget = (Widget) comp;
-        } else if (comp.getParent() != null && comp.getParent() instanceof Widget) {
-            selectedWidget = (Widget) comp.getParent();
-        }
-
-        if (selectedWidget == null)
-            super.pointerPressed(x, y);
-        else
-            widgetAction(selectedWidget);
-    }
-
-    private void widgetAction(Widget widget) {
-        if  (widget != null && widget.getLinkTo() != null && widget.getLinkTo().length() > 0) {
-            R.getURL().call(widget.getLinkTo());
         }
     }
 
@@ -454,268 +298,6 @@ public class NavigationScreen extends FormLocify implements
                     return;
                 }
             }
-        }
-    }
-
-    private void setNavigationScreenSkin(String skinPath) {
-        mainContainer.removeAll();
-        widgetList.removeAllElements();
-
-        FileConnection fileConnection = null;
-        InputStream is = null;
-        XmlPullParser parser;
-
-        String skinDirPath = skinPath.substring(0, skinPath.lastIndexOf('/') + 1);
-//System.out.println("\nSkin: " + skinDirPath);
-        int STATE_NONE = 0;
-        int STATE_WIDGET_STATE_LABEL = 10;
-        int STATE_WIDGET_COMPASS = 11;
-        int STATE_WIDGET_MAP = 12;
-        int actualState = STATE_NONE;
-
-        Container parent = mainContainer;
-        Widget widget = null;
-
-        try {
-            fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + skinPath);
-            if (!fileConnection.exists()) {
-                return;
-            }
-
-            is = fileConnection.openInputStream();
-            parser = new KXmlParser();
-            parser.setInput(is, "utf-8");
-
-            int event;
-            String tagName;
-            String value;
-
-            while (true) {
-                event = parser.nextToken();
-                if (event == XmlPullParser.START_TAG) {
-                    tagName = parser.getName();
-//                    Logger.debug("  parseKML - tagName: " + tagName);
-                    if (tagName.equalsIgnoreCase("bindTo")) {
-                        value = parser.nextText();
-                        if (value != null) {
-                            if (widget instanceof StateLabelWidget) {
-                                bindStateLabel((StateLabelWidget) widget, value);
-                            } else if (widget instanceof CompassWidget) {
-                                bindCompass((CompassWidget) widget, value);
-                            }
-                        }
-                    } else if (tagName.equalsIgnoreCase("labels")) {
-                        if (actualState == STATE_WIDGET_COMPASS) {
-                            ((CompassWidget) widget).setLabelsFont(getFont(parser.getAttributeValue(null, "fontSize")));
-                        }
-                    } else if (tagName.equalsIgnoreCase("layout")) {
-                        parent.setLayout(getLayout(parser));
-                    } else if (tagName.equalsIgnoreCase("lcf")) {
-
-                    } else if (tagName.equalsIgnoreCase("linkTo")) {
-                        value = parser.nextText();
-                        if (actualState != STATE_NONE) {
-                            widget.setFocusable(true);
-                            widget.setLinkTo(value);
-                        }
-                    } else if (tagName.equalsIgnoreCase("title")) {
-                        if (actualState == STATE_WIDGET_STATE_LABEL) {
-                            ((StateLabelWidget) widget).setTitleHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
-                            ((StateLabelWidget) widget).setTitleVAlign(getAlignValue(parser.getAttributeValue(null, "vAlign")));
-                            ((StateLabelWidget) widget).setTitlePosition(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), false));
-                            ((StateLabelWidget) widget).setTitleFont(getFont(parser.getAttributeValue(null, "fontSize")));
-                            value = parser.nextText();
-                            if (value != null && value.startsWith("file:")) {
-                                value = skinDirPath + value.substring("file:".length());
-                                ((StateLabelWidget) widget).setTitle(IconData.get(value));
-                            } else {
-                                ((StateLabelWidget) widget).setTitle(value);
-                            }
-                        }
-                    } else if (tagName.equalsIgnoreCase("value")) {
-                        if (actualState == STATE_WIDGET_STATE_LABEL) {
-                            ((StateLabelWidget) widget).setValueHAlign(getAlignValue(parser.getAttributeValue(null, "hAlign")));
-                            ((StateLabelWidget) widget).setValueVAlign(getAlignValue(parser.getAttributeValue(null, "vAlign")));
-                            ((StateLabelWidget) widget).setValueFont(getFont(parser.getAttributeValue(null, "fontSize")));
-                            value = parser.nextText();
-                            if (value != null && value.startsWith("file:")) {
-                                value = skinDirPath + value.substring("file:".length());
-                                ((StateLabelWidget) widget).setValue(IconData.get(value));
-                            } else {
-                                ((StateLabelWidget) widget).setValue(value);
-                            }
-                        }
-                    } else if (tagName.equalsIgnoreCase("widget")) {
-                        widget = null;
-                        value = parser.getAttributeValue(null, "type");
-                        if (value.equalsIgnoreCase("Compass")) {
-                            widget = new CompassWidget();
-                            widget.setWidgetParent(parent);
-                            if (parent.getLayout() instanceof BorderLayout) {
-                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
-                            }
-                            actualState = STATE_WIDGET_COMPASS;
-                        } else if (value.equalsIgnoreCase("Container")) {
-                            widget = new WidgetContainer();
-                            widget.setWidgetParent(parent);
-                            if (parent.getLayout() instanceof BorderLayout) {
-                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
-                            }
-                            actualState = STATE_NONE;
-                            parent = widget;
-                        } else if (value.equalsIgnoreCase("Map")) {
-                            widget = new MapWidget();
-                            widget.setWidgetParent(parent);
-                            if (parent.getLayout() instanceof BorderLayout) {
-                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
-                            }
-                            actualState = STATE_WIDGET_MAP;
-                        } else if (value.equalsIgnoreCase("StateLabel")) {
-                            widget = new StateLabelWidget();
-                            widget.setWidgetParent(parent);
-                            if (parent.getLayout() instanceof BorderLayout) {
-                                widget.setConstrains(getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
-                            }
-                            actualState = STATE_WIDGET_STATE_LABEL;
-                        }
-                    }
-                } else if (event == XmlPullParser.END_TAG) {
-                    tagName = parser.getName();
-//                    Logger.debug("  parseKML - tagNameEnd:" + tagName);
-                    if (tagName.equalsIgnoreCase("widget")) {
-                        widget.addToParent();
-                        if (widget instanceof WidgetContainer) {
-                            parent = widget.getWidgetParent();
-                        } else {
-                            widgetList.addElement(widget);
-                        }
-                        widget = (Widget) widget.getWidgetParent();
-                    }
-                } else if (event == XmlPullParser.END_DOCUMENT) {
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "RouteData.isRoute", null);
-//            Logger.error("NavigationScreen.createNavigationScreen() - file: " + skinPath + " ex: " + e.toString());
-            return;
-        } finally {
-            try {
-                if (fileConnection != null) {
-                    fileConnection.close();
-                }
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-
-            mainContainer.repaint();
-        }
-    }
-
-    private int getAlignValue(String text) {
-        if (text == null || text.equalsIgnoreCase("center")) {
-            return Label.CENTER;
-        } else if (text.equalsIgnoreCase("right")) {
-            return Label.RIGHT;
-        } else if (text.equalsIgnoreCase("left")) {
-            return Label.LEFT;
-        } else if (text.equalsIgnoreCase("top")) {
-            return Label.TOP;
-        } else if (text.equalsIgnoreCase("bottom")) {
-            return Label.BOTTOM;
-        } else {
-            return Label.CENTER;
-        }
-    }
-
-    private Layout getLayout(XmlPullParser parser) {
-        String text = parser.getAttributeValue(null, "type");
-
-        if (text == null) {
-            return new BoxLayout(BoxLayout.Y_AXIS);
-        } else if (text.equalsIgnoreCase("BorderLayout")) {
-            return new BorderLayout();
-        } else if (text.equalsIgnoreCase("GridLayout")) {
-            int rows = GpsUtils.parseInt(parser.getAttributeValue(null, "rows"));
-            int columns = GpsUtils.parseInt(parser.getAttributeValue(null, "columns"));
-            if (rows == 0) {
-                rows = 1;
-            }
-            if (columns == 0) {
-                columns = 1;
-            }
-            return new GridLayout(rows, columns);
-        } else {
-            return new BoxLayout(BoxLayout.Y_AXIS);
-        }
-    }
-
-    private Font getFont(String text) {
-        if (text == null || text.length() > 1 || text.equals("1")) {
-            return ColorsFonts.FONT_BMF_10;
-        } else if (text.equals("2")) {
-            return ColorsFonts.FONT_BMF_14;
-        } else if (text.equals("3")) {
-            return ColorsFonts.FONT_BMF_16;
-        } else if (text.equals("4")) {
-            return ColorsFonts.FONT_BMF_18;
-        } else if (text.equals("5")) {
-            return ColorsFonts.FONT_BMF_20;
-        }
-        return ColorsFonts.FONT_BMF_10;
-    }
-
-    private String getBorderLayoutPositionValue(String text, boolean allowCenter) {
-        if (text == null) {
-            if (allowCenter) {
-                return BorderLayout.CENTER;
-            } else {
-                return BorderLayout.NORTH;
-            }
-        } else if (text.equalsIgnoreCase("north")) {
-            return BorderLayout.NORTH;
-        } else if (text.equalsIgnoreCase("south")) {
-            return BorderLayout.SOUTH;
-        } else if (text.equalsIgnoreCase("west")) {
-            return BorderLayout.WEST;
-        } else if (text.equalsIgnoreCase("east")) {
-            return BorderLayout.EAST;
-        } else if (allowCenter) {
-            return BorderLayout.CENTER;
-        } else {
-            return BorderLayout.NORTH;
-        }
-    }
-
-    private void bindStateLabel(StateLabelWidget widget, String text) {
-        if (text.equalsIgnoreCase("alt")) {
-            slAlt = widget;
-        } else if (text.equalsIgnoreCase("date")) {
-            slDate = widget;
-            slDate.setValue("");
-        } else if (text.equalsIgnoreCase("dist")) {
-            slDist = widget;
-        } else if (text.equalsIgnoreCase("hdop")) {
-            slHdop = widget;
-        } else if (text.equalsIgnoreCase("lat")) {
-            slLat = widget;
-        } else if (text.equalsIgnoreCase("lon")) {
-            slLon = widget;
-        } else if (text.equalsIgnoreCase("speed")) {
-            slSpeed = widget;
-        } else if (text.equalsIgnoreCase("time")) {
-            slTime = widget;
-        } else if (text.equalsIgnoreCase("vdop")) {
-            slVdop = widget;
-        }
-    }
-
-    private void bindCompass(CompassWidget widget, String text) {
-        if (text.equalsIgnoreCase("compass")) {
-            compass = widget;
         }
     }
 }

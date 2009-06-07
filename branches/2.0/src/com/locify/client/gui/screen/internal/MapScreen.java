@@ -127,9 +127,6 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
 
         this.addCommand(Commands.cmdBack);
         this.addCommand(Commands.cmdHome);
-        //#if planstudio
-//#         this.addCommand(cmdPlanStudio);
-        //#endif
         this.addCommand(new ParentCommand(Locale.get("Map_function"), null, new Command[]
                 {Commands.cmdZoomIn, Commands.cmdZoomOut, Commands.cmdMyLocation}));
 
@@ -473,10 +470,6 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                     R.getMapOfflineChooseScreen().view(locs[0].getLatitude(),
                             locs[0].getLongitude(), locs[1].getLatitude(), locs[1].getLongitude());
                 }
-            //#if planstudio
-//#             } else if (cmd == cmdPlanStudio) {
-//#                 R.getPlanstudio().view();
-            //#endif
             } else if (cmd == Commands.cmdZoomIn) {
                 makeMapAction(MA_ZOOM_IN, null);
             } else if (cmd == Commands.cmdZoomOut) {

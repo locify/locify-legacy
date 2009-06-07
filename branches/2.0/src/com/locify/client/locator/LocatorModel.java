@@ -88,7 +88,6 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
     private String requestAction;
     private boolean providerSelected = false; // indikuje zda byl vybec nejaky provider vybran
     private boolean providerStopped = false;
-    private boolean satScreenActive = false;
 
     public LocatorModel() {
         this.listeners = new Vector();
@@ -140,14 +139,6 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
             icons[i] = ((Provider) providers.elementAt(i)).getIcon();
         }
         return icons;
-    }
-
-    public void setSatScreenActive(boolean active) {
-        satScreenActive = active;
-    }
-
-    public boolean isSatScreenActive() {
-        return satScreenActive;
     }
 
     public boolean hasSatellites() {

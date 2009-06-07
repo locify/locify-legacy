@@ -174,6 +174,10 @@ public class RouteVariables {
         return routePoints;
     }
 
+    public Vector getRouteDistances() {
+        return routeDistances;
+    }
+
     protected void dataBegin() {
         dataToSave.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + linSe +
                 "<kml xmlns=\"http://earth.google.com/kml/2.2\">" + linSe +

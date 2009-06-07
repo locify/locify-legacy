@@ -28,10 +28,6 @@ import com.locify.client.maps.TileCache;
 import com.locify.client.maps.mapItem.MapItemManager;
 import com.locify.client.net.*;
 
-//#if planstudio
-//# import com.locify.client.maps.planStudio.PlanStudioManager;
-//#endif
-
 /**
  * This class store all references to other classes in this project. It quaranties the singleton structure of classes.
  * @author David Vavra
@@ -89,10 +85,6 @@ public class R {
     private static UpdateScreen update;
     private static UploadProgressScreen progress;
     private static XmlParser xmlParser;
-
-    //#if planstudio
-//#     private static PlanStudioManager planstudio;
-    //#endif
 
     public R(Midlet ref) {
         midlet = ref;
@@ -452,15 +444,6 @@ public class R {
         }
         return audioData;
     }
-
-    //#if planstudio
-//#     public static PlanStudioManager getPlanstudio() {
-//#         if (planstudio == null) {
-//#             planstudio = new PlanStudioManager();
-//#         }
-//#         return planstudio;
-//#     }
-    //#endif
 
     public static BackgroundRunner getBackgroundRunner() {
         if (backgroundRunner == null) {

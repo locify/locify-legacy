@@ -14,6 +14,7 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.FileSystem;
+import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.Logger;
@@ -21,7 +22,6 @@ import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.Command;
-import com.sun.lwuit.Form;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
@@ -32,8 +32,8 @@ import com.sun.lwuit.events.ActionListener;
  */
 public class ErrorScreen implements ActionListener {
 
-    private Form frmCalmDown;
-    private Form frmDetail;
+    private FormLocify frmCalmDown;
+    private FormLocify frmDetail;
     private Command cmdDetail = new Command(Locale.get("Detail"), 3);
     private Command cmdSave = new Command(Locale.get("Save"), 4);
     private Command cmdExit = new Command(Locale.get("Exit"), 5);
@@ -66,7 +66,7 @@ public class ErrorScreen implements ActionListener {
     }
 
     private void viewCalmDownScreen() {
-        frmCalmDown = new Form(Locale.get("Error_occured"));
+        frmCalmDown = new FormLocify(Locale.get("Error_occured"));
         frmCalmDown.addComponent(new Label(Locale.get("Error_occured_description")));
         btnDetail =  new Button(Locale.get("Detail"));
         btnDetail.addActionListener(this);
@@ -82,7 +82,7 @@ public class ErrorScreen implements ActionListener {
      * Views detail of last exception
      */
     public void viewDetail() {
-        frmDetail = new Form(Locale.get("Error_detail"));
+        frmDetail = new FormLocify(Locale.get("Error_detail"));
         Label siDescription01 = new Label(Locale.get("Description"));
         Label siDescription02 = new Label(exception.toString());
         frmDetail.addComponent(siDescription01);

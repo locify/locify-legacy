@@ -13,21 +13,19 @@
  */
 package com.locify.client.gui.screen.internal;
 
+import com.locify.client.gui.extension.TopBarBackground;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationEventGenerator;
 import com.locify.client.locator.LocationEventListener;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Capabilities;
-import com.locify.client.data.IconData;
+import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.locator.SatellitePosition;
 import com.locify.client.utils.Locale;
 import com.sun.lwuit.events.ActionEvent;
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Displayable;
 import com.locify.client.utils.R;
 import com.locify.client.utils.math.LMath;
-import com.sun.lwuit.Form;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
 import com.sun.lwuit.events.ActionListener;
@@ -38,7 +36,7 @@ import java.util.Hashtable;
  * Screen for showing information about satellites
  * @author menion
  */
-public class SatelliteScreen extends Form implements ActionListener, LocationEventListener {
+public class SatelliteScreen extends FormLocify implements ActionListener, LocationEventListener {
 
     private int TOP_MARGIN;
     private int BOTTOM_MARGIN;
@@ -51,10 +49,6 @@ public class SatelliteScreen extends Form implements ActionListener, LocationEve
     private int spX;
     private int spY;
     private int radius;
-    private Image satImageNoSignal;
-    private Image satImageWeak;
-    private Image satImageNormal;
-    private Image satImageStrong;
     // temp variables
     private int satInRow;
 
@@ -82,11 +76,6 @@ public class SatelliteScreen extends Form implements ActionListener, LocationEve
             spX = Capabilities.getWidth() / 2;
             spY = TOP_MARGIN + topPanelHeigh + space + radius;
 
-            satImageNoSignal = IconData.get("locify://icons/status_nosignal.png");
-            satImageWeak = IconData.get("locify://icons/status_weak.png");
-            satImageNormal = IconData.get("locify://icons/status_normal.png");
-            satImageStrong = IconData.get("locify://icons/status_strong.png");
-
             setCommandListener(this);
             R.getLocator().addLocationChangeListener(this);
         } catch (Exception ex) {
@@ -96,7 +85,6 @@ public class SatelliteScreen extends Form implements ActionListener, LocationEve
 
     public void view() {
         try {
-            R.getLocator().setSatScreenActive(true);
             this.show();
         } catch (Exception e) {
             R.getErrorScreen().view(e, "NavigationScreen.view", null);
@@ -144,7 +132,8 @@ public class SatelliteScreen extends Form implements ActionListener, LocationEve
                 y = (int) (spY + dist * Math.cos(angle / LMath.RHO));
 
                 g.drawString("" + prn, x - 4, y - 25);
-//                g.drawImage(getSatImage(satel.getSnr()), x, y, Graphics.VCENTER | Graphics.HCENTER);
+                Image img = getSatImage(satel.getSnr());
+                g.drawImage(img, x - img.getWidth() / 2, y - img.getHeight() / 2);
                 satInRow++;
             }
         } else {
@@ -154,29 +143,13 @@ public class SatelliteScreen extends Form implements ActionListener, LocationEve
 
     private Image getSatImage(int snr) {
         if (snr == 0) {
-            return satImageNoSignal;
+            return TopBarBackground.getImgGpsNoSignal();
         } else if (snr > 0 && snr < 33) {
-            return satImageWeak;
+            return TopBarBackground.getImgGpsWeak();
         } else if (snr > 33 && snr < 66) {
-            return satImageNormal;
+            return TopBarBackground.getImgGpsNormal();
         } else {
-            return satImageStrong;
-        }
-    }
-
-    public void commandAction(Command cmd, Displayable d) {
-        if (cmd.equals(Commands.cmdBack)) {
-            R.getLocator().setSatScreenActive(false);
-            if (R.getContext().isTemporary()) {
-                R.getContext().removeTemporaryLocation();
-            }
-            R.getBack().goBack();
-        } else if (cmd.equals(Commands.cmdHome)) {
-            R.getLocator().setSatScreenActive(false);
-            if (R.getContext().isTemporary()) {
-                R.getContext().removeTemporaryLocation();
-            }
-            R.getURL().call("locify://mainScreen");
+            return TopBarBackground.getImgGpsStrong();
         }
     }
 
@@ -194,6 +167,16 @@ public class SatelliteScreen extends Form implements ActionListener, LocationEve
     }
 
     public void actionPerformed(ActionEvent evt) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (evt.getCommand() == Commands.cmdBack) {
+            if (R.getContext().isTemporary()) {
+                R.getContext().removeTemporaryLocation();
+            }
+            R.getBack().goBack();
+        } else if (evt.getCommand() == Commands.cmdHome) {
+            if (R.getContext().isTemporary()) {
+                R.getContext().removeTemporaryLocation();
+            }
+            R.getURL().call("locify://mainScreen");
+        }
     }
 }

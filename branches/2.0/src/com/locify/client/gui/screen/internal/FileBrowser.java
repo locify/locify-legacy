@@ -14,12 +14,11 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.utils.R;
-import com.locify.client.data.IconData;
+import com.locify.client.gui.extension.FormLocify;
+import com.locify.client.gui.extension.ListLocify;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Utils;
-import com.sun.lwuit.Form;
-import com.sun.lwuit.List;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
@@ -31,8 +30,8 @@ import java.util.Enumeration;
  */
 public class FileBrowser implements ActionListener {
 
-    private Form form;
-    private List list;
+    private FormLocify form;
+    private ListLocify list;
     private String currentFolder;
     private String selectedFileName;
     private String selectedFilePath;
@@ -78,10 +77,10 @@ public class FileBrowser implements ActionListener {
      */
     public void view(String folder) {
         // list = new List(Locale.get("Select_file"), List.IMPLICIT);
-        form = new Form(folder);
+        form = new FormLocify(folder);
         form.setLayout(new BorderLayout());
 
-        list = new List();
+        list = new ListLocify();
         currentFolder = folder;
         Enumeration files = null;
         if (folder.equals("")) {

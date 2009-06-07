@@ -11,19 +11,16 @@
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
-package com.locify.client.route;
+package com.locify.client.gui.widgets;
 
+import com.locify.client.route.*;
+import com.locify.client.gui.widgets.Widget;
 import com.locify.client.locator.Location4D;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
-import com.sun.lwuit.Container;
 import com.sun.lwuit.Graphics;
-import com.sun.lwuit.Image;
 import com.sun.lwuit.Label;
-import com.sun.lwuit.Painter;
-import com.sun.lwuit.geom.Dimension;
-import com.sun.lwuit.geom.Rectangle;
 import com.sun.lwuit.layouts.BorderLayout;
 import java.util.Vector;
 
@@ -31,7 +28,7 @@ import java.util.Vector;
  * Graph for showing altitude
  * @author Menion
  */
-public class GraphItem extends Container {
+public class GraphItemWidget extends Widget {
     /* text varibables */
     private int typeValueX;
     private int typeValueY;
@@ -59,8 +56,9 @@ public class GraphItem extends Container {
      * Basic constructor
      * @param label text label of item
      */
-    public GraphItem(String textLabel, int typeValueX, int typeValueY, double measureX) {
-        super(new BorderLayout());
+    public GraphItemWidget(String textLabel, int typeValueX, int typeValueY, double measureX) {
+        super();
+        setLayout(new BorderLayout());
 
         this.typeValueX = typeValueX;
         this.typeValueY = typeValueY;
@@ -91,28 +89,28 @@ public class GraphItem extends Container {
             Location4D loc;
             values = new Vector();
 
-            if (variables.routePoints.size() > 0) {
+            if (variables.getRoutePoints().size() > 0) {
                 if (typeValueX == VALUE_X_TOTAL_DIST) {
 //System.out.println("2 " + variables.routePoints.size());
-                    for (int i = variables.routePoints.size() - 1; i >= 0; i--) {
+                    for (int i = variables.getRoutePoints().size() - 1; i >= 0; i--) {
                         if (value > measureX)
                             break;
                         else {
-                            loc = (Location4D) variables.routePoints.elementAt(i);
+                            loc = (Location4D) variables.getRoutePoints().elementAt(i);
                             if (loc == null)
                                 continue;
-                            value += ((Double) variables.routeDistances.elementAt(i)).doubleValue();
+                            value += ((Double) variables.getRouteDistances().elementAt(i)).doubleValue();
                             addValues(value, loc);
                         }
                     }
                 } else if (typeValueX == VALUE_X_TOTAL_TIME) {
 //System.out.println("3");
-                    double endTime = ((Location4D) variables.routePoints.elementAt(variables.routePoints.size() - 1)).getTime();
-                    for (int i = variables.routePoints.size() - 1; i >= 0; i--) {
+                    double endTime = ((Location4D) variables.getRoutePoints().elementAt(variables.getRoutePoints().size() - 1)).getTime();
+                    for (int i = variables.getRoutePoints().size() - 1; i >= 0; i--) {
                         if (value > measureX)
                             break;
                         else {
-                            loc = (Location4D) variables.routePoints.elementAt(i);
+                            loc = (Location4D) variables.getRoutePoints().elementAt(i);
                             if (loc == null)
                                 continue;
                             value = ((endTime - loc.getTime()) / 1000.0);
@@ -121,7 +119,7 @@ public class GraphItem extends Container {
 //System.out.println(values.size());
                     }
                 }
-                lastSize = variables.routePoints.size();
+                lastSize = variables.getRoutePoints().size();
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GraphItem.refreshGraph()", null);

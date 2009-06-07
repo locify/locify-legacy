@@ -60,14 +60,16 @@ public class RouteSaveScreen implements ActionListener {
 
             frmSave = new FormLocify(Locale.get("Save_last_route"));
             frmSave.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
-            tfRouteName = new TextArea(Locale.get("Route_name"), 1, 100, TextField.ANY);
-            tfRouteDescription = new TextArea(Locale.get("Route_description"), 5, 1000, TextField.ANY);
+            frmSave.addComponent(new Label(Locale.get("Route_name")));
+            tfRouteName = new TextArea("", 1, 100, TextField.ANY);
+            frmSave.addComponent(tfRouteName);
+            frmSave.addComponent(new Label(Locale.get("Route_description")));
+            tfRouteDescription = new TextArea("", 5, 1000, TextField.ANY);
+            frmSave.addComponent(tfRouteDescription);
             btnOK = new Button(Locale.get("OK"));
             btnOK.addActionListener(this);
-
-            frmSave.addComponent(tfRouteName);
-            frmSave.addComponent(tfRouteDescription);
             frmSave.addComponent(btnOK);
+
             frmSave.addComponent(new Label(Locale.get("Route_length")));
             frmSave.addComponent(new Label(GpsUtils.formatDistance(routeDist)));
             frmSave.addComponent(new Label(Locale.get("Travel_time")));

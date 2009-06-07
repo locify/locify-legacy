@@ -137,6 +137,22 @@ public class TopBarBackground implements Painter, LocationEventListener {
         }
     }
 
+    public static Image getImgGpsNoSignal() {
+        return imgGpsNoSignal;
+    }
+
+    public static Image getImgGpsNormal() {
+        return imgGpsNormal;
+    }
+
+    public static Image getImgGpsStrong() {
+        return imgGpsStrong;
+    }
+
+    public static Image getImgGpsWeak() {
+        return imgGpsWeak;
+    }
+
     /**
      * Decides which image should be painted in next paint()
      * @return if animation should continue

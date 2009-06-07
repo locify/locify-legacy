@@ -13,10 +13,12 @@
  */
 package com.locify.client.gui.widgets;
 
+import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.utils.ColorsFonts;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.plaf.Border;
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  *
@@ -41,9 +43,12 @@ public class Widget extends Container {
 //System.out.println("Color: " + defaultBgColor);
     }
 
-    public void setWidgetParent(Container parent) {
+    public void setWidgetParent(Container parent, XmlPullParser parser) {
 //System.out.println("SetParent: " + parent);
         this.parent = parent;
+        if (parent.getLayout() instanceof BorderLayout) {
+            setConstrains(FormLocify.getBorderLayoutPositionValue(parser.getAttributeValue(null, "position"), true));
+        }
     }
 
     public Container getWidgetParent() {

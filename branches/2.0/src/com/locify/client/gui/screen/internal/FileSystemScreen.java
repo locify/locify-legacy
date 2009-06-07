@@ -28,7 +28,6 @@ import com.locify.client.utils.Commands;
 import com.locify.client.utils.Comparable;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
-import com.locify.client.utils.ResourcesLocify;
 import com.locify.client.utils.VectorSortable;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Image;
@@ -107,6 +106,10 @@ public class FileSystemScreen implements ActionListener {
             String[] pattern = {"*.kml", "*.gpx"};
             Vector files = R.getFileSystem().listFiles(FileSystem.FILES_FOLDER, pattern);
 //Logger.debug("enumeration: " + files);
+
+            frmFiles.addCommand(Commands.cmdBack);
+            frmFiles.addCommand(Commands.cmdHome);
+            
             filesystemItems = new VectorSortable();
             if (files != null) {
                 //comparing mode
@@ -209,8 +212,7 @@ public class FileSystemScreen implements ActionListener {
                     frmFiles.addCommand(cmdMapAll);
                 }
             }
-            frmFiles.addCommand(Commands.cmdBack);
-            frmFiles.addCommand(Commands.cmdHome);
+
             frmFiles.setCommandListener(this);
 
             frmFiles.show();

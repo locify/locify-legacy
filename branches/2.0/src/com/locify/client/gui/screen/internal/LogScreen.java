@@ -14,13 +14,13 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.FileSystem;
+import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Command;
-import com.sun.lwuit.Form;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
@@ -31,7 +31,7 @@ import com.sun.lwuit.events.ActionListener;
  */
 public class LogScreen implements ActionListener {
 
-    private Form form;
+    private FormLocify form;
     private Command cmdRefresh = new Command(Locale.get("Refresh"), 1);
 
     /**
@@ -39,7 +39,7 @@ public class LogScreen implements ActionListener {
      */
     public void view() {
         try {
-            form = new Form("Logger");
+            form = new FormLocify("Logger");
             form.addComponent(new Label(Logger.getOutText()));
             form.addCommand(cmdRefresh);
             form.addCommand(Commands.cmdBack);

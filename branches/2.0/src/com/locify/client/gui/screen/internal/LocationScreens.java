@@ -42,7 +42,6 @@ import java.util.Vector;
 public class LocationScreens implements ActionListener {
 
     private FormLocify form;
-
     private ListLocify lstAsk;
     private ListLocify lstAddresses;
     private TextArea tfLatitude;

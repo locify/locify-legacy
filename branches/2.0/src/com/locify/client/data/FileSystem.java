@@ -65,6 +65,7 @@ public class FileSystem {
     
     public static final String SKINS_FOLDER = "skins/";
     public static final String SKINS_FOLDER_NAVIGATION = SKINS_FOLDER + "navigation/";
+    public static final String SKINS_FOLDER_ROUTE_RECORD = SKINS_FOLDER + "route_record/";
 
     public static String ROOT = null;
 
