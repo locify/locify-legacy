@@ -26,7 +26,6 @@ import com.locify.client.locator.impl.JSR179LocationProvider;
 import com.locify.client.locator.impl.SimulatorLocationProvider;
 import com.locify.client.locator.impl.TCPNMEALocationProvider;
 import com.locify.client.utils.Capabilities;
-import com.locify.client.utils.Logger;
 import java.util.Date;
 import java.util.Hashtable;
 

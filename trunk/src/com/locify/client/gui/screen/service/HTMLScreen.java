@@ -100,7 +100,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         if (updateItemsWithVariables()) {
             R.getMidlet().switchDisplayable(null, form);
         }
-        htmlBrowser.focus(0);
+        htmlBrowser.focusChild(0);
     }
 
     public void reset()

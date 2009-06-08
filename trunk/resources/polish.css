@@ -339,7 +339,7 @@ a:hover extends a {
 
 /* HTML browser */
 .browser {
-    view-type: browser;
+    view-type: midp2;
     padding:0;
     margin:0;
 }
@@ -498,8 +498,8 @@ menubar
 /* Left command in menu bar */
 leftcommand
 {
-    margin: 0;
-    margin-horizontal: 10;
+    margin-left: 10;
+    margin-right: 10;
     padding-top: 3;
     padding-bottom: 0;
     font-color: black;

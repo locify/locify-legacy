@@ -19,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import com.locify.client.gui.polish.TopBarBackground;
@@ -133,17 +132,24 @@ public class Http implements Runnable {
                         Logger.log("URL: " + request.getUrl());
 
                         //open connection
-                        httpConnection = (HttpConnection) Connector.open(request.getUrl());
-                        //set request headers
-                        setRequestHeaders();
-                        //set cookies
-                        httpConnection.setRequestProperty("Cookie", CookieData.getHeaderData(request.getUrl()));
-                        Logger.log("COOKIES: " + CookieData.getHeaderData(request.getUrl()));
+                        httpConnection = (HttpConnection) Connector.open(request.getUrl(),Connector.READ);
+
                         if (request.getPostData() == null) { //no post data => get
                             httpConnection.setRequestMethod(HttpConnection.GET);
                         } else //post data => post
                         {
                             httpConnection.setRequestMethod(HttpConnection.POST);
+                        }
+                        
+                        //set request headers
+                        setRequestHeaders();
+                        //set cookies
+                        httpConnection.setRequestProperty("Cookie", CookieData.getHeaderData(request.getUrl()));
+                        Logger.log("COOKIES: " + CookieData.getHeaderData(request.getUrl()));
+
+                        //send data
+                        if (request.getPostData() != null)
+                        {
                             sendPostData();
                         }
 
@@ -152,6 +158,7 @@ public class Http implements Runnable {
                         TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
                         Logger.log("---------- ANSWER -----------");
                         //handle incoming headers
+
                         if (handleHeaders()) //action based on headers, no need for downloading
                         {
                             requestQueue.removeElementAt(0);
@@ -165,12 +172,6 @@ public class Http implements Runnable {
                         }
                         //read data
                         readData();
-
-                    } catch (ConnectionNotFoundException e) {
-                        R.getConnectionProblem().view();
-                    } catch (IOException e) {
-                        Logger.debug("IO Exception HTTP "+e);
-                        R.getConnectionProblem().view();
                     } catch (Exception e) {
                         R.getErrorScreen().view(e, "Http.run.request", request.getUrl());
                     } finally {

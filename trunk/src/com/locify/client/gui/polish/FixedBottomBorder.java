@@ -13,7 +13,7 @@
   */
  package com.locify.client.gui.polish;
  
- import de.enough.polish.ui.Border;
+ import de.enough.polish.ui.borders.BottomBorder;
  
  import javax.microedition.lcdui.Graphics;
  
@@ -21,7 +21,7 @@
   * This class overrides standart Polish BottomBorder and fix one-pixel space between border and background
   * @author David Vavra
   */
- public class FixedBottomBorder extends Border {
+ public class FixedBottomBorder extends BottomBorder {
  
  	private final int color;
  
@@ -32,9 +32,9 @@
          * @param width 
  	 */
  	public FixedBottomBorder( int color, int width ) {
- 		super();
+ 		super(color, width);
  		this.color = color;
- 		this.borderWidth = width;
+        this.borderWidthBottom = width;
  	}
  
  	/* (non-Javadoc)
@@ -45,8 +45,8 @@
  		y += height-1;
  		int endX = x + width;
  		g.drawLine( x, y, endX, y );
- 		if (this.borderWidth > 1) {
- 			int border = this.borderWidth - 1;
+ 		if (this.borderWidthBottom > 1) {
+ 			int border = this.borderWidthBottom - 1;
  			while ( border > 0) {
  				g.drawLine( x, y - border, endX, y - border );
  				border--;

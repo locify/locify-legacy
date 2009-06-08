@@ -13,12 +13,10 @@
  */
 package com.locify.client.gui.screen.internal;
 
-import com.locify.client.data.CookieData;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.IconData;
 import com.locify.client.data.Service;
 import com.locify.client.data.ServicesData;
-import com.locify.client.data.SettingsData;
 import com.locify.client.gui.screen.service.ConfirmScreen;
 import com.locify.client.net.Http;
 import com.locify.client.utils.Commands;
@@ -175,7 +173,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
             this.setTabbedFormListener(this);
             this.setActiveTab(0);
             //#if applet
-//#             autoInstall();
+//#            autoInstall();
             //#else
             if (autoInstallRequest) {
                 R.getConfirmScreen().view(Locale.get("Autoinstall_confirmation"), ConfirmScreen.AUTOINSTALL_SERVICES);
@@ -252,7 +250,7 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
      * Views the screen
      */
     public void view() {
-        if (!autoInstallRequest) {
+       if (!autoInstallRequest) {
             R.getMidlet().switchDisplayable(null, this);
         }
     }
@@ -625,12 +623,12 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
         } else if (c == cmdMoveTo) {
             move(itemToBeMoved, getFocusedItem());
             this.setActiveTab(0);
-            cgServices.focus(items.indexOf(itemToBeMoved));
+            cgServices.focusChild(items.indexOf(itemToBeMoved));
             checkServiceMenu();
             itemToBeMoved = null;
         } else if (c == cmdCancel) {
             this.setActiveTab(0);
-            cgServices.focus(items.indexOf(itemToBeMoved));
+            cgServices.focusChild(items.indexOf(itemToBeMoved));
             checkServiceMenu();
             itemToBeMoved = null;
         } else if (c == cmdDelete) {
