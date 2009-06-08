@@ -47,7 +47,7 @@ public class SatelliteManager {
             // wrong message - $GPGSV,3,*7F
             if (!param[0].equals("$GPGSV") || param.length < 7)
                 return;
-
+//System.out.println("Nmea: " + nmea);
             allSatellites = GpsUtils.parseInt(param[3]);
             // wrong message - $GPGSV,4,3,1329,,19,10,3,*7F
             if (allSatellites > 12)

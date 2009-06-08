@@ -173,7 +173,7 @@ public class XmlParser {
                 int type = parser.getEventType();
 
                 if (type == XmlPullParser.START_TAG) {
-                    Logger.logNoBreak("<" + name + ">");
+//                    Logger.logNoBreak("<" + name + ">");
                     if (name.equals("li")) {
                         iconUrl = null;
                     }

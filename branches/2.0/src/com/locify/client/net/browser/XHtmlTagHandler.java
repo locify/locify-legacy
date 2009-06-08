@@ -19,10 +19,11 @@ import com.locify.client.utils.R;
 import com.locify.client.gui.screen.service.ContactsScreen;
 import com.locify.client.net.HttpMultipartRequest;
 import com.locify.client.net.Variables;
+import com.locify.client.net.browser.HtmlButton;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
-import com.sun.lwuit.Button;
+import com.locify.client.utils.Utils;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
@@ -206,9 +207,9 @@ public class XHtmlTagHandler implements ActionListener {
                     this.browser.openContainer(new Container(new FlowLayout()));
                 } else {
                     Container container = this.browser.closeContainer();
-//                    if (container instanceof TableItem) {
-//                        this.currentTable = (TableItem) UiAccess.cast(container);
-//                    }
+////                    if (container instanceof TableItem) {
+////                        this.currentTable = (TableItem) UiAccess.cast(container);
+////                    }
                 }
             } else if (TAG_SELECT.equals(tagName)) {
                 if (opening) {
@@ -304,9 +305,9 @@ public class XHtmlTagHandler implements ActionListener {
                             String url = R.getHttp().makeAbsoluteURL(src);
                             Image image = IconData.get(url);
                             linkItem = new HtmlButton(image);
+                            linkItem.setLinkBehaviour();
                             linkItem.setText((String) attributeMap.get("alt"));
-                        //this.browser.loadImageLater( url, (ImageItem) linkItem );
-
+////                            this.browser.loadImageLater( url, (ImageItem) linkItem );
                         } else {
                             linkItem.url = href;
                         }
@@ -314,6 +315,7 @@ public class XHtmlTagHandler implements ActionListener {
 //                        addCommands(TAG_A, linkItem);
                     } else {
                         linkItem = new HtmlButton(parser.getText());
+                        linkItem.setLinkBehaviour();
                         linkItem.setFocusable(false);
                     }
                     if (style != null) {
@@ -332,17 +334,17 @@ public class XHtmlTagHandler implements ActionListener {
                     }
                     return true;
                 } else if (TAG_IMG.equals(tagName)) {
-//                    String src = (String) attributeMap.get("src");
-//                    String url = R.getHttp().makeAbsoluteURL(src);
-//                    Image image = this.browser.loadImage(url);
-//                    if (image != null) {
-//                        ImageItem item = new ImageItem(null, image, Item.LAYOUT_DEFAULT, "");
-//                        if (style != null) {
-//                            item.setStyle(style);
-//                        }
-//
-//                        add(item);
-//                    }
+////                    String src = (String) attributeMap.get("src");
+////                    String url = R.getHttp().makeAbsoluteURL(src);
+////                    Image image = this.browser.loadImage(url);
+////                    if (image != null) {
+////                        ImageItem item = new ImageItem(null, image, Item.LAYOUT_DEFAULT, "");
+////                        if (style != null) {
+////                            item.setStyle(style);
+////                        }
+////
+////                        add(item);
+////                    }
                     return true;
                 } else if (TAG_TEXT_AREA.equals(tagName)) {
                     parser.next();
@@ -392,8 +394,7 @@ public class XHtmlTagHandler implements ActionListener {
                     if (style != null) {
                         buttonItem.setStyle(style);
                     }
-////                    buttonItem.setDefaultCommand(CMD_SUBMIT);
-////                    buttonItem.setItemCommandListener(this);
+                    buttonItem.addActionListener(this);
                     addCommands(TAG_INPUT, INPUT_TYPE, INPUTTYPE_SUBMIT, buttonItem);
                     browser.addItem(buttonItem);
 
@@ -609,15 +610,14 @@ public class XHtmlTagHandler implements ActionListener {
      * @return the GET URL or null when the browser's current item is not a Submit button
      */
     public String createGetSubmitCall() {
-//        Component submitItem = this.browser.getFocusedItem();
-//        HtmlForm form = (HtmlForm) submitItem.getAttribute(ATTR_FORM);
-//        while (form == null && (submitItem instanceof Container)) {
-//            submitItem = ((Container) submitItem).getFocusedItem();
-//            form =
-//                    (HtmlForm) submitItem.getAttribute(ATTR_FORM);
-//        }
-
-//        return createGetSubmitCall(submitItem, form);
+////        Component submitItem = this.browser.getFocusedItem();
+////        HtmlForm form = (HtmlForm) submitItem.getAttribute(ATTR_FORM);
+////        while (form == null && (submitItem instanceof Container)) {
+////            submitItem = ((Container) submitItem).getFocusedItem();
+////            form =
+////                    (HtmlForm) submitItem.getAttribute(ATTR_FORM);
+////        }
+////        return createGetSubmitCall(submitItem, form);
         return "";
     }
 
@@ -628,27 +628,26 @@ public class XHtmlTagHandler implements ActionListener {
      * @param form the form that contains necessary data
      * @return the GET URL or null when the browser's current item is not a Submit button
      */
-    public String createGetSubmitCall(Component submitItem, HtmlForm form) {
+    public String createGetSubmitCall(HtmlButton submitItem, HtmlForm form) {
 
         if (form == null) {
             return null;
         }
 
         StringBuffer sb = new StringBuffer();
-//        sb.append(form.getAction());
-//        Hashtable elements = form.getFormElements(this.formListener, submitItem);
-//        Enumeration enumeration = elements.keys();
-//        char separatorChar = '?';
-//        while (enumeration.hasMoreElements()) {
-//            String name = (String) enumeration.nextElement();
-//            String value = (String) elements.get(name);
-//            value =
-//                    TextUtil.encodeUrl(value);
-//            sb.append(separatorChar);
-//            sb.append(name).append('=').append(value);
-//            separatorChar =
-//                    '&';
-//        }
+        sb.append(form.getAction());
+        Hashtable elements = form.getFormElements(submitItem);
+        Enumeration enumeration = elements.keys();
+        char separatorChar = '?';
+        while (enumeration.hasMoreElements()) {
+            String name = (String) enumeration.nextElement();
+            String value = (String) elements.get(name);
+            value = Utils.encodeUrl(value);
+            sb.append(separatorChar);
+            sb.append(name).append('=').append(value);
+            separatorChar =
+                    '&';
+        }
 
         return sb.toString();
     }
@@ -658,7 +657,7 @@ public class XHtmlTagHandler implements ActionListener {
      * @param submitItem the item triggering the call
      * @param form the form containing the data
      */
-    public void doPostSubmitCall(Component submitItem, HtmlForm form) {
+    public void doPostSubmitCall(HtmlButton submitItem, HtmlForm form) {
         try {
             if (form == null) {
                 return;
@@ -708,12 +707,11 @@ public class XHtmlTagHandler implements ActionListener {
                 if (multipart && R.getFileBrowser().isFileSelected()) {
                     params.put(name, value);
                 } else {
-////                    value = TextUtil.encodeUrl(value);
+                    value = Utils.encodeUrl(value);
                     sb.append(name).append('=').append(value);
                     if (enumeration.hasMoreElements()) {
                         sb.append('&');
                     }
-
                 }
             }
             if (multipart && R.getFileBrowser().isFileSelected()) {
@@ -723,7 +721,7 @@ public class XHtmlTagHandler implements ActionListener {
                         fileName, R.getFileBrowser().getFileName(), "unknown/unknown", R.getFileBrowser().getFilePath(), browser);
                 req.send();
             } else {
-////                this.browser.go(form.getAction(), sb.toString());
+                this.browser.go(form.getAction(), sb.toString());
             }
 
         } catch (Exception e) {
@@ -741,17 +739,16 @@ public class XHtmlTagHandler implements ActionListener {
             doPostSubmitCall(button, form);
         } else {
             String url = createGetSubmitCall(button, form);
-////            this.browser.go(url);
+            this.browser.go(url);
         }
     }
 
-//    protected void handleLinkCommand() {
-//         Item linkItem = getFocusedItemWithAttribute(ATTR_HREF, this.browser);
-//         String href = (String) linkItem.getAttribute(ATTR_HREF);
-//         if (href != null) {
-//             this.browser.go(href);
-//        }
-//    }
+    protected void handleLinkCommand(HtmlButton button) {
+         String href = (String) button.url;
+         if (href != null) {
+             this.browser.go(href);
+        }
+    }
 
     /**
      * Retrieves the currently focused item that has specified the attribute
@@ -769,32 +766,13 @@ public class XHtmlTagHandler implements ActionListener {
 //        return null;
 //    }
 
-    /**
-     * Handles item commands (implements ItemCommandListener).
-     *
-     * @param command the command
-     * @param item the item from which the command originates
-     */
-//    public void commandAction(Command command, Component item) {
-//        handleCommand(command);
-//    }
-
-    /**
-     * Sets the form listener that is notified about form creation and submission events
-     *
-     * @param listener the listener, use null for de-registering a previous listener
-     */
-    public void setFormListener(FormListener listener) {
-////        this.formListener = listener;
-    }
-
     public void addCommands(String a, String b, String c, Component i) {
-//        super.addCommands(a, b, c, i);
+////        super.addCommands(a, b, c, i);
     }
 
     public void actionPerformed(ActionEvent evt) {
-        if (evt.getCommand() == CMD_LINK) {
-////            handleLinkCommand();
+        if (evt.getSource() instanceof HtmlButton && ((HtmlButton) evt.getSource()).isLink()) {
+            handleLinkCommand((HtmlButton) evt.getSource());
         } else if (evt.getCommand() == CMD_SUBMIT || evt.getSource() instanceof HtmlButton) {
             handleSubmitCommand((HtmlButton) evt.getSource());
         } else if (evt.getCommand() == CMD_BACK) {

@@ -38,14 +38,10 @@ public class ScaleMapItem extends MapItem {
     private double angleDistance = 111319.4908;
     /** String dispalyed as measure */
     private String scale = "";
-    /** scale position X from top */
-    private int posX;
-    /** scale position Y from left */
-    private int posY;
     /** total length of scale image */
-    private int scaleSizeX;
+    private int scaleSizeWidth;
     /** total height of scale image */
-    private int scaleSizeY;
+    private int scaleSizeHeight;
     /** imgae of scale meter */
     private Image scaleImage;
     
@@ -55,19 +51,19 @@ public class ScaleMapItem extends MapItem {
     
     public void initialize() {
         try {
-            if (scaleImage == null) {
-                this.posX = R.getMapScreen().getContentPane().getWidth() - 5;
-                this.posY = R.getMapScreen().getContentPane().getHeight() - 15;
-                this.scaleSizeX = R.getMapScreen().getContentPane().getWidth() / 2;
-                this.scaleSizeY = 6;
-                createScaleImage();
+            initialized = false;
+            
+            if (scaleSizeWidth == 0 || scaleSizeHeight == 0) {
+                return;
             }
+
+            createScaleImage();
             
             p1 = R.getMapContent().getActualMapLayer().getLocationCoord(new Location4D(0.1, 14.0, 0.0f));
             p2 = R.getMapContent().getActualMapLayer().getLocationCoord(new Location4D(0.2, 14.0, 0.0f));
 
             distancePerPixel = (angleDistance / 10) / (Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y));
-            double distance = (R.getMapScreen().getContentPane().getWidth() / 2) * distancePerPixel;
+            double distance = scaleSizeWidth * distancePerPixel;
             String units;
 
             if (distance > 0 && distance < 2000000) {
@@ -103,26 +99,35 @@ public class ScaleMapItem extends MapItem {
 
     public void drawItem(Graphics g) {
         if (enabled) {
-            if (!initialized)
+            if (!initialized || scaleSizeWidth != g.getClipWidth() / 2 || scaleSizeHeight != (g.getClipHeight() / 50)) {
+                scaleSizeWidth = g.getClipWidth() / 2;
+                scaleSizeHeight = (g.getClipHeight() / 50) < 5 ? 5 : (g.getClipHeight() / 50);
                 initialize();
-            
-            g.setColor(ColorsFonts.BLACK);
-            g.drawString(scale, posX - g.getFont().stringWidth(scale), posY - 15);
-            if (scaleImage != null)
-                g.drawImage(scaleImage, posX - scaleImage.getWidth(), posY);
+            }
+
+            if (initialized) {
+                g.setColor(ColorsFonts.BLACK);
+                g.drawString(scale,
+                        g.getClipX() + g.getClipWidth() - 5 - g.getFont().stringWidth(scale),
+                        g.getClipY() + g.getClipHeight() - 30);
+                if (scaleImage != null)
+                    g.drawImage(scaleImage,
+                            g.getClipX() + g.getClipWidth() - 5 - scaleImage.getWidth(),
+                            g.getClipY() + g.getClipHeight() - 15);
+            }
         }
     }
 
     private void createScaleImage() {
-        scaleImage = Image.createImage(scaleSizeX, scaleSizeY);
+        scaleImage = Image.createImage(scaleSizeWidth, scaleSizeHeight);
         Graphics g = scaleImage.getGraphics();
         
         g.setColor(ColorsFonts.BLACK);
-        g.fillRect(0, 0, scaleSizeX, scaleSizeY);
+        g.fillRect(0, 0, scaleSizeWidth, scaleSizeHeight);
         g.setColor(ColorsFonts.WHITE);
         for (int i = 0; i < 5; i++) {
             if (i % 2 != 0) {
-                g.fillRect(i * (scaleSizeX / 5) + 1, 1, scaleSizeX / 5 - 1, scaleSizeY - 2);
+                g.fillRect(i * (scaleSizeWidth / 5) + 1, 1, scaleSizeWidth / 5 - 1, scaleSizeHeight - 2);
             }
         }
     }

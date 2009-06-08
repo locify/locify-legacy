@@ -134,7 +134,7 @@ public class HtmlForm {
      * @param submitItem the submitItem that triggered the submission of the form, can be null
      * @return a hashtable with all input elements
      */
-    public Hashtable getFormElements(Component submitItem) {
+    public Hashtable getFormElements(HtmlButton submitItem) {
         int size = this.hiddenElements != null ? this.hiddenElements.size() + this.formItems.size() : this.formItems.size();
         Hashtable elements = new Hashtable(size);
         if (this.hiddenElements != null) {
@@ -146,6 +146,7 @@ public class HtmlForm {
                 if (value == null) {
                     value = "";
                 }
+//System.out.println("PutHidden: " + name + " " + value);
                 elements.put(name, value);
             }
         }
@@ -157,31 +158,46 @@ public class HtmlForm {
             if (item == null) {
                 break;
             }
-////            if ("submit".equals(item.getAttribute(XHTMLTagHandler.ATTR_TYPE)) && item != submitItem) {
-////                continue;
-////            }
-////
-////            String name = (String) item.getAttribute(XHTMLTagHandler.ATTR_NAME);
-////            if (name == null) {
-////                continue;
-////            }
-////            String value = (String) item.getAttribute(XHTMLTagHandler.ATTR_VALUE);
-////
-////            if (item instanceof TextField) {
-////                TextField textField = (TextField) item;
-////                value = textField.getString();
-////            } else if (item instanceof ChoiceGroup) {
-////                ChoiceGroup choiceGroup = (ChoiceGroup) item;
-////                HtmlSelect htmlSelect = (HtmlSelect) choiceGroup.getAttribute(HtmlSelect.SELECT);
-////                value = htmlSelect.getValue(choiceGroup.getSelectedIndex());
-////            }
-////            if (listener != null) {
-////                value = listener.verifySubmitFormValue(this.actionUrl, name, value);
-////            }
-////            if (value == null) {
-////                value = "";
-////            }
-////            elements.put(name, value);
+
+            String name = null;
+            String value = null;
+            
+            if (item instanceof HtmlButton) {
+                HtmlButton button = (HtmlButton) item;
+//System.out.println("1. " + submitItem);
+//System.out.println("1. " + button);
+                if ("submit".equals(button.getAttributeType()) && button != submitItem) {
+                    continue;
+                }
+
+                name = button.getAttributeName();
+                if (name == null) {
+                    continue;
+                }
+                value = button.getAttributeValue();
+
+            } else if (item instanceof HtmlTextArea) {
+                HtmlTextArea textArea = (HtmlTextArea) item;
+                name = textArea.getAttributeName();
+                if (name == null) {
+                    continue;
+                }
+                value = textArea.getText();
+            }
+//            else if (item instanceof ChoiceGroup) {
+//                ChoiceGroup choiceGroup = (ChoiceGroup) item;
+//                HtmlSelect htmlSelect = (HtmlSelect) choiceGroup.getAttribute(HtmlSelect.SELECT);
+//                value = htmlSelect.getValue(choiceGroup.getSelectedIndex());
+//            }
+
+            if (name == null) {
+                continue;
+            }
+            if (value == null) {
+                value = "";
+            }
+//System.out.println("Put: " + name + " " + value);
+            elements.put(name, value);
         }
 
         Enumeration enu = this.locifyPIM.keys();

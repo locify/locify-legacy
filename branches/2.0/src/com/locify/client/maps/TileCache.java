@@ -202,8 +202,8 @@ public class TileCache extends Thread {
 //System.out.println("F: name - " + actualRequest.fileName);
                             actualRequest.image = makeImageFileRequest(actualRequest.fileName);
                             addImageToCache(actualRequest);
-                            if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
-                                R.getMapScreen().repaint();
+                            if (tileRequest.isEmpty() && R.getMapContent().isOffLineMapEnable()) {
+                                R.getMapContent().repaint();
                             }
 
                         } else if (actualRequest.tar != null) {
@@ -233,8 +233,8 @@ public class TileCache extends Thread {
                                 }
 
                                 addImageToCache(actualRequest);
-                                if (tileRequest.isEmpty() && R.getMapScreen().isOffLineMapEnable()) {
-                                    R.getMapScreen().repaint();
+                                if (tileRequest.isEmpty() && R.getMapContent().isOffLineMapEnable()) {
+                                    R.getMapContent().repaint();
                                 }
 //Logger.debug("TileCache TAR: end after " + (System.currentTimeMillis() - time) + "ms");
 //Logger.debug("Memory after - (free/total) " + Runtime.getRuntime().freeMemory() + "/" + Runtime.getRuntime().totalMemory());
@@ -340,7 +340,7 @@ public class TileCache extends Thread {
             long currentTime = System.currentTimeMillis();
 
             if (currentTime - lastRunRefresh > 1000 && needRefresh) {
-                R.getMapScreen().repaint();
+                R.getMapContent().repaint();
                 localRefreshCalling = true;
                 lastRunRefresh = currentTime;
                 needRefresh = false;

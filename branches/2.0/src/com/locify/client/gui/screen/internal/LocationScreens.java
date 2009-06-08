@@ -15,7 +15,6 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.IconData;
 import com.locify.client.data.SettingsData;
-import com.locify.client.gui.extension.ListLabelItem;
 import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.gui.extension.ListLocify;
 import com.locify.client.gui.screen.service.GeocodeResult;
@@ -135,11 +134,21 @@ public class LocationScreens implements ActionListener {
     public void askForContext() {
         form.setAsNew(Locale.get("Location"));
         lstAsk = new ListLocify();
-        lstAsk.addItem(new ListLabelItem(Locale.get("Gps"), IconData.get("locify://icons/gps.png")));
-        lstAsk.addItem(new ListLabelItem(Locale.get("Saved_location"), IconData.get("locify://icons/savedLocation.png")));
-        lstAsk.addItem(new ListLabelItem(Locale.get("Address"), IconData.get("locify://icons/address.png")));
-        lstAsk.addItem(new ListLabelItem(Locale.get("Coordinates"), IconData.get("locify://icons/coordinates.png")));
-        lstAsk.addItem(new ListLabelItem(Locale.get("Last_known"), IconData.get("locify://icons/lastKnown.png")));
+        Label label = new Label(Locale.get("Gps"));
+        label.setIcon(IconData.get("locify://icons/gps.png"));
+        lstAsk.addItem(label);
+        label = new Label(Locale.get("Saved_location"));
+        label.setIcon(IconData.get("locify://icons/savedLocation.png"));
+        lstAsk.addItem(label);
+        label = new Label(Locale.get("Address"));
+        label.setIcon(IconData.get("locify://icons/address.png"));
+        lstAsk.addItem(label);
+        label = new Label(Locale.get("Coordinates"));
+        label.setIcon(IconData.get("locify://icons/coordinates.png"));
+        lstAsk.addItem(label);
+        label = new Label(Locale.get("Last_known"));
+        label.setIcon(IconData.get("locify://icons/lastKnown.png"));
+        lstAsk.addItem(label);
         lstAsk.addActionListener(this);
         
         form.addComponent(lstAsk);

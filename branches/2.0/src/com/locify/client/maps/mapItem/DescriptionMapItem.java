@@ -138,19 +138,19 @@ public class DescriptionMapItem extends MapItem {
                 initialize();
             }
 
-            if (isInside() && actualState == STATE_WAITING) {
+            if (isInside(g) && actualState == STATE_WAITING) {
                 actualState = STATE_DRAWING;
 
                 g.setColor(ColorsFonts.RED);
                 g.setFont(ColorsFonts.FONT_BMF_10);
-                g.fillArc(actualItem.x - 3, actualItem.y - 3, 6, 6, 0, 360);
+                g.fillArc(actualItem.x - 3 + g.getClipX(), actualItem.y - 3 + g.getClipY(), 6, 6, 0, 360);
 
                 g.drawImage(waypointDescriptionBackground,
-                        actualItem.x - waypointDescriptionBackground.getWidth() / 2,
-                        actualItem.y - waypointDescriptionBackground.getHeight());
+                        actualItem.x - waypointDescriptionBackground.getWidth() / 2 + g.getClipX(),
+                        actualItem.y - waypointDescriptionBackground.getHeight() + g.getClipY());
 
-                int textPosX = actualItem.x - (waypointDescriptionBackground.getWidth() / 2) + 2;
-                int textPosY = actualItem.y - waypointDescriptionBackground.getHeight() + 3;
+                int textPosX = actualItem.x - (waypointDescriptionBackground.getWidth() / 2) + 2 + g.getClipX();
+                int textPosY = actualItem.y - waypointDescriptionBackground.getHeight() + 3 + g.getClipY();
 
                 g.drawString(text, textPosX, textPosY);
                 textPosY += lineHeight;

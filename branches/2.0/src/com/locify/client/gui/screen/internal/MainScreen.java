@@ -14,7 +14,6 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.gui.extension.MainScreenItem;
-import com.locify.client.gui.extension.ListLabelItem;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.IconData;
 import com.locify.client.data.Service;
@@ -33,6 +32,7 @@ import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Display;
+import com.sun.lwuit.Label;
 import com.sun.lwuit.TabbedPane;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
@@ -177,44 +177,85 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
     }
 
     private void loadTab(int number) {
+        Label label;
         switch (number) {
             case 1:
-                cgWhere.addItem(new ListLabelItem(Locale.get("Gps"), IconData.get("locify://icons/gps.png")));
-                cgWhere.addItem(new ListLabelItem(Locale.get("Saved_location"), IconData.get("locify://icons/savedLocation.png")));
-                cgWhere.addItem(new ListLabelItem(Locale.get("Address"), IconData.get("locify://icons/address.png")));
-                cgWhere.addItem(new ListLabelItem(Locale.get("Coordinates"), IconData.get("locify://icons/coordinates.png")));
-                cgWhere.addItem(new ListLabelItem(Locale.get("Last_known"), IconData.get("locify://icons/lastKnown.png")));
+                label = new Label(Locale.get("Gps"));
+                label.setIcon(IconData.get("locify://icons/gps.png"));
+                cgWhere.addItem(label);
+                label = new Label(Locale.get("Saved_location"));
+                label.setIcon(IconData.get("locify://icons/savedLocation.png"));
+                cgWhere.addItem(label);
+                label = new Label(Locale.get("Address"));
+                label.setIcon(IconData.get("locify://icons/address.png"));
+                cgWhere.addItem(label);
+                label = new Label(Locale.get("Coordinates"));
+                label.setIcon(IconData.get("locify://icons/coordinates.png"));
+                cgWhere.addItem(label);
+                label = new Label(Locale.get("Last_known"));
+                label.setIcon(IconData.get("locify://icons/lastKnown.png"));
+                cgWhere.addItem(label);
                 break;
             case 2:
-                cgSaved.addItem(new ListLabelItem(Locale.get("Save_place"), IconData.get("locify://icons/savePlace.png")));
-                cgSaved.addItem(new ListLabelItem(Locale.get("Record_route"), IconData.get("locify://icons/recordRoute.png")));
-                cgSaved.addItem(new ListLabelItem(Locale.get("Browse"), IconData.get("locify://icons/browse.png")));
+                label = new Label(Locale.get("Save_place"));
+                label.setIcon(IconData.get("locify://icons/savePlace.png"));
+                cgSaved.addItem(label);
+                label = new Label(Locale.get("Record_route"));
+                label.setIcon(IconData.get("locify://icons/recordRoute.png"));
+                cgSaved.addItem(label);
+                label = new Label(Locale.get("Browse"));
+                label.setIcon(IconData.get("locify://icons/browse.png"));
+                cgSaved.addItem(label);
                 break;
             case 3:
-                cgMaps.addItem(new ListLabelItem(Locale.get("View_location"), IconData.get("locify://icons/viewLocation.png")));
-                cgMaps.addItem(new ListLabelItem(Locale.get("View_place"), IconData.get("locify://icons/viewPlace.png")));
-                cgMaps.addItem(new ListLabelItem(Locale.get("View_route"), IconData.get("locify://icons/viewRoute.png")));
+                label = new Label(Locale.get("View_location"));
+                label.setIcon(IconData.get("locify://icons/viewLocation.png"));
+                cgMaps.addItem(label);
+                label = new Label(Locale.get("View_place"));
+                label.setIcon(IconData.get("locify://icons/viewPlace.png"));
+                cgMaps.addItem(label);
+                label = new Label(Locale.get("View_route"));
+                label.setIcon(IconData.get("locify://icons/viewRoute.png"));
+                cgMaps.addItem(label);
                 break;
             case 4:
                 if (NavigationScreen.isRunning()) {
-                    cgNavigation.addItem(new ListLabelItem(Locale.get("Continue"), IconData.get("locify://icons/select.png")));
+                    label = new Label(Locale.get("Continue"));
+                    label.setIcon(IconData.get("locify://icons/select.png"));
+                    cgNavigation.addItem(label);
                 } else {
-                    cgNavigation.addItem(new ListLabelItem(Locale.get("Compass"), IconData.get("locify://icons/compass.png")));
+                    label = new Label(Locale.get("Compass"));
+                    label.setIcon(IconData.get("locify://icons/compass.png"));
+                    cgNavigation.addItem(label);
                 }
 
-                cgNavigation.addItem(new ListLabelItem(Locale.get("To_place"), IconData.get("locify://icons/navigateTo.png")));
-                cgNavigation.addItem(new ListLabelItem(Locale.get("Along_route"), IconData.get("locify://icons/navigateAlong.png")));
+                label = new Label(Locale.get("To_place"));
+                label.setIcon(IconData.get("locify://icons/navigateTo.png"));
+                cgNavigation.addItem(label);
+                label = new Label(Locale.get("Along_route"));
+                label.setIcon(IconData.get("locify://icons/navigateAlong.png"));
+                cgNavigation.addItem(label);
 
                 if (R.getLocator().hasSatellites()) {
-                    cgNavigation.addItem(new ListLabelItem(Locale.get("Satellites"), IconData.get("locify://icons/gps.png")));
+                    label = new Label(Locale.get("Satellites"));
+                    label.setIcon(IconData.get("locify://icons/gps.png"));
+                    cgNavigation.addItem(label);
                 }
                 break;
             case 5:
-                cgMore.addItem(new ListLabelItem(Locale.get("Settings"), IconData.get("locify://icons/settings.png")));
-                cgMore.addItem(new ListLabelItem(Locale.get("Check_version"), IconData.get("locify://icons/checkVersion.png")));
-                cgMore.addItem(new ListLabelItem(Locale.get("Help"), IconData.get("locify://icons/help.png")));
+                label = new Label(Locale.get("Settings"));
+                label.setIcon(IconData.get("locify://icons/settings.png"));
+                cgMore.addItem(label);
+                label = new Label(Locale.get("Check_version"));
+                label.setIcon(IconData.get("locify://icons/checkVersion.png"));
+                cgMore.addItem(label);
+                label = new Label(Locale.get("Help"));
+                label.setIcon(IconData.get("locify://icons/help.png"));
+                cgMore.addItem(label);
                 //#if !release
-                cgMore.addItem(new ListLabelItem(Locale.get("Logger"), IconData.get("locify://icons/moreInfo.png")));
+                label = new Label(Locale.get("Logger"));
+                label.setIcon(IconData.get("locify://icons/moreInfo.png"));
+                cgMore.addItem(label);
                 //#endif
                 break;
         }

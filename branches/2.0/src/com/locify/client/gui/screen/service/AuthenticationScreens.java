@@ -21,14 +21,13 @@ import com.locify.client.utils.Sha1;
 import com.locify.client.utils.Utils;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.data.ServiceSettingsData;
+import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.base64.Base64;
 import com.sun.lwuit.Button;
-import com.sun.lwuit.ButtonGroup;
 import com.sun.lwuit.CheckBox;
-import com.sun.lwuit.Form;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionEvent;
@@ -40,19 +39,12 @@ import com.sun.lwuit.events.ActionListener;
  */
 public class AuthenticationScreens implements ActionListener {
 
-    private Form frmLogin;
-    private Form frmRegister;
+    private FormLocify frmLogin;
     private TextArea tfLogin;
     private TextArea tfPassword;
-    private TextArea tfPassword2;
-    private TextArea tfEmail;
-    private Button siLinkRegister;
     private Button siLoginButton;
-    private Button siRegisterButton;
-    private ButtonGroup cgAuto;
     private CheckBox cbSavePasswd;
     private CheckBox cbAutologin;
-    //private ButtonGroup cgAutologin;
     private String authUrl;
     private String next;
     private boolean httpBasic = false;
@@ -63,7 +55,7 @@ public class AuthenticationScreens implements ActionListener {
 
     private void viewLogin(String loginTo, String savedLogin, String savedPassword) {
         try {
-            frmLogin = new Form(Locale.get("Login"));
+            frmLogin = new FormLocify(Locale.get("Login"));
             Label siLoginTo = new Label(Locale.get("Credentials_to") + " " + loginTo + ":");
             frmLogin.addComponent(siLoginTo);
             Label label01 = new Label(Locale.get("Login_field"));
@@ -82,7 +74,6 @@ public class AuthenticationScreens implements ActionListener {
             frmLogin.addComponent(cbSavePasswd);
             frmLogin.addComponent(cbAutologin);
 
-
             siLoginButton = new Button(Locale.get("Login"));
             siLoginButton.addActionListener(new ActionListener() {
 
@@ -90,7 +81,6 @@ public class AuthenticationScreens implements ActionListener {
                     sendLogin(tfLogin.getText(), tfPassword.getText(), cbSavePasswd.isSelected(), cbAutologin.isSelected());
                 }
             });
-            //siLoginButton.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER);
             frmLogin.addComponent(siLoginButton);
 
             frmLogin.addCommand(Commands.cmdBack);
@@ -153,8 +143,7 @@ public class AuthenticationScreens implements ActionListener {
     }
 
     private void sendLogin(String login, String password, boolean saveCredentials, boolean setAutologin) {
-        if (setAutologin)
-        {
+        if (setAutologin) {
             R.getSettings().setAutologin(SettingsData.ON);
         }
 

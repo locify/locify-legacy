@@ -33,7 +33,6 @@ import com.locify.client.maps.NetworkLinkDownloader;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.mapItem.DescriptionMapItem;
 import com.locify.client.maps.mapItem.MapItem;
-import com.locify.client.maps.mapItem.MapItemInfoPanel;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
@@ -805,10 +804,6 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                 mapContent.makePanAction(mapContent.getActualMapLayer().PAN_PIXELS, 0);
             }
         }
-    }
-
-    public boolean isOffLineMapEnable() {
-        return mapContent.getActualMapLayer() instanceof FileMapLayer;
     }
 
     /************************************************/

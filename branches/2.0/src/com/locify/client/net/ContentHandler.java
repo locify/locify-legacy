@@ -94,6 +94,7 @@ public class ContentHandler {
                      FileMapManager.obtainedData = data;
                  }
                  else {
+Logger.log("HERE");
                     R.getHtmlScreen().view(data);
                     if (!response.isDisabledCaching()) {
                         CacheData.add(response.getUrl(), data);

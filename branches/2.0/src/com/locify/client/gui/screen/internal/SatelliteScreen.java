@@ -96,9 +96,9 @@ public class SatelliteScreen extends FormLocify implements ActionListener, Locat
         satInRow = 0;
         int x, y, angle, dist;
         Hashtable sat = R.getLocator().getSatInView();
-        Enumeration enu = sat.keys();
 
-        if (enu.hasMoreElements()) {
+        if (sat != null && sat.keys().hasMoreElements()) {
+            Enumeration enu = sat.keys();
             g.setColor(ColorsFonts.WHITE);
             g.fillArc(spX - radius, spY - radius, 2 * radius, 2 * radius, 0, 360);
             g.setColor(ColorsFonts.BLACK);
@@ -137,6 +137,7 @@ public class SatelliteScreen extends FormLocify implements ActionListener, Locat
                 satInRow++;
             }
         } else {
+            g.setColor(ColorsFonts.BLACK);
             g.drawString(Locale.get("No_satellites"), 10, 50);
         }
     }

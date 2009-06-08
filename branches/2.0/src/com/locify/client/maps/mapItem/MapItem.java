@@ -16,7 +16,6 @@ package com.locify.client.maps.mapItem;
 import com.locify.client.data.IconData;
 import com.locify.client.data.items.GeoFileStyle;
 import com.locify.client.data.items.Waypoint;
-import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.locator.Location4D;
 import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.RectangleViewPort;
@@ -138,10 +137,10 @@ public abstract class MapItem {
      * Test if viewport of this object is inside actual map screen.
      * @return true if is inside, otherwise false.
      */
-    protected boolean isInside() {
+    protected boolean isInside(Graphics g) {
         try {
             if (itemViewPort != null) {
-                return itemViewPort.intersects(getScreenViewport());
+                return itemViewPort.intersects(getScreenViewport(g));
             }
             return false;
         } catch (Exception e) {
@@ -150,10 +149,9 @@ public abstract class MapItem {
         }
     }
 
-    private RectangleViewPort getScreenViewport() {
-        if (screenViewPort == null)
-            screenViewPort = new RectangleViewPort(0, 0, R.getMapScreen().getContentPane().getWidth(),
-                    R.getMapScreen().getContentPane().getHeight());
+    private RectangleViewPort getScreenViewport(Graphics g) {
+        if (screenViewPort == null || screenViewPort.width != g.getClipWidth() || screenViewPort.height != g.getClipHeight())
+            screenViewPort = new RectangleViewPort(0, 0, g.getClipWidth(), g.getClipHeight());
         return screenViewPort;
     }
 

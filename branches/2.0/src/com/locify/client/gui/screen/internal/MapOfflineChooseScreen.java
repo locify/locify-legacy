@@ -16,7 +16,6 @@ package com.locify.client.gui.screen.internal;
 import com.locify.client.data.FileSystem;
 import com.locify.client.data.IconData;
 import com.locify.client.gui.extension.FormLocify;
-import com.locify.client.gui.extension.ListLabelItem;
 import com.locify.client.gui.extension.ListLocify;
 import com.locify.client.locator.Location4D;
 import com.locify.client.maps.fileMaps.FileMapManager;
@@ -109,7 +108,9 @@ public class MapOfflineChooseScreen implements ActionListener {
         lstAvailableMaps.removeAll();
         for (int i = 0; i < findedData.size(); i++) {
             StoreManagerMapInfo smmi = (StoreManagerMapInfo) findedData.elementAt(i);
-            lstAvailableMaps.addItem(new ListLabelItem(smmi.mapName, IconData.get("locify://icons/saved.png")));
+            Label label = new Label(smmi.mapName);
+            label.setIcon(IconData.get("locify://icons/saved.png"));
+            lstAvailableMaps.addItem(label);
         }
 
         frmAvailableMaps.addCommand(Commands.cmdSelectAndCenter);

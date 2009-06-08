@@ -14,10 +14,10 @@
 package com.locify.client.net.browser;
 
 import com.locify.client.data.IconData;
-import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.ColorsFonts;
+import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StringTokenizer;
@@ -32,8 +32,6 @@ import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BoxLayout;
-import com.sun.lwuit.layouts.FlowLayout;
-import com.sun.lwuit.layouts.GroupLayout;
 import com.sun.lwuit.plaf.Border;
 import com.sun.lwuit.plaf.Style;
 import java.io.ByteArrayInputStream;
@@ -49,7 +47,7 @@ import org.xmlpull.v1.XmlPullParser;
  * Disables some J2ME Polish HTML browser features and leaves the work to Locify
  * @author Destil
  */
-public class XHtmlBrowser extends Container {
+public class XHtmlBrowser extends Container implements Runnable {
 
     private XHtmlTagHandler XHTMLTagHandler;
     private Label context;
@@ -60,18 +58,31 @@ public class XHtmlBrowser extends Container {
     private Hashtable imageCache = new Hashtable();
     protected Vector tagHandlers = new Vector();
     protected Container currentContainer;
-    protected Stack history = new Stack();
-
     private Style style;
 
+    // history
+    protected String currentDocumentBase = null;
+    protected Stack history = new Stack();
+    private String scheduledHistoryUrl;
+    private Thread loadingThread;
+    private boolean isRunning;
+    private boolean isWorking;
+    private boolean isCancelRequested;
+    private String nextUrl;
+    private String nextPostData;
+
     public XHtmlBrowser() {
-        super(new BoxLayout(BoxLayout.Y_AXIS));
+//        super(new BoxLayout(BoxLayout.Y_AXIS));
+        super();
         XHTMLTagHandler = new XHtmlTagHandler();
         XHTMLTagHandler.register(this);
 
         style = new Style();
         style.setBorder(Border.createLineBorder(1));
         style.setFont(ColorsFonts.FONT_SMALL);
+
+        this.loadingThread = new Thread(this);
+        this.loadingThread.start();
     }
 
     public void loadPage(String data) {
@@ -110,11 +121,12 @@ public class XHtmlBrowser extends Container {
     }
 
     public void addItem(Component component) {
-System.out.println("AddItem: " + component);
-        if (currentContainer != null)
+//        System.out.println("AddItem: " + component);
+        if (currentContainer != null) {
             currentContainer.addComponent(component);
-        else
+        } else {
             addComponent(component);
+        }
     }
 
     /**
@@ -129,12 +141,12 @@ System.out.println("AddItem: " + component);
                     boolean openingTag = type == XmlPullParser.START_TAG;
 
                     // #debug
-System.out.println( "looking for handler for " + parser.getName()  + ", openingTag=" + openingTag );
+//                    System.out.println("looking for handler for " + parser.getName() + ", openingTag=" + openingTag);
                     attributeMap.clear();
                     XHtmlTagHandler handler = getXHTMLTagHandler(parser, attributeMap);
 
                     if (handler != null) {
-                        System.out.println("Calling handler: " + parser.getName() + " " + attributeMap);
+//                        System.out.println("Calling handler: " + parser.getName() + " " + attributeMap);
                         String styleName = (String) attributeMap.get("class");
                         HtmlStyle tagStyle = new HtmlStyle();
 //                        if (styleName != null) {
@@ -153,18 +165,18 @@ System.out.println( "looking for handler for " + parser.getName()  + ", openingT
                         handler.handleTag(container, parser, parser.getName(), openingTag, attributeMap, tagStyle);
                     } //#if polish.debug.debug
                     else {
-                        System.out.println("found no handler for tag [" + parser.getName() + "]");
+//                        System.out.println("found no handler for tag [" + parser.getName() + "]");
                     }
                 } else if (type == XmlPullParser.TEXT) {
                     handleText(parser.getText().trim());
                 } else {
-                    System.out.println("unknown type: " + type + ", name=" + parser.getName());
+//                    System.out.println("unknown type: " + type + ", name=" + parser.getName());
                 }
             }
         } catch (Exception ex) {
-            System.out.println("error in document...");
+//            System.out.println("error in document...");
         }
-        System.out.println("end of document...");
+//        System.out.println("end of document...");
     }
 
     private XHtmlTagHandler getXHTMLTagHandler(XmlPullParser parser, Hashtable attributeMap) {
@@ -220,7 +232,6 @@ System.out.println( "looking for handler for " + parser.getName()  + ", openingT
                 textItem.setText(str);
 
                 if (this.XHTMLTagHandler.textStyle != null) {
-
                 } else if (this.XHTMLTagHandler.textBold && this.XHTMLTagHandler.textItalic) {
                     textItem.getStyle().setFont(Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD | Font.STYLE_ITALIC, Font.SIZE_MEDIUM));
                 } else if (this.XHTMLTagHandler.textBold) {
@@ -231,13 +242,16 @@ System.out.println( "looking for handler for " + parser.getName()  + ", openingT
                     this.XHTMLTagHandler.labelText = str;
                     return;
                 }
-                addItem(textItem);
+                Label lab = new Label(text);
+                lab.setEndsWith3Points(false);
+                addItem(lab);
+                //addItem(textItem);
             }
         }
     }
 
     public void openContainer(Container container) {
-        System.out.println("Opening nested container " + container);
+//        System.out.println("Opening nested container " + container);
 
         Container previousContainer = this.currentContainer;
         if (previousContainer != null) {
@@ -292,7 +306,7 @@ System.out.println( "looking for handler for " + parser.getName()  + ", openingT
         context = new Label();
         context.setAlignment(Label.LEFT);
         context.setTextPosition(Label.RIGHT);
-        
+
         switch (R.getContext().getSource()) {
             case LocationContext.GPS:
                 context.setIcon(IconData.get("locify://icons/gps.png"));
@@ -335,7 +349,7 @@ System.out.println( "looking for handler for " + parser.getName()  + ", openingT
 
         addItem(container);
     }
-    
+
     /**
      * Updates <locify:where />
      */
@@ -485,26 +499,59 @@ System.out.println( "looking for handler for " + parser.getName()  + ", openingT
         return contactEmailText.getText();
     }
 
+
+    //////////////////////////// History //////////////////////////////
     /**
      * Schedules the given history document for loading.
      *
      * @param historySteps the steps that should go back, e.g. 1 for the last page that has been shown
      */
     public void go(int historySteps) {
-//        while (historySteps > 0 && this.history.size() > 0)
-//        {
-//          entry = (HistoryEntry) this.history.pop();
-//          historySteps--;
-//        }
-//
-//        if (entry != null)
-//        {
-//            this.scheduledHistoryEntry = entry;
-//            schedule(entry.getUrl(), null);
-//            if (this.history.size() == 0 && this.cmdBack != null && getScreen() != null) {
-//                getScreen().removeCommand(this.cmdBack);
-//            }
-//        }
+        String entry = null;
+
+        while (historySteps > 0 && this.history.size() > 0) {
+            entry = (String) this.history.pop();
+            historySteps--;
+        }
+
+        if (entry != null) {
+            this.scheduledHistoryUrl = entry;
+            schedule(entry, null);
+            if (this.history.size() == 0 && getComponentForm() != null) {
+                getComponentForm().removeCommand(Commands.cmdBack);
+            }
+        }
+    }
+
+    /**
+     * Schedules the given URL for loading with HTTP POST data.
+     * @param url the URL that should be loaded
+     * @param postData the data to be sent via HTTP POST
+     */
+    public void go(String url, String postData) {
+        System.out.println("Browser: going to [" + url + "]");
+        if (this.currentDocumentBase != null) {
+            this.history.push(this.currentDocumentBase);
+            if (this.history.size() == 1 && getComponentForm() != null) {
+                getComponentForm().addCommand(Commands.cmdBack);
+            }
+        }
+        schedule(url, postData);
+    }
+
+    /**
+     * Schedules the given URL for loading.
+     * @param url the URL that should be loaded
+     */
+    public void go(String url) {
+        System.out.println("Browser: going to [" + url + "]");
+        if (this.currentDocumentBase != null) {
+            this.history.push(this.currentDocumentBase);
+            if (this.history.size() == 1 && getComponentForm() != null) {
+                getComponentForm().addCommand(Commands.cmdBack);
+            }
+        }
+        schedule(url, null);
     }
 
     /**
@@ -539,10 +586,77 @@ System.out.println( "looking for handler for " + parser.getName()  + ", openingT
     public void clearHistory() {
         this.history.removeAllElements();
         this.imageCache.clear();
-////    clear();
-////    this.currentDocumentBase = null;
-////    if (this.cmdBack != null && getScreen() != null) {
-////    	getScreen().removeCommand(this.cmdBack);
-////    }
+//        clear();
+//        this.currentDocumentBase = null;
+//        if (this.cmdBack != null && getScreen() != null) {
+//            getScreen().removeCommand(this.cmdBack);
+//        }
+    }
+
+    protected void schedule(String url, String postData) {
+        this.nextUrl = url;
+        this.nextPostData = postData;
+        System.out.println("Url: " + url + ", postData: " + postData);
+        synchronized (this.loadingThread) {
+            this.loadingThread.notify();
+        }
+    }
+
+    public void run() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        this.isRunning = true;
+
+        while (this.isRunning) {
+            try {
+                if (this.isRunning && this.nextUrl != null) {
+                    this.isWorking = true;
+                    String url = this.nextUrl;
+                    String postData = this.nextPostData;
+                    this.nextUrl = null;
+                    this.nextPostData = null;
+
+                    if (this.isCancelRequested != true) {
+                        int size = 50 * 1024;
+                        byte[] memorySaver = new byte[size];
+
+                        try {
+                            goImpl(url, postData);
+                        } catch (OutOfMemoryError e) {
+                            memorySaver = null;
+                            System.gc();
+                        } finally {
+                            if (memorySaver != null) {
+                                memorySaver = null;
+                            }
+                        }
+                    }
+
+                    this.isWorking = false;
+                    repaint();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (this.isCancelRequested == true) {
+                this.isWorking = false;
+                repaint();
+                this.isCancelRequested = false;
+                this.nextUrl = null;
+                this.nextPostData = null;
+                loadPage("Request canceled");
+            }
+
+            try {
+                this.isWorking = false;
+                synchronized (this.loadingThread) {
+                    this.loadingThread.wait();
+                }
+            } catch (InterruptedException ie) {
+            }
+        } // end while(isRunning)
     }
 }

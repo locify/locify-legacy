@@ -67,6 +67,7 @@ public class BackgroundRunner extends Thread {
                     int time = GpsUtils.parseInt(String.valueOf(listeners.get(listener)));
 
                     if (timeCycles % time == 0) {
+//System.out.println("run: " + listener.toString());
                         listener.runBackgroundTask();
                     }
                 }

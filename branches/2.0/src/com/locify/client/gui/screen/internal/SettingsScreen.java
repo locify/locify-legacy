@@ -16,7 +16,6 @@ package com.locify.client.gui.screen.internal;
 import com.locify.client.data.IconData;
 import com.locify.client.data.SettingsData;
 import com.locify.client.gui.extension.FormLocify;
-import com.locify.client.gui.extension.ListLabelItem;
 import com.locify.client.gui.extension.ListLocify;
 import com.locify.client.maps.TileMapLayer;
 import com.locify.client.utils.Commands;
@@ -77,10 +76,10 @@ public class SettingsScreen implements ActionListener {
         form.setLayout(new BorderLayout());
 
         lstSettings = new ListLocify();
-        lstSettings.addItem(new ListLabelItem(Locale.get("Location"), null));
-        lstSettings.addItem(new ListLabelItem(Locale.get("Interface"), null));
-        lstSettings.addItem(new ListLabelItem(Locale.get("Maps"), null));
-        lstSettings.addItem(new ListLabelItem(Locale.get("Other"), null));
+        lstSettings.addItem(new Label(Locale.get("Location")));
+        lstSettings.addItem(new Label(Locale.get("Interface")));
+        lstSettings.addItem(new Label(Locale.get("Maps")));
+        lstSettings.addItem(new Label(Locale.get("Other")));
         lstSettings.addActionListener(this);
 
         form.addComponent(BorderLayout.CENTER, lstSettings);

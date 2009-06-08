@@ -76,7 +76,7 @@ System.out.println("RouteInit: " + initialized);
             if (!initialized)
                 initialize();
             
-            if (isInside() && actualState == STATE_WAITING && items != null) {
+            if (isInside(g) && actualState == STATE_WAITING && items != null) {
                 actualState = STATE_DRAWING;
                 boolean space;
                 for (int i = 0; i < items.length; i++) {
@@ -95,7 +95,8 @@ System.out.println("RouteInit: " + initialized);
                         else
                             g.setColor(ColorsFonts.MAP_TRACK_COLOR);
 
-                        g.drawLine(items[i - 1].x, items[i - 1].y, items[i].x, items[i].y);
+                        g.drawLine(items[i - 1].x + g.getClipX(), items[i - 1].y + g.getClipY(),
+                                items[i].x + g.getClipX(), items[i].y + g.getClipY());
                     }
 
                     // draw points
@@ -105,10 +106,11 @@ System.out.println("RouteInit: " + initialized);
                         
                     if (styleNormal != null && styleNormal.getIcon() != null) {
                         g.drawImage(styleNormal.getIcon(),
-                                items[i].x - styleNormal.getXMove(), items[i].y - styleNormal.getYMove() - styleNormal.getIcon().getHeight());
+                                items[i].x - styleNormal.getXMove() + g.getClipX(),
+                                items[i].y - styleNormal.getYMove() - styleNormal.getIcon().getHeight() + g.getClipY());
                     } else {
                         g.setColor(ColorsFonts.MAP_WP_COLOR);
-                        g.fillArc(items[i].x - 2, items[i].y - 2, 4, 4, 0, 360);
+                        g.fillArc(items[i].x - 2 + g.getClipX(), items[i].y - 2 + g.getClipY(), 4, 4, 0, 360);
                     }
                 }
             }

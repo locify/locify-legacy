@@ -233,7 +233,7 @@ public class Http implements Runnable {
     private boolean handleHeaders() throws IOException {
         int j = 0;
         while (httpConnection.getHeaderField(j) != null) {
-            //Logger.log("input header " + j + ": " + httpConnection.getHeaderFieldKey(j) + "=" + httpConnection.getHeaderField(j));
+//Logger.log("input header " + j + ": " + httpConnection.getHeaderFieldKey(j) + "=" + httpConnection.getHeaderField(j));
             if (httpConnection.getHeaderFieldKey(j) == null) {
                 j++;
                 continue;

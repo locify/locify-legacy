@@ -71,7 +71,7 @@ public class PointMapItem extends MapItem {
                     initialize();
                 }
 
-                if (isInside() && actualState == STATE_WAITING && items != null) {
+                if (isInside(g) && actualState == STATE_WAITING && items != null) {
                     actualState = STATE_DRAWING;
 
                     GeoFileStyle style = null;
@@ -88,7 +88,8 @@ public class PointMapItem extends MapItem {
                             }
 
                             g.drawImage(style.getIcon(),
-                                    items[i].x - style.getXMove(), items[i].y - style.getYMove() - style.getIcon().getHeight());
+                                    items[i].x - style.getXMove() + g.getClipX(),
+                                    items[i].y - style.getYMove() - style.getIcon().getHeight() + g.getClipY());
                         }
                     }
                 }

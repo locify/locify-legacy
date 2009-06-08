@@ -19,8 +19,22 @@ public class HtmlTextArea extends TextArea {
         setGrowByContent(true);
         setEditable(editable);
         setFocusable(false);
-
+getStyle().setBorder(Border.createLineBorder(1));
         setText(text);
+    }
+
+    public void initComponent() {
+System.out.println("Add1: " + getText() + " Rows: " + getLines() + " " + getRows() + " " + getParent().getLayout());
+System.out.println("Add2: " + getText() + " Columns: " + getColumns() + " " + getPreferredSize());
+        if (getLines() < getRows()) {
+            setRows(getLines());
+            if (getLines() == 1) {
+                setWidth(getStyle().getFont().stringWidth(getText()));
+            }
+        }
+System.out.println("Add3: " + getText() + " Rows: " + getLines() + " " + getRows() + " " + getParent().getLayout());
+System.out.println("Add4: " + getText() + " Columns: " + getColumns() + " " + getPreferredSize());
+
     }
 
 

@@ -187,10 +187,18 @@ public class MapContent implements LocationEventListener {
         this.parent = parent;
     }
 
+    public Container getParent() {
+        return parent;
+    }
+
+    public boolean isOffLineMapEnable() {
+        return getActualMapLayer() instanceof FileMapLayer;
+    }
+
     /**
      * Still not functional ... parent canvas didn't call paint() ... :(
      */
-    private void repaint() {
+    public void repaint() {
         if (parent != null && parent.isVisible()) {
             parent.repaint();
         }
@@ -250,22 +258,19 @@ public class MapContent implements LocationEventListener {
                     int y3 = (int) (20.0 * Math.cos((heading + 30) / LMath.RHO));
                     int x4 = (int) (25.0 * Math.sin((heading) / LMath.RHO));
                     int y4 = (int) (25.0 * Math.cos((heading) / LMath.RHO));
+
+                    int cooX = actPoint.x - panMoveX + g.getClipX();
+                    int cooY = actPoint.y - panMoveY + g.getClipY();
+
                     g.setColor(ColorsFonts.GREEN_SHINY);
-                    g.fillTriangle(actPoint.x - panMoveX + x1, actPoint.y - panMoveY - y1,
-                            actPoint.x - panMoveX + x2, actPoint.y - panMoveY - y2,
-                            actPoint.x - panMoveX + x4, actPoint.y - panMoveY - y4);
-                    g.fillTriangle(actPoint.x - panMoveX + x3, actPoint.y - panMoveY - y3,
-                            actPoint.x - panMoveX + x2, actPoint.y - panMoveY - y2,
-                            actPoint.x - panMoveX + x4, actPoint.y - panMoveY - y4);
+                    g.fillTriangle(cooX + x1, cooY - y1, cooX + x2, cooY - y2, cooX + x4, cooY - y4);
+                    g.fillTriangle(cooX + x3, cooY - y3, cooX + x2, cooY - y2, cooX + x4, cooY - y4);
+
                     g.setColor(ColorsFonts.BLACK);
-                    g.drawLine(actPoint.x - panMoveX + x1, actPoint.y - panMoveY - y1,
-                            actPoint.x - panMoveX + x2, actPoint.y - panMoveY - y2);
-                    g.drawLine(actPoint.x - panMoveX + x2, actPoint.y - panMoveY - y2,
-                            actPoint.x - panMoveX + x3, actPoint.y - panMoveY - y3);
-                    g.drawLine(actPoint.x - panMoveX + x3, actPoint.y - panMoveY - y3,
-                            actPoint.x - panMoveX + x4, actPoint.y - panMoveY - y4);
-                    g.drawLine(actPoint.x - panMoveX + x4, actPoint.y - panMoveY - y4,
-                            actPoint.x - panMoveX + x1, actPoint.y - panMoveY - y1);
+                    g.drawLine(cooX + x1, cooY - y1, cooX + x2, cooY - y2);
+                    g.drawLine(cooX + x2, cooY - y2, cooX + x3, cooY - y3);
+                    g.drawLine(cooX + x3, cooY - y3, cooX + x4, cooY - y4);
+                    g.drawLine(cooX + x4, cooY - y4, cooX + x1, cooY - y1);
                 }
             }
         }
@@ -273,7 +278,7 @@ public class MapContent implements LocationEventListener {
 
     public void drawSelectionCircle(Graphics g) {
         g.setColor(ColorsFonts.BLACK);
-        g.drawArc(actualWidth / 2 - 2, actualHeight / 2 - 2, 4, 4, 0, 360);
+        g.drawArc(actualWidth / 2 - 2 + g.getClipX(), actualHeight / 2 - 2 + g.getClipY(), 4, 4, 0, 360);
     }
 
     public void drawZoomProcess(Graphics g) {

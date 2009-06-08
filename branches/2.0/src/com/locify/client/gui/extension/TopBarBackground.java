@@ -22,6 +22,8 @@ import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
 import com.locify.client.route.RouteManager;
 import com.locify.client.utils.ColorsFonts;
+import com.sun.lwuit.Display;
+import com.sun.lwuit.Form;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
 import com.sun.lwuit.Painter;
@@ -31,7 +33,7 @@ import com.sun.lwuit.geom.Rectangle;
  * This class overrides usual Polish background and add GPS status and other icons
  * @author David Vavra
  */
-public class TopBarBackground implements Painter, LocationEventListener {
+public class TopBarBackground implements Painter, LocationEventListener, BackgroundListener {
 
     public static final int UNDEFINED = 0;
     public static final int MANUAL = 1;
@@ -81,6 +83,8 @@ public class TopBarBackground implements Painter, LocationEventListener {
 
         this.height = 0;
         this.width = 0;
+
+        R.getBackgroundRunner().registerBackgroundListener(this, 1);
     }
 
     public void paint(Graphics g, Rectangle rect) {
@@ -323,5 +327,11 @@ public class TopBarBackground implements Painter, LocationEventListener {
     }
 
     public void message(LocationEventGenerator sender, String message) {
+    }
+
+    public void runBackgroundTask() {
+        Form form = Display.getInstance().getCurrent();
+        if (form != null)
+            form.getTitleComponent().repaint();
     }
 }

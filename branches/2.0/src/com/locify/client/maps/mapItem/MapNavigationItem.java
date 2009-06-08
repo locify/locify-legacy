@@ -73,12 +73,13 @@ public class MapNavigationItem extends MapItem {
                     initialize();
                 }
 
-                if (isInside() && actualState == STATE_WAITING && items != null) {
+                if (isInside(g) && actualState == STATE_WAITING && items != null) {
                     actualState = STATE_DRAWING;
 
                     g.setColor(ColorsFonts.RED);
                     if (items[0] != null && items[1] != null) {
-                        g.drawLine(items[0].x, items[0].y, items[1].x, items[1].y);
+                        g.drawLine(items[0].x + g.getClipX(), items[0].y + g.getClipY(),
+                                items[1].x + g.getClipX(), items[1].y + g.getClipY());
                     }
                 }
                 actualState = STATE_WAITING;

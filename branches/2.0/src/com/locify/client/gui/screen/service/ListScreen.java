@@ -26,6 +26,7 @@ import com.sun.lwuit.Image;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
+import com.sun.lwuit.layouts.BorderLayout;
 import java.util.Vector;
 
 
@@ -37,7 +38,6 @@ public class ListScreen implements ActionListener {
 
     private FormLocify form;
     private ListLocify list;
-    private String title;
     private Vector menuItems;
 
     public ListScreen() {
@@ -49,11 +49,17 @@ public class ListScreen implements ActionListener {
      * @param tit
      */
     public void setTitle(String tit) {
-        menuItems = new Vector();
-        title = tit;
-
-        form = new FormLocify(title);
-        list = new ListLocify();
+        if (form == null) {
+            form = new FormLocify(tit);
+            list = new ListLocify();
+            menuItems = new Vector();
+        } else {
+            form.setAsNew(tit);
+            list.removeAll();
+            menuItems.removeAllElements();
+        }
+        form.setLayout(new BorderLayout());
+        form.addComponent(BorderLayout.CENTER, list);
     }
 
     /**
@@ -71,6 +77,7 @@ public class ListScreen implements ActionListener {
             lab.setIcon(IconData.get(icon));
             list.addItem(lab);
         }
+//System.out.println("AddElement: " + title.trim() + " " + url + " " + icon);
         menuItems.addElement(new MenuItem(title.trim(), url, icon));
     }
 

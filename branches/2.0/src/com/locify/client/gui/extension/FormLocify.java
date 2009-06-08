@@ -32,6 +32,7 @@ import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
+import com.sun.lwuit.Display;
 import com.sun.lwuit.Font;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Graphics;
@@ -140,6 +141,10 @@ public class FormLocify extends Form implements BackgroundListener {
 
     public void setLayout(Layout layout) {
         contentPane.setLayout(layout);
+    }
+
+    public Layout getLayout() {
+        return contentPane.getLayout();
     }
 
     public void setAsNew(String title) {
@@ -429,6 +434,12 @@ public class FormLocify extends Form implements BackgroundListener {
             return new BoxLayout(BoxLayout.Y_AXIS);
         } else if (text.equalsIgnoreCase("BorderLayout")) {
             return new BorderLayout();
+        } else if (text.equalsIgnoreCase("BoxLayout")) {
+            String arrange = parser.getAttributeValue(null, "arrange");
+            if (arrange != null && arrange.equalsIgnoreCase("horizontal"))
+                return new BoxLayout(BoxLayout.X_AXIS);
+            else
+                return new BoxLayout(BoxLayout.Y_AXIS);
         } else if (text.equalsIgnoreCase("GridLayout")) {
             int rows = GpsUtils.parseInt(parser.getAttributeValue(null, "rows"));
             int columns = GpsUtils.parseInt(parser.getAttributeValue(null, "columns"));
