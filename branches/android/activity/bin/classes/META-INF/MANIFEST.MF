@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+MIDlet-Name: Locify-nightly
+MIDlet-Version: 1.5.6
+MIDlet-Vendor: Locify Ltd.
+MIDlet-Description: Maps, navigation, places, route recording and GPS 
+ - all connected to third party web services such as geocaching, wikip
+ edia, twitter etc. Location Matters - Locify Yourself!
+MIDlet-Info-URL: http://www.locify.com
+MIDlet-1: Locify-nightly,/icon.png,com.locify.client.gui.Midlet
+MIDlet-Install-Notify: http://client.stage.locify.com/log/install?vers
+ ion=1.5.6&web=false&release=false&device=G1
+MIDlet-Permissions: javax.microedition.io.Connector.http, javax.microe
+ dition.io.Connector.file.read, javax.microedition.io.Connector.file.w
+ rite, javax.microedition.pim.ContactList.read, javax.wireless.messagi
+ ng.sms.send, javax.microedition.io.Connector.sms, javax.microedition.
+ io.Connector.bluetooth.client
+MIDlet-Permissions-Opt: javax.microedition.location.LandmarkStore.cate
+ gory, javax.microedition.location.LandmarkStore.read, javax.microedit
+ ion.location.LandmarkStore.write, javax.microedition.io.Connector.com
+ m, javax.microedition.location.Location
+Device: G1
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.0
+Nokia-MIDlet-Category: Application
+Polish-Version: 2.1.0 (2009-06-01)
+Shortcut-1: Geocaching|http://services.locify.com/nearestCaches/
+Shortcut-2: Twitter|http://services.locify.com/twitter/welcome
+Shortcut-3: GeoSMS|http://services.locify.com/geosms/
+Shortcut-4: FireEagle|http://services.locify.com/fireeagle/welcome
+Shortcut-5: Wikipedia|http://services.locify.com/wikipedia/welcome
+Shortcut-6: Panoramio|http://services.locify.com/panoramio/welcome
