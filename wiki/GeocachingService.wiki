@@ -1,0 +1,18 @@
+#summary Info about improving existing Geocaching service
+#labels Phase-Implementation
+
+= Geocaching service =
+
+Geocaching service is one of the services in Locify. It can be improved just on the server side rapidly. Locify is willing to provide source code to anyone. Just contact us. We are also willing to host it on our servers. 
+
+= Possible features =
+
+Locify service can be improved in many ways. For example:
+  * log directly to geocaching.com
+  * nearby caches on map (we support Network KML!)
+  * info about travelbugs
+  * search caches via waypoint or keyword
+  * ...
+
+= Volunteers =
+One project already started - see http://code.google.com/p/locify-geocaching-service/ and contribute.
