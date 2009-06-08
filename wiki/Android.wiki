@@ -1,4 +1,5 @@
 #summary Info about creating Android-compatible version
+#labels Phase-Implementation,Featured
 
 = Android version =
 
