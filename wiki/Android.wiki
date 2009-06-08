@@ -1,0 +1,36 @@
+#summary Info about creating Android-compatible version
+
+= Android version =
+
+We have been playing out with native Android version of Locify. It's now possible thanks to J2ME Polish 2.1, which has building to Android platform. But we don't have capabilities to continue working on this branch, so we are giving it to all open-source developers. If you decide to work on it, contact us we are willing to help.
+
+= Download =
+I have prepared experimental version which can be downloaded in APK format here:
+
+http://locify.googlecode.com/svn/branches/android/Locify.apk
+
+= Limitations =
+Android version is very experimental, current version does not have:
+ * gps support
+ * filesystem support
+ * some screens like maps or navigation are badly formatted
+
+= Source files =
+Are in SVN here:
+
+http://code.google.com/p/locify/source/browse/branches/android/
+
+= How we did Android version? =
+Android version is based on revision r201 in our trunk/ repository. I have installed J2ME Polish 2.1 and set target device for "HTC/G1" in build.xml file. I have also set "applet" to "true" to avoid filesystem. J2ME Polish had generated all sources in android branch and generated APK application. Then I have installed it into emulator from Android SDK.
+
+= Developer Notes =
+ * filesystem will be easy to fix - just find out right memory card name in FileSystem.java
+ * internal GPS support will be harder - J2ME Polish cannot convert location classes, so it will have to be written completely in Dalvik Java
+ * screens like navigation or maps will be easy to fix, I suppose there is an error in getting right width and height in Capabilities.java
+
+= Screenshots =
+
+http://locify.googlecode.com/svn/branches/android/screenshots/Screenshot-1.png
+http://locify.googlecode.com/svn/branches/android/screenshots/Screenshot-4.png
+http://locify.googlecode.com/svn/branches/android/screenshots/Screenshot-5.png
+http://locify.googlecode.com/svn/branches/android/screenshots/Screenshot.png
