@@ -160,7 +160,7 @@ public class Capabilities {
 
     public static void setHeight(int height) {
         //#if polish.Vendor == BlackBerry
-        height = R.getMainScreen().getScreenFullHeight();
+        Capabilities.height = R.getMainScreen().getScreenFullHeight();
         //#else
 //#         Capabilities.height = height;
     //#endif
