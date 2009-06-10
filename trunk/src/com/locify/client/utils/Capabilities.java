@@ -155,14 +155,14 @@ public class Capabilities {
     }
 
     public static int getHeight() {
-        return height;
+        //#if polish.Vendor == BlackBerry
+        return R.getMainScreen().getScreenFullHeight();
+        //#else
+//#         return height;
+        //#endif
     }
 
     public static void setHeight(int height) {
-        //#if polish.Vendor == BlackBerry
-        Capabilities.height = R.getMainScreen().getScreenFullHeight();
-        //#else
-//#         Capabilities.height = height;
-    //#endif
+        Capabilities.height = height;
     }
 }
