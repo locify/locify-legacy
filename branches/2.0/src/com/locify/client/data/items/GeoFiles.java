@@ -23,6 +23,7 @@ import com.locify.client.utils.R;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
+import com.sun.lwuit.Dialog;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -83,7 +84,7 @@ public abstract class GeoFiles {
             // uniqueness handled by server
             R.getFileSystem().saveString(FileSystem.FILES_FOLDER + filename + ".kml", kml);
             //view alert
-            R.getCustomAlert().quickView(Locale.get("Object_saved"), "info", "locify://refresh");
+            R.getCustomAlert().quickView(Locale.get("Object_saved"), Dialog.TYPE_INFO, "locify://refresh");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GeoFile.save()", kml);
         }
@@ -145,7 +146,7 @@ public abstract class GeoFiles {
             //write file
             R.getFileSystem().saveString(FileSystem.FILES_FOLDER + fileName, kml);
             //view alert
-            R.getCustomAlert().quickView(Locale.get("Waypoint_saved"), "info", "locify://back");
+            R.getCustomAlert().quickView(Locale.get("Waypoint_saved"), Dialog.TYPE_INFO, "locify://back");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GeoFiles.saveWaypoint", name);
         }
@@ -162,7 +163,7 @@ public abstract class GeoFiles {
 
             if (type != TYPE_CORRUPT && name != null && name.length() > 0) {
                 R.getFileSystem().saveString(FileSystem.FILES_FOLDER + fileName(name), kml);
-                R.getCustomAlert().quickView(Locale.get("Waypoint_saved"), "info", "locify://geoFileBrowser");
+                R.getCustomAlert().quickView(Locale.get("Waypoint_saved"), Dialog.TYPE_INFO, "locify://geoFileBrowser");
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GeoFiles.saveWaypoint", kml);

@@ -17,6 +17,7 @@ package com.locify.client.data;
 import com.locify.client.data.items.Waypoint;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Dialog;
 import javax.microedition.location.Landmark;
 import javax.microedition.location.LandmarkStore;
 import javax.microedition.location.QualifiedCoordinates;
@@ -41,7 +42,7 @@ public class LandmarksExport {
             QualifiedCoordinates coordinates = new QualifiedCoordinates(waypoint.getLatitude(), waypoint.getLongitude(), waypoint.getLocation().getAltitude(), Float.NaN, Float.NaN);
             Landmark landMark = new Landmark(waypoint.getName(), waypoint.getDescription(), coordinates, null);
             defaultStore.addLandmark(landMark, "Locify");
-            R.getCustomAlert().quickView(Locale.get("Waypoint_added_to_landmarks"), Locale.get("Info"), callNext);
+            R.getCustomAlert().quickView(Locale.get("Waypoint_added_to_landmarks"), Dialog.TYPE_INFO, callNext);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GeoDataBrowser.exportToLandmarks()", null);
         }

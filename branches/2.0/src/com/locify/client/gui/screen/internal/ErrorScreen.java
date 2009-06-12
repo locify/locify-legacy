@@ -15,6 +15,7 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.FileSystem;
 import com.locify.client.gui.extension.FormLocify;
+import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.Logger;
@@ -22,6 +23,7 @@ import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.Command;
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
@@ -84,18 +86,18 @@ public class ErrorScreen implements ActionListener {
     public void viewDetail() {
         frmDetail = new FormLocify(Locale.get("Error_detail"));
         Label siDescription01 = new Label(Locale.get("Description"));
-        Label siDescription02 = new Label(exception.toString());
+        HtmlTextArea siDescription02 = new HtmlTextArea(exception.toString());
         frmDetail.addComponent(siDescription01);
         frmDetail.addComponent(siDescription02);
         if (errorPlace != null) {
             Label siPlace01 = new Label(Locale.get("Place"));
-            Label siPlace02 = new Label(errorPlace);
+            HtmlTextArea siPlace02 = new HtmlTextArea(errorPlace, false);
             frmDetail.addComponent(siPlace01);
             frmDetail.addComponent(siPlace02);
         }
         if (errorData != null) {
             Label siData01 = new Label(Locale.get("Data"));
-            Label siData02 = new Label(errorData);
+            HtmlTextArea siData02 = new HtmlTextArea(errorData, false);
             frmDetail.addComponent(siData01);
             frmDetail.addComponent(siData02);
         }
@@ -112,7 +114,7 @@ public class ErrorScreen implements ActionListener {
     private void saveError() {
         String errorReport = "Description:\n" + exception.toString() + "\n\n" + "Place:\n" + errorPlace + "\n\n" + "Additional data:\n" + errorData + "\n";
         R.getFileSystem().saveString(FileSystem.LOG_FOLDER + "error" + String.valueOf(Utils.timestamp()) + ".txt", errorReport);
-        R.getCustomAlert().quickView(Locale.get("Error_saved"), Locale.get("Info"), "locify://refresh");
+        R.getCustomAlert().quickView(Locale.get("Error_saved"), Dialog.TYPE_INFO, "locify://refresh");
     }
 
     /**

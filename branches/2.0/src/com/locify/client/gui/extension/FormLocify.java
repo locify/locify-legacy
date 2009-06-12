@@ -694,7 +694,8 @@ public class FormLocify extends Form implements BackgroundListener {
             subMenu.setDialogStyle(menuDialog.getDialogStyle());
             subMenu.addCommand(cancel);
             subMenu.addCommand(select);
-            subMenu.show(getHeight() / 2 - 20, 20, getWidth() / 4, 20, true, true);
+            //subMenu.show(getHeight() / 2 - 20, 20, getWidth() / 4, 20, true, true);
+            subMenu.show(getHeight() / 2 - 20, 0, getWidth() / 4, 0, true, true);
         }
     }
 }

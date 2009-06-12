@@ -15,6 +15,7 @@ package com.locify.client.net;
 
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Dialog;
 import javax.wireless.messaging.TextMessage;
 import javax.wireless.messaging.MessageConnection;
 import javax.microedition.io.Connector;
@@ -38,7 +39,7 @@ public class Sms {
             TextMessage msg =(TextMessage) conn.newMessage(MessageConnection.TEXT_MESSAGE);
             msg.setPayloadText(text);
             conn.send(msg);
-            R.getCustomAlert().quickView(Locale.get("Sms_sent"), Locale.get("Info"), "locify://back");
+            R.getCustomAlert().quickView(Locale.get("Sms_sent"), Dialog.TYPE_INFO, "locify://back");
         }catch (SecurityException e)
         {
            R.getBack().goBack();

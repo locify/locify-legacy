@@ -19,6 +19,7 @@ import com.locify.client.utils.Logger;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Dialog;
 import java.io.ByteArrayInputStream;
 import java.util.Vector;
 import org.kxml2.io.KXmlParser;
@@ -106,6 +107,6 @@ public class Geocoding {
      * Processess error from yahoo geocoding api
      */
     public static void error() {
-        R.getCustomAlert().quickView(Locale.get("Invalid_address"), Locale.get("Error"), "locify://refresh");
+        R.getCustomAlert().quickView(Locale.get("Invalid_address"), Dialog.TYPE_ERROR, "locify://refresh");
     }
 }

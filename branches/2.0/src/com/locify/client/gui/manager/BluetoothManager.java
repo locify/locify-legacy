@@ -29,6 +29,7 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.List;
@@ -100,7 +101,7 @@ public class BluetoothManager implements DiscoveryListener, Runnable, ActionList
             localDevice.setDiscoverable(DiscoveryAgent.GIAC);
             return true;
         } catch (BluetoothStateException ex) {
-            R.getCustomAlert().quickView(Locale.get("Bluetooth_off"), "Warning", "locify://back");
+            R.getCustomAlert().quickView(Locale.get("Bluetooth_off"), Dialog.TYPE_WARNING, "locify://back");
             return false;
         }
     }
@@ -195,7 +196,7 @@ public class BluetoothManager implements DiscoveryListener, Runnable, ActionList
     public void serviceSearchCompleted(int transID, int responseCode) {
         Logger.debug("service search completed");
         if (bluetoothAdress.equals("")) {
-            R.getCustomAlert().quickView(Locale.get("Already_connected"), "Error", "locify://back");
+            R.getCustomAlert().quickView(Locale.get("Already_connected"), Dialog.TYPE_ERROR, "locify://back");
         }
     }
 

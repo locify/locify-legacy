@@ -31,7 +31,9 @@ public class ListLabelRenderer extends Label implements ListCellRenderer {
     }
 
     public Component getListCellRendererComponent(List list, Object value, int index, boolean isSelected) {
-        if (value instanceof MainScreenItem || value instanceof Label) {
+        if (value == null) {
+
+        } else if (value instanceof MainScreenItem || value instanceof Label) {
             Label item = (Label) value;
             setText(item.getText());
             setIcon(item.getIcon());

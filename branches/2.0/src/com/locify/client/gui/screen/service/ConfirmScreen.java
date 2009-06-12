@@ -22,6 +22,7 @@ import com.locify.client.locator.LocationContext;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
@@ -115,7 +116,7 @@ public class ConfirmScreen implements ActionListener {
             switch (confirmAction) {
                 case ADD_SERVICE:
                     ServicesData.add(service);
-                    R.getCustomAlert().quickView(Locale.get("Service_added"), "Info", "locify://mainScreen");
+                    R.getCustomAlert().quickView(Locale.get("Service_added"), Dialog.TYPE_INFO, "locify://mainScreen");
                     break;
                 case OPEN_URL:
                     R.getURL().call(confirmUrl);

@@ -14,6 +14,7 @@
 package com.locify.client.net.browser;
 
 import com.locify.client.data.IconData;
+import com.locify.client.gui.extension.FlowLayoutYScroll;
 import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.utils.R;
 import com.locify.client.gui.screen.service.ContactsScreen;
@@ -27,6 +28,7 @@ import com.locify.client.utils.Utils;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Display;
 import com.sun.lwuit.Font;
 import com.sun.lwuit.Image;
@@ -34,6 +36,7 @@ import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
+import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.layouts.FlowLayout;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -127,9 +130,9 @@ public class XHtmlTagHandler implements ActionListener {
     /** multiple attribute */
     public static final String ATTR_MULTIPLE = "multiple";
 
-    public static final Command CMD_LINK = new Command("Go");
-    public static final Command CMD_SUBMIT = new Command("Submit");
-    public static final Command CMD_BACK = new Command("Back");
+    public static final String CMD_LINK = "Link";
+    public static final String CMD_SUBMIT = "Submit";
+    public static final String CMD_BACK = "Back";
 
     private Hashtable commandsByKey;
     private HtmlForm currentForm;
@@ -211,12 +214,18 @@ public class XHtmlTagHandler implements ActionListener {
 ////                        this.currentTable = (TableItem) UiAccess.cast(container);
 ////                    }
                 }
+            } else if (TAG_P.equals(tagName)) {
+                if (opening)
+                    browser.openContainer(new Container(new FlowLayoutYScroll()));
+                else
+                    browser.closeContainer();
+                return true;
             } else if (TAG_SELECT.equals(tagName)) {
                 if (opening) {
                     if (this.currentSelect != null) {
                         System.out.println("Error in HTML-Code: You cannot open a <select>-tag inside another <select>-tag.");
                         Container container = this.currentSelect.getSelectComponent();
-                        this.browser.addItem(container);
+                        this.browser.addComponent(container);
 
                         if (this.currentForm == null) {
                             System.out.println("Error in HTML-Code: no <form> for <select> element found!");
@@ -247,7 +256,7 @@ public class XHtmlTagHandler implements ActionListener {
                 } else { // tag is closed
                     if (this.currentSelect != null) {
                         Container container = this.currentSelect.getSelectComponent();
-                        this.browser.addItem(container);
+                        this.browser.addComponent(container);
                         if (this.currentForm == null) {
                             System.out.println("Error in HTML-Code: no <form> for <select> element found!");
                         } else {
@@ -321,30 +330,25 @@ public class XHtmlTagHandler implements ActionListener {
                     if (style != null) {
                         linkItem.setStyle(style);
                     }
-                    browser.addItem(linkItem);
+                    browser.addComponent(linkItem);
                     return true;
                 } else if (TAG_BR.equals(tagName)) {
-                    browser.addItem(new Label(" "));
-                    return true;
-                } else if (TAG_P.equals(tagName)) {
-                    Label stringItem = new Label(" ");
-                    browser.addItem(stringItem);
-                    if (opening) {
-                        this.textStyle = style;
-                    }
+                    browser.addNewLine();
                     return true;
                 } else if (TAG_IMG.equals(tagName)) {
-////                    String src = (String) attributeMap.get("src");
-////                    String url = R.getHttp().makeAbsoluteURL(src);
-////                    Image image = this.browser.loadImage(url);
-////                    if (image != null) {
-////                        ImageItem item = new ImageItem(null, image, Item.LAYOUT_DEFAULT, "");
-////                        if (style != null) {
-////                            item.setStyle(style);
-////                        }
-////
-////                        add(item);
-////                    }
+                    String src = (String) attributeMap.get("src");
+                    String url = R.getHttp().makeAbsoluteURL(src);
+                    Label image = new Label("[Image]");
+                    browser.addComponent(image);
+//                    Image image = this.browser.loadImage(url);
+//                    if (image != null) {
+//                        ImageItem item = new ImageItem(null, image, Item.LAYOUT_DEFAULT, "");
+//                        if (style != null) {
+//                            item.setStyle(style);
+//                        }
+//
+//                        add(item);
+//                    }
                     return true;
                 } else if (TAG_TEXT_AREA.equals(tagName)) {
                     parser.next();
@@ -364,7 +368,7 @@ public class XHtmlTagHandler implements ActionListener {
                     if (style != null) {
                         //textArea.setStyle(style);
                     }
-                    browser.addItem(textArea);
+                    browser.addComponent(textArea);
                     if (this.currentForm != null) {
                         this.currentForm.addItem(textArea);
                         textArea.setAttributeForm(this.currentForm);
@@ -396,11 +400,11 @@ public class XHtmlTagHandler implements ActionListener {
                     }
                     buttonItem.addActionListener(this);
                     addCommands(TAG_INPUT, INPUT_TYPE, INPUTTYPE_SUBMIT, buttonItem);
-                    browser.addItem(buttonItem);
+                    browser.addComponent(buttonItem);
 
                     this.currentForm.addItem(buttonItem);
                     buttonItem.setAttributeForm(this.currentForm);
-                    buttonItem.setAttributeType("submit");
+                    buttonItem.setAttributeType(CMD_SUBMIT);
 
                     if (name != null) {
                         buttonItem.setAttributeName(name);
@@ -419,14 +423,14 @@ public class XHtmlTagHandler implements ActionListener {
 
                         if (INPUTTYPE_TEXT.equals(type)) {
                             Label lab = new Label(labelText);
-                            this.browser.addItem(lab);
+                            this.browser.addComponent(lab);
                             this.currentForm.addItem(lab);
                             TextArea textArea = new TextArea(value, 2, 1000, TextArea.ANY);
                             if (style != null) {
                                 textArea.getStyle().setFont(Font.createSystemFont(style.fontFace, style.fontStyle, style.fontSize));
                                 textArea.getStyle().setFgColor(style.fontColor);
                             }
-                            this.browser.addItem(textArea);
+                            this.browser.addComponent(textArea);
                             this.currentForm.addItem(textArea);
                             //textField.setAttribute(ATTR_FORM, this.currentForm);
 
@@ -448,11 +452,11 @@ public class XHtmlTagHandler implements ActionListener {
                             }
                             buttonItem.addActionListener(this);
                             addCommands(TAG_INPUT, INPUT_TYPE, INPUTTYPE_SUBMIT, buttonItem);
-                            browser.addItem(buttonItem);
+                            browser.addComponent(buttonItem);
 
                             this.currentForm.addItem(buttonItem);
                             buttonItem.setAttributeForm(this.currentForm);
-                            buttonItem.setAttributeType("submit");
+                            buttonItem.setAttributeType(CMD_SUBMIT);
 
                             if (name != null) {
                                 buttonItem.setAttributeName(name);
@@ -692,9 +696,9 @@ public class XHtmlTagHandler implements ActionListener {
 
                                 } catch (IllegalArgumentException e) {
                                     if (originalValue.equals("$lat")) {
-                                        R.getCustomAlert().quickView(Locale.get("Wrong_latitude"), "Warning", "locify://refresh");
+                                        R.getCustomAlert().quickView(Locale.get("Wrong_latitude"), Dialog.TYPE_WARNING, "locify://refresh");
                                     } else {
-                                        R.getCustomAlert().quickView(Locale.get("Wrong_longitude"), "Warning", "locify://refresh");
+                                        R.getCustomAlert().quickView(Locale.get("Wrong_longitude"), Dialog.TYPE_WARNING, "locify://refresh");
                                     }
 
                                     return;
@@ -771,11 +775,14 @@ public class XHtmlTagHandler implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent evt) {
-        if (evt.getSource() instanceof HtmlButton && ((HtmlButton) evt.getSource()).isLink()) {
+        if (evt.getSource() instanceof HtmlButton &&
+                ((HtmlButton) evt.getSource()).getAttributeType().equals(CMD_LINK)) {
             handleLinkCommand((HtmlButton) evt.getSource());
-        } else if (evt.getCommand() == CMD_SUBMIT || evt.getSource() instanceof HtmlButton) {
+        } else if (evt.getSource() instanceof HtmlButton &&
+                ((HtmlButton) evt.getSource()).getAttributeType().equals(CMD_SUBMIT)) {
             handleSubmitCommand((HtmlButton) evt.getSource());
-        } else if (evt.getCommand() == CMD_BACK) {
+        } else if (evt.getSource() instanceof HtmlButton &&
+                ((HtmlButton) evt.getSource()).getAttributeType().equals(CMD_BACK)) {
             handleBackCommand();
         } else if (evt.getCommand() == Commands.cmdAnotherLocation) { //locify:where
             R.getContext().setBackScreen("locify://htmlBrowser");

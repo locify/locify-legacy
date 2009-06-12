@@ -21,6 +21,7 @@ import com.locify.client.gui.screen.service.GeocodeResult;
 import com.locify.client.locator.Location4D;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.net.Geocoding;
+import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
@@ -160,8 +161,7 @@ public class LocationScreens implements ActionListener {
 
     public void askForContextGPSOnly() {
         form.setAsNew(Locale.get("Set_location"));
-        Label item1 = new Label(Locale.get("Gps_connectRequest"));
-        form.addComponent(item1);
+        form.addComponent(new HtmlTextArea(Locale.get("Gps_connectRequest")));
         form.addCommand(Commands.cmdYes);
         form.addCommand(Commands.cmdNo);
         form.setCommandListener(this);

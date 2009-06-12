@@ -36,6 +36,7 @@ import com.locify.client.utils.UTF8;
 import com.sun.lwuit.CheckBox;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
@@ -352,7 +353,7 @@ public class GeoFileBrowser implements ActionListener {
                         if (way != null) {
                             R.getURL().call("locify://navigation?lat=" + way.getLatitude() + "&lon=" + way.getLongitude() + "&name=" + way.getName());
                         } else {
-                            R.getCustomAlert().quickView(Locale.get("Unexpected_problem"), Locale.get("Error"), "locify://refresh");
+                            R.getCustomAlert().quickView(Locale.get("Unexpected_problem"), Dialog.TYPE_ERROR, "locify://refresh");
                         }
                     } else if (evt.getCommand() == Commands.cmdNavigateAlong) {
                         R.getURL().call("locify://navigation?file=" + fileName);

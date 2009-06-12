@@ -21,7 +21,6 @@ import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StringTokenizer;
-import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.Component;
@@ -32,6 +31,8 @@ import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BoxLayout;
+import com.sun.lwuit.layouts.GridLayout;
+import com.sun.lwuit.layouts.GroupLayout;
 import com.sun.lwuit.plaf.Border;
 import com.sun.lwuit.plaf.Style;
 import java.io.ByteArrayInputStream;
@@ -50,7 +51,8 @@ import org.xmlpull.v1.XmlPullParser;
 public class XHtmlBrowser extends Container implements Runnable {
 
     private XHtmlTagHandler XHTMLTagHandler;
-    private Label context;
+    private Label contextIcon;
+    private Label contextText;
     private Label fileText;
     private TextArea contactTelText;
     private TextArea contactEmailText;
@@ -72,8 +74,9 @@ public class XHtmlBrowser extends Container implements Runnable {
     private String nextPostData;
 
     public XHtmlBrowser() {
-//        super(new BoxLayout(BoxLayout.Y_AXIS));
-        super();
+        super(new BoxLayout(BoxLayout.Y_AXIS));
+//        super();
+
         XHTMLTagHandler = new XHtmlTagHandler();
         XHTMLTagHandler.register(this);
 
@@ -85,17 +88,62 @@ public class XHtmlBrowser extends Container implements Runnable {
         this.loadingThread.start();
     }
 
+//    // html scrolling style
+//    Rectangle rect = new Rectangle(getScrollX(), getScrollY(), getWidth(), getHeight());
+//    int step = Font.getDefaultFont().getHeight();
+//    boolean reachToBottom = false;
+//    boolean reachToTop = true;
+//
+//    public void keyPressed(int keyCode) {
+//        int action = Display.getInstance().getGameAction(keyCode);
+//        if (action == Display.GAME_DOWN) {
+//            if (reachToBottom) { // scroll back
+//                rect = new Rectangle(getScrollX(), getScrollY(), getWidth(), getHeight());
+//                scrollRectToVisible(rect, this);
+//                reachToBottom = false;
+//                reachToTop = true;
+//                return;
+//            }
+//
+//            reachToBottom = false;
+//            reachToTop = false;
+//            int testHeight = getScrollY() + getHeight();
+//
+//            if (testHeight < getPreferredH()) {
+//                rect.setY(rect.getY() - step);
+//                scrollRectToVisible(rect, this);
+//                scrollRectToVisible(rect, this);
+//            } else {
+//                rect = new Rectangle(getScrollX(), getPreferredH() - getHeight(), getWidth(), getHeight());
+//                scrollRectToVisible(rect, this);
+//                reachToBottom = true;
+//                reachToTop = false;
+//            }
+//        } else {
+//            super.keyPressed(keyCode);
+//        }
+//    }
+
     public void loadPage(String data) {
+Utils.printMemoryState("XHtmlBrowser - loadPage()");
         ByteArrayInputStream stream = null;
         XmlPullParser parser;
+//System.out.println("\nLoadPage: " + data);
 
+        data = Utils.replaceString(data, "&nbsp;", " ");
+//        data = UTF8.decode(data.getBytes(), 0, data.length());
+//        data = data.replace((char) 10, ' ');
+//        data = data.replace((char) 13, ' ');
+//System.out.println("\nLoadPage: " + data);
         try {
-            stream = new ByteArrayInputStream(UTF8.encode(data));
+            //stream = new ByteArrayInputStream(UTF8.encode(data));
+            stream = new ByteArrayInputStream(data.getBytes());
             parser = new KXmlParser();
             parser.setInput(new InputStreamReader(stream));
 
             // Clear out all items in the browser.
             removeAll();
+
             // Clear image cache when visiting a new page.
             this.imageCache.clear();
             // Really free memory.
@@ -114,19 +162,27 @@ public class XHtmlBrowser extends Container implements Runnable {
                 if (stream != null) {
                     stream.close();
                 }
+
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+
         }
     }
 
-    public void addItem(Component component) {
-//        System.out.println("AddItem: " + component);
+    public void addComponent(Component component) {
+System.out.println("AddComponent: " + component);
+        if (component instanceof Label) {
+            ((Label) component).getStyle().setBorder(Border.createLineBorder(1, ColorsFonts.RED));
+        } else if (component instanceof Container) {
+            ((Container) component).getStyle().setBorder(Border.createLineBorder(1, ColorsFonts.MAGENTA));
+        }
         if (currentContainer != null) {
             currentContainer.addComponent(component);
         } else {
-            addComponent(component);
+            super.addComponent(component);
         }
+
     }
 
     /**
@@ -137,6 +193,7 @@ public class XHtmlBrowser extends Container implements Runnable {
             Hashtable attributeMap = new Hashtable();
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 int type = parser.getEventType();
+//System.out.println("PARSER_TYPE: " + type);
                 if (type == XmlPullParser.START_TAG || type == XmlPullParser.END_TAG) {
                     boolean openingTag = type == XmlPullParser.START_TAG;
 
@@ -147,7 +204,7 @@ public class XHtmlBrowser extends Container implements Runnable {
 
                     if (handler != null) {
 //                        System.out.println("Calling handler: " + parser.getName() + " " + attributeMap);
-                        String styleName = (String) attributeMap.get("class");
+//                        String styleName = (String) attributeMap.get("class");
                         HtmlStyle tagStyle = new HtmlStyle();
 //                        if (styleName != null) {
 //                            tagStyle = StyleSheet.getStyle(styleName);
@@ -162,9 +219,9 @@ public class XHtmlBrowser extends Container implements Runnable {
                         if (container == null) {
                             container = this;
                         }
+
                         handler.handleTag(container, parser, parser.getName(), openingTag, attributeMap, tagStyle);
-                    } //#if polish.debug.debug
-                    else {
+                    } else {
 //                        System.out.println("found no handler for tag [" + parser.getName() + "]");
                     }
                 } else if (type == XmlPullParser.TEXT) {
@@ -174,7 +231,7 @@ public class XHtmlBrowser extends Container implements Runnable {
                 }
             }
         } catch (Exception ex) {
-//            System.out.println("error in document...");
+//            System.out.println("error in document... ex: " + ex.toString());
         }
 //        System.out.println("end of document...");
     }
@@ -184,23 +241,29 @@ public class XHtmlBrowser extends Container implements Runnable {
         XHtmlTagHandler handler = null;
         String name = parser.getName().toLowerCase();
 
-        for (int i = 0; i < parser.getAttributeCount(); i++) {
+        for (int i = 0; i <
+                parser.getAttributeCount(); i++) {
             String attributeName = parser.getAttributeName(i).toLowerCase();
             String attributeValue = parser.getAttributeValue(i);
             attributeMap.put(attributeName, attributeValue);
 
-            key = new XHtmlTagHandlerKey(name, attributeName, attributeValue);
-            handler = (XHtmlTagHandler) this.tagHandlersByTag.get(key);
+            key =
+                    new XHtmlTagHandlerKey(name, attributeName, attributeValue);
+            handler =
+                    (XHtmlTagHandler) this.tagHandlersByTag.get(key);
 
             if (handler != null) {
                 break;
             }
+
         }
 
         if (handler == null) {
             key = new XHtmlTagHandlerKey(name);
-            handler = (XHtmlTagHandler) this.tagHandlersByTag.get(key);
+            handler =
+                    (XHtmlTagHandler) this.tagHandlersByTag.get(key);
         }
+
         return handler;
     }
 
@@ -212,7 +275,8 @@ public class XHtmlBrowser extends Container implements Runnable {
     protected void goImpl(String url, String postData) {
         R.getHtmlScreen().quit();
         R.getPostData().setRaw(postData, true);
-        url = Utils.replaceString(url, "&amp;", "&");
+        url =
+                Utils.replaceString(url, "&amp;", "&");
         R.getURL().call(url);
     }
 
@@ -221,45 +285,51 @@ public class XHtmlBrowser extends Container implements Runnable {
      * @param text
      */
     protected void handleText(String text) {
+System.out.println("Handle text: '" + text + "'");
         if (text.length() > 0) {
             text = text.replace('\t', '\n');
             Vector data = StringTokenizer.getVector(text, "\n");
 
-            for (int i = 0; i < data.size(); i++) {
+            Font currentFont = currentContainer == null ? getStyle().getFont() : currentContainer.getStyle().getFont();
+            for (int i = 0; i <
+                    data.size(); i++) {
+
                 String str = (String) data.elementAt(i);
-                str = Utils.replaceString(str, "&nbsp;", " ");
-                HtmlTextArea textItem = new HtmlTextArea("", false);
-                textItem.setText(str);
+                Component component;
+
+                if (currentFont.stringWidth(str) < Capabilities.getWidth()) {
+                    component = new Label(str);
+                } else {
+                    component = new HtmlTextArea(str);
+                }
 
                 if (this.XHTMLTagHandler.textStyle != null) {
                 } else if (this.XHTMLTagHandler.textBold && this.XHTMLTagHandler.textItalic) {
-                    textItem.getStyle().setFont(Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD | Font.STYLE_ITALIC, Font.SIZE_MEDIUM));
+                    component.getStyle().setFont(Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD | Font.STYLE_ITALIC, Font.SIZE_MEDIUM));
                 } else if (this.XHTMLTagHandler.textBold) {
-                    textItem.getStyle().setFont(Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
+                    component.getStyle().setFont(Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
                 } else if (this.XHTMLTagHandler.textItalic) {
-                    textItem.getStyle().setFont(Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_ITALIC, Font.SIZE_MEDIUM));
+                    component.getStyle().setFont(Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_ITALIC, Font.SIZE_MEDIUM));
                 } else if (this.XHTMLTagHandler.textLabel) {
                     this.XHTMLTagHandler.labelText = str;
                     return;
                 }
-                Label lab = new Label(text);
-                lab.setEndsWith3Points(false);
-                addItem(lab);
-                //addItem(textItem);
+                addComponent(component);
             }
+
         }
     }
 
     public void openContainer(Container container) {
 //        System.out.println("Opening nested container " + container);
-
         Container previousContainer = this.currentContainer;
         if (previousContainer != null) {
             previousContainer.addComponent(container);
         } else {
             addComponent(container);
         }
-        //add(container);
+//add(container);
+
         this.currentContainer = container;
     }
 
@@ -274,16 +344,17 @@ public class XHtmlBrowser extends Container implements Runnable {
             return null;
         }
 
-        //System.out.println("closing container with " + this.currentContainer.size() + " items, previous=" + this.currentContainer.getParent());
+//System.out.println("closing container with " + this.currentContainer.size() + " items, previous=" + this.currentContainer.getParent());
         Container current = this.currentContainer;
         Container previousContainer = current.getParent();
+        current.revalidate();
         if (previousContainer == this) {
             this.currentContainer = null;
         } else {
             this.currentContainer = previousContainer;
         }
 
-        //System.out.println("closing container with size " + current.size() + ", 0=" + current.get(0));
+//System.out.println("closing container " + current.toString());
 //		if (current.size() == 1) {
 //			Item item = current.get(0);
 //			if (item != null) {
@@ -303,40 +374,46 @@ public class XHtmlBrowser extends Container implements Runnable {
      * Adds custom locify item - <locify:where />
      */
     public void addContextItem() {
-        context = new Label();
-        context.setAlignment(Label.LEFT);
-        context.setTextPosition(Label.RIGHT);
+        contextIcon = new Label();
+        contextText =
+                new Label();
 
         switch (R.getContext().getSource()) {
             case LocationContext.GPS:
-                context.setIcon(IconData.get("locify://icons/gps.png"));
+                contextIcon.setIcon(IconData.get("locify://icons/gps.png"));
                 if (R.getLocator().hasFix()) {
-                    context.setText(Locale.get("Valid_gps_position"));
+                    contextText.setText(Locale.get("Valid_gps_position"));
                 } else {
-                    context.setText(Locale.get("Waiting_for_gps"));
+                    contextText.setText(Locale.get("Waiting_for_gps"));
                 }
+
                 break;
             case LocationContext.SAVED_LOCATION:
-                context.setIcon(IconData.get("locify://icons/savedLocation.png"));
-                context.setText(R.getContext().getSourceData());
+                contextIcon.setIcon(IconData.get("locify://icons/savedLocation.png"));
+                contextText.setText(R.getContext().getSourceData());
                 break;
+
             case LocationContext.ADDRESS:
-                context.setIcon(IconData.get("locify://icons/address.png"));
-                context.setText(R.getContext().getSourceData());
+                contextIcon.setIcon(IconData.get("locify://icons/address.png"));
+                contextText.setText(R.getContext().getSourceData());
                 break;
+
             case LocationContext.COORDINATES:
-                context.setIcon(IconData.get("locify://icons/coordinates.png"));
-                context.setText(R.getContext().getSourceData());
+                contextIcon.setIcon(IconData.get("locify://icons/coordinates.png"));
+                contextText.setText(R.getContext().getSourceData());
                 break;
+
             case LocationContext.LAST_KNOWN:
-                context.setIcon(IconData.get("locify://icons/lastKnown.png"));
-                context.setText(R.getContext().getSourceData());
+                contextIcon.setIcon(IconData.get("locify://icons/lastKnown.png"));
+                contextText.setText(R.getContext().getSourceData());
                 break;
+
         }
 
-        addItem(new Label(Locale.get("Where") + ":"));
-        Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        container.addComponent(context);
+
+
+        Label where = new Label(Locale.get("Where") + ":");
+        addComponent(where);
         Button btnChange = new Button(Locale.get("Change"));
         btnChange.addActionListener(new ActionListener() {
 
@@ -345,9 +422,20 @@ public class XHtmlBrowser extends Container implements Runnable {
                 R.getURL().call("locify://setLocation");
             }
         });
-        container.addComponent(btnChange);
 
-        addItem(container);
+        Container container = new Container(new GridLayout(2, 1));
+        container.getStyle().setBorder(Border.createLineBorder(1));
+
+        GroupLayout layout = new GroupLayout(container);
+        container.setLayout(layout);
+
+        layout.setAutocreateGaps(true);
+        layout.setAutocreateContainerGaps(true);
+
+        layout.setHorizontalGroup(layout.createSequentialGroup().add(contextIcon).add(layout.createParallelGroup().add(contextText).add(btnChange)));
+        layout.setVerticalGroup(layout.createSequentialGroup().add(layout.createParallelGroup().add(contextIcon).add(contextText)).add(btnChange));
+
+        addComponent(container);
     }
 
     /**
@@ -355,42 +443,50 @@ public class XHtmlBrowser extends Container implements Runnable {
      */
     public void updateContextItem() {
         try {
-            if (context != null) {
+            if (contextText != null) {
                 if (R.getContext().isTemporary()) {
-                    context.setIcon(IconData.get("locify://icons/where.png"));
-                    context.setText(Locale.get("Temporary_location"));
+                    contextIcon.setIcon(IconData.get("locify://icons/where.png"));
+                    contextText.setText(Locale.get("Temporary_location"));
                 } else {
                     switch (R.getContext().getSource()) {
                         case LocationContext.GPS:
-                            context.setIcon(IconData.get("locify://icons/gps.png"));
+                            contextIcon.setIcon(IconData.get("locify://icons/gps.png"));
                             if (R.getLocator().hasFix()) {
-                                context.setText(Locale.get("Valid_gps_position"));
+                                contextText.setText(Locale.get("Valid_gps_position"));
                             } else {
-                                context.setText(Locale.get("Waiting_for_gps"));
+                                contextText.setText(Locale.get("Waiting_for_gps"));
                             }
+
                             break;
                         case LocationContext.SAVED_LOCATION:
-                            context.setIcon(IconData.get("locify://icons/savedLocation.png"));
-                            context.setText(R.getContext().getSourceData());
+                            contextIcon.setIcon(IconData.get("locify://icons/savedLocation.png"));
+                            contextText.setText(R.getContext().getSourceData());
                             break;
+
                         case LocationContext.ADDRESS:
-                            context.setIcon(IconData.get("locify://icons/address.png"));
-                            context.setText(R.getContext().getSourceData());
+                            contextIcon.setIcon(IconData.get("locify://icons/address.png"));
+                            contextText.setText(R.getContext().getSourceData());
                             break;
+
                         case LocationContext.COORDINATES:
-                            context.setIcon(IconData.get("locify://icons/coordinates.png"));
-                            context.setText(R.getContext().getSourceData());
+                            contextIcon.setIcon(IconData.get("locify://icons/coordinates.png"));
+                            contextText.setText(R.getContext().getSourceData());
                             break;
+
                         case LocationContext.LAST_KNOWN:
-                            context.setIcon(IconData.get("locify://icons/lastKnown.png"));
-                            context.setText(R.getContext().getSourceData());
+                            contextIcon.setIcon(IconData.get("locify://icons/lastKnown.png"));
+                            contextText.setText(R.getContext().getSourceData());
                             break;
+
                     }
+
+
                 }
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "XHTMLBrowser.updateContextItem", null);
         }
+
     }
 
     /**
@@ -399,7 +495,8 @@ public class XHtmlBrowser extends Container implements Runnable {
     public void addFileItem() {
         //#style contextLabel
         addComponent(new Label(this.XHTMLTagHandler.labelText));
-        fileText = new Label(Locale.get("No_file_selected"));
+        fileText =
+                new Label(Locale.get("No_file_selected"));
         //#style contextContainer
         Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         //#style fileUploadText
@@ -425,7 +522,8 @@ public class XHtmlBrowser extends Container implements Runnable {
     public void addContactTelItem() {
         //#style contextLabel
         addComponent(new Label(Locale.get("Tel") + ":"));
-        contactTelText = new TextArea("", 1, 50, TextArea.PHONENUMBER);
+        contactTelText =
+                new TextArea("", 1, 50, TextArea.PHONENUMBER);
 
         //#style contextContainer
         Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
@@ -438,6 +536,7 @@ public class XHtmlBrowser extends Container implements Runnable {
             //#style contextButton
             container.addComponent(btnBrowse);
         }
+
         addComponent(container);
     }
 
@@ -455,7 +554,8 @@ public class XHtmlBrowser extends Container implements Runnable {
     public void addContactEmailItem() {
         //#style contextLabel
         addComponent(new Label(Locale.get("Email") + ":"));
-        contactEmailText = new TextArea("", 1, 50, TextArea.EMAILADDR);
+        contactEmailText =
+                new TextArea("", 1, 50, TextArea.EMAILADDR);
 
         //#style contextContainer
         Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
@@ -485,6 +585,7 @@ public class XHtmlBrowser extends Container implements Runnable {
         if (!this.tagHandlers.contains(handler)) {
             this.tagHandlers.addElement(handler);
         }
+
     }
 
     public XHtmlTagHandler getXHtmlTagHandler() {
@@ -499,8 +600,17 @@ public class XHtmlBrowser extends Container implements Runnable {
         return contactEmailText.getText();
     }
 
+    /**
+     * Adds new line to the page
+     */
+    public void addNewLine() {
+        Label stringItem = new Label("");
+        stringItem.getStyle().setMargin(0, 0, 500, 500);
+        addComponent(stringItem);
+    }
 
-    //////////////////////////// History //////////////////////////////
+
+//////////////////////////// History //////////////////////////////
     /**
      * Schedules the given history document for loading.
      *
@@ -512,7 +622,10 @@ public class XHtmlBrowser extends Container implements Runnable {
         while (historySteps > 0 && this.history.size() > 0) {
             entry = (String) this.history.pop();
             historySteps--;
+
         }
+
+
 
         if (entry != null) {
             this.scheduledHistoryUrl = entry;
@@ -520,6 +633,7 @@ public class XHtmlBrowser extends Container implements Runnable {
             if (this.history.size() == 0 && getComponentForm() != null) {
                 getComponentForm().removeCommand(Commands.cmdBack);
             }
+
         }
     }
 
@@ -535,6 +649,7 @@ public class XHtmlBrowser extends Container implements Runnable {
             if (this.history.size() == 1 && getComponentForm() != null) {
                 getComponentForm().addCommand(Commands.cmdBack);
             }
+
         }
         schedule(url, postData);
     }
@@ -550,6 +665,7 @@ public class XHtmlBrowser extends Container implements Runnable {
             if (this.history.size() == 1 && getComponentForm() != null) {
                 getComponentForm().addCommand(Commands.cmdBack);
             }
+
         }
         schedule(url, null);
     }
@@ -567,6 +683,7 @@ public class XHtmlBrowser extends Container implements Runnable {
         } else {
             return false;
         }
+
     }
 
     /**
@@ -600,6 +717,7 @@ public class XHtmlBrowser extends Container implements Runnable {
         synchronized (this.loadingThread) {
             this.loadingThread.notify();
         }
+
     }
 
     public void run() {
@@ -631,12 +749,16 @@ public class XHtmlBrowser extends Container implements Runnable {
                             if (memorySaver != null) {
                                 memorySaver = null;
                             }
+
                         }
                     }
 
                     this.isWorking = false;
                     repaint();
+
                 }
+
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -644,6 +766,7 @@ public class XHtmlBrowser extends Container implements Runnable {
             if (this.isCancelRequested == true) {
                 this.isWorking = false;
                 repaint();
+
                 this.isCancelRequested = false;
                 this.nextUrl = null;
                 this.nextPostData = null;

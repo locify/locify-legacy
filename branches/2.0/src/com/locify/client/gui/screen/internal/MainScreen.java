@@ -167,6 +167,7 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
      * Views the screen
      */
     public void view() {
+//System.out.println("ShowMain: " +autoInstallRequest);
         if (!autoInstallRequest) {
             this.show();
         }
@@ -413,7 +414,7 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
         this.addCommand(Commands.cmdExit);
         this.addCommand(Commands.cmdSelect);
         this.addCommand(new ParentCommand(Locale.get("Add"), IconData.getLocalImage("add"),
-                new Command[]{Commands.cmdAddService, Commands.cmdAddByLink}));
+                new Command[] {Commands.cmdAddService, Commands.cmdAddByLink}));
     }
 
     private void createOtherMenu() {

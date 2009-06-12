@@ -15,6 +15,7 @@ package com.locify.client.locator.impl;
 
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Dialog;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.microedition.io.ConnectionNotFoundException;
@@ -35,7 +36,7 @@ public class TCPNMEALocationProvider extends NMEALocationProvider {
                 sc = (SocketConnection) Connector.open("socket://127.0.0.1:" + R.getSettings().getTcpPort());
             } catch (ConnectionNotFoundException e) {
                 sc = null;
-                R.getCustomAlert().quickView(Locale.get("Pda_porter_not_connected"), Locale.get("Warning"), "locify://back");
+                R.getCustomAlert().quickView(Locale.get("Pda_porter_not_connected"), Dialog.TYPE_WARNING, "locify://back");
                 super.stopProvider();
                 return;
             }

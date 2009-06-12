@@ -280,4 +280,8 @@ public class TileFactoryInfo {
     public int getNumberOfZoomLevels() {
         return getMaximumZoomLevel() - getMinimumZoomLevel() + 1;
     }
+
+    public String toString() {
+        return "Info: " + mapCenterInPixelsAtZoom.length + ", " + longitudeDegreeWidthInPixels.length + ", " + longitudeRadianWidthInPixels.length;
+    }
 }

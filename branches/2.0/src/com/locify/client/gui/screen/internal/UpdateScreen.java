@@ -18,11 +18,13 @@ import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
 import com.locify.client.net.Http;
+import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.utils.Locale;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
+import com.sun.lwuit.layouts.BoxLayout;
 
 /**
  * Manages interface of update Locify
@@ -36,14 +38,15 @@ public class UpdateScreen extends FormLocify implements ActionListener {
     
     public UpdateScreen() {
         super(Locale.get("Check_version"));
+        setLayout(new BoxLayout(BoxLayout.Y_AXIS));
     }
     
     public void view(String versionInfo) {
-        removeAll();
+        setAsNew(Locale.get("Check_version"));
         addComponent(new Label(Locale.get("Current_version_info")));
         addComponent(new Label(R.getMidlet().getAppProperty("MIDlet-Version")));
         addComponent(new Label(Locale.get("Latest_version_info")));
-        addComponent(new Label(versionInfo));
+        addComponent(new HtmlTextArea(versionInfo, false));
         btnDownload = new Button(Locale.get("Download_latest"));
         btnDownload.addActionListener(this);
         addComponent(btnDownload);
@@ -69,7 +72,5 @@ public class UpdateScreen extends FormLocify implements ActionListener {
         } else if (evt.getCommand() == Commands.cmdBack) {
             R.getBack().goBack();
         }
-
     }
-
 }

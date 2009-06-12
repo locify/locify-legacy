@@ -21,6 +21,7 @@ import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Button;
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
 import com.sun.lwuit.TextField;
@@ -103,11 +104,11 @@ public class RouteSaveScreen implements ActionListener {
 
                 R.getRouteScreen().routeReset();
 
-                R.getCustomAlert().quickView(Locale.get("Route_saved"), Locale.get("Info"), "locify://refresh");
+                R.getCustomAlert().quickView(Locale.get("Route_saved"), Dialog.TYPE_INFO, "locify://refresh");
                 R.getURL().call("locify://mainScreen");
             } else {
                 description = tfRouteDescription.getText();
-                R.getCustomAlert().quickView(Locale.get("Route_cant_be_saved"), Locale.get("Info"), "locify://saveRoute");
+                R.getCustomAlert().quickView(Locale.get("Route_cant_be_saved"), Dialog.TYPE_INFO, "locify://saveRoute");
             }
         }
 

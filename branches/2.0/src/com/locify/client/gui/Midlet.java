@@ -8,10 +8,12 @@ import com.locify.client.data.SettingsData;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.locator.LocationProvider;
 import com.locify.client.utils.Capabilities;
+import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
 import com.locify.client.utils.ResourcesLocify;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Display;
+import com.sun.lwuit.Font;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
@@ -62,6 +64,7 @@ public class Midlet extends MIDlet {
 //Utils.printMemoryState("02");
             //init the LWUIT Display
             Display.init(this);
+//            Font.setDefaultFont(ColorsFonts.FONT_SMALL);
 //Utils.printMemoryState("03");
             ResourcesLocify.setTheme();
 //Utils.printMemoryState("04");
@@ -104,9 +107,8 @@ public class Midlet extends MIDlet {
                     if (R.getSettings().getBacklight() == SettingsData.WHOLE_APPLICATION) {
                         R.getBacklight().on();
                     }
-
 //                    R.getMainScreen().actionPerformed(evt);
-//                    R.getURL().call("http://services.locify.com/nearestCaches/");
+//                    R.getURL().call("http://services.locify.com/nearestCaches/cache.php?show=listing&guid=e8224264-ee31-4345-90d9-d2865158a2cc");
 //                    R.getURL().call("http://services.locify.com/nearestCaches/first.php");
 Utils.printMemoryState("Init - end");
                 } else {

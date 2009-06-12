@@ -13,9 +13,11 @@
  */
 package com.locify.client.gui.screen.service;
 
+import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
@@ -26,68 +28,59 @@ import com.sun.lwuit.events.ActionListener;
  * Creates alert from HTML page
  * @author David Vavra
  */
-public class AlertScreen implements ActionListener, Runnable {
+public class AlertScreen implements ActionListener {
 
-    private Form form;
+    private Dialog dialog;
+
+    private int alertType;
     private String text;
-    private String type;
-    private int timeout;
     private String nextUrl;
+    private long timeout;
     private boolean alertDismissed;
 
     public AlertScreen() {
-    }
-
-    /**
-     * Sets default values
-     */
-    public void reset() {
-        text = "";
-        type = "Info";
-        timeout = -1;
-        nextUrl = "";
-    }
-
-    public void setText(String t) {
-        text = t;
-    }
-
-    public void setType(String t) {
-        this.type = t;
-    }
-
-    public void setTimeout(String t) {
-        timeout = Integer.parseInt(t);
+        super();
     }
 
     /**
      * Sets internal url which should be called after alert is dismissed
      * @param url 
      */
-    public void setNext(String url) {
-        url = R.getHttp().makeAbsoluteURL(url);
-        nextUrl = url;
+
+    public void reset() {
+        text = "";
+        alertType = Dialog.TYPE_INFO;
+        timeout = Long.MAX_VALUE;
+        nextUrl = "";
     }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setTimeout(long parseLong) {
+        this.dialog.setTimeout(parseLong);
+    }
+
+    public void setNextUrl(String nextUrl) {
+        this.nextUrl = nextUrl;
+    }
+
+    public void setAlertType(int alertType) {
+        this.alertType = alertType;
+    }
+
 
     /**
      * Displays alert
      */
     public void view() {
-        if (Capabilities.isWindowsMobile()) {
-            //vypnuti stmivani u WM
-            form = new Form(type);
-        } else {
-            form = new Form(type);
-        }
-        form.addComponent(new Label(text));
-        form.addCommand(Commands.cmdOK);
-        form.setCommandListener(this);
-        form.show();
-
-        //timout start
-        if (timeout != -1) {
-            (new Thread(this)).start();
-        }
+        dialog = new Dialog();
+        dialog.setDialogType(alertType);
+        dialog.addComponent(new HtmlTextArea(text, false));
+        dialog.addCommand(Commands.cmdOK);
+        dialog.setCommandListener(this);
+        dialog.show();
     }
 
     /**
@@ -96,31 +89,16 @@ public class AlertScreen implements ActionListener, Runnable {
      * @param alertType alert type
      * @param next next screen url
      */
-    public void quickView(String alertText, String alertType, String next) {
-        reset();
+    public void quickView(String alertText, int alertType, String next) {
         setText(alertText);
-        setType(alertType);
-        setNext(next);
+        setAlertType(alertType);
+        setNextUrl(next);
         view();
     }
 
-    public void run() {
-        try {
-            try {
-                alertDismissed = false;
-                Thread.sleep(timeout);
-            } catch (InterruptedException ex) {
-            }
-            if (!alertDismissed) {
-                actionPerformed(new ActionEvent(form, Integer.MAX_VALUE));
-            }
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "AlertScreen.run()", null);
-        }
-    }
-
     public void actionPerformed(ActionEvent evt) {
-        if (evt.getCommand() == Commands.cmdOK || evt.getKeyEvent() == Integer.MAX_VALUE) {
+        if (evt.getCommand() == Commands.cmdOK || evt.getSource() == Commands.cmdOK) {
+//System.out.println("\nEbt: " + evt + " " + evt.getSource() + " " + evt.getCommand() + " " + nextUrl);
             alertDismissed = true;
             if (nextUrl.equals("")) {
                 R.getBack().goBack();
@@ -128,6 +106,7 @@ public class AlertScreen implements ActionListener, Runnable {
                 if (nextUrl.equals("locify://geoFileBrowser")) {
                     R.getBack().dontSave();
                 }
+//                R.getMainScreen().setAutoInstallRequest(false);
                 R.getURL().call(nextUrl);
             }
         }

@@ -21,6 +21,7 @@ import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Command;
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
@@ -62,7 +63,7 @@ public class LogScreen implements ActionListener {
             R.getBack().goBack();
         } else if (evt.getCommand() == Commands.cmdSave) {
             R.getFileSystem().saveString(FileSystem.LOG_FOLDER + String.valueOf(Utils.timestamp()) + ".txt", Logger.getOutText());
-            R.getCustomAlert().quickView(Locale.get("Log_saved"), Locale.get("Info"), "locify://refresh");
+            R.getCustomAlert().quickView(Locale.get("Log_saved"), Dialog.TYPE_INFO, "locify://refresh");
         } else if (evt.getCommand() == Commands.cmdHome) {
             R.getURL().call("locify://mainScreen");
         } else if (evt.getCommand() == cmdRefresh) {

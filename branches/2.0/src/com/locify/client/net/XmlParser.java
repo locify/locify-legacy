@@ -25,9 +25,11 @@ import com.locify.client.utils.R;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.Utils;
 import com.locify.client.data.ServiceSettingsData;
+import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.UTF8;
+import com.sun.lwuit.Dialog;
 
 /**
  * This class parses given xml and take actions
@@ -120,7 +122,7 @@ public class XmlParser {
             try {
                 messageType = parser.getAttributeValue(null, "class");
             } catch (Exception e) {
-                R.getCustomAlert().quickView(Locale.get("Not_valid_Locify_XHTML"), "Error", "locify://back");
+                R.getCustomAlert().quickView(Locale.get("Not_valid_Locify_XHTML"), Dialog.TYPE_ERROR, "locify://back");
                 return false;
             }
 
@@ -201,7 +203,8 @@ public class XmlParser {
         try {
             AlertScreen alert = R.getCustomAlert();
             alert.reset();
-            alert.setType(title);
+////            alert.setType(title);
+            alert.setAlertType(Dialog.TYPE_INFO);
 
             do {
                 String name = parser.getName();
@@ -211,10 +214,10 @@ public class XmlParser {
                 if (name.equals("p")) {
                     alert.setText(parser.nextText());
                 } else if (name.equals("a")) {
-                    alert.setNext(parser.getAttributeValue(null, "href"));
+                    alert.setNextUrl(parser.getAttributeValue(null, "href"));
                     parser.nextText();
                 } else if (name.equals("locify:timeout")) {
-                    alert.setTimeout(parser.getAttributeValue(null, "value"));
+                    alert.setTimeout(GpsUtils.parseLong(parser.getAttributeValue(null, "value")));
                 // parser.nextTag();
                 } else {
                     parser.skipSubTree();
@@ -332,6 +335,7 @@ public class XmlParser {
                 }
             } while (parser.nextTag() != KXmlParser.END_TAG);
             //provedeni akce
+//System.out.println("\nUpdateText: " + updateText + "\n");
             R.getUpdate().view(updateText);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "XmlParser.parseUpdate", null);

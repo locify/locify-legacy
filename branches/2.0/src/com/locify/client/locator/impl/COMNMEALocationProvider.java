@@ -15,6 +15,7 @@ package com.locify.client.locator.impl;
 
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
+import com.sun.lwuit.Dialog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,7 +37,7 @@ public class COMNMEALocationProvider extends NMEALocationProvider {
             commConn = (CommConnection) Connector.open("comm:AT5;baudrate=9600");
         } catch (IOException e) {
             commConn = null;
-            R.getCustomAlert().quickView(Locale.get("HGE-100_not_connected"), Locale.get("Warning"), "locify://back");
+            R.getCustomAlert().quickView(Locale.get("HGE-100_not_connected"), Dialog.TYPE_WARNING, "locify://back");
             super.stopProvider();
             return;
         }

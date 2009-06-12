@@ -12,8 +12,6 @@
         <property name="test" value="false" />
         <!-- this is for generating aplet for web, turns off filesystem and other apis -->
         <property name="applet" value="false" />
-        <!-- planstuido property -->
-        <property name="planstudio" value="true" />
 
         <property name="WM" value="true"/>
         <property name="WMbig" value="false"/>
@@ -22,6 +20,7 @@
 
     <target name="post-compile">
         <copy file="resources/locify.res" tofile="build/compiled/locify.res" />
+        <copy file="resources/lang/lang.res" tofile="build/compiled/lang.res" />
 
         <copy file="resources/img/icon.png" tofile="build/compiled/icon.png"/>
         <copy file="resources/img/loading.png" tofile="build/compiled/loading.png"/>
@@ -62,7 +61,6 @@
             <image file="images/background.png" name="myBackground" pack="true" />
             <theme file="themes/myTheme.conf" name="myTheme" />
         </build>
-        -->
         
         <build dest="build/compiled/resource_lang_en.res">
             <l10n name="localize">
@@ -74,9 +72,10 @@
                 <locale name="cs" file="resources/lang/messages_cs_CZ.txt" />
             </l10n>
         </build>
+        -->
         <build dest="build/compiled/fonts.res">
-            <!--<font logicalName="Arial" size="10" charset=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-02" />-->
-            <font logicalName="Arial" size="10" name="arial_10" />
+            <font logicalName="Times" size="10" name="arial_10" charset=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-0123456789ěščřžýáíéúď" />
+            <!--<font logicalName="Arial" size="10" name="arial_10" />-->
             <font logicalName="Arial" size="14" name="arial_14" />
             <font logicalName="Arial" size="16" name="arial_16" />
             <font logicalName="Arial" size="18" name="arial_18" />

@@ -19,7 +19,6 @@ import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
-import com.locify.client.utils.Utils;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Dialog;
@@ -30,6 +29,7 @@ import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
+import com.sun.lwuit.layouts.FlowLayout;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -259,7 +259,7 @@ public class FirstRunManager {
      */
     public void viewPermissionsWarning() {
         frmPermissionWarning = new Form(Locale.get("Locify"));
-        frmPermissionWarning.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
+        frmPermissionWarning.setLayout(new FlowLayout());
         Label siWarning = new Label(Locale.get("You_need_to_setup_permissions"));
         frmPermissionWarning.addComponent(siWarning);
         btnHowto = new Button(Locale.get("Howto"));

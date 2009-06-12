@@ -48,6 +48,7 @@ public class InternalURLManager {
      * @param url url of the shortcut
      */
     public void call(String url) {
+//System.out.println("Call: " + url);
         try {
             Logger.log("URL called: " + url);
             //absolute urls

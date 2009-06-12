@@ -32,10 +32,6 @@ public class Locale {
         return "unknown";
     }
 
-    public static void loadTranslations(DataInputStream dataInputStream) {
-        
-    }
-
     public static void loadTranslations(String string) {
         try {
             if (lang != null)
@@ -44,14 +40,11 @@ public class Locale {
             if (string.length() > 2) {
                 string = string.substring(0, 2);
             }
-//System.out.println("Load: " + "resource_lang_" + string);
-            Resources res = ResourcesLocify.getResource("resource_lang_" + string);
-            if (res == null) {
-                res = ResourcesLocify.getResource("resource_lang_en");
-            }
+System.out.println("Load: " + string);
+            Resources res = ResourcesLocify.getResource("lang");
 
             if (res != null) {
-                lang = res.getL10N("localize", string);
+                lang = res.getL10N("Localization", string);
                 res = null;
             }
         } catch (IOException ex) {

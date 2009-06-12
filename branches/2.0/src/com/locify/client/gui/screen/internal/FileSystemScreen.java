@@ -30,6 +30,7 @@ import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
 import com.locify.client.utils.VectorSortable;
 import com.sun.lwuit.Command;
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Image;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
@@ -300,7 +301,7 @@ public class FileSystemScreen implements ActionListener {
             FileSystemScreenItem item = (FileSystemScreenItem) filesystemItems.elementAt(lstFiles.getSelectedIndex());
             String fileName = item.getFileName();
             if (item.getType() == GeoFiles.TYPE_CORRUPT) {
-                R.getCustomAlert().quickView(Locale.get("GeoFile_error"), Locale.get("Warning"), "locify://files");
+                R.getCustomAlert().quickView(Locale.get("GeoFile_error"), Dialog.TYPE_WARNING, "locify://files");
                 return;
             }
             if ("location".equals(target)) {

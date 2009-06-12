@@ -24,6 +24,8 @@ import com.locify.client.locator.LocationEventListener;
 import com.locify.client.net.browser.HtmlButton;
 import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.net.browser.XHtmlBrowser;
+import com.locify.client.net.browser.XHtmlTagHandler;
+import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Locale;
@@ -31,7 +33,9 @@ import com.sun.lwuit.Command;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
+import com.sun.lwuit.geom.Dimension;
 import com.sun.lwuit.layouts.BorderLayout;
+import com.sun.lwuit.plaf.Border;
 
 /**
  * This class uses Polish HTML Browser and extends its functionality
@@ -120,7 +124,8 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
      * @param value
      */
     public void addTextField(String label, String name, String value) {
-        HtmlTextArea textField = new HtmlTextArea(label, true);
+        htmlBrowser.addComponent(new Label(label));
+        HtmlTextArea textField = new HtmlTextArea(value, true);
         htmlBrowser.addComponent(textField);
         this.currentForm.addItem(textField);
         textField.setAttributeForm(this.currentForm);
@@ -136,10 +141,10 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
      */
     public void addButton(String label, String name, String value) {
         HtmlButton buttonItem = new HtmlButton(label);
-//        buttonItem.setDefaultCommand(XHTMLTagHandler.CMD_SUBMIT);
-//        buttonItem.setItemCommandListener(htmlBrowser.getTagHandler());
+        buttonItem.setAttributeType(XHtmlTagHandler.CMD_SUBMIT);
+        buttonItem.addActionListener(htmlBrowser.getXHtmlTagHandler());
         htmlBrowser.getXHtmlTagHandler().addCommands("input", "type", "submit", buttonItem);
-        htmlBrowser.addItem(buttonItem);
+        htmlBrowser.addComponent(buttonItem);
         this.currentForm.addItem(buttonItem);
         buttonItem.setAttributeForm(this.currentForm);
         buttonItem.setAttributeType("submit");
@@ -151,11 +156,9 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
      * Adds new line to the page
      */
     public void addNewLine() {
-        Label stringItem = new Label("");
-        htmlBrowser.addItem(stringItem);
+        htmlBrowser.addNewLine();
     }
-
-
+    
     /**
      * Adds hidden element into current form
      * @param name

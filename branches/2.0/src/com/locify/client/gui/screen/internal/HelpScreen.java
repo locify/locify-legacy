@@ -16,6 +16,7 @@ package com.locify.client.gui.screen.internal;
 import com.locify.client.data.IconData;
 import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.gui.extension.ListLocify;
+import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
@@ -73,8 +74,10 @@ public class HelpScreen implements ActionListener {
             }
 
             list.addActionListener(this);
+            form.addComponent(list);
             form.addCommand(Commands.cmdHome);
             form.setCommandListener(this);
+            form.show();
         } catch (Exception e) {
             R.getErrorScreen().view(e, "HelpScreen.viewMenu", null);
         }
@@ -89,7 +92,7 @@ public class HelpScreen implements ActionListener {
                 viewIconsHelp();
             } else {
                 form = new FormLocify(titles[selected]);
-                form.addComponent(new Label(texts[selected]));
+                form.addComponent(new HtmlTextArea(texts[selected], false));
                 form.addCommand(Commands.cmdBack);
                 form.addCommand(Commands.cmdHome);
                 form.setCommandListener(this);

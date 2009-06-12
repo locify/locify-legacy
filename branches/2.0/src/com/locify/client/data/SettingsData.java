@@ -22,6 +22,7 @@ import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.base64.Base64;
+import com.sun.lwuit.Dialog;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -285,7 +286,7 @@ public class SettingsData {
         settings.put("prefferedGps", String.valueOf(prefferedGps));
         settings.put("coordsFormat", String.valueOf(coordinatesFormat));
         saveXML();
-        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
+        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Dialog.TYPE_INFO, "locify://refresh");
     }
 
     public void saveInterfaceSettings(int selectedLanguage, int units, int backlight, int backlightFrequency) {
@@ -305,7 +306,7 @@ public class SettingsData {
             settings.put("backlight", String.valueOf(backlight));
             settings.put("backlightFrequency", String.valueOf(backlightFrequency));
             saveXML();
-            R.getCustomAlert().quickView(Locale.get("Restart_needed"), Locale.get("Info"), "locify://refresh");
+            R.getCustomAlert().quickView(Locale.get("Restart_needed"), Dialog.TYPE_INFO, "locify://refresh");
         } catch (Exception e) {
             R.getErrorScreen().view(e, "SettingsData.saveInterfaceSettings", null);
         }
@@ -315,13 +316,13 @@ public class SettingsData {
         settings.put("autoLogin", String.valueOf(autoLogin));
         settings.put("externalClose", String.valueOf(externalClose));
         saveXML();
-        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
+        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Dialog.TYPE_INFO, "locify://refresh");
     }
 
     public void setExternalClose(int externalClose) {
         settings.put("externalClose", String.valueOf(externalClose));
         saveXML();
-        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
+        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Dialog.TYPE_INFO, "locify://refresh");
     }
 
     public void saveMapsSettings(int mapProvider, boolean fileMaps) {
@@ -331,7 +332,7 @@ public class SettingsData {
             settings.put("defaultMapProvider", String.valueOf(mapProvider));
         }
         saveXML();
-        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Locale.get("Info"), "locify://refresh");
+        R.getCustomAlert().quickView(Locale.get("Settings_saved"), Dialog.TYPE_INFO, "locify://refresh");
     }
 
     public void setAutologin(int autoLogin) {
@@ -369,7 +370,7 @@ public class SettingsData {
         settings.put("panning", String.valueOf(panning));
         settings.put("mapLoading", String.valueOf(mapLoading));
         saveXML();
-        R.getCustomAlert().quickView(Locale.get("Restart_needed"), Locale.get("Info"), "locify://refresh");
+        R.getCustomAlert().quickView(Locale.get("Restart_needed"), Dialog.TYPE_INFO, "locify://refresh");
     }
 
     public void loadXML() {
