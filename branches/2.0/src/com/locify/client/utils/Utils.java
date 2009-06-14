@@ -397,16 +397,16 @@ public class Utils {
      * Print actual memory values to System.out
      */
     public static void printMemoryState(String label) {
-        System.gc();
+        System.gc();System.gc();
         Runtime rt = Runtime.getRuntime();
         if (lastMemory == 0) {
             lastMemory = rt.freeMemory();
         }
-        System.out.println("\n*************** MemoryStatistics - " + label + " - ***********");
+        System.out.println("\n*************** MemoryStatistics - " + label + " ***********");
         System.out.println(" consumed = " + ((rt.totalMemory() - rt.freeMemory()) / 1024) + " kB");
         System.out.println(" from last = " + ((lastMemory - rt.freeMemory()) / 1024) + " kB");
         lastMemory = rt.freeMemory();
-        System.out.println("*******************************************");
+        System.out.println("*****************************************************");
     }
 
     private static final String UNRESERVED = "-_.!~*'()\"";

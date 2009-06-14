@@ -62,13 +62,13 @@ public class ColorsFonts {
 
 
     /* bitMap fonts */
-//    public static final Font FONT_BMF_10 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+    public static final Font FONT_BMF_10 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
     public static final Font FONT_BMF_14 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
     public static final Font FONT_BMF_16 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
     public static final Font FONT_BMF_18 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
     public static final Font FONT_BMF_18W = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
     public static final Font FONT_BMF_20 = Font.createSystemFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
-    public static final Font FONT_BMF_10 = ResourcesLocify.getFont("arial_10");
+//    public static final Font FONT_BMF_10 = ResourcesLocify.getFont("arial_10");
 //    public static final Font FONT_BMF_14 = ResourcesLocify.getFont("arial_14");
 //    public static final Font FONT_BMF_16 = ResourcesLocify.getFont("arial_16");
 //    public static final Font FONT_BMF_18 = ResourcesLocify.getFont("arial_18");

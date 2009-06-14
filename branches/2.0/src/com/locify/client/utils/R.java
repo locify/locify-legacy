@@ -18,6 +18,8 @@ import com.locify.client.net.browser.ExternalBrowser;
 import com.locify.client.data.*;
 import com.locify.client.gui.Midlet;
 import com.locify.client.gui.extension.BackgroundRunner;
+import com.locify.client.gui.extension.FormLocify;
+import com.locify.client.gui.extension.ListLocify;
 import com.locify.client.gui.extension.TopBarBackground;
 import com.locify.client.gui.manager.*;
 import com.locify.client.gui.screen.internal.*;
@@ -33,7 +35,7 @@ import com.locify.client.net.*;
  * @author David Vavra
  */
 public class R {
-
+    
     // KEEP SORTED :)
     private static AlertScreen customAlert;
     private static AudioData audioData;

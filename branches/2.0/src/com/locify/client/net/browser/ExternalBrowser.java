@@ -66,7 +66,7 @@ public class ExternalBrowser implements ActionListener {
 
     public void viewCloseAppScreen() {
         frmExternalClose = new Form(Locale.get("External_browser_launch"));
-        frmExternalClose.addComponent(new Label(Locale.get("External_closing_information")));
+        frmExternalClose.addComponent(new HtmlTextArea(Locale.get("External_closing_information")));
 
         frmExternalClose.addCommand(Commands.cmdYes);
         frmExternalClose.addCommand(Commands.cmdNo);

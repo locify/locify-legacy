@@ -284,13 +284,14 @@ public class GeoFileBrowser implements ActionListener {
 
     private void addDescription(Form form, GeoData data) {
         if (data.getDescription().length() > 0) {
-            htmlBrowser = new XHtmlBrowser();
+            Container container = new Container();
+            htmlBrowser = new XHtmlBrowser(container);
             if (online) {
                 htmlBrowser.loadPage(UTF8.decode(data.getDescription().getBytes(), 0, data.getDescription().getBytes().length));
             } else {
                 htmlBrowser.loadPage(data.getDescription());
             }
-            form.addComponent(htmlBrowser);
+            form.addComponent(container);
         }
     }
 

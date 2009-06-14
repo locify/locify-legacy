@@ -46,7 +46,7 @@ public class Midlet extends MIDlet {
     }
 
     protected void startApp() throws MIDletStateChangeException {
-//Utils.printMemoryState("Init - start");
+Utils.printMemoryState("Init - start");
         try {
             if (!midletPaused) {
                 startMIDlet();
@@ -60,10 +60,10 @@ public class Midlet extends MIDlet {
     public void startMIDlet() {
         try {
 //Utils.printMemoryState("01");
-            new R(this);
-//Utils.printMemoryState("02");
             //init the LWUIT Display
             Display.init(this);
+//Utils.printMemoryState("02");
+            new R(this);
 //            Font.setDefaultFont(ColorsFonts.FONT_SMALL);
 //Utils.printMemoryState("03");
             ResourcesLocify.setTheme();

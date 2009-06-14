@@ -39,8 +39,7 @@ import java.util.Vector;
  */
 public class SettingsScreen implements ActionListener {
 
-    private FormLocify form;
-    private ListLocify lstSettings;
+    private ListLocify list;
 
     private ButtonGroup bgPrefferedGps;
     private ButtonGroup bgCoordinatesFormat;
@@ -68,21 +67,20 @@ public class SettingsScreen implements ActionListener {
     private Button btnSaveAdvancedMaps;
 
     public SettingsScreen() {
-        form = new FormLocify();
     }
 
     public void view() {
-        form.setAsNew(Locale.get("Settings"));
+        FormLocify form = new FormLocify(Locale.get("Settings"));
         form.setLayout(new BorderLayout());
 
-        lstSettings = new ListLocify();
-        lstSettings.addItem(new Label(Locale.get("Location")));
-        lstSettings.addItem(new Label(Locale.get("Interface")));
-        lstSettings.addItem(new Label(Locale.get("Maps")));
-        lstSettings.addItem(new Label(Locale.get("Other")));
-        lstSettings.addActionListener(this);
+        list = new ListLocify();
+        list.addItem(new Label(Locale.get("Location")));
+        list.addItem(new Label(Locale.get("Interface")));
+        list.addItem(new Label(Locale.get("Maps")));
+        list.addItem(new Label(Locale.get("Other")));
+        list.addActionListener(this);
+        form.addComponent(BorderLayout.CENTER, list);
 
-        form.addComponent(BorderLayout.CENTER, lstSettings);
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
         form.setCommandListener(this);
@@ -90,7 +88,7 @@ public class SettingsScreen implements ActionListener {
     }
 
     public void viewLocationSettings() {
-        form.setAsNew(Locale.get("Location"));
+        FormLocify form = new FormLocify(Locale.get("Location"));
         form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
 
         form.addComponent(new Label(Locale.get("Preffered_gps")));
@@ -129,7 +127,7 @@ public class SettingsScreen implements ActionListener {
     }
 
     public void viewInterfaceSettings() {
-        form.setAsNew(Locale.get("Interface"));
+        FormLocify form = new FormLocify(Locale.get("Interface"));
         form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
 
         form.addComponent(new Label(Locale.get("Language")));
@@ -179,7 +177,7 @@ public class SettingsScreen implements ActionListener {
     }
 
     public void viewMapSettings() {
-        form.setAsNew(Locale.get("Maps"));
+        FormLocify form = new FormLocify(Locale.get("Maps"));
         form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
 
         form.addComponent(new Label(Locale.get("Default_map_provider")));
@@ -215,7 +213,7 @@ public class SettingsScreen implements ActionListener {
     }
 
     public void viewOtherSettings() {
-        form.setAsNew(Locale.get("Other"));
+        FormLocify form = new FormLocify(Locale.get("Other"));
         form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         
         form.addComponent(new Label(Locale.get("Autologin")));
@@ -248,7 +246,7 @@ public class SettingsScreen implements ActionListener {
     }
 
     public void viewAdvancedMapSettings() {
-        form.setAsNew(Locale.get("Advanced_settings"));
+        FormLocify form = new FormLocify(Locale.get("Advanced_settings"));
         form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         
         form.addComponent(new Label(Locale.get("Autoload")));
@@ -307,8 +305,8 @@ public class SettingsScreen implements ActionListener {
             R.getURL().call("locify://mainScreen");
         } else if (evt.getCommand() == Commands.cmdBack) {
             R.getBack().goBack();
-        } else if (evt.getSource() == lstSettings) {
-            int selected = lstSettings.getSelectedIndex();
+        } else if (evt.getSource() == list) {
+            int selected = list.getSelectedIndex();
             switch (selected) {
                 case 0:
                     R.getURL().call("locify://settings/location");

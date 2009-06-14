@@ -14,6 +14,8 @@
 package com.locify.client.net.browser;
 
 import com.locify.client.data.IconData;
+import com.locify.client.gui.extension.FlowLayoutYScroll;
+import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.ColorsFonts;
@@ -48,17 +50,20 @@ import org.xmlpull.v1.XmlPullParser;
  * Disables some J2ME Polish HTML browser features and leaves the work to Locify
  * @author Destil
  */
-public class XHtmlBrowser extends Container implements Runnable {
+public class XHtmlBrowser implements Runnable {
 
-    private XHtmlTagHandler XHTMLTagHandler;
+    private Container container;
     private Label contextIcon;
     private Label contextText;
     private Label fileText;
     private TextArea contactTelText;
     private TextArea contactEmailText;
+
+    private XHtmlTagHandler XHTMLTagHandler;
     protected Hashtable tagHandlersByTag = new Hashtable();
+//    protected Vector tagHandlers = new Vector();
+
     private Hashtable imageCache = new Hashtable();
-    protected Vector tagHandlers = new Vector();
     protected Container currentContainer;
     private Style style;
 
@@ -73,9 +78,10 @@ public class XHtmlBrowser extends Container implements Runnable {
     private String nextUrl;
     private String nextPostData;
 
-    public XHtmlBrowser() {
-        super(new BoxLayout(BoxLayout.Y_AXIS));
-//        super();
+    public XHtmlBrowser(Container container) {
+        this.container = container;
+//        container.setLayout(new FlowLayoutYScroll());
+        currentContainer = container;
 
         XHTMLTagHandler = new XHtmlTagHandler();
         XHTMLTagHandler.register(this);
@@ -88,6 +94,20 @@ public class XHtmlBrowser extends Container implements Runnable {
         this.loadingThread.start();
     }
 
+    public Container getContainer() {
+        return container;
+    }
+
+    public void addTagHandler(String tagName, XHtmlTagHandler handler) {
+        this.tagHandlersByTag.put(new XHtmlTagHandlerKey(tagName.toLowerCase()), handler);
+//        if (!this.tagHandlers.contains(handler)) {
+//            this.tagHandlers.addElement(handler);
+//        }
+    }
+
+    public XHtmlTagHandler getXHtmlTagHandler() {
+        return XHTMLTagHandler;
+    }
 //    // html scrolling style
 //    Rectangle rect = new Rectangle(getScrollX(), getScrollY(), getWidth(), getHeight());
 //    int step = Font.getDefaultFont().getHeight();
@@ -125,7 +145,7 @@ public class XHtmlBrowser extends Container implements Runnable {
 //    }
 
     public void loadPage(String data) {
-Utils.printMemoryState("XHtmlBrowser - loadPage()");
+        Utils.printMemoryState("XHtmlBrowser - loadPage()");
         ByteArrayInputStream stream = null;
         XmlPullParser parser;
 //System.out.println("\nLoadPage: " + data);
@@ -142,7 +162,7 @@ Utils.printMemoryState("XHtmlBrowser - loadPage()");
             parser.setInput(new InputStreamReader(stream));
 
             // Clear out all items in the browser.
-            removeAll();
+            container.removeAll();
 
             // Clear image cache when visiting a new page.
             this.imageCache.clear();
@@ -171,18 +191,14 @@ Utils.printMemoryState("XHtmlBrowser - loadPage()");
     }
 
     public void addComponent(Component component) {
-System.out.println("AddComponent: " + component);
+System.out.println("AddComponent: " + component + ", container: " + currentContainer);
         if (component instanceof Label) {
             ((Label) component).getStyle().setBorder(Border.createLineBorder(1, ColorsFonts.RED));
         } else if (component instanceof Container) {
             ((Container) component).getStyle().setBorder(Border.createLineBorder(1, ColorsFonts.MAGENTA));
         }
-        if (currentContainer != null) {
-            currentContainer.addComponent(component);
-        } else {
-            super.addComponent(component);
-        }
 
+        currentContainer.addComponent(component);
     }
 
     /**
@@ -215,12 +231,7 @@ System.out.println("AddComponent: " + component);
 //                        if (styleName != null) {
 //                            tagStyle = StyleSheet.getStyle(styleName);
 //                        }
-                        Container container = this.currentContainer;
-                        if (container == null) {
-                            container = this;
-                        }
-
-                        handler.handleTag(container, parser, parser.getName(), openingTag, attributeMap, tagStyle);
+                        handler.handleTag(currentContainer, parser, parser.getName(), openingTag, attributeMap, tagStyle);
                     } else {
 //                        System.out.println("found no handler for tag [" + parser.getName() + "]");
                     }
@@ -241,27 +252,22 @@ System.out.println("AddComponent: " + component);
         XHtmlTagHandler handler = null;
         String name = parser.getName().toLowerCase();
 
-        for (int i = 0; i <
-                parser.getAttributeCount(); i++) {
+        for (int i = 0; i < parser.getAttributeCount(); i++) {
             String attributeName = parser.getAttributeName(i).toLowerCase();
             String attributeValue = parser.getAttributeValue(i);
             attributeMap.put(attributeName, attributeValue);
 
-            key =
-                    new XHtmlTagHandlerKey(name, attributeName, attributeValue);
-            handler =
-                    (XHtmlTagHandler) this.tagHandlersByTag.get(key);
+            key = new XHtmlTagHandlerKey(name, attributeName, attributeValue);
+            handler = (XHtmlTagHandler) this.tagHandlersByTag.get(key);
 
             if (handler != null) {
                 break;
             }
-
         }
 
         if (handler == null) {
             key = new XHtmlTagHandlerKey(name);
-            handler =
-                    (XHtmlTagHandler) this.tagHandlersByTag.get(key);
+            handler = (XHtmlTagHandler) this.tagHandlersByTag.get(key);
         }
 
         return handler;
@@ -285,12 +291,12 @@ System.out.println("AddComponent: " + component);
      * @param text
      */
     protected void handleText(String text) {
-System.out.println("Handle text: '" + text + "'");
+        System.out.println("Handle text: '" + text + "'");
         if (text.length() > 0) {
             text = text.replace('\t', '\n');
             Vector data = StringTokenizer.getVector(text, "\n");
 
-            Font currentFont = currentContainer == null ? getStyle().getFont() : currentContainer.getStyle().getFont();
+            Font currentFont = currentContainer.getStyle().getFont();
             for (int i = 0; i <
                     data.size(); i++) {
 
@@ -348,8 +354,8 @@ System.out.println("Handle text: '" + text + "'");
         Container current = this.currentContainer;
         Container previousContainer = current.getParent();
         current.revalidate();
-        if (previousContainer == this) {
-            this.currentContainer = null;
+        if (previousContainer instanceof FormLocify) {
+            this.currentContainer = container;
         } else {
             this.currentContainer = previousContainer;
         }
@@ -375,8 +381,7 @@ System.out.println("Handle text: '" + text + "'");
      */
     public void addContextItem() {
         contextIcon = new Label();
-        contextText =
-                new Label();
+        contextText = new Label();
 
         switch (R.getContext().getSource()) {
             case LocationContext.GPS:
@@ -493,17 +498,13 @@ System.out.println("Handle text: '" + text + "'");
      * Adds file browser item <input type="file" />
      */
     public void addFileItem() {
-        //#style contextLabel
         addComponent(new Label(this.XHTMLTagHandler.labelText));
         fileText =
                 new Label(Locale.get("No_file_selected"));
-        //#style contextContainer
         Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        //#style fileUploadText
         container.addComponent(fileText);
         Button btnBrowse = new Button(Locale.get("Browse"));
         btnBrowse.addActionListener(XHTMLTagHandler);
-        //#style contextButton
         container.addComponent(btnBrowse);
         addComponent(container);
     }
@@ -520,20 +521,16 @@ System.out.println("Handle text: '" + text + "'");
      * Add contact item tag: <input type="contactTel" />
      */
     public void addContactTelItem() {
-        //#style contextLabel
         addComponent(new Label(Locale.get("Tel") + ":"));
         contactTelText =
                 new TextArea("", 1, 50, TextArea.PHONENUMBER);
 
-        //#style contextContainer
         Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        //#style contactsTextField
         container.addComponent(contactTelText);
 
         if (!Capabilities.isWindowsMobile()) {
             Button btnBrowse = new Button(Locale.get("Browse"));
             btnBrowse.addActionListener(XHTMLTagHandler);
-            //#style contextButton
             container.addComponent(btnBrowse);
         }
 
@@ -552,24 +549,20 @@ System.out.println("Handle text: '" + text + "'");
      * Add contact item tag: <input type="contactEmail" />
      */
     public void addContactEmailItem() {
-        //#style contextLabel
         addComponent(new Label(Locale.get("Email") + ":"));
         contactEmailText =
                 new TextArea("", 1, 50, TextArea.EMAILADDR);
 
-        //#style contextContainer
-        Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        //#style contactsTextField
-        container.addComponent(contactEmailText);
+        Container cont = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+        cont.addComponent(contactEmailText);
 
         if (!Capabilities.isWindowsMobile()) {
             Button btnBrowse = new Button(Locale.get("Browse"));
             btnBrowse.addActionListener(XHTMLTagHandler);
-            //#style contextButton
-            container.addComponent(btnBrowse);
+            cont.addComponent(btnBrowse);
         }
 
-        addComponent(container);
+        addComponent(cont);
     }
 
     /**
@@ -578,18 +571,6 @@ System.out.println("Handle text: '" + text + "'");
      */
     public void updateContactEmailItem(String data) {
         contactEmailText.setText(data);
-    }
-
-    public void addTagHandler(String tagName, XHtmlTagHandler handler) {
-        this.tagHandlersByTag.put(new XHtmlTagHandlerKey(tagName.toLowerCase()), handler);
-        if (!this.tagHandlers.contains(handler)) {
-            this.tagHandlers.addElement(handler);
-        }
-
-    }
-
-    public XHtmlTagHandler getXHtmlTagHandler() {
-        return XHTMLTagHandler;
     }
 
     public String getContactTel() {
@@ -625,13 +606,11 @@ System.out.println("Handle text: '" + text + "'");
 
         }
 
-
-
         if (entry != null) {
             this.scheduledHistoryUrl = entry;
             schedule(entry, null);
-            if (this.history.size() == 0 && getComponentForm() != null) {
-                getComponentForm().removeCommand(Commands.cmdBack);
+            if (this.history.size() == 0 && container.getComponentForm() != null) {
+                container.getComponentForm().removeCommand(Commands.cmdBack);
             }
 
         }
@@ -646,8 +625,8 @@ System.out.println("Handle text: '" + text + "'");
         System.out.println("Browser: going to [" + url + "]");
         if (this.currentDocumentBase != null) {
             this.history.push(this.currentDocumentBase);
-            if (this.history.size() == 1 && getComponentForm() != null) {
-                getComponentForm().addCommand(Commands.cmdBack);
+            if (this.history.size() == 1 && container.getComponentForm() != null) {
+                container.getComponentForm().addCommand(Commands.cmdBack);
             }
 
         }
@@ -662,8 +641,8 @@ System.out.println("Handle text: '" + text + "'");
         System.out.println("Browser: going to [" + url + "]");
         if (this.currentDocumentBase != null) {
             this.history.push(this.currentDocumentBase);
-            if (this.history.size() == 1 && getComponentForm() != null) {
-                getComponentForm().addCommand(Commands.cmdBack);
+            if (this.history.size() == 1 && container.getComponentForm() != null) {
+                container.getComponentForm().addCommand(Commands.cmdBack);
             }
 
         }
@@ -754,7 +733,7 @@ System.out.println("Handle text: '" + text + "'");
                     }
 
                     this.isWorking = false;
-                    repaint();
+                    container.repaint();
 
                 }
 
@@ -765,7 +744,7 @@ System.out.println("Handle text: '" + text + "'");
 
             if (this.isCancelRequested == true) {
                 this.isWorking = false;
-                repaint();
+                container.repaint();
 
                 this.isCancelRequested = false;
                 this.nextUrl = null;

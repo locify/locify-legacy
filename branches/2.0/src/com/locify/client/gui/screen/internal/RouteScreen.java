@@ -14,7 +14,6 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.FileSystem;
-import com.locify.client.gui.extension.BackgroundListener;
 import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.gui.extension.TopBarBackground;
@@ -25,7 +24,6 @@ import com.locify.client.utils.R;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
-import com.locify.client.utils.Utils;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
@@ -54,22 +52,6 @@ public class RouteScreen extends FormLocify implements ActionListener {
 
     public RouteScreen() {
         super(Locale.get("Record_route"));
-        setLayout(new BorderLayout());
-
-        this.addCommand(Commands.cmdBack);
-
-        this.addCommand(new ParentCommand(Locale.get("Record_route"), null,
-                new Command[] {Commands.cmdActionStart}));
-
-        this.setCommandListener(this);
-        R.getBackgroundRunner().registerBackgroundListener(this, 1);
-        
-        routeManager = new RouteManager();
-        actionCommand = new ParentCommand(Locale.get("Record_route"), null, new Command[1]);
-
-        initializeButtons();
-        initializeSkins(FileSystem.SKINS_FOLDER_ROUTE_RECORD);
-        registerBackgroundListener();
     }
 
     public void view() {
@@ -77,6 +59,21 @@ public class RouteScreen extends FormLocify implements ActionListener {
             R.getURL().call("locify://setLocationGPS");
         } else {
             if (!alreadyInitialized) {
+                setLayout(new BorderLayout());
+
+                this.addCommand(Commands.cmdBack);
+                this.addCommand(new ParentCommand(Locale.get("Record_route"), null,
+                        new Command[] {Commands.cmdActionStart}));
+                actionCommand = new ParentCommand(Locale.get("Record_route"), null, new Command[1]);
+                this.setCommandListener(this);
+
+                registerBackgroundListener();
+
+                routeManager = new RouteManager();
+
+                initializeSkins(FileSystem.SKINS_FOLDER_ROUTE_RECORD);
+                initializeButtons();
+
                 buttonStart.setEnabled(true);
                 buttonStop.setEnabled(false);
 
@@ -122,7 +119,7 @@ public class RouteScreen extends FormLocify implements ActionListener {
         buttonContainer.addComponent(buttonStart);
         buttonContainer.addComponent(buttonStop);
 
-        addComponentToBorder(BorderLayout.SOUTH, buttonContainer);
+        addComponent(BorderLayout.SOUTH, buttonContainer);
         
 //        slAlt.setTitle(Locale.get("Altitude"));
 //        slHdop.setTitle(Locale.get("Hdop_route"));

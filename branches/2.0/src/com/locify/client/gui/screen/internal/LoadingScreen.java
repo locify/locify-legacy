@@ -26,21 +26,20 @@ import com.sun.lwuit.layouts.BorderLayout;
 public class LoadingScreen extends FormLocify {
 
     private Image image;
-    private String text;
+    private Label label;
 
     public LoadingScreen() {
         super();
         image = IconData.getLocalImage("loading.png");
-        text = "Loading ...";
 
         setLayout(new BorderLayout());
         Label label01 = new Label(image);
         label01.setAlignment(Label.CENTER);
         label01.setVerticalAlignment(Label.CENTER);
         this.addComponent(BorderLayout.CENTER, label01);
-        Label label02 = new Label(text);
-        label02.setAlignment(Label.CENTER);
-        this.addComponent(BorderLayout.SOUTH, label02);
+        label = new Label("Loading ...");
+        label.setAlignment(Label.CENTER);
+        this.addComponent(BorderLayout.SOUTH, label);
     }
 
     /**
@@ -55,7 +54,6 @@ public class LoadingScreen extends FormLocify {
      * @param text
      */
     public void setText(String text) {
-        this.text = text;
-        repaint();
+        label.setText(text);
     }    
 }

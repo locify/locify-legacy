@@ -72,7 +72,7 @@ public class IconData {
         try {
             if (!image.endsWith(".png"))
                 image += ".png";
-            return Image.createImage(image);
+            return Image.createImage("/" + image);
         } catch (IOException ex) {
             System.out.println("GetLocalImage: " + image + " ex: " + ex.toString());
             return null;

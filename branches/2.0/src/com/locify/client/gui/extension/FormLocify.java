@@ -32,7 +32,6 @@ import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
-import com.sun.lwuit.Display;
 import com.sun.lwuit.Font;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Graphics;
@@ -62,20 +61,15 @@ import org.xmlpull.v1.XmlPullParser;
  */
 public class FormLocify extends Form implements BackgroundListener {
 
-    private WidgetContainer contentPane;
     private Dialog menuDialog;
     private ParentCommand selection;
     
     public FormLocify() {
-        this(null);
+        this("");
     }
 
     public FormLocify(String title) {
         super(title);
-        super.setLayout(new BorderLayout());
-
-        contentPane = new WidgetContainer();
-        super.addComponent(BorderLayout.CENTER, contentPane);
 
         try {
             // set tile bar
@@ -86,7 +80,6 @@ public class FormLocify extends Form implements BackgroundListener {
             // add subMenu support
             setMenuTransitions(null, null);
             setMenuCellRenderer(new DefaultListCellRenderer() {
-
                 private boolean isSubMenu;
 
                 public Component getListCellRendererComponent(List list, Object value, int index, boolean isSelected) {
@@ -121,34 +114,8 @@ public class FormLocify extends Form implements BackgroundListener {
         }
     }
 
-    public Container getContentPane() {
-        return contentPane;
-    }
-
-    public void addComponent(Component component) {
-        contentPane.addComponent(component);
-    }
-
-    public void addComponent(Object constraints, Component component) {
-        contentPane.addComponent(constraints, component);
-    }
-
-    public void addComponentToBorder(Object constraints, Component component) {
-        if (constraints != BorderLayout.CENTER) {
-            super.addComponent(constraints, component);
-        }
-    }
-
-    public void setLayout(Layout layout) {
-        contentPane.setLayout(layout);
-    }
-
-    public Layout getLayout() {
-        return contentPane.getLayout();
-    }
-
     public void setAsNew(String title) {
-        contentPane.removeAll();
+        removeAll();
         removeAllCommands();
         setTitle(title);
     }
@@ -168,6 +135,10 @@ public class FormLocify extends Form implements BackgroundListener {
         return c;
     }
 
+    public void show() {
+Utils.printMemoryState("FormLocify.show()");
+        super.show();
+    }
 
     /*******************************/
     /*      SKINNING SECTION       */
@@ -228,7 +199,7 @@ public class FormLocify extends Form implements BackgroundListener {
             if (skins.size() > 1) {
                 leftPanel = new FlowPanel(BorderLayout.WEST);
                 leftPanel.getContentPane().setLayout(new BoxLayout(BoxLayout.Y_AXIS));
-                super.addComponent(BorderLayout.WEST, leftPanel);
+                super.getParent().addComponent(BorderLayout.WEST, leftPanel);
 
                 for (int i = 0; i < skins.size(); i++) {
                     final String path = (String) skins.elementAt(i);
@@ -263,7 +234,7 @@ public class FormLocify extends Form implements BackgroundListener {
     }
 
     private void setScreenSkin(String skinPath) {
-        contentPane.removeAll();
+        removeAll();
         widgetList.removeAllElements();
 
         FileConnection fileConnection = null;
@@ -274,7 +245,9 @@ public class FormLocify extends Form implements BackgroundListener {
 //System.out.println("\nSkin: " + skinDirPath);
         int actualState = STATE_NONE;
 
-        Container parent = contentPane;
+        //Container parent = getContentPane();
+        Container parent = new WidgetContainer();
+        
         Widget widget = null;
 
         try {
@@ -392,6 +365,8 @@ public class FormLocify extends Form implements BackgroundListener {
                     break;
                 }
             }
+            getContentPane().setLayout(new BorderLayout());
+            getContentPane().addComponent(BorderLayout.CENTER, parent);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FormLocify.setScreenSkin", skinPath);
 //            Logger.error("NavigationScreen.createNavigationScreen() - file: " + skinPath + " ex: " + e.toString());
@@ -407,7 +382,7 @@ public class FormLocify extends Form implements BackgroundListener {
                 ex.printStackTrace();
             }
 
-            contentPane.repaint();
+            getContentPane().repaint();
         }
     }
 

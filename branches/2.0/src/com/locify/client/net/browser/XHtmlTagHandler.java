@@ -14,7 +14,6 @@
 package com.locify.client.net.browser;
 
 import com.locify.client.data.IconData;
-import com.locify.client.gui.extension.FlowLayoutYScroll;
 import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.utils.R;
 import com.locify.client.gui.screen.service.ContactsScreen;
@@ -25,7 +24,6 @@ import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.Utils;
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
@@ -36,7 +34,6 @@ import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
-import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.layouts.FlowLayout;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -215,11 +212,11 @@ public class XHtmlTagHandler implements ActionListener {
 ////                    }
                 }
             } else if (TAG_P.equals(tagName)) {
-                if (opening)
-                    browser.openContainer(new Container(new FlowLayoutYScroll()));
-                else
-                    browser.closeContainer();
-                return true;
+//                if (opening)
+//                    browser.openContainer(new Container(new FlowLayoutYScroll()));
+//                else
+//                    browser.closeContainer();
+//                return true;
             } else if (TAG_SELECT.equals(tagName)) {
                 if (opening) {
                     if (this.currentSelect != null) {
@@ -289,8 +286,8 @@ public class XHtmlTagHandler implements ActionListener {
                 if (TAG_TITLE.equals(tagName)) {
                     parser.next();
                     String name = parser.getText();
-                    if (this.browser.getParent() instanceof FormLocify)
-                        ((FormLocify) this.browser.getParent()).setTitle(name);
+                    if (this.browser.getContainer().getParent() instanceof FormLocify)
+                        ((FormLocify) this.browser.getContainer().getParent()).setTitle(name);
                     return true;
                 } else if (TAG_STYLE.equals(tagName)) {
                     parser.next();

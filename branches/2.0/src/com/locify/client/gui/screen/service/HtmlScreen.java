@@ -25,17 +25,14 @@ import com.locify.client.net.browser.HtmlButton;
 import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.net.browser.XHtmlBrowser;
 import com.locify.client.net.browser.XHtmlTagHandler;
-import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Locale;
+import com.locify.client.utils.Utils;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
-import com.sun.lwuit.geom.Dimension;
-import com.sun.lwuit.layouts.BorderLayout;
-import com.sun.lwuit.plaf.Border;
 
 /**
  * This class uses Polish HTML Browser and extends its functionality
@@ -49,11 +46,11 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
     private HtmlForm currentForm;
 
     public HtmlScreen() {
-        form = new FormLocify(" ");
-        form.setLayout(new BorderLayout());
+        form = new FormLocify("");
+//        form.setLayout(new BorderLayout());
 
-        htmlBrowser = new XHtmlBrowser();
-        form.addComponent(BorderLayout.CENTER, htmlBrowser);
+        htmlBrowser = new XHtmlBrowser(form.getContentPane());
+//        form.addComponent(BorderLayout.CENTER, htmlBrowser.);
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
         //another location commands
@@ -98,7 +95,7 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
     }
 
     public void reset() {
-        htmlBrowser.removeAll();
+        htmlBrowser.getContainer().removeAll();
     }
 
     /**
