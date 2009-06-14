@@ -14,6 +14,8 @@ import com.locify.client.utils.ResourcesLocify;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Display;
 import com.sun.lwuit.Font;
+import com.sun.lwuit.list.DefaultListCellRenderer;
+import com.sun.lwuit.plaf.UIManager;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
@@ -62,6 +64,8 @@ Utils.printMemoryState("Init - start");
 //Utils.printMemoryState("01");
             //init the LWUIT Display
             Display.init(this);
+            UIManager.getInstance().getLookAndFeel().setReverseSoftButtons(true);
+            //UIManager.getInstance().getLookAndFeel().setMenuRenderer(new DefaultListCellRenderer());
 //Utils.printMemoryState("02");
             new R(this);
 //            Font.setDefaultFont(ColorsFonts.FONT_SMALL);

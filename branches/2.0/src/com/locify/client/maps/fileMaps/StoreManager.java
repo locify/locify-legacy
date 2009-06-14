@@ -14,12 +14,14 @@
 package com.locify.client.maps.fileMaps;
 
 import com.locify.client.data.FileSystem;
+import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.gui.extension.Progress;
 import com.locify.client.gui.screen.internal.MapOfflineChooseScreen;
 import com.locify.client.locator.Location4D;
 import com.locify.client.maps.FileMapLayer;
+import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.utils.*;
-import com.sun.lwuit.Form;
+import com.sun.lwuit.Component;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
@@ -41,7 +43,6 @@ public class StoreManager {
     private static byte[] tempBuffer;
     private static boolean STOP;
     private static byte[] areaData;
-    public static Form form;
 
     public StoreManager() {
     }
@@ -52,7 +53,7 @@ public class StoreManager {
      */
     public static void initializeOfflineMaps(final MapOfflineChooseScreen mocs) {
         try {
-            form = new Form(Locale.get("Searching"));
+            final FormLocify form = new FormLocify(Locale.get("Searching"));
             form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
             
             form.addCommand(Commands.cmdCancel);
@@ -100,9 +101,9 @@ public class StoreManager {
 
 
                         int filesSize = files.size();
-                        form.addComponent(new Label(Locale.get("Initializing")));
+                        addComponent(form, new Label(Locale.get("Initializing")));
                         Progress gauge = new Progress();
-                        form.addComponent(gauge);
+                        addComponent(form, gauge);
 
                         if (files.size() > 0) {
                             String fileName;
@@ -161,20 +162,20 @@ public class StoreManager {
                                             fmc = null;
                                             dis.close();
                                             bais.close();
-                                            form.addComponent(new Label(fileName));
-                                            form.addComponent(new Label("  " + Locale.get("Map_ready") +
-                                                    " (" + (System.currentTimeMillis() - time) / 1000 + "s)"));
+                                            addComponent(form, new HtmlTextArea(fileName + "\n" + "  " +
+                                                    Locale.get("Map_ready") + " (" +
+                                                    (System.currentTimeMillis() - time) / 1000 + "s)"));
                                         } catch (IOException ex) {
                                             ex.printStackTrace();
                                         }
                                     } else {
-                                        form.addComponent(new Label(fileName));
-                                        form.addComponent(new Label("  " + Locale.get("File_map_cannot_initialize") +
-                                                " (" + (System.currentTimeMillis() - time) / 1000 + "s)"));
+                                        addComponent(form, new HtmlTextArea(fileName + "\n" + "  " +
+                                                Locale.get("File_map_cannot_initialize") + " (" +
+                                                (System.currentTimeMillis() - time) / 1000 + "s)"));
                                     }
                                 } else {
-                                    form.addComponent(new Label(fileName));
-                                    form.addComponent(new Label("  " + Locale.get("Unsupported") + " (" +
+                                    addComponent(form, new HtmlTextArea(fileName + "\n" + "  " +
+                                            Locale.get("Unsupported") + " (" +
                                             (System.currentTimeMillis() - time) / 1000 + "s)"));
                                 }
                                 gauge.setProgress((k + 1) / filesSize);
@@ -185,10 +186,10 @@ public class StoreManager {
                             temp = null;
 
                             if (STOP) {
-                                form.addComponent(new Label(Locale.get("Process_stopped")));
+                                addComponent(form, new HtmlTextArea(Locale.get("Process_stopped")));
                             }
                         } else {
-                            form.addComponent(new Label(Locale.get("No_files")));
+                            addComponent(form, new HtmlTextArea(Locale.get("No_files")));
                         }
                         try {
                             dos.flush();
@@ -204,11 +205,11 @@ public class StoreManager {
                         for (int i = 0; i < filesCached.size(); i++) {
                             R.getFileSystem().delete(FileSystem.CACHE_MAP_FOLDER + filesCached.elementAt(i));
                         }
-                        form.addComponent(new Label(Locale.get("Completed") + " (" + (System.currentTimeMillis() - time) / 1000 + "s)"));
+                        addComponent(form, new HtmlTextArea(Locale.get("Completed") + " (" + (System.currentTimeMillis() - time) / 1000 + "s)"));
 
                         form.addCommand(Commands.cmdOK);
                         form.removeCommand(Commands.cmdCancel);
-
+                        
                         // remove everything
                         files = null;
                         filesCached = null;
@@ -228,6 +229,15 @@ public class StoreManager {
             R.getErrorScreen().view(ex, "StoreManager.initializeOfflineMaps()", null);
         }
 
+    }
+
+    private static void addComponent(FormLocify container, Component comp) {
+//System.out.println("add: " + container.getContentPane().getComponentCount() + " " + container + " " + comp);
+        if (container.getContentPane().getComponentCount() > 2)
+            container.addComponent(2, comp);
+        else
+            container.addComponent(comp);
+        container.revalidate();
     }
 
     /**
@@ -355,7 +365,7 @@ public class StoreManager {
 //Logger.debug("    StoreManager.getInitializedOfflineMap() - no map cached ... loading new " + fileName);
             // map isn't cached ... need to load and cache
             manager = FileMapManager.getMapType(fileName);
-
+//Logger.debug("    StoreManager.initializeOfflineMap() - mapType: " + (manager == null));
             if (manager == null || !manager.isReady()) {
                 return null;
             }

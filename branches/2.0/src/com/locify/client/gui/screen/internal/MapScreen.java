@@ -264,7 +264,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                     mapContent.setNewMapItem(mapItem);
                 } else {
                     centerMap(mapItem.getItemCenter(), false);
-                    objectZoomTo(mapItem);
+                    mapContent.objectZoomTo(mapItem);
                 }
             }
         } else if (data instanceof Route) {
@@ -279,7 +279,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                         mapContent.setNewMapItem(mapItem);
                     } else {
                         centerMap(mapItem.getItemCenter(), false);
-                        objectZoomTo(mapItem);
+                        mapContent.objectZoomTo(mapItem);
                     }
                 }
             }
@@ -898,12 +898,6 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
     /******************************************/
     /*           MAP ITEM SECTION             */
     /******************************************/
-    public void objectZoomTo(MapItem item) {
-        if (item != null) {
-            mapContent.getActualMapLayer().calculateZoomFrom(item.getBoundingLocations());
-            mapContent.getMapItemManager().disableInitializeState();
-        }
-    }
 
     public void showActualRoute(RouteVariables routeVariables) {
         if (routeVariables.getPointsCount() > 0) {

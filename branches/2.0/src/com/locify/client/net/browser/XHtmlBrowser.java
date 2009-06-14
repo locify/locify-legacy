@@ -21,6 +21,7 @@ import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.Utils;
@@ -176,7 +177,7 @@ public class XHtmlBrowser implements Runnable {
         ////            o = this.currentContainer;
         ////        }
         } catch (Exception e) {
-//            Logger.error("Parsing: wrongFile or data: " + data + " ex: " + e.toString());
+            Logger.error("XHtmlBrowser.loadPage() - parsing: wrongFile or data: " + data + " ex: " + e.toString());
         } finally {
             try {
                 if (stream != null) {
@@ -274,24 +275,11 @@ System.out.println("AddComponent: " + component + ", container: " + currentConta
     }
 
     /**
-     * Overides J2ME Polish http sending
-     * @param url
-     * @param postData
-     */
-    protected void goImpl(String url, String postData) {
-        R.getHtmlScreen().quit();
-        R.getPostData().setRaw(postData, true);
-        url =
-                Utils.replaceString(url, "&amp;", "&");
-        R.getURL().call(url);
-    }
-
-    /**
      * Support for <label>s
      * @param text
      */
     protected void handleText(String text) {
-        System.out.println("Handle text: '" + text + "'");
+        System.out.println("XHtmlBrowser: handleText: '" + text + "'");
         if (text.length() > 0) {
             text = text.replace('\t', '\n');
             Vector data = StringTokenizer.getVector(text, "\n");
@@ -622,7 +610,7 @@ System.out.println("AddComponent: " + component + ", container: " + currentConta
      * @param postData the data to be sent via HTTP POST
      */
     public void go(String url, String postData) {
-        System.out.println("Browser: going to [" + url + "]");
+System.out.println("XHtmlBrowser.go(" + url + " ," + postData + ")");
         if (this.currentDocumentBase != null) {
             this.history.push(this.currentDocumentBase);
             if (this.history.size() == 1 && container.getComponentForm() != null) {
@@ -638,7 +626,7 @@ System.out.println("AddComponent: " + component + ", container: " + currentConta
      * @param url the URL that should be loaded
      */
     public void go(String url) {
-        System.out.println("Browser: going to [" + url + "]");
+System.out.println("XHtmlBrowser.go(" + url + ")");
         if (this.currentDocumentBase != null) {
             this.history.push(this.currentDocumentBase);
             if (this.history.size() == 1 && container.getComponentForm() != null) {
@@ -692,11 +680,23 @@ System.out.println("AddComponent: " + component + ", container: " + currentConta
     protected void schedule(String url, String postData) {
         this.nextUrl = url;
         this.nextPostData = postData;
-        System.out.println("Url: " + url + ", postData: " + postData);
+System.out.println("XHtmlBrowser.schedule(" + url + ", " + postData + ")");
         synchronized (this.loadingThread) {
             this.loadingThread.notify();
         }
+    }
 
+    /**
+     * Overides J2ME Polish http sending
+     * @param url
+     * @param postData
+     */
+    protected void goImpl(String url, String postData) {
+System.out.println("XHtmlBrowser.goImpl(" + url + ", " + postData + ")");
+        R.getHtmlScreen().quit();
+        R.getPostData().setRaw(postData, true);
+        url = Utils.replaceString(url, "&amp;", "&");
+        R.getURL().call(url);
     }
 
     public void run() {
@@ -716,30 +716,18 @@ System.out.println("AddComponent: " + component + ", container: " + currentConta
                     this.nextPostData = null;
 
                     if (this.isCancelRequested != true) {
-                        int size = 50 * 1024;
-                        byte[] memorySaver = new byte[size];
-
                         try {
                             goImpl(url, postData);
                         } catch (OutOfMemoryError e) {
-                            memorySaver = null;
                             System.gc();
-                        } finally {
-                            if (memorySaver != null) {
-                                memorySaver = null;
-                            }
-
                         }
                     }
 
                     this.isWorking = false;
                     container.repaint();
-
                 }
-
-
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.error("XHtmlBrowser.run() ex: " + e.toString());
             }
 
             if (this.isCancelRequested == true) {
@@ -759,6 +747,6 @@ System.out.println("AddComponent: " + component + ", container: " + currentConta
                 }
             } catch (InterruptedException ie) {
             }
-        } // end while(isRunning)
+        }
     }
 }

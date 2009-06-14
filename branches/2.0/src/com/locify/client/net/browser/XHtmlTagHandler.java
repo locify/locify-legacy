@@ -717,14 +717,13 @@ public class XHtmlTagHandler implements ActionListener {
             }
             if (multipart && R.getFileBrowser().isFileSelected()) {
                 HttpMultipartRequest req = new HttpMultipartRequest(
-                        R.getHttp().makeAbsoluteURL(form.getAction()),
-                        params,
-                        fileName, R.getFileBrowser().getFileName(), "unknown/unknown", R.getFileBrowser().getFilePath(), browser);
+                        R.getHttp().makeAbsoluteURL(form.getAction()), params,
+                        fileName, R.getFileBrowser().getFileName(), "unknown/unknown",
+                        R.getFileBrowser().getFilePath(), browser);
                 req.send();
             } else {
                 this.browser.go(form.getAction(), sb.toString());
             }
-
         } catch (Exception e) {
             R.getErrorScreen().view(e, "XHTMLTagHandler.doPostSubmitCall", null);
         }
@@ -732,6 +731,7 @@ public class XHtmlTagHandler implements ActionListener {
 
     protected void handleSubmitCommand(HtmlButton button) {
         HtmlForm form = button.getAttributeForm();
+//System.out.println(button + " form: " + form + " " + form.isPost());
         if (form == null) {
             return;
         }

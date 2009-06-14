@@ -149,10 +149,16 @@ public class MapContent implements LocationEventListener {
         return mapItemManager;
     }
 
-    public void setOnlineMaps() {
-        mapTile.setProviderAndMode(0);
-        mapTile.setDefaultZoomLevel();
-        map = mapTile;
+    public void setOnlineMap() {
+        try {
+            mapTile.setProviderAndMode(0);
+            mapTile.setDefaultZoomLevel();
+            map = mapTile;
+            R.getMapScreen().view();
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "MapScreen.setOnlineMaps()", null);
+        }
+
     }
 
     public void setFileMap(FileMapManager fmm, Location4D center) {
@@ -162,7 +168,7 @@ public class MapContent implements LocationEventListener {
                 map = mapFile;
                 if (newMapItem != null) {
                     centerMap(newMapItem.getItemCenter(), false);
-//                    objectZoomTo(newMapItem);
+                    objectZoomTo(newMapItem);
                     newMapItem = null;
                 } else {
                     centerMap(center, false);
@@ -170,8 +176,16 @@ public class MapContent implements LocationEventListener {
             } else {
                 Logger.error("MapScreen.setFileMap() error");
             }
+            R.getMapScreen().view();
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapScreen.SetFileMap()", null);
+            R.getErrorScreen().view(e, "MapScreen.setFileMap()", null);
+        }
+    }
+
+    public void objectZoomTo(MapItem item) {
+        if (item != null) {
+            getActualMapLayer().calculateZoomFrom(item.getBoundingLocations());
+            getMapItemManager().disableInitializeState();
         }
     }
 

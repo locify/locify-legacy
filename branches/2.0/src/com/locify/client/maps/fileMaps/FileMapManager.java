@@ -124,8 +124,8 @@ public abstract class FileMapManager {
         }
 
         ready = true;
-//Logger.debug("FileMapManager.constructor() - new Map mapFileName: " + this.mapFilename +
-//        " mapImageDir: " + this.mapImageDir + " mapPath: " + this.mapPath);
+Logger.debug("FileMapManager.constructor() - new Map mapFileName: " + this.mapFilename +
+        " mapImageDir: " + this.mapImageDir + " mapPath: " + this.mapPath);
     }
 
     public String getMapName() {
@@ -133,8 +133,8 @@ public abstract class FileMapManager {
     }
 
     public boolean isReady() {
-//Logger.debug("    FileMapManager.isReady() ready: " + ready + " fileMapConfig.isReady() " +
-//        fileMapConfig.isReady() + " mapImageDir: " + mapImageDir);
+Logger.debug("    FileMapManager.isReady() ready: " + ready + " fileMapConfig.isReady() " +
+        fileMapConfig.isReady() + " mapImageDir: " + mapImageDir);
         return ready && fileMapConfig != null && fileMapConfig.isReady() && mapImageDir != null;
     }
 
@@ -211,7 +211,7 @@ public abstract class FileMapManager {
         } else if (mapPath.endsWith(".tar")) {
             try {
                 String mapPathAbsolute = "file:///" + FileSystem.ROOT + FileSystem.MAP_FOLDER + mapPath;
-//Logger.debug("  FileMapManager.getMapType() - " + mapPathAbsolute);
+Logger.debug("  FileMapManager.getMapType() - " + mapPathAbsolute);
                 FileConnection connection = (FileConnection) Connector.open(mapPathAbsolute);
                 if (connection.exists() && !connection.isDirectory()) {
                     StorageTar storageTar = new StorageTar(mapPathAbsolute);

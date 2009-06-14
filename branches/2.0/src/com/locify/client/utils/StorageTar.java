@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import javax.microedition.rms.RecordComparator;
 
 /**
  * Manages loading and writing files into one TAR file
@@ -42,6 +41,7 @@ public class StorageTar {
 
     /** size of skip-buffer (in bytes) */
     private static int bufferSize = 1024 * 50;
+    //private static int bufferSize = 100;
     private static byte[] buffer = new byte[bufferSize];
     private String tarPath;
     private String imageDir;
@@ -134,21 +134,19 @@ public class StorageTar {
 
     public static void skipBytes(InputStream is, int numOfBytes) {
         try {
-//Logger.log("  StorageTar.skipBytes() " + numOfBytes);
+//Logger.debug("  StorageTar.skipBytes() " + numOfBytes + " " + R.getSettings().getMapLoading());
             int actualPos = 0;
-            if (R.getSettings().getMapLoading() == SettingsData.S60_FIX) {
+//            if (R.getSettings().getMapLoading() == SettingsData.S60_FIX) {
+            if (R.getSettings().getMapLoading() == SettingsData.REGULAR) {
                 while (true) {
                     if ((actualPos + bufferSize) < numOfBytes) {
                             is.read(buffer);
-//Logger.log("Y");
-//printByteArray(buffer);
                     } else {
                         is.read(buffer, 0, numOfBytes - actualPos);
-//Logger.log("X");
-//printByteArray(buffer);
+//Logger.debug("    skipBytes() finish: " + actualPos + ", bytes: " + printByteArray(buffer));
                         break;
                     }
-//Logger.log("    skipBytes() ap: " + actualPos);
+//Logger.debug("    skipBytes() actual: " + actualPos + ", bytes: " + printByteArray(buffer));
                     actualPos += bufferSize;
                 }
             } else {
@@ -156,6 +154,30 @@ public class StorageTar {
             }
         } catch (IOException ex) {
             Logger.error("StorageTar.skipBytes() error: " + ex.toString());
+        }
+    }
+
+    public static void readBytes(InputStream is, byte[] buff, int numOfBytes) {
+        try {
+            if (false) {
+                int byt;
+                int counter = 0;
+//String value = "";
+
+                while ((byt = is.read()) != -1) {
+//value += (byt + ":'" + ((char) byt) + "'" + ", ");
+                    buff[counter] = (byte) byt;
+                    counter++;
+                    if (counter == numOfBytes) {
+//Logger.debug("readBytes(): " + value);
+                        return;
+                    }
+                }
+            } else {
+                is.read(buff, 0, numOfBytes);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -178,43 +200,54 @@ public class StorageTar {
                 skipBytes(is, l_posunuti);
                 dataPosition += 512 * (long) Math.ceil((float) fileSize / 512);
                 // 0 100 File name
-                readedBytes = is.read(buff, 0, 100);
-//System.out.println("A " + readedBytes + " " + printByteArray(l_filenamebytes));
+//Logger.debug("A0 " + l_posunuti + " " + printByteArray(buff));
+                readBytes(is, buff, 100);
+//                readedBytes = is.read(buff, 0, 100);
+//Logger.debug("A " + dataPosition + " " + readedBytes + " " + printByteArray(buff));
                 actualFile = new String(buff, 0, 100).trim();
                 if (actualFile.equals("") || readedBytes == -1) {
                     break;
                 }
 
                 // 100 8 File mode
-                readedBytes = is.read(buff, 0, 8);
+                readBytes(is, buff, 8);
+//                readedBytes = is.read(buff, 0, 8);
 //printByteArray(l_filenamebytes);
                 // 108 8 Owner user ID
-                readedBytes = is.read(buff, 0, 8);
+                readBytes(is, buff, 8);
+//                readedBytes = is.read(buff, 0, 8);
 //printByteArray(l_filenamebytes);
                 // 116 8 Group user ID
-                readedBytes = is.read(buff, 0, 8);
+                readBytes(is, buff, 8);
+//                readedBytes = is.read(buff, 0, 8);
 //printByteArray(l_filenamebytes);
                 // 124 12 File size in bytes
-                readedBytes = is.read(buff, 0, 12);
+                readBytes(is, buff, 12);
+//                readedBytes = is.read(buff, 0, 12);
                 fileSize = Oct2Int(buff, 11);
-//System.out.println("C " + readedBytes + " " + fileSize + " " + printByteArray(l_filenamebytes));
+//Logger.debug("C " + readedBytes + " " + fileSize + " " + printByteArray(buff));
                 // 136 12 Last modification time
-                readedBytes = is.read(buff, 0, 12);
+                readBytes(is, buff, 12);
+//                readedBytes = is.read(buff, 0, 12);
 //printByteArray(l_filenamebytes);
                 // 148 8 Check sum for header block
-                readedBytes = is.read(buff, 0, 8);
+                readBytes(is, buff, 8);
+//                readedBytes = is.read(buff, 0, 8);
 //printByteArray(l_filenamebytes);
                 // 156 1 Link indicator
-                readedBytes = is.read(buff, 0, 1);
+                readBytes(is, buff, 1);
+//                readedBytes = is.read(buff, 0, 1);
 //printByteArray(l_filenamebytes);
                 type = (char) buff[0];
                 // 157 100 Name of linked file
-                readedBytes = is.read(buff, 0, 100);
+                readBytes(is, buff, 100);
+//                readedBytes = is.read(buff, 0, 100);
 //printByteArray(l_filenamebytes);
                 dataPosition += 256;
 
                 // Test, zda-li nema rozsirenou hlavicku
-                readedBytes = is.read(buff, 0, 6);
+                readBytes(is, buff, 6);
+//                readedBytes = is.read(buff, 0, 6);
 //System.out.println("B " + readedBytes + " " + printByteArray(l_filenamebytes));
 //                if (l_filenamebytes[0] == 'u' && l_filenamebytes[1] == 's' &&
 //                        l_filenamebytes[2] == 't' && l_filenamebytes[3] == 'a' && l_filenamebytes[4] == 'r') {
@@ -228,7 +261,8 @@ public class StorageTar {
 //                }
 
                 actualFile = actualFile.replace('\\', '/');
-//System.out.println("  StorageTar.indexFile(): try to index: " + actualFile);
+//Logger.debug("  StorageTar.indexFile(): try to index: " + actualFile);
+//Logger.debug("D " + printByteArray(buff));
                 if (!lastFile.equals(actualFile)) {
                     if (imageDir == null && actualFile.indexOf("/") != -1) {
                         imageDir = actualFile.substring(0, actualFile.indexOf("/") + 1);
@@ -271,7 +305,7 @@ public class StorageTar {
                     // config file
                     } else if (actualFile.indexOf("/") == -1 && 
                             (actualFile.endsWith(".xml") || actualFile.endsWith(".map"))) {
-//Logger.log("4");
+//Logger.debug("StorageTar.indexFile() configFile");
                         if (actualFile.endsWith(".xml"))
                             configFileType = FileMapManager.CATEGORY_XML;
                         else if (actualFile.endsWith(".map"))
@@ -340,7 +374,7 @@ public class StorageTar {
     private static String printByteArray(byte[] array) {
         String text = "";
         for (int i = 0; i < array.length; i++) {
-            text += "'" + ((char) array[i]) + "' ";
+            text += array[i] + ":'" + ((char) array[i]) + "', ";
         }
         return text;
     }

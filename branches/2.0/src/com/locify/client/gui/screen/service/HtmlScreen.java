@@ -111,7 +111,7 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
      * @param action URL of  form's action
      */
     public void addForm(String action) {
-        currentForm = new HtmlForm("", action, "POST");
+        currentForm = new HtmlForm("", action, HtmlForm.POST);
     }
 
     /**
@@ -140,11 +140,11 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
         HtmlButton buttonItem = new HtmlButton(label);
         buttonItem.setAttributeType(XHtmlTagHandler.CMD_SUBMIT);
         buttonItem.addActionListener(htmlBrowser.getXHtmlTagHandler());
-        htmlBrowser.getXHtmlTagHandler().addCommands("input", "type", "submit", buttonItem);
+        htmlBrowser.getXHtmlTagHandler().addCommands("input", "type", XHtmlTagHandler.CMD_SUBMIT, buttonItem);
         htmlBrowser.addComponent(buttonItem);
         this.currentForm.addItem(buttonItem);
         buttonItem.setAttributeForm(this.currentForm);
-        buttonItem.setAttributeType("submit");
+        buttonItem.setAttributeType(XHtmlTagHandler.CMD_SUBMIT);
         buttonItem.setAttributeName(name);
         buttonItem.setAttributeValue(value);
     }

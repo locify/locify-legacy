@@ -22,6 +22,7 @@ import com.locify.client.maps.fileMaps.FileMapManager;
 import com.locify.client.maps.fileMaps.StoreManager;
 import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.fileMaps.StoreManagerMapInfo;
+import com.locify.client.net.browser.HtmlTextArea;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
@@ -29,6 +30,7 @@ import com.sun.lwuit.Button;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
+import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import java.util.Vector;
 
@@ -38,10 +40,8 @@ import java.util.Vector;
  */
 public class MapOfflineChooseScreen implements ActionListener {
 
-    private FormLocify frmAvailableMaps;
-    private ListLocify lstAvailableMaps;
-    private FormLocify frmMapsInfo;
     public double lastLat1,  lastLon1,  lastLat2,  lastLon2;
+    private ListLocify list;
     private Vector findedData;
     private Button btnInitialize;
 
@@ -55,8 +55,6 @@ public class MapOfflineChooseScreen implements ActionListener {
         this.lastLat2 = lat2;
         this.lastLon2 = lon2;
 
-        view();
-
         findedData = StoreManager.getMapsAroundScreen(lat1, lon1, lat2, lon2);
         if (findedData.size() == 0) {
             viewNoMapsInfo();
@@ -65,60 +63,46 @@ public class MapOfflineChooseScreen implements ActionListener {
         }
     }
 
-    private void view() {
-        frmAvailableMaps = new FormLocify(Locale.get("Maps_in_area"));
-        lstAvailableMaps = new ListLocify();
-
-        frmAvailableMaps.addComponent(lstAvailableMaps);
-        frmAvailableMaps.addCommand(Commands.cmdBack);
-        frmAvailableMaps.setCommandListener(this);
-
-        lstAvailableMaps.addItem(Locale.get("Searching"));
-        if (!lstAvailableMaps.isVisible()) {
-            frmAvailableMaps.show();
-            if (StoreManager.form != null) {
-                StoreManager.form = null;
-            }
-        }
-        
-    }
-
     private void viewNoMapsInfo() {
-        frmMapsInfo = new FormLocify(Locale.get("Maps_in_area"));
-        frmMapsInfo.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
-        frmMapsInfo.setCommandListener(this);
+        FormLocify form = new FormLocify(Locale.get("Maps_in_area"));
+        form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
+        form.setCommandListener(this);
 
         String path = FileSystem.ROOT + FileSystem.MAP_FOLDER;
-        frmMapsInfo.addComponent(new Label(Locale.get("No_file_maps_warning")));
-        frmMapsInfo.addComponent(new Label(path));
+        form.addComponent(new HtmlTextArea(Locale.get("No_file_maps_warning")));
+        form.addComponent(new HtmlTextArea(path));
 
         btnInitialize = new Button(Locale.get("Initialize_maps"));
         btnInitialize.addActionListener(this);
-        frmMapsInfo.addComponent(btnInitialize);
+        form.addComponent(btnInitialize);
 
-        frmMapsInfo.addCommand(Commands.cmdOnlineMaps);
-        frmMapsInfo.addCommand(Commands.cmdHome);
-        frmMapsInfo.addCommand(Commands.cmdBack);
-        frmMapsInfo.show();
+        form.addCommand(Commands.cmdOnlineMaps);
+        form.addCommand(Commands.cmdHome);
+        form.addCommand(Commands.cmdBack);
+        form.show();
     }
 
     private void viewAvailable() {
-        frmAvailableMaps.setAsNew(Locale.get("Maps_in_area"));
-        frmAvailableMaps.addComponent(lstAvailableMaps);
-        lstAvailableMaps.removeAll();
+        FormLocify form = new FormLocify(Locale.get("Maps_in_area"));
+        form.setLayout(new BorderLayout());
+
+        list = new ListLocify();
+        form.addComponent(BorderLayout.CENTER, list);
+
         for (int i = 0; i < findedData.size(); i++) {
             StoreManagerMapInfo smmi = (StoreManagerMapInfo) findedData.elementAt(i);
             Label label = new Label(smmi.mapName);
             label.setIcon(IconData.get("locify://icons/saved.png"));
-            lstAvailableMaps.addItem(label);
+            list.addItem(label);
         }
 
-        frmAvailableMaps.addCommand(Commands.cmdSelectAndCenter);
-        frmAvailableMaps.addCommand(Commands.cmdOnlineMaps);
-        frmAvailableMaps.addCommand(Commands.cmdHome);
-        frmAvailableMaps.addCommand(Commands.cmdInitialize);
-        frmAvailableMaps.setCommandListener(this);
-        frmAvailableMaps.show();
+        form.addCommand(Commands.cmdBack);
+        form.addCommand(Commands.cmdSelectAndCenter);
+        form.addCommand(Commands.cmdOnlineMaps);
+        form.addCommand(Commands.cmdHome);
+        form.addCommand(Commands.cmdInitialize);
+        form.setCommandListener(this);
+        form.show();
     }
 
     public void actionPerformed(ActionEvent evt) {
@@ -133,11 +117,11 @@ public class MapOfflineChooseScreen implements ActionListener {
         } else if (evt.getCommand() == Commands.cmdSearchMaps) {
             view(lastLat1, lastLon1, lastLat2, lastLon2);
         } else if (evt.getCommand() == Commands.cmdOnlineMaps) {
-            R.getMapContent().setOnlineMaps();
-        } else if (evt.getSource() == lstAvailableMaps || evt.getCommand() == Commands.cmdSelectAndCenter && findedData.size() > 0) {
-            StoreManagerMapInfo smmi = (StoreManagerMapInfo) findedData.elementAt(lstAvailableMaps.getSelectedIndex());
+            R.getMapContent().setOnlineMap();
+        } else if (evt.getSource() == list || evt.getCommand() == Commands.cmdSelectAndCenter && findedData.size() > 0) {
+            StoreManagerMapInfo smmi = (StoreManagerMapInfo) findedData.elementAt(list.getSelectedIndex());
             FileMapManager fmm = StoreManager.getInitializedOfflineMap(smmi.mapName, false);
-            if (evt.getSource() == lstAvailableMaps) {
+            if (evt.getSource() == list) {
                 if (fmm != null) {
                     R.getMapContent().setFileMap(fmm, new Location4D((lastLat1 + lastLat2) / 2,
                             (lastLon1 + lastLon2) / 2, 0.0f));
