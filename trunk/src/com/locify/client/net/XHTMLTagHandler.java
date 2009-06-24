@@ -28,6 +28,7 @@ package com.locify.client.net;
 import com.locify.client.gui.screen.service.HtmlSelect;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
+import com.locify.client.utils.Utils;
 import com.locify.client.gui.screen.service.ContactsScreen;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -773,8 +774,7 @@ public class XHTMLTagHandler
         while (enumeration.hasMoreElements()) {
             String name = (String) enumeration.nextElement();
             String value = (String) elements.get(name);
-            value =
-                    TextUtil.encodeUrl(value);
+            value = Utils.urlUTF8Encode(value);
             sb.append(separatorChar);
             sb.append(name).append('=').append(value);
             separatorChar =
@@ -839,7 +839,7 @@ public class XHTMLTagHandler
                 if (multipart && R.getFileBrowser().isFileSelected()) {
                     params.put(name, value);
                 } else {
-                    value = TextUtil.encodeUrl(value);
+                    value = Utils.urlUTF8Encode(value);
                     sb.append(name).append('=').append(value);
                     if (enumeration.hasMoreElements()) {
                         sb.append('&');
