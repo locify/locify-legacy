@@ -32,6 +32,7 @@ import java.util.Vector;
 public class ScaleMapItem extends MapItem {
 
     private Point2D.Int p1, p2;
+    
     private double distancePerPixel;
     /** only probably value ...
      * WGS84 R = (6378137m * 2 * PI) / 360 */

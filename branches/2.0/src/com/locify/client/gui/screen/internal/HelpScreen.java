@@ -92,6 +92,7 @@ public class HelpScreen implements ActionListener {
                 viewIconsHelp();
             } else {
                 form = new FormLocify(titles[selected]);
+                //form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
                 form.addComponent(new HtmlTextArea(texts[selected], false));
                 form.addCommand(Commands.cmdBack);
                 form.addCommand(Commands.cmdHome);

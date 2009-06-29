@@ -14,7 +14,6 @@
 package com.locify.client.maps;
 
 import com.locify.client.data.SettingsData;
-import com.locify.client.gui.screen.internal.MapScreen;
 import com.locify.client.maps.fileMaps.FileMapViewPort;
 import com.locify.client.maps.fileMaps.FileMapManager;
 import com.locify.client.locator.Location4D;
@@ -26,7 +25,6 @@ import com.locify.client.maps.projection.MercatorProjection;
 import com.locify.client.maps.projection.ReferenceEllipsoid;
 import com.locify.client.maps.projection.S42Projection;
 import com.locify.client.maps.projection.UTMProjection;
-import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
@@ -178,35 +176,14 @@ public static long TIME;
                 Image image;
                 ImageRequest ir;
                 for (int i = 0; i < imageNotExist.size(); i++) {
-                    ir = (ImageRequest) imageNotExist.elementAt(i);
-                    image = MapImages.getImageNotExisted();
-                    if (image != null) {
-//Logger.log("  FileMapLayer.drawImages() NotExist: x: " + ir.x + " y: " + ir.y + " wi: " + image.getWidth() + " he: " + image.getHeight());
-                        gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()) / 2,
-                                ir.y + (ir.tileSizeY - image.getHeight()) / 2);
-                        gr.setColor(ColorsFonts.BLACK);
-                        gr.drawRect(ir.x, ir.y, ir.tileSizeX, ir.tileSizeY);
-                    }
+                    MapImages.drawTile(gr, (ImageRequest) imageNotExist.elementAt(i));
                 }
 
 //Logger.log("Step 2: " + (System.currentTimeMillis() - TIME));
                 for (int i = 0; i < imageExist.size(); i++) {
                     ir = (ImageRequest) imageExist.elementAt(i);
-                    image = R.getMapTileCache().getImage(ir.fileName);
-                    if (image != null) {
-//Logger.log("  FileMapLayer.drawImages() Exist: x: " + ir.x + " y: " + ir.y + " wi: " + image.getWidth() + " he: " + image.getHeight());
-                        if (image.equals(MapImages.getImageConnectionNotFound()) ||
-                        image.equals(MapImages.getImageLoading()) ||
-                        image.equals(MapImages.getImageLoading()) ||
-                        image.equals(MapImages.getImageLoading())) {
-                            gr.drawImage(image, ir.x + (ir.tileSizeX - image.getWidth()) / 2,
-                                ir.y + (ir.tileSizeY - image.getHeight()) / 2);
-                            gr.setColor(ColorsFonts.BLACK);
-                            gr.drawRect(ir.x, ir.y, ir.tileSizeX, ir.tileSizeY);
-                        } else {
-                            gr.drawImage(image, ir.x, ir.y);
-                        }
-                    }
+                    ir.image = R.getMapTileCache().getImage(ir.fileName);
+                    MapImages.drawTile(gr, ir);
                 }
 
 //Logger.log("Step 3: " + (System.currentTimeMillis() - TIME) + " ine.size: " + imageNotExist.size());

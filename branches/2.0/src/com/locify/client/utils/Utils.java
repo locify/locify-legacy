@@ -463,4 +463,12 @@ public class Utils {
             // Convert value 10-15 to A-F hex char
             return (char)('A' + (digitValue - 10));
     }
+
+    public static String formatDataSize(long data) {
+        double kb = data / 1024.0;
+        if (kb < 1024)
+            return GpsUtils.formatDouble(kb, 2) + " kB";
+        else
+            return GpsUtils.formatDouble(kb / 1024, 2) + " MB";
+    }
 }

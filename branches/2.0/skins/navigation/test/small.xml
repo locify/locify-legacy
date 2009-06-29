@@ -41,7 +41,7 @@
 		<Widget type="StateLabel">
 			<title hAlign="center" vAlign="center" position="south" fontSize="1">Distance</title>
 			<value hAlign="center" vAlign="center" fontSize="3">0.0</value>
-			<bindTo>targetDist</bindTo>
+			<bindTo>dist</bindTo>
 		</Widget>
 		<Widget type="StateLabel">
 			<title hAlign="center" vAlign="center" position="south" fontSize="1">Speed</title>

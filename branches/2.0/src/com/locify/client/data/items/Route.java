@@ -34,7 +34,7 @@ public class Route extends GeoData {
     /* state or temp variables */
     protected boolean routeOnlyInfo;
 
-    protected double routeDist;
+    protected String routeDist;
     protected long routeTime;
     protected int pointCount;
 
@@ -44,7 +44,7 @@ public class Route extends GeoData {
         separating = new Vector();
         routeOnlyInfo = true;
 
-        routeDist = 0;
+        routeDist = null;
         routeTime = 0;
         pointCount = 0;
     }
@@ -104,7 +104,7 @@ public class Route extends GeoData {
         }
     }
 
-    public double getRouteDist() {
+    public String getRouteDist() {
         return routeDist;
     }
 
@@ -129,8 +129,7 @@ public class Route extends GeoData {
                 for (int i = 0; i < token.size(); i++) {
                     trash = (String) token.elementAt(i);
                     if (trash.startsWith(RouteVariables.DESC_LENGTH) && trash.length() > RouteVariables.DESC_LENGTH.length() + 3) {
-                        routeDist = com.locify.client.utils.GpsUtils.parseDouble(
-                                trash.substring(RouteVariables.DESC_LENGTH.length(), trash.length() - 2).trim());
+                        routeDist = trash.substring(RouteVariables.DESC_LENGTH.length(), trash.length());
                     } else if (trash.startsWith(RouteVariables.DESC_TRAVEL_TIME) && trash.length() > RouteVariables.DESC_TRAVEL_TIME.length() + 5) {
                         routeTime = com.locify.client.utils.GpsUtils.parseLong(
                                 trash.substring(RouteVariables.DESC_TRAVEL_TIME.length(), trash.length() - 3).trim());

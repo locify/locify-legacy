@@ -65,8 +65,6 @@ public class ConfirmScreen implements ActionListener {
         form.addCommand(Commands.cmdNo);
         form.setCommandListener(this);
         form.show();
-        label.setText(question);
-        label.repaint();
     }
 
     public void view(String question, int confirmAction) {

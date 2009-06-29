@@ -25,7 +25,7 @@
 		<Widget type="StateLabel" position="south">
 			<title hAlign="left" vAlign="center" position="south" fontSize="1">Distance</title>
 			<value hAlign="center" vAlign="center" fontSize="5">0.0</value>
-			<bindTo>routeDist</bindTo>
+			<bindTo>dist</bindTo>
 		</Widget>
 	</Widget>
 	<Widget type="StateLabel" position="south">

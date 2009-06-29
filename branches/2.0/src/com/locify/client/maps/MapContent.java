@@ -315,34 +315,31 @@ public class MapContent implements LocationEventListener {
                 } else {
                     g.setColor(ColorsFonts.LIGHT_ORANGE);
                 }
-                g.drawRoundRect(pxMoveX - bw, pxMoveY - bh, borderW, borderH, 5, 5);
+
+                int x = g.getClipX() + pxMoveX;
+                int y = g.getClipY() + pxMoveY;
+
+                g.drawRoundRect(x - bw, y - bh, borderW, borderH, 5, 5);
 
                 if (zoomTotalValue != 0) {
-                    g.fillTriangle(pxMoveX - bw - val1, pxMoveY,
-                            pxMoveX - bw - val2, pxMoveY - 5,
-                            pxMoveX - bw - val2, pxMoveY + 5);
-                    g.fillTriangle(pxMoveX + bw + val1, pxMoveY,
-                            pxMoveX + bw + val2, pxMoveY - 5,
-                            pxMoveX + bw + val2, pxMoveY + 5);
-                    g.fillTriangle(pxMoveX, pxMoveY - bh - val1,
-                            pxMoveX - 5, pxMoveY - bh - val2,
-                            pxMoveX + 5, pxMoveY - bh - val2);
-                    g.fillTriangle(pxMoveX, pxMoveY + bh + val1,
-                            pxMoveX - 5, pxMoveY + bh + val2,
-                            pxMoveX + 5, pxMoveY + bh + val2);
+                    g.fillTriangle(x - bw - val1, y, x - bw - val2, y - 5, x - bw - val2, y + 5);
+                    g.fillTriangle(x + bw + val1, y, x + bw + val2, y - 5, x + bw + val2, y + 5);
+                    g.fillTriangle(x, y - bh - val1, x - 5, y - bh - val2, x + 5, y - bh - val2);
+                    g.fillTriangle(x, y + bh + val1, x - 5, y + bh + val2, x + 5, y + bh + val2);
                 }
 
                 if (!MainScreen.hasPointerEvents) {
-                    g.drawImage(MapImages.getMapIconPlus(), 20 - MapImages.getMapIconPlus().getWidth() / 2,
-                            10 - MapImages.getMapIconPlus().getHeight() / 2);
-                    g.drawImage(MapImages.getMapIconMinus(), 20 - MapImages.getMapIconMinus().getWidth() / 2,
-                            actualHeight - 10 - MapImages.getMapIconMinus().getHeight() / 2);
+                    g.drawImage(MapImages.getMapIconPlus(), g.getClipX() + 20 - MapImages.getMapIconPlus().getWidth() / 2,
+                            g.getClipY() + 10 - MapImages.getMapIconPlus().getHeight() / 2);
+                    g.drawImage(MapImages.getMapIconMinus(), g.getClipX() + 20 - MapImages.getMapIconMinus().getWidth() / 2,
+                            g.getClipY() + actualHeight - 10 - MapImages.getMapIconMinus().getHeight() / 2);
                 }
 
                 g.setColor(ColorsFonts.BLACK);
-                g.drawLine(moveX + 5, 10, moveX + 5, actualHeight - 10);
-                g.fillRect(moveX, 10, 10, 3);
-                g.fillRect(moveX, actualHeight - 10, 10, 3);
+                g.drawLine(g.getClipX() + moveX + 5, g.getClipY() + 10,
+                        g.getClipX() + moveX + 5, g.getClipY() + actualHeight - 10);
+                g.fillRect(g.getClipX() + moveX, g.getClipY() + 10, 10, 3);
+                g.fillRect(g.getClipX() + moveX, g.getClipY() + actualHeight - 10, 10, 3);
                 double pxPerZoom = (actualHeight - 20.0) /
                         (map.getMaxZoomLevel() - map.getMinZoomLevel());
 
@@ -350,7 +347,7 @@ public class MapContent implements LocationEventListener {
                         (map.getActualZoomLevel() + zoomTotalValue)) * pxPerZoom);
 
                 g.setColor(ColorsFonts.RED);
-                g.fillRect(moveX, actZoomPixel - 1, 10, 3);
+                g.fillRect(g.getClipX() + moveX, g.getClipY() + actZoomPixel - 1, 10, 3);
             } catch (Exception e) {
                 R.getErrorScreen().view(e, "MapScreen.drawMap()", "zoomProcess");
             }

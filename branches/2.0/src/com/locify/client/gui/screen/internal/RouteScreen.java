@@ -143,35 +143,33 @@ public class RouteScreen extends FormLocify implements ActionListener {
     }
     
     private void actualizeItems() {
+        if (slAlt != null)
+            slAlt.setValue(GpsUtils.formatDouble(routeManager.getAltitude(), 0) + " m");
+        if (slHdop!= null)
+            slHdop.setValue(GpsUtils.formatDouble(routeManager.getHdop(), 1));
+        if (slLat != null)
+            slLat.setValue(GpsUtils.formatLatitude(routeManager.getLatitude(), R.getSettings().getCoordsFormat()));
+        if (slLon != null)
+            slLon.setValue(GpsUtils.formatLongitude(routeManager.getLongitude(), R.getSettings().getCoordsFormat()));
         if (slRouteTime != null)
             slRouteTime.setValue(GpsUtils.formatTimeShort(routeManager.getRouteTime()));
+        if (slSpeedAct != null)
+            slSpeedAct.setValue(GpsUtils.formatSpeed(routeManager.getSpeed()));
+        if (slVdop != null)
+            slVdop.setValue(GpsUtils.formatDouble(routeManager.getVdop(), 1));
 
         if (routeManager.isNewData()) {
-            if (slAlt != null)
-                slAlt.setValue(GpsUtils.formatDouble(routeManager.getAltitude(), 0) + " m");
-            if (slHdop!= null)
-                slHdop.setValue(GpsUtils.formatDouble(routeManager.getHdop(), 1));
-            if (slLat != null)
-                slLat.setValue(GpsUtils.formatLatitude(routeManager.getLatitude(), R.getSettings().getCoordsFormat()));
-            if (slLon != null)
-                slLon.setValue(GpsUtils.formatLongitude(routeManager.getLongitude(), R.getSettings().getCoordsFormat()));
             if (slDist != null)
                 slDist.setValue(GpsUtils.formatDistance(routeManager.getRouteDist()));
-            if (slSpeedAct != null)
-                slSpeedAct.setValue(GpsUtils.formatSpeed(routeManager.getSpeed()));
             if (slSpeedAvg != null)
                 slSpeedAvg.setValue(GpsUtils.formatSpeed(routeManager.getSpeedAverage()));
             if (slSpeedMax != null)
                 slSpeedMax.setValue(GpsUtils.formatSpeed(routeManager.getSpeedMax()));
-            if (slVdop != null)
-                slVdop.setValue(GpsUtils.formatDouble(routeManager.getVdop(), 1));
-
             if (gi01 != null) {
                 gi01.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION * routeManager.getSpeedAverage());
                 gi01.refreshGraph(routeManager.getRouteVariables());
                 gi01.repaint();
             }
-
             if (gi02 != null) {
                 gi02.setMeasureX(RouteVariables.MAX_PAD * RouteVariables.SAVED_COUNT_LOCATION);
                 gi02.refreshGraph(routeManager.getRouteVariables());

@@ -33,8 +33,6 @@ import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
-import com.sun.lwuit.layouts.BorderLayout;
-import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.layouts.GroupLayout;
 
 /**
@@ -61,17 +59,17 @@ public class AuthenticationScreens implements ActionListener {
         try {
             frmLogin = new FormLocify(Locale.get("Login"));
             
-            HtmlTextArea siLoginTo = new HtmlTextArea(Locale.get("Credentials_to") + " " + loginTo + ":");
+            HtmlTextArea siLoginTo = new HtmlTextArea(Locale.get("Credentials_to") + "\n" + loginTo + ":");
 //            frmLogin.addComponent(siLoginTo);
 
             Label label01 = new Label(Locale.get("Login_field"));
-            tfLogin = new HtmlTextArea(savedLogin, 1, 32, TextArea.ANY);
+            tfLogin = new HtmlTextArea(savedLogin, 1, 32, TextArea.ANY, true);
 //            frmLogin.addComponent(label01);
 //            frmLogin.addComponent(tfLogin);
 
             Label label02 = new Label(Locale.get("Password"));
             tfPassword = new HtmlTextArea(savedPassword, 1, 32, TextArea.ANY |
-                    TextArea.PASSWORD | TextArea.NON_PREDICTIVE | TextArea.SENSITIVE);
+                    TextArea.PASSWORD | TextArea.NON_PREDICTIVE | TextArea.SENSITIVE, true);
 //            frmLogin.addComponent(label02);
 //            frmLogin.addComponent(tfPassword);
 
@@ -98,8 +96,8 @@ public class AuthenticationScreens implements ActionListener {
 
             GroupLayout layout = new GroupLayout(frmLogin);
             frmLogin.setLayout(layout);
-            layout.setAutocreateContainerGaps(true);
-            layout.setAutocreateGaps(true);
+            layout.setAutocreateContainerGaps(false);
+            layout.setAutocreateGaps(false);
 
             layout.setHorizontalGroup(layout.createParallelGroup().add(siLoginTo).add(label01).add(tfLogin).add(label02).add(tfPassword).add(cbSavePasswd).add(cbAutologin).add(siLoginButton));
             layout.setVerticalGroup(layout.createSequentialGroup().add(siLoginTo).add(label01).add(tfLogin).add(label02).add(tfPassword).add(cbSavePasswd).add(cbAutologin).add(siLoginButton));

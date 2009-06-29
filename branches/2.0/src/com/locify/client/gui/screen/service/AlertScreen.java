@@ -75,7 +75,7 @@ public class AlertScreen implements ActionListener {
      * Displays alert
      */
     public void view() {
-        dialog = new Dialog();
+        dialog = new Dialog("" + alertType);
         dialog.setDialogType(alertType);
         dialog.addComponent(new HtmlTextArea(text, false));
         dialog.addCommand(Commands.cmdOK);
@@ -106,7 +106,8 @@ public class AlertScreen implements ActionListener {
                 if (nextUrl.equals("locify://geoFileBrowser")) {
                     R.getBack().dontSave();
                 }
-//                R.getMainScreen().setAutoInstallRequest(false);
+                R.getMainScreen().setAutoInstallRequest(false);
+                dialog.dispose();
                 R.getURL().call(nextUrl);
             }
         }

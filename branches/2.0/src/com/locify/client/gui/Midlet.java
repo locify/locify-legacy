@@ -8,13 +8,10 @@ import com.locify.client.data.SettingsData;
 import com.locify.client.data.items.GeoFiles;
 import com.locify.client.locator.LocationProvider;
 import com.locify.client.utils.Capabilities;
-import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.R;
 import com.locify.client.utils.ResourcesLocify;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Display;
-import com.sun.lwuit.Font;
-import com.sun.lwuit.list.DefaultListCellRenderer;
 import com.sun.lwuit.plaf.UIManager;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
@@ -48,7 +45,7 @@ public class Midlet extends MIDlet {
     }
 
     protected void startApp() throws MIDletStateChangeException {
-Utils.printMemoryState("Init - start");
+//Utils.printMemoryState("Init - start");
         try {
             if (!midletPaused) {
                 startMIDlet();
@@ -64,6 +61,7 @@ Utils.printMemoryState("Init - start");
 //Utils.printMemoryState("01");
             //init the LWUIT Display
             Display.init(this);
+
             UIManager.getInstance().getLookAndFeel().setReverseSoftButtons(true);
             //UIManager.getInstance().getLookAndFeel().setMenuRenderer(new DefaultListCellRenderer());
 //Utils.printMemoryState("02");
@@ -136,6 +134,7 @@ Utils.printMemoryState("Init - end");
      */
     public void exitMIDlet() {
         R.getContext().saveLastKnown();
+        R.getSettings().setTotalDownloadedDataSize(R.getMapTileCache().getDownloadedDataTotal());
         try {
             Thread.sleep(100);
         } catch (InterruptedException ex) {

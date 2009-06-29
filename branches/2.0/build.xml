@@ -5,7 +5,7 @@
 
     <target name="pre-init">
         <!-- turn this true to build all release versions of Locify, it turned off stage generic version is generated -->
-        <property name="release" value="false" />
+        <property name="release" value="true" />
         <!-- turn this true to build versions with absolute URLs -->
         <property name="absolute-urls" value="false" />
         <!-- test is launched in netbeans when i click to run, when i click to build is false -->
@@ -49,9 +49,11 @@
         <copy todir="build/compiled/">
             <fileset dir="resources/img/filetypes/" />
         </copy>
+        <!--
         <copy todir="build/compiled/" >
             <fileset dir="resources/nightly" />
         </copy>
+        -->
 
         <taskdef classpath="ResourceBuilder.jar" classname="com.sun.lwuit.resource.Builder" name="build" />
 

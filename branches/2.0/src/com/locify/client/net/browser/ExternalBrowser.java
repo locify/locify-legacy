@@ -14,13 +14,12 @@
 package com.locify.client.net.browser;
 
 import com.locify.client.data.SettingsData;
+import com.locify.client.gui.extension.FormLocify;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Command;
-import com.sun.lwuit.Form;
-import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 
@@ -30,7 +29,7 @@ import com.sun.lwuit.events.ActionListener;
  */
 public class ExternalBrowser implements ActionListener {
 
-    private Form frmExternalClose;
+    private FormLocify frmExternalClose;
     private Command cmdAlways = new Command(Locale.get("Always"), 10);
     private Command cmdNever = new Command(Locale.get("Never"), 11);
 
@@ -65,7 +64,7 @@ public class ExternalBrowser implements ActionListener {
     }
 
     public void viewCloseAppScreen() {
-        frmExternalClose = new Form(Locale.get("External_browser_launch"));
+        frmExternalClose = new FormLocify(Locale.get("External_browser_launch"));
         frmExternalClose.addComponent(new HtmlTextArea(Locale.get("External_closing_information")));
 
         frmExternalClose.addCommand(Commands.cmdYes);

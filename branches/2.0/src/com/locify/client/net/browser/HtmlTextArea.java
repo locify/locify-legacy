@@ -18,19 +18,27 @@ public class HtmlTextArea extends TextArea {
     }
 
     public HtmlTextArea(String text, boolean editable) {
-        this(text, 1, 124, TextArea.ANY);
+        this(text, 1, 10, TextArea.ANY, editable);
         setSingleLineTextArea(false);
-        setEditable(editable);
         setFocusable(false);
     }
 
-    public HtmlTextArea(String text, int rows, int columns, int constraint) {
+    public HtmlTextArea(String text, int rows, int columns, int constraint, boolean editable) {
         super(text, rows, columns, constraint);
-        getStyle().setBorder(Border.createEmpty(), false);
+        setEditable(editable);
+        if (editable) {
+            //getStyle().setBorder(Border.createLineBorder(1));
+        } else {
+            getStyle().setBorder(Border.createEmpty(), false);
+        }
         setGrowByContent(true);
         setEditable(true);
-getStyle().setBorder(Border.createLineBorder(1));
+
         setText(text);
+        setFocusable(true);
+        setScrollY(10);
+
+        //getStyle().setBorder(Border.createLineBorder(1));
     }
 
 //    public void initComponent() {

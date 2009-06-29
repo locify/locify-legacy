@@ -345,8 +345,12 @@ public class TileMapLayer implements MapLayer {
                         g.setColor(ColorsFonts.GRAY);
                         g.fillRect(tileBounds.x, tileBounds.y, tileBounds.width, tileBounds.height);
                     } else {
-                        g.drawImage(tileImage, tileBounds.x + mapPanX + (tileSize - tileImage.getWidth()) / 2 + viewportX,
-                                tileBounds.y + mapPanY + (tileSize - tileImage.getHeight()) / 2 + viewportY);
+                        ir.x = tileBounds.x + mapPanX + viewportX;
+                        ir.y = tileBounds.y + mapPanY + viewportY;
+                        ir.image = tileImage;
+                        MapImages.drawTile(g, ir);
+//                        g.drawImage(tileImage, tileBounds.x + mapPanX + (tileSize - tileImage.getWidth()) / 2 + viewportX,
+//                                tileBounds.y + mapPanY + (tileSize - tileImage.getHeight()) / 2 + viewportY);
                     }
                 }
             }

@@ -32,6 +32,7 @@ import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Display;
+import com.sun.lwuit.Image;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TabbedPane;
 import com.sun.lwuit.events.ActionEvent;
@@ -410,11 +411,11 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
      */
     private void createServiceMenu() {
         this.removeAllCommands();
-        checkServiceMenu();
         this.addCommand(Commands.cmdExit);
-        this.addCommand(Commands.cmdSelect);
+        checkServiceMenu();
         this.addCommand(new ParentCommand(Locale.get("Add"), IconData.getLocalImage("add"),
                 new Command[] {Commands.cmdAddService, Commands.cmdAddByLink}));
+        this.addCommand(Commands.cmdSelect);
     }
 
     private void createOtherMenu() {
@@ -474,10 +475,8 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
                 item.setTimestamp(timestamp);
                 items.setElementAt(item, i);
 
-////                cgServices.set(i, title, IconData.get(iconUrl));
-//                Button btn = (Button) cgServices.getComponentAt(i);
-//                btn.setText(title);
-//                btn.setIcon(IconData.get(iconUrl));
+                ((MainScreenItem) cgServices.getItemAt(i)).setText(title);
+                ((MainScreenItem) cgServices.getItemAt(i)).setIcon(IconData.get(iconUrl));
                 found = true;
                 break;
             }
@@ -563,8 +562,10 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
             items.removeElement(movedItem);
             items.insertElementAt(movedItem, newPosition);
             //change list according to vector
+            cgServices.removeAll();
             for (int i = 0; i < items.size(); i++) {
                 MainScreenItem item = (MainScreenItem) items.elementAt(i);
+                cgServices.addItem(item);
 ////                cgServices.set(i, item.getTitle(), IconData.get(item.getIcon()));
             }
             saveXML();
@@ -584,9 +585,10 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
             for (int i = 0; i < items.size(); i++) {
                 MainScreenItem item = (MainScreenItem) items.elementAt(i);
                 if (item.getIconURL().equals(iconUrl)) {
-////                    cgServices.getItem(i).setImage(Image.createImage(data, 0, data.length));
+                    ((MainScreenItem) cgServices.getItemAt(i)).setIcon(Image.createImage(data, 0, data.length));
                 }
             }
+            cgServices.repaint();
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MainScreen.refreshIcon", iconUrl);
         }
@@ -599,7 +601,7 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
         try {
             for (int i = 0; i < items.size(); i++) {
                 MainScreenItem item = (MainScreenItem) items.elementAt(i);
-////                cgServices.set(i, item.getTitle(), IconData.get(item.getIcon()));
+                ((MainScreenItem) cgServices.getItemAt(i)).setIcon(IconData.get(item.getIconURL()));
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MainScreen.refreshIcons", null);
@@ -807,73 +809,10 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
         } else {
             super.keyPressed(keyCode);
         }
-
-//        if (Display.getInstance().getGameAction(keyCode) == Display.GAME_LEFT) {
-//            int index = tabbedPane.getSelectedIndex();
-//            if (index > 0)
-//                tabbedPane.setSelectedIndex(index - 1);
-//            else
-//                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-//        } else if (Display.getInstance().getGameAction(keyCode) == Display.GAME_RIGHT) {
-//            int index = tabbedPane.getSelectedIndex();
-//            if (index < tabbedPane.getTabCount() - 1)
-//                tabbedPane.setSelectedIndex(index + 1);
-//            else
-//                tabbedPane.setSelectedIndex(0);
-//        } else {
-//            super.keyPressed(keyCode);
-//        }
     }
 
-////    public void itemStateChanged(Item item) {
-////        int selected = ((ChoiceGroup) item).getSelectedIndex();
-////        if (hasPointerEvents && this.getActiveTab() == 0) {
-////            if (selected == lastSelectedIndex) {
-////                handleSelect(this.getActiveTab(), selected);
-////            }
-////            lastSelectedIndex = selected;
-////        } else {
-////            handleSelect(this.getActiveTab(), selected);
-////        }
-////        ((ChoiceGroup) item).setSelectedIndex(-1, true);
-////    }
-////
-////    public void pointerPressed(int a, int b) {
-////        hasPointerEvents = true;
-////        super.pointerPressed(a, b);
-////    }
-////
-////    public void screenStateChanged(Screen screen) {
-////        if (this.getActiveTab() == 0) {
-////            checkServiceMenu();
-////        }
-////    }
-////
     public void checkLoginLogout() {
         cgMore.removeAll();
         loadTab(5);
     }
-
-
-////    public void keyPressed(int keyCode) {
-////        if (getGameAction(keyCode) == Canvas.UP && !isMenuOpened()) {
-////            ChoiceGroup group = (ChoiceGroup) this.getCurrentItem();
-////            if (group.getFocusedIndex() == 0) {
-////                group.setSelectedIndex(group.getNumberOfInteractiveItems() - 1, true);
-////                group.setSelectedIndex(-1, true);
-////            } else {
-////                super.keyPressed(keyCode);
-////            }
-////        } else if (getGameAction(keyCode) == Canvas.DOWN && !isMenuOpened()) {
-////            ChoiceGroup group = (ChoiceGroup) this.getCurrentItem();
-////            if (group.getFocusedIndex() == group.getNumberOfInteractiveItems() - 1) {
-////                group.setSelectedIndex(0, true);
-////                group.setSelectedIndex(-1, true);
-////            } else {
-////                super.keyPressed(keyCode);
-////            }
-////        } else {
-////            super.keyPressed(keyCode);
-////        }
-////    }
 }

@@ -16,10 +16,10 @@ package com.locify.client.maps;
 import com.locify.client.data.IconData;
 import com.locify.client.utils.ColorsFonts;
 import com.locify.client.utils.Locale;
-import com.locify.client.utils.R;
-import com.locify.client.utils.Utils;
+import com.locify.client.utils.StringTokenizer;
 import com.sun.lwuit.Graphics;
 import com.sun.lwuit.Image;
+import java.util.Vector;
 
 /**
  *
@@ -37,6 +37,9 @@ public class MapImages {
     private static Image imageConnectionNotFound;
     /** if image is too big */
     private static Image imageTooBigSize;
+    /** image forbidden */
+    private static Image imageForbidden;
+    
     /** plus icon image */
     private static Image imageIconPlus;
     /** minus icon image */
@@ -49,71 +52,98 @@ public class MapImages {
     private static Image imageActualLocation;
     /** size of zoom icon */
     public static int imageIconZoomSideSize;
-    
-    public static Image getImageNotExisted() {
-        try {
-            if (imageNotExisted == null) {
-                imageNotExisted = getImageVarious(Locale.get("File_map_tile_not_exist"));
+
+    public static void drawTile(Graphics g, ImageRequest ir) {
+        drawTile(g, ir, 0, 0);
+    }
+
+    public static void drawTile(Graphics g, ImageRequest ir, int mapPanX, int mapPanY) {
+        String label = getLabelForImage(ir.image);
+        if (label == null) {
+            g.drawImage(ir.image, ir.x, ir.y);
+        } else {
+            g.drawImage(getLoadingImage(),
+                    ir.x + (ir.tileSizeX - getLoadingImage().getWidth()) / 2,
+                    ir.y + (ir.tileSizeY - getLoadingImage().getHeight()) / 2);
+
+            Vector labels = StringTokenizer.getVector(label, "\n");
+            int startHeight = (ir.tileSizeY - labels.size() * g.getFont().getHeight() - (labels.size() - 1) * 5) / 2;
+            for (int i = 0; i < labels.size(); i++) {
+                String text = (String) labels.elementAt(i);
+                int textX = ir.x + (ir.tileSizeX - g.getFont().stringWidth(text)) / 2;
+                int textY = ir.y + startHeight + i * (g.getFont().getHeight() + 5);
+                g.drawString(text, textX, textY);
             }
-            return imageNotExisted;
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapScreen.getImageNotExisted()", null);
-            return null;
+
+            g.setColor(ColorsFonts.BLACK);
+            g.drawRect(ir.x, ir.y, ir.tileSizeX, ir.tileSizeY);
         }
+    }
+
+    /**
+     * Here is hold key for describtion of non-loaded images.
+     * @param image Actual image in ImageRequest.
+     * @return String if image is not correct map image or <b>null</b> if is.
+     */
+    private static String getLabelForImage(Image image) {
+        if (image == null) {
+            return "Problem";
+        } else if (image.getWidth() > 1 && image.getHeight() > 1) {
+            return null;
+        } else if (image.equals(getImageConnectionNotFound())) {
+            return Locale.get("Connection_failed");
+        } else if (image.equals(getImageLoading())) {
+            return Locale.get("File_map_tile_loading");
+        } else if (image.equals(getImageNotExisted())) {
+            return Locale.get("File_map_tile_not_exist");
+        } else if (image.equals(getImageTooBigSize())) {
+            return Locale.get("Image_too_big");
+        } else if (image.equals(getImageForbidden())) {
+            return Locale.get("Access_denied");
+        } else
+            return "";
+    }
+
+    public static Image getImageNotExisted() {
+        if (imageNotExisted == null) {
+            imageNotExisted = Image.createImage(1, 1);
+        }
+        return imageNotExisted;
     }
 
     public static Image getImageLoading() {
-        try {
-            if (imageLoading == null) {
-                imageLoading = getImageVarious(Locale.get("File_map_tile_loading"));
-            }
-            return imageLoading;
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapScreen.getImageLoading()", null);
-            return null;
+        if (imageLoading == null) {
+            imageLoading = Image.createImage(1, 1);
         }
+        return imageLoading;
     }
 
     public static Image getImageConnectionNotFound() {
-        try {
-            if (imageConnectionNotFound == null) {
-                imageConnectionNotFound = getImageVarious(Locale.get("Connection_failed"));
-            }
-            return imageConnectionNotFound;
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapScreen.getImageLoading()", null);
-            return null;
+        if (imageConnectionNotFound == null) {
+            imageConnectionNotFound = Image.createImage(1, 1);
         }
+        return imageConnectionNotFound;
     }
 
     public static Image getImageTooBigSize() {
-        try {
-            if (imageTooBigSize == null) {
-                imageTooBigSize = getImageVarious(Locale.get("Image_too_big"));
-            }
-            return imageTooBigSize;
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "MapScreen.getImageTooBigSize()", null);
-            return null;
+        if (imageTooBigSize == null) {
+            imageTooBigSize = Image.createImage(1, 1);
         }
+        return imageTooBigSize;
     }
 
+    public static Image getImageForbidden() {
+        if (imageForbidden == null) {
+            imageForbidden = Image.createImage(1, 1);
+        }
+        return imageForbidden;
+    }
+    
     public static final Image getLoadingImage() {
         if (loadingImage == null) {
             loadingImage = IconData.getLocalImage("map_tile_64x64.png");
         }
         return loadingImage;
-    }
-
-    private static Image getImageVarious(String tileText) {
-        Image image = Image.createImage(64, 64);
-        Graphics g = image.getGraphics();
-
-        g.drawImage(getLoadingImage(), 0, 0);
-        g.setFont(ColorsFonts.FONT_MEDIUM);
-        g.drawString(tileText, (64 - ColorsFonts.FONT_MEDIUM.stringWidth(tileText)) / 2, (64 - 10) / 2);
-
-        return image;
     }
 
     public static Image getMapIconPlus() {

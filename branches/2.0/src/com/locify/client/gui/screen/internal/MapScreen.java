@@ -33,6 +33,7 @@ import com.locify.client.maps.NetworkLinkDownloader;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.mapItem.DescriptionMapItem;
 import com.locify.client.maps.mapItem.MapItem;
+import com.locify.client.maps.mapItem.MapItemInfoPanel;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
@@ -184,6 +185,8 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
         };
         addComponent(BorderLayout.CENTER, mainContainer);
         R.getLocator().addLocationChangeListener(this);
+
+        addComponent(BorderLayout.NORTH, new MapItemInfoPanel());
     }
 
     /**
@@ -373,7 +376,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
                         wpt = (Waypoint) selectedMapItemWaypoints.elementAt(i);
                         Point2D.Int temp = mapContent.getActualMapLayer().getLocationCoord(
                                 new Location4D(wpt.getLatitude(), wpt.getLongitude(), 0.0f));
-                        wpt.paint(g, temp.x, temp.y);
+                        wpt.paint(g, g.getClipX() + temp.x, g.getClipY() + temp.y);
                     }
                 }
             } catch (Exception e) {
@@ -386,9 +389,9 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
         try {
             if (MainScreen.hasPointerEvents && mapContent.getActualMapLayer().getMaxZoomLevel() -
                     mapContent.getActualMapLayer().getMinZoomLevel() > 0) {
-                g.drawImage(MapImages.getMapIconZoomPlus(mainContainer.getHeight()), 0, 0);
-                g.drawImage(MapImages.getMapIconZoomMinus(mainContainer.getHeight()), 0,
-                        mainContainer.getHeight() - MapImages.getMapIconZoomMinus(mainContainer.getHeight()).getHeight());
+                g.drawImage(MapImages.getMapIconZoomPlus(mainContainer.getHeight()), g.getClipX(), g.getClipY());
+                g.drawImage(MapImages.getMapIconZoomMinus(mainContainer.getHeight()), g.getClipX(),
+                        g.getClipY() + mainContainer.getHeight() - MapImages.getMapIconZoomMinus(mainContainer.getHeight()).getHeight());
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "MapScreen.drawMap()", "mapZoomButtons");

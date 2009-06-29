@@ -14,7 +14,6 @@
 package com.locify.client.utils;
 
 import com.sun.lwuit.util.Resources;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -27,9 +26,15 @@ public class Locale {
     private static Hashtable lang;
 
     public static String get(String string) {
-        if (lang != null)
-            return (String) lang.get(string);
-        return "unknown";
+        String result = null;
+
+        if (lang != null) {
+            result = (String) lang.get(string);
+        }
+        if (result == null) {
+            result = "unknown";
+        }
+        return result;
     }
 
     public static void loadTranslations(String string) {

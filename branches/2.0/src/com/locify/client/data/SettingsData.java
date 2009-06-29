@@ -183,6 +183,10 @@ public class SettingsData {
         return (settings.get("showIconsHelp").equals("1"));
     }
 
+    public long getTotalDownloadedDataSize() {
+        return Long.parseLong((String) settings.get("downloadedData"));
+    }
+
     public void setLastDevice(String lastDevice) {
         settings.put("lastDevice", lastDevice);
         saveXML();
@@ -195,6 +199,11 @@ public class SettingsData {
         saveXML();
     }
 
+    public void setTotalDownloadedDataSize(long data) {
+        settings.put("downloadedData", String.valueOf(data));
+        saveXML();
+    }
+    
     public static String getLanguage() {
         return language;
     }
@@ -254,7 +263,7 @@ public class SettingsData {
             settings.put("prefferedGps", String.valueOf(AUTODETECT));
             settings.put("defaultMapProvider", "0"); //online google maps
             settings.put("filecache", String.valueOf(ON));
-            settings.put("filecacheSize", "5120"); //kB = 5 MB
+            settings.put("filecacheSize", "10240"); //kB = 5 MB
             //#if applet
 //#             settings.put("panning", String.valueOf(REPAINT_DURING));
             //#else
@@ -270,6 +279,7 @@ public class SettingsData {
             }
             settings.put("backlight", String.valueOf(NOWHERE));
             settings.put("backlightFrequency", "4");
+            settings.put("downloadedData", "0");
 
             if (!R.getFileSystem().exists(FileSystem.SETTINGS_FILE)) {
                 saveXML();

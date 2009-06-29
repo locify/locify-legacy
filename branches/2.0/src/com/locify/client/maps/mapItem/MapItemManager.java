@@ -32,7 +32,7 @@ import java.util.Vector;
 
 
 /**
- * Manages visible map itemps on map
+ * Manages visible map items on map
  * @author MenKat
  */
 public class MapItemManager {
@@ -53,6 +53,12 @@ public class MapItemManager {
             scale.priority = MapItem.PRIORITY_HIGH;
             scale.setEnabled(true);
             addItemFixed(Locale.get("Scale"), scale);
+        }
+        if (!isFixed(Locale.get("DataTransfer"))) {
+            MapItem dataTransfer = new DataTransferMapItem();
+            dataTransfer.priority = MapItem.PRIORITY_HIGH;
+            dataTransfer.setEnabled(true);
+            addItemFixed(Locale.get("DataTransfer"), dataTransfer);
         }
     }
 
@@ -192,7 +198,7 @@ public class MapItemManager {
     }
 
     /**
-     * Removes all elements excluding scale
+     * Removes all elements excluding fixed
      */
     public void removeAll() {
         items.clear();

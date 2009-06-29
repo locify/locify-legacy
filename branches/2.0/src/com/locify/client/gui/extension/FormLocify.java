@@ -32,6 +32,7 @@ import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
+import com.sun.lwuit.Display;
 import com.sun.lwuit.Font;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Graphics;
@@ -48,10 +49,12 @@ import com.sun.lwuit.layouts.Layout;
 import com.sun.lwuit.list.DefaultListCellRenderer;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyException;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
+import javax.microedition.lcdui.game.GameCanvas;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
 
@@ -89,7 +92,7 @@ public class FormLocify extends Form implements BackgroundListener {
 
                 public void paintBackground(Graphics g) {
                     super.paintBackground(g);
-    //                super.paintBackgrounds(g);
+
                     if (isSubMenu) {
                         int oldColor = g.getColor();
                         if (hasFocus()) {
@@ -136,8 +139,25 @@ public class FormLocify extends Form implements BackgroundListener {
     }
 
     public void show() {
-Utils.printMemoryState("FormLocify.show()");
+//Utils.printMemoryState("FormLocify.show()");
         super.show();
+    }
+
+    public void setFullscreenMode(boolean fullScreen) {
+        if (fullScreen) {
+            this.getTitleComponent().setVisible(true);
+            for (int i = 0; i < getComponentCount(); i++) {
+                System.out.println("Component: " + getComponentAt(i));
+            }
+        } else {
+            this.getTitleComponent().setVisible(false);
+        }
+    }
+
+    public void keyPressed(int code) {
+        if (code == GameCanvas.KEY_NUM4) {
+            setFullscreenMode(true);
+        }
     }
 
     /*******************************/
@@ -627,6 +647,7 @@ Utils.printMemoryState("FormLocify.show()");
         }
 
         public void actionPerformed(ActionEvent evt) {
+//System.out.println((selection == null) + " " + commandList.size());
             menuDialog.deregisterAnimated(this);
             if (selection != null) {
                 showSubmenu();
@@ -670,7 +691,8 @@ Utils.printMemoryState("FormLocify.show()");
             subMenu.addCommand(cancel);
             subMenu.addCommand(select);
             //subMenu.show(getHeight() / 2 - 20, 20, getWidth() / 4, 20, true, true);
-            subMenu.show(getHeight() / 2 - 20, 0, getWidth() / 4, 0, true, true);
+            //subMenu.show(getHeight() / 2 - 20, 0, getWidth() / 4, 0, true, true);
+            subMenu.show(getHeight() / 2 - 20, 10, 0, getWidth() / 4, true, true);
         }
     }
 }

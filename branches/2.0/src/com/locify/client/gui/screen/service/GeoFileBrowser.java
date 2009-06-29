@@ -196,9 +196,9 @@ public class GeoFileBrowser implements ActionListener {
     private void viewDataRoute() {
         actualForm = FORM_ROUTE;
         form.setAsNew(route.getName());
-        if (route.getRouteDist() > 0) {
+        if (route.getRouteDist() != null) {
             form.addComponent(new Label(Locale.get("Route_length")));
-            form.addComponent(new Label(GpsUtils.formatDistance(route.getRouteDist())));
+            form.addComponent(new Label(route.getRouteDist()));
         }
         if (route.getRouteTime() > 0) {
             form.addComponent(new Label(Locale.get("Travel_time")));

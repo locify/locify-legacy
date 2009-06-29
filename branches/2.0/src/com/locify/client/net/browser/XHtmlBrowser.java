@@ -81,7 +81,7 @@ public class XHtmlBrowser implements Runnable {
 
     public XHtmlBrowser(Container container) {
         this.container = container;
-//        container.setLayout(new FlowLayoutYScroll());
+        container.setLayout(new FlowLayoutYScroll());
         currentContainer = container;
 
         XHTMLTagHandler = new XHtmlTagHandler();
@@ -279,8 +279,8 @@ System.out.println("AddComponent: " + component + ", container: " + currentConta
      * @param text
      */
     protected void handleText(String text) {
-        System.out.println("XHtmlBrowser: handleText: '" + text + "'");
         if (text.length() > 0) {
+            System.out.println("XHtmlBrowser: handleText: '" + text + "'");
             text = text.replace('\t', '\n');
             Vector data = StringTokenizer.getVector(text, "\n");
 
@@ -402,11 +402,9 @@ System.out.println("AddComponent: " + component + ", container: " + currentConta
                 break;
 
         }
-
-
-
         Label where = new Label(Locale.get("Where") + ":");
         addComponent(where);
+        addNewLine();
         Button btnChange = new Button(Locale.get("Change"));
         btnChange.addActionListener(new ActionListener() {
 

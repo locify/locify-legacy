@@ -14,6 +14,7 @@
 package com.locify.client.maps;
 
 import com.locify.client.data.FileSystem;
+import com.locify.client.data.SettingsData;
 import com.locify.client.gui.extension.TopBarBackground;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
@@ -60,7 +61,11 @@ public class TileCache extends Thread {
     private Vector tileCache;
     private Vector tileRequest;
     private Vector tileNewRequest;
-
+    /** actual value of downloaded data in bytes */
+    private long dataSession;
+    /** total value of downloaded data */
+    private long dataTotal;
+    
     /**
      * Create file cache for images.
      * @param cacheMaxSize
@@ -95,6 +100,22 @@ public class TileCache extends Thread {
         this.needRefresh = false;
         this.localRefreshCalling = false;
         this.timeOut = 60000;
+
+        this.dataSession = 0;
+        this.dataTotal = R.getSettings().getTotalDownloadedDataSize();
+    }
+
+    public long getDownloadedDataSession() {
+        return dataSession;
+    }
+
+    public long getDownloadedDataTotal() {
+        return dataTotal;
+    }
+
+    public void resetDownloadedData() {
+        dataSession = 0;
+        dataTotal = 0;
     }
 
     public void newRequest(Vector newRequest) {
@@ -381,12 +402,24 @@ public class TileCache extends Thread {
 
         public void run() {
             try {
+                byte[] data = null;
+                String hashedName = null;
+
+                if (R.getSettings().getFilecache() == SettingsData.ON) {
+                    if (actualCacheTileSizeFilesystem > maxCacheTileSizeFilesystem) {
+                        R.getFileSystem().clearMapCacheDirectory();
+                        actualCacheTileSizeFilesystem = R.getFileSystem().getSize(FileSystem.ROOT +
+                                FileSystem.CACHE_MAP_TILE_FOLDER, FileSystem.SIZE_DIRECTORY_AND_SUBDIRECTORIES);
+                    }
+                    hashedName = FileSystem.hashFileName(path);
+                    // check cache for image
+                    data = R.getFileSystem().loadBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName);
+                }
+
                 if (actualCacheTileSizeFilesystem > maxCacheTileSizeFilesystem) {
                     R.getFileSystem().clearMapCacheDirectory();
                 }
-                String hashedName = FileSystem.hashFileName(path);
-                // check cache for image
-                byte[] data = R.getFileSystem().loadBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName);
+
                 if (data == null) {
 //System.out.println("Load from web: " + path);
                     connection = (HttpConnection) Connector.open(path, Connector.READ);
@@ -423,8 +456,14 @@ public class TileCache extends Thread {
                         this.image = Image.createImage(data, 0, data.length);
 
                         // cache data at the end
-                        R.getFileSystem().saveBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName, data);
-                        actualCacheTileSizeFilesystem += data.length;
+                        if (R.getSettings().getFilecache() == SettingsData.ON) {
+                            R.getFileSystem().saveBytes(FileSystem.CACHE_MAP_TILE_FOLDER + hashedName, data);
+                            actualCacheTileSizeFilesystem += data.length;
+                        }
+
+                        // sum transfered data
+                        dataSession += data.length;
+                        dataTotal += data.length;
                         
                         data = null;
                     } else {

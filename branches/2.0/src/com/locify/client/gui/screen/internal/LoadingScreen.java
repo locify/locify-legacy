@@ -14,7 +14,7 @@
 package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.IconData;
-import com.locify.client.gui.extension.FormLocify;
+import com.sun.lwuit.Form;
 import com.sun.lwuit.Image;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.layouts.BorderLayout;
@@ -23,7 +23,7 @@ import com.sun.lwuit.layouts.BorderLayout;
  * This screen is shown until main screen is loaded
  * @author David Vavra
  */
-public class LoadingScreen extends FormLocify {
+public class LoadingScreen extends Form {
 
     private Image image;
     private Label label;
