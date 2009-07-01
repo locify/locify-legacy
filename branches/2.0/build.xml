@@ -13,7 +13,7 @@
         <!-- this is for generating aplet for web, turns off filesystem and other apis -->
         <property name="applet" value="false" />
 
-        <property name="WM" value="true"/>
+        <property name="WM" value="false"/>
         <property name="WMbig" value="false"/>
         <property name="BlackBerry" value="false"/>
     </target>
@@ -75,15 +75,15 @@
             </l10n>
         </build>
         -->
-        <build dest="build/compiled/fonts.res">
+<!--        <build dest="build/compiled/fonts.res">
             <font logicalName="Times" size="10" name="arial_10" charset=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-0123456789ěščřžýáíéúď" />
-            <!--<font logicalName="Arial" size="10" name="arial_10" />-->
             <font logicalName="Arial" size="14" name="arial_14" />
             <font logicalName="Arial" size="16" name="arial_16" />
             <font logicalName="Arial" size="18" name="arial_18" />
             <font logicalName="Arial" size="18" name="arial_18_white_big_bold_letters_only" />
             <font logicalName="Arial" size="20" name="arial_20" />
         </build>
+-->
     </target>
 
     <target name="WM" depends="">

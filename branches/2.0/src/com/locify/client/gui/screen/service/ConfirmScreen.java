@@ -61,8 +61,8 @@ public class ConfirmScreen implements ActionListener {
         form.setLayout(new BorderLayout());
         HtmlTextArea label = new HtmlTextArea(question, false);
         form.addComponent(BorderLayout.CENTER, label);
-        form.addCommand(Commands.cmdYes);
         form.addCommand(Commands.cmdNo);
+        form.addCommand(Commands.cmdYes);
         form.setCommandListener(this);
         form.show();
     }

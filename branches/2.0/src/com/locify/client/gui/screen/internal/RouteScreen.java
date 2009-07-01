@@ -52,6 +52,7 @@ public class RouteScreen extends FormLocify implements ActionListener {
 
     public RouteScreen() {
         super(Locale.get("Record_route"));
+        routeManager = new RouteManager();
     }
 
     public void view() {
@@ -68,8 +69,6 @@ public class RouteScreen extends FormLocify implements ActionListener {
                 this.setCommandListener(this);
 
                 registerBackgroundListener();
-
-                routeManager = new RouteManager();
 
                 initializeSkins(FileSystem.SKINS_FOLDER_ROUTE_RECORD);
                 initializeButtons();

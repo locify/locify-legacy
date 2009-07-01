@@ -107,7 +107,10 @@ public class GeoUtil {
             int referenceZoomLevel,
             TileFactoryInfo info) {
         try {
+//System.out.println("GeoUtil.getBitmapCoordinate() lat: " + latitude + " lon: " + longitude + " ref. zoom: " + referenceZoomLevel + " info: " + info.toString());
+//System.out.println("GeoUtil x1: " + info.getMapCenterInPixelsAtZoom(referenceZoomLevel));
             x = info.getMapCenterInPixelsAtZoom(referenceZoomLevel).getX() + longitude * info.getLongitudeDegreeWidthInPixels(referenceZoomLevel);
+//System.out.println("GeoUtil x: " + x);
             e = Math.sin(latitude * (Math.PI / 180.0));
             if (e > 0.9999) {
                 e = 0.9999;
@@ -115,9 +118,11 @@ public class GeoUtil {
             if (e < -0.9999) {
                 e = -0.9999;
             }
+//System.out.println("GeoUtil x: " + x);
             y = info.getMapCenterInPixelsAtZoom(referenceZoomLevel).getY() + 0.5 *
                     LMath.log((1 + e) / (1 - e)) * -1 *
                     (info.getLongitudeRadianWidthInPixels(referenceZoomLevel));
+//System.out.println("GeoUtil y: " + y);
             //y = info.getMapCenterInPixelsAtZoom(referenceZoomLevel).getY() + 0.5 * 1000 * -1 * (info.getLongitudeRadianWidthInPixels(referenceZoomLevel));
             //System.out.print("\nGeoUtil.getBitmapCoordinate : lat: " + latitude + " lon: " + longitude + " x: " + x + " y: " + y);
             return new Point2D.Double(x, y);

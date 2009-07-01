@@ -195,7 +195,7 @@ public class FileSystem {
             //#if release
 //#             String locifyFolder = "Locify/";
             //#else
-            String locifyFolder = "Locify-nightly/";
+            String locifyFolder = "Locify-nightly2.0/";
             //#endif
             Vector tryOuts = new Vector();
             tryOuts.addElement(locifyFolder);

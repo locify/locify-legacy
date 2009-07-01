@@ -32,7 +32,6 @@ import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
-import com.sun.lwuit.Display;
 import com.sun.lwuit.Font;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Graphics;
@@ -49,7 +48,6 @@ import com.sun.lwuit.layouts.Layout;
 import com.sun.lwuit.list.DefaultListCellRenderer;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.KeyException;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.microedition.io.Connector;
@@ -66,6 +64,10 @@ public class FormLocify extends Form implements BackgroundListener {
 
     private Dialog menuDialog;
     private ParentCommand selection;
+
+    private static boolean fullScreen = false;
+    private static int heightTitle = 0;
+    private static int heightMenuBar = 0;
     
     public FormLocify() {
         this("");
@@ -112,6 +114,8 @@ public class FormLocify extends Form implements BackgroundListener {
                     }
                 }
             });
+
+            switchFullscreenMode(fullScreen);
         } catch (Exception ex) {
             R.getErrorScreen().view(ex, "FormLocify()", null);
         }
@@ -141,22 +145,33 @@ public class FormLocify extends Form implements BackgroundListener {
     public void show() {
 //Utils.printMemoryState("FormLocify.show()");
         super.show();
-    }
 
-    public void setFullscreenMode(boolean fullScreen) {
-        if (fullScreen) {
-            this.getTitleComponent().setVisible(true);
-            for (int i = 0; i < getComponentCount(); i++) {
-                System.out.println("Component: " + getComponentAt(i));
-            }
-        } else {
-            this.getTitleComponent().setVisible(false);
+        if (heightTitle == 0) {
+            heightTitle = this.getTitleComponent().getHeight();
+            heightMenuBar = getComponentAt(this.getComponentCount() - 1).getHeight();
+//System.out.println("set: " + heightTitle + ", " + heightMenuBar);
         }
     }
 
+    public void switchFullscreenMode(boolean fullScreen) {
+        if (heightTitle == 0)
+            return;
+        
+//System.out.println("setFS: " + heightTitle + ", " + heightMenuBar + ", " + fullScreen);
+        FormLocify.fullScreen = fullScreen;
+        if (fullScreen) {
+            this.getTitleComponent().setPreferredH(0);
+            this.getComponentAt(this.getComponentCount() - 1).setPreferredH(10);
+        } else {
+            this.getTitleComponent().setPreferredH(heightTitle);
+            this.getComponentAt(this.getComponentCount() - 1).setPreferredH(heightMenuBar);
+        }
+        revalidate();
+    }
+
     public void keyPressed(int code) {
-        if (code == GameCanvas.KEY_NUM4) {
-            setFullscreenMode(true);
+        if (code == GameCanvas.KEY_NUM5) {
+            switchFullscreenMode(!fullScreen);
         }
     }
 
@@ -611,7 +626,7 @@ public class FormLocify extends Form implements BackgroundListener {
 
         private List commandList;
         private long selectTime;
-        private static final int SUBMENU_POPUP_DELAY = 1000;
+        private static final int SUBMENU_POPUP_DELAY = 10000;
 
         public SelectionMonitor(List commandList) {
             this.commandList = commandList;

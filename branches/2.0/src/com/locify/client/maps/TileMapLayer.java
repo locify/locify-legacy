@@ -419,7 +419,7 @@ public class TileMapLayer implements MapLayer {
 
         int actualZoom = getActualZoomLevel();
         Rectangle2D rect = generateBoundingRect(positions, actualZoom);
-
+System.out.println("Rect: " + rect);
         if (rect.getWidth() == 0 || rect.getHeight() == 0)
             return;
 
@@ -454,6 +454,7 @@ public class TileMapLayer implements MapLayer {
                 Point2D cent = new Point2D.Double(
                         rect.getX() + rect.getWidth() / 2,
                         rect.getY() + rect.getHeight() / 2);
+//System.out.println("View: " + viewportBounds);
 //System.out.println("Rect: " + rect + ", cent: " + cent + ", actZoom: " + actualZoom);
                 Location4D px = getTileFactory().pixelToGeo(cent, actualZoom);
 //System.out.println("New loc: " + px);
@@ -466,8 +467,8 @@ public class TileMapLayer implements MapLayer {
 //System.out.println("Break");
                     break;
                 }
+                actualZoom = actualZoom - 1;
                 if (actualZoom >= getMinZoomLevel()) {
-                    actualZoom = actualZoom - 1;
                     setZoomLevel(actualZoom);
                     rect = generateBoundingRect(positions, actualZoom);
                 } else {
@@ -554,6 +555,8 @@ public class TileMapLayer implements MapLayer {
         setCenter(new Point2D.Double(
                 oldCenter.getX() * (size.getWidth() / oldMapSize.getWidth()),
                 oldCenter.getY() * (size.getHeight() / oldMapSize.getHeight())));
+
+        refreshViewport();
     }
 
     public void setDefaultZoomLevel() {
