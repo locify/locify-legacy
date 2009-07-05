@@ -1,4 +1,3 @@
-//#ifdef noandroid
 /*
  * NetworkLinkDownloader.java
  * This file is part of Locify.
@@ -56,4 +55,3 @@ public class NetworkLinkDownloader extends Thread {
         }
     }
 }
-//#endif

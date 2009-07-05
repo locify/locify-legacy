@@ -104,14 +104,11 @@ title {
 }
 
 .alerttitle {
-    margin:0;
+    margin-top:3;
     padding: 3;
-    padding-left: 20;
     font-face: proportional;
     font-style: bold;
-    background: gradient;
-    border: bottomBorder;
-    layout: left | horizontal-expand;
+    layout: right;
     //#if polish.name == WM-big
       font-bitmap:arial_24_bold;
     //#endif
@@ -437,16 +434,13 @@ p {
     margin-right: 10;
     margin-left: 10;
     padding: 5;
-    padding-top:15;
-    padding-bottom:0;
     layout: horizontal-center | bottom | horizontal-shrink | vertical-shrink;
     repaint-previous-screen: true;
-    border {
-        type: drop-shadow;
-        width: 6;
-        inner-color: #aff0;
-        outer-color: #2002;
-        orientation: top-right;
+    background {
+        type: round-rect;
+        color: bgColor;
+        border-width: 2;
+        border-color: borderColor;
     }
     screen-change-animation: fade;
     title-style:.alertTitle;
@@ -547,7 +541,7 @@ menuItem {
     layout: left | horizontal-expand;
     focused-style:.focusedMenuItem;
     border: bottomBorder;
-    margin:0;
+    margin-right:3;
     padding:3;
     scroll-mode: normal;
     command-child-indicator-color: black;

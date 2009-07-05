@@ -22,7 +22,7 @@ import com.locify.client.locator.LocationEventGenerator;
 import com.locify.client.locator.LocationEventListener;
 import com.locify.client.maps.FileMapLayer;
 import com.locify.client.maps.MapLayer;
-//import com.locify.client.maps.NetworkLinkDownloader;
+import com.locify.client.maps.NetworkLinkDownloader;
 import com.locify.client.maps.TileCache;
 import com.locify.client.maps.TileMapLayer;
 import com.locify.client.maps.fileMaps.FileMapManager;
@@ -100,7 +100,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     /** manager for objects to show on screen */
     private MapItemManager mapItemManager;
     /** downloader for network link */
-    //private NetworkLinkDownloader networkLinkDownloader;
+    private NetworkLinkDownloader networkLinkDownloader;
     /* path to image tiles */
     public static final String IMAGE_EMPTY_TILE = "/map_tile_64x64.png";
     public static final String IMAGE_ICON_PLUS = "/map_icon_plus.png";
@@ -379,11 +379,11 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void view(NetworkLink link) {
-        /*if (networkLinkDownloader != null) {
+        if (networkLinkDownloader != null) {
             networkLinkDownloader.stop();
         }
         networkLinkDownloader = new NetworkLinkDownloader(link);
-        networkLinkDownloader.start();*/
+        networkLinkDownloader.start();
 
         differentScreenLock = false;
         view();
@@ -395,10 +395,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
      * It is called when leaving map with network link
      */
     public void stopNetworkLink() {
-        /*if (networkLinkDownloader != null) {
+        if (networkLinkDownloader != null) {
             nowDirectly = false;
             networkLinkDownloader.stop();
-        }*/
+        }
     }
 
     public static boolean isNowDirectly() {
@@ -458,7 +458,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     public void paint(Graphics g) {
         try {
             if (g.getClipHeight() < 40) {
-                g.setClip(0, 0, g.getClipWidth(), TOP_MARGIN + 2);
+                g.setClip(0, 0, g.getClipWidth(), TOP_MARGIN + 1);
             }
             super.paint(g);
 
@@ -467,7 +467,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
             }
             drawLock = true;
             if (g.getClipHeight() > 40) {
-                g.setClip(0, TOP_MARGIN + 2, g.getClipWidth(), getAvailableHeight());
+                g.setClip(0, TOP_MARGIN + 1, g.getClipWidth(), getAvailableHeight());
                 drawMap(g);
             }
             drawLock = false;
@@ -724,9 +724,9 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
                 for (int i = 0; i < R.getContext().commands.length; i++) {
                     if (cmd == R.getContext().commands[i]) {
                         lastCenterPoint = null;
-                        /*if (networkLinkDownloader != null) {
+                        if (networkLinkDownloader != null) {
                             networkLinkDownloader.stop();
-                        }*/
+                        }
                         R.getContext().setTemporaryScreen("locify://maps");
                         R.getURL().call(R.getContext().actions[i]);
                         return;
@@ -1570,10 +1570,10 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
     }
 
     public void resumeNetworkLink() {
-    	/*
+    	
         if (networkLinkDownloader != null && networkLinkDownloader.isStopped()) {
             networkLinkDownloader.resume();
-        }*/
+        }
     }
 
     public void setDifferentScreenLock(boolean differentScreenLock) {

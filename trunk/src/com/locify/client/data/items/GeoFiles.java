@@ -443,7 +443,7 @@ public abstract class GeoFiles {
                                 }
                             }
                         } catch (Exception e) {
-                            Logger.warning("GeoFiles.parseKml() - 'Networklink' tag error!!!");
+                            Logger.warning("GeoFiles.parseKml() - 'Networklink' tag error! "+e);
                         }
                     } else if (tagName.equalsIgnoreCase("Pair")) {
                         try {
