@@ -51,23 +51,23 @@ public class MainScreen extends TabbedForm implements CommandListener, TabbedFor
 
     private Vector items;
     private MainScreenItem itemToBeMoved = null;
-    public Command cmdService = new Command(Locale.get("Service"), Command.SCREEN, 11);
-    protected Command cmdShortcut = new Command(Locale.get("Shortcut"), Command.SCREEN, 11);
-    protected Command cmdAdd = new Command(Locale.get("Add"), Command.SCREEN, 13);
-    protected Command cmdExit = new Command(Locale.get("Exit"), Command.EXIT, 1);
+    public Command cmdService = new Command(" "+Locale.get("Service"), Command.SCREEN, 11);
+    protected Command cmdShortcut = new Command(" "+Locale.get("Shortcut"), Command.SCREEN, 11);
+    protected Command cmdAdd = new Command(" "+Locale.get("Add"), Command.SCREEN, 13);
+    protected Command cmdExit = new Command(" "+Locale.get("Exit"), Command.EXIT, 1);
     //service/shortcut
-    public Command cmdMoreInfo = new Command(Locale.get("More_info"), Command.SCREEN, 10);
-    public Command cmdServiceSettings = new Command(Locale.get("Settings"), Command.SCREEN, 11);
-    public Command cmdUpdateService = new Command(Locale.get("Update_service"), Command.SCREEN, 12);
-    protected Command cmdRename = new Command(Locale.get("Rename"), Command.SCREEN, 13);
-    protected Command cmdMove = new Command(Locale.get("Move"), Command.SCREEN, 14);
-    protected Command cmdDelete = new Command(Locale.get("Delete"), Command.SCREEN, 15);
+    public Command cmdMoreInfo = new Command(" "+Locale.get("More_info"), Command.SCREEN, 10);
+    public Command cmdServiceSettings = new Command(" "+Locale.get("Settings"), Command.SCREEN, 11);
+    public Command cmdUpdateService = new Command(" "+Locale.get("Update_service"), Command.SCREEN, 12);
+    protected Command cmdRename = new Command(" "+Locale.get("Rename"), Command.SCREEN, 13);
+    protected Command cmdMove = new Command(" "+Locale.get("Move"), Command.SCREEN, 14);
+    protected Command cmdDelete = new Command(" "+Locale.get("Delete"), Command.SCREEN, 15);
     //add
-    protected Command cmdAddService = new Command(Locale.get("Service_from_list"), Command.SCREEN, 10);
-    protected Command cmdAddByLink = new Command(Locale.get("Service_by_link"), Command.SCREEN, 11);
+    protected Command cmdAddService = new Command(" "+Locale.get("Service_from_list"), Command.SCREEN, 10);
+    protected Command cmdAddByLink = new Command(" "+Locale.get("Service_by_link"), Command.SCREEN, 11);
     //right button commands
-    protected Command cmdMoveTo = new Command(Locale.get("Move"), Command.SCREEN, 1);
-    protected Command cmdCancel = new Command(Locale.get("Cancel"), Command.CANCEL, 2);
+    protected Command cmdMoveTo = new Command(" "+Locale.get("Move"), Command.SCREEN, 1);
+    protected Command cmdCancel = new Command(" "+Locale.get("Cancel"), Command.CANCEL, 2);
     private ChoiceGroup cgServices;
     private ChoiceGroup cgWhere;
     private ChoiceGroup cgSaved;

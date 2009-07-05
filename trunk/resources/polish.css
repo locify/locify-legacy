@@ -84,7 +84,6 @@ borders {
     }
 }
 
-
 /* -------------------------------- TITLE ------------------------------ */
 /* Title of every page */
 title {
@@ -189,6 +188,7 @@ listitem {
     radiobox-plain:none;
     radiobox-selected:none;
     border:originalBottomBorder;
+    font-style:plain;
     //#if polish.name == WM-big
       font-bitmap:arial_24;
     //#endif
@@ -204,6 +204,7 @@ listitem {
 form {
     background-color:bgColor;
     scroll-mode: normal;
+    font-style:plain;
 }
 
 /* Label of the form item */
@@ -216,6 +217,7 @@ label {
 
 /* Text input */
 textfield {
+    font-style:bold;
     border:inputBorder;
     background-color:white;
     focused-style:.textfieldFocused;
@@ -339,6 +341,7 @@ a:hover extends a {
     view-type: midp2;
     padding:0;
     margin:0;
+    font-style:plain;
 }
 
 .browserText {
@@ -446,18 +449,6 @@ p {
     title-style:.alertTitle;
 }
 
-/* Navigation screen */
-.navigationScreen {
-    padding: 5;
-    padding-left: 10;
-    padding-right: 10;
-    padding-vertical: 10;
-    layout: bottom | expand;
-    columns: 2;
-    columns-width: equal;
-}
-
-
 .naviInfoText {
     background-color: red;
     font {
@@ -492,8 +483,6 @@ menubar
 /* Left command in menu bar */
 leftcommand
 {
-    margin-left: 10;
-    margin-right: 10;
     padding-top: 3;
     padding-bottom: 0;
     font-color: black;

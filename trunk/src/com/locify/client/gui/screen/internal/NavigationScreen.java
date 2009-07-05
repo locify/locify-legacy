@@ -89,7 +89,6 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     private static int TOP_MARGIN;
 
     public NavigationScreen() {
-        ////#style .navigationScreen
         super(Locale.get("Navigation"));
         try {
             cmdMore = new Command(Locale.get("Navi_more"), Command.ITEM, 2);
@@ -222,8 +221,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         view();
     }
 
-    public void removeNavigator()
-    {
+    public void removeNavigator() {
         navigator = null;
         repaint();
     }
@@ -336,6 +334,9 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
     }
 
     public void paint(Graphics gr) {
+        if (gr.getClipHeight() < 40) {
+            gr.setClip(0, 0, gr.getClipWidth(), TOP_MARGIN + 1);
+        }
         super.paint(gr);
         if (drawLock || isMenuOpened()) {
             return;
@@ -343,6 +344,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
         this.drawLock = true;
 
         if (gr.getClipHeight() > 40) {
+            gr.setClip(0, TOP_MARGIN + 1, gr.getClipWidth(), getAvailableHeight());
             setCompas(gr);
             setArrow(gr);
             for (int i = 0; i < items.size(); i++) {
@@ -478,7 +480,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
                 ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getHeight() - 40 - BOTTOM_MARGIN, sizeX, 30);
             } else {
                 ((ScreenItem) items.get(ITEM_TIME)).setSizePos(0, TOP_MARGIN, sizeX, 30);
-                ((ScreenItem) items.get(ITEM_DATE)).setSizePos(Capabilities.getWidth()-sizeX, TOP_MARGIN, sizeX, 30);
+                ((ScreenItem) items.get(ITEM_DATE)).setSizePos(Capabilities.getWidth() - sizeX, TOP_MARGIN, sizeX, 30);
                 ((ScreenItem) items.get(ITEM_DISTANCE)).setSizePos(space, Capabilities.getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
                 ((ScreenItem) items.get(ITEM_SPEED)).setSizePos(2 * space + sizeX, Capabilities.getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);
                 ((ScreenItem) items.get(ITEM_ACCURACY)).setSizePos(3 * space + 2 * sizeX, Capabilities.getHeight() - 80 - BOTTOM_MARGIN, sizeX, 30);

@@ -30,7 +30,6 @@ import com.locify.client.utils.UTF8;
 import com.locify.client.utils.R;
 import com.locify.client.net.XHTMLBrowser;
 import com.locify.client.net.Http;
-import com.locify.client.utils.Logger;
 import de.enough.polish.ui.ChoiceGroup;
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.Screen;
@@ -76,15 +75,15 @@ public class GeoFileBrowser implements CommandListener {
 
     public GeoFileBrowser() {
         dataType = GeoFiles.TYPE_CORRUPT;
-        cmdMap = new Command(Locale.get("Show_on_map"), Command.SCREEN, 10);
-        cmdMapAll = new Command(Locale.get("Show_on_map_all"), Command.SCREEN, 11);
-        cmdExport = new Command(Locale.get("To_landmarks"), Command.SCREEN, 20);
-        cmdNavigateToFirst = new Command(Locale.get("Navigate_to_first_point"), Command.SCREEN, 31);
-        cmdNavigateToLast = new Command(Locale.get("Navigate_to_last_point"), Command.SCREEN, 32);
-        cmdNavigateAlong = new Command(Locale.get("Navigate_along"), Command.SCREEN, 30);
-        cmdNavigateToNearest = new Command(Locale.get("Navigate_to_nearest"), Command.SCREEN, 33);
-        cmdExportFirst = new Command(Locale.get("First_point"), Command.SCREEN, 21);
-        cmdExportLast = new Command(Locale.get("Last_point"), Command.SCREEN, 22);
+        cmdMap = new Command(" "+Locale.get("Show_on_map"), Command.SCREEN, 10);
+        cmdMapAll = new Command(" "+Locale.get("Show_on_map_all"), Command.SCREEN, 11);
+        cmdExport = new Command(" "+Locale.get("To_landmarks"), Command.SCREEN, 20);
+        cmdNavigateToFirst = new Command(" "+Locale.get("Navigate_to_first_point"), Command.SCREEN, 31);
+        cmdNavigateToLast = new Command(" "+Locale.get("Navigate_to_last_point"), Command.SCREEN, 32);
+        cmdNavigateAlong = new Command(" "+Locale.get("Navigate_along"), Command.SCREEN, 30);
+        cmdNavigateToNearest = new Command(" "+Locale.get("Navigate_to_nearest"), Command.SCREEN, 33);
+        cmdExportFirst = new Command(" "+Locale.get("First_point"), Command.SCREEN, 21);
+        cmdExportLast = new Command(" "+Locale.get("Last_point"), Command.SCREEN, 22);
     }
 
     /**
