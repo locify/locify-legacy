@@ -38,6 +38,7 @@ import de.enough.polish.browser.TagHandler;
 import de.enough.polish.browser.html.FormListener;
 import com.locify.client.gui.screen.service.HtmlForm;
 import com.locify.client.utils.Commands;
+import com.locify.client.utils.StringTokenizer;
 import de.enough.polish.ui.ChoiceGroup;
 import de.enough.polish.ui.Container;
 import de.enough.polish.ui.ImageItem;
@@ -50,7 +51,6 @@ import de.enough.polish.ui.TableItem;
 import de.enough.polish.ui.TextField;
 import de.enough.polish.ui.UiAccess;
 import de.enough.polish.util.HashMap;
-import de.enough.polish.util.TextUtil;
 import de.enough.polish.xml.SimplePullParser;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Image;
@@ -119,6 +119,7 @@ public class XHTMLTagHandler
     public static final String TAG_LOCIFY_VIBRATE = "locify:vibrate";
     public static final String TAG_LOCIFY_BLINK = "locify:blink";
     public static final String TAG_LOCIFY_CONTACT = "locify:contact";
+    public static final String TAG_META = "meta";
     
     public static final String TAG_EMBED = "embed";
     /** type attribute */
@@ -241,6 +242,7 @@ public class XHTMLTagHandler
         parent.addTagHandler(TAG_LOCIFY_BLINK, this);
         parent.addTagHandler(TAG_LOCIFY_CONTACT, this);
         parent.addTagHandler(TAG_EMBED, this);
+        parent.addTagHandler(TAG_META, this);
     }
 
     /* (non-Javadoc)
@@ -665,13 +667,26 @@ public class XHTMLTagHandler
                     }
                 }
                 return true;
-            } else if (TAG_EMBED.equals(tagName)) {
+            } else if (TAG_EMBED.equalsIgnoreCase(tagName)) {
                 if (opening) {
                     if (attributeMap.get("src") != null) {
                         String file = (String) attributeMap.get("src");
                         if (file.endsWith("wav"))
                         {
                             R.getAudio().play(R.getHttp().makeAbsoluteURL(file));
+                        }
+                    }
+                }
+                return true;
+            } else if (TAG_META.equalsIgnoreCase(tagName)) { //redirection
+                if (opening) {
+                    if (attributeMap.get("http-equiv") != null && ((String)attributeMap.get("http-equiv")).equalsIgnoreCase("refresh")) {
+                        String url = (String)attributeMap.get("content");
+                        String[] parts = StringTokenizer.getArray(url, ";url=");
+                        String redirectionUrl = parts[1].substring(4);
+                        int redirectionTime = Integer.parseInt(parts[0]);
+                        if (redirectionTime != 0) {
+                            R.getAutoSend().start(redirectionUrl, redirectionTime);
                         }
                     }
                 }

@@ -74,7 +74,7 @@ public class ContentHandler {
                 else if (data.indexOf("<Error xmlns=\"urn:yahoo:api\">") != -1) {
                     Geocoding.error();
                 } //special Locify xhtml
-                else if (data.indexOf("<body class=\"alert\">") != -1 || data.indexOf("<body class=\"list\">") != -1 || data.indexOf("<body class=\"serviceInfo\">") != -1 || data.indexOf("<body class=\"confirmation\">") != -1 || data.indexOf("<body class=\"update\">") != -1 || data.indexOf("<meta http-equiv=\"refresh\"") != -1 || data.indexOf("<locify:call") != -1 || data.indexOf("<sync>") != -1) {
+                else if (data.indexOf("<body class=\"alert\">") != -1 || data.indexOf("<body class=\"list\">") != -1 || data.indexOf("<body class=\"serviceInfo\">") != -1 || data.indexOf("<body class=\"confirmation\">") != -1 || data.indexOf("<body class=\"update\">") != -1 || data.indexOf("<locify:call") != -1) {
                     boolean shouldCache = R.getXmlParser().parseLocifyXHTML(data);
                     if (!response.isDisabledCaching() && shouldCache) {
                         CacheData.add(response.getUrl(), data);

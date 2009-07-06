@@ -84,6 +84,12 @@ borders {
     }
 }
 
+default {
+    font-size:medium:
+    font-style:proportional;
+    font-style:plain;
+}
+
 /* -------------------------------- TITLE ------------------------------ */
 /* Title of every page */
 title {
@@ -217,7 +223,7 @@ label {
 
 /* Text input */
 textfield {
-    font-style:bold;
+    font-style:plain;
     border:inputBorder;
     background-color:white;
     focused-style:.textfieldFocused;

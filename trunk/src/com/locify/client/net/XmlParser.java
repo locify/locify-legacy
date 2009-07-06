@@ -92,19 +92,6 @@ public class XmlParser {
                     R.getURL().call(url);
                     return false;
                 }
-                if (name.equals("meta")) //redirection
-                {
-                    if (parser.getAttributeValue(null, "http-equiv").equalsIgnoreCase("refresh")) {
-                        String url = parser.getAttributeValue(null, "content");
-                        String[] parts = StringTokenizer.getArray(url, ";url=");
-                        redirectionUrl = parts[1].substring(4);
-                        redirectionTime = Integer.parseInt(parts[0]);
-                        if (redirectionTime != 0) {
-                            R.getAutoSend().start(redirectionUrl, redirectionTime);
-                        }
-                    }
-                    parser.nextText();
-                }
                 if (name.equals("body")) {
                     if (redirectionTime == 0) {
                         R.getURL().call(redirectionUrl);
