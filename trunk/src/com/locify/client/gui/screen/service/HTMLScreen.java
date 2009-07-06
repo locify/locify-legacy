@@ -97,14 +97,15 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
             //#style imgUpdateService
             UiAccess.addSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, form);
         }
-        if (updateItemsWithVariables()) {
+        if (updateItemsWithVariables() && htmlBrowser.getItems().length != 0) {
             R.getMidlet().switchDisplayable(null, form);
         }
-        htmlBrowser.focusChild(0);
+        if (htmlBrowser.getItems().length != 0) {
+            htmlBrowser.focusChild(0);
+        }
     }
 
-    public void reset()
-    {
+    public void reset() {
         htmlBrowser.clear();
     }
 
@@ -169,14 +170,12 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         htmlBrowser.add(stringItem);
     }
 
-
     /**
      * Adds hidden element into current form
      * @param name
      * @param value
      */
-    public void addHidden(String name, String value)
-    {
+    public void addHidden(String name, String value) {
         this.currentForm.addHiddenElement(name, value);
     }
 

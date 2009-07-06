@@ -298,6 +298,7 @@ checkbox
 {
     margin:0;
     padding-left:2;
+    font-style:plain;
     checkbox-plain:url(checkbox.png);
     checkbox-selected:url(checkbox-checked.png);
     focused-style:.checkboxFocused;

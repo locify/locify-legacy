@@ -17,7 +17,6 @@ import com.locify.client.data.items.Waypoint;
 import com.locify.client.locator.Location4D;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.utils.ColorsFonts;
-import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
@@ -80,6 +79,7 @@ public class MapNavigationItem extends MapItem {
                     g.setColor(ColorsFonts.RED);
                     if (items[0] != null && items[1] != null) {
                         g.drawLine(items[0].x, items[0].y, items[1].x, items[1].y);
+                        g.drawLine(items[0].x+1, items[0].y+1, items[1].x+1, items[1].y+1);
                     }
                     g.setStrokeStyle(Graphics.SOLID);
                 }

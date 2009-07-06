@@ -13,7 +13,6 @@
  */
 package com.locify.client.locator;
 
-import com.locify.client.locator.impl.DummyLocationFilter;
 import com.locify.client.locator.impl.KalmanLocationFilter;
 import com.locify.client.utils.R;
 import java.util.Enumeration;
@@ -77,6 +76,11 @@ public abstract class LocationProvider implements LocationEventGenerator {
     /** @return satellites in hashtable */
     public Hashtable getSatInView() {
         return satManager.getSatInView();
+    }
+
+    public int getAllSatellites()
+    {
+        return satManager.getAllSatellites();
     }
     
     /**

@@ -29,7 +29,7 @@ public class SatelliteManager {
     private Hashtable satInView = new Hashtable();
     private int actualSatInViewCount = 0;
 
-    private int allSatellites;
+    private int allSatellites = 0;
     private Integer prn;
     private float elevation;
     private float azimuth;
@@ -40,7 +40,6 @@ public class SatelliteManager {
 
     public void parseNMEASatellites(String nmea) {
         try {
-            if (R.getLocator().isSatScreenActive()) {
                 int starIndex = nmea.indexOf('*');
                 if (starIndex == -1) {
                     return;
@@ -53,8 +52,8 @@ public class SatelliteManager {
 
                 allSatellites = GpsUtils.parseInt(param[3]);
                 // wrong message - $GPGSV,4,3,1329,,19,10,3,*7F
-                if (allSatellites > 12)
-                    return;
+                //if (allSatellites > 12)
+                //    return;
 
                 if (actualSatInViewCount != allSatellites) {
                     satInView.clear();
@@ -85,9 +84,8 @@ public class SatelliteManager {
                     sat.azimuth = azimuth;
                     sat.snr = snr;
                 }
-            }
         } catch (Exception e) {
-            //Logger.error("SatelliteManager.parseNmeaSatellites(String[] param), NMEA: " + nmea + " Ex: " + e.toString());
+            Logger.error("SatelliteManager.parseNmeaSatellites(String[] param), NMEA: " + nmea + " Ex: " + e.toString());
         }
         return;
     }
@@ -95,4 +93,9 @@ public class SatelliteManager {
     public Hashtable getSatInView() {
         return satInView;
     }
+
+    public int getAllSatellites() {
+        return allSatellites;
+    }
+    
 }

@@ -687,6 +687,10 @@ public class XHTMLTagHandler
                         int redirectionTime = Integer.parseInt(parts[0]);
                         if (redirectionTime != 0) {
                             R.getAutoSend().start(redirectionUrl, redirectionTime);
+                        } else
+                        {
+                            R.getBack().dontSave();
+                            R.getURL().call(redirectionUrl);
                         }
                     }
                 }
