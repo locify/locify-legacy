@@ -159,7 +159,6 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
         if (locationProvider == null) {
             return false;
         }
-        System.out.println("get all satellites: "+locationProvider.getAllSatellites());
         if (locationProvider.getAllSatellites() == 0) {
             return false;
         }
