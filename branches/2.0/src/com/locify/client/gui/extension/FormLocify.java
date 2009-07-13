@@ -143,14 +143,18 @@ public class FormLocify extends Form implements BackgroundListener {
     }
 
     public void show() {
-//Utils.printMemoryState("FormLocify.show()");
+Utils.printMemoryState("FormLocify.show()");
         super.show();
-
+System.out.println("01 " + heightTitle);
         if (heightTitle == 0) {
+System.out.println("02");
             heightTitle = this.getTitleComponent().getHeight();
+System.out.println("03");
             heightMenuBar = getComponentAt(this.getComponentCount() - 1).getHeight();
 //System.out.println("set: " + heightTitle + ", " + heightMenuBar);
+System.out.println("04");
         }
+System.out.println("05");
     }
 
     public void switchFullscreenMode(boolean fullScreen) {
@@ -172,6 +176,8 @@ public class FormLocify extends Form implements BackgroundListener {
     public void keyPressed(int code) {
         if (code == GameCanvas.KEY_NUM5) {
             switchFullscreenMode(!fullScreen);
+        } else {
+            super.keyPressed(code);
         }
     }
 

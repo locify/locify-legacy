@@ -15,7 +15,6 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
-import com.locify.client.utils.Utils;
 
 
 /**

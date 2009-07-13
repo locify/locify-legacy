@@ -23,8 +23,10 @@ import com.sun.lwuit.list.DefaultListModel;
 public class ListLocify extends List {
 
     public ListLocify() {
+        super();
         setModel(new DefaultListModel());
         setListCellRenderer(new ListLabelRenderer());
+        setSmoothScrolling(false);
     }
 
     public void removeAll() {
