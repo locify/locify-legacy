@@ -46,6 +46,8 @@ import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.layouts.GridLayout;
 import com.sun.lwuit.layouts.Layout;
 import com.sun.lwuit.list.DefaultListCellRenderer;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
@@ -151,7 +153,7 @@ System.out.println("02");
             heightTitle = this.getTitleComponent().getHeight();
 System.out.println("03");
             heightMenuBar = getComponentAt(this.getComponentCount() - 1).getHeight();
-//System.out.println("set: " + heightTitle + ", " + heightMenuBar);
+System.out.println("set: " + heightTitle + ", " + heightMenuBar);
 System.out.println("04");
         }
 System.out.println("05");
@@ -186,14 +188,10 @@ System.out.println("05");
     /*******************************/
     
     public BatteryWidget battery;
-
     public CompassWidget compass;
-
     public GraphItemWidget gi01;
     public GraphItemWidget gi02;
-
     public SatelliteWidget satellite;
-    
     public StateLabelWidget slAlt;
     public StateLabelWidget slDate;
     public StateLabelWidget slDist;
@@ -212,6 +210,7 @@ System.out.println("05");
     private Vector widgetList;
     private Vector skins;
     private FlowPanel leftPanel;
+    private boolean firstSystemSkin;
 
     private int STATE_NONE = 0;
     private int STATE_WIDGET_STATE_LABEL = 10;
@@ -220,27 +219,35 @@ System.out.println("05");
     private int STATE_WIDGET_BATTERY = 13;
     private int STATE_WIDGET_SATELLITE = 14;
 
-    public void initializeSkins(String skinDirPath) {
+    public void initializeSkins(String defaultSystemSkin, String skinDirPath) {
         try {
             widgetList = new Vector();
             skins = new Vector();
-            
-            Enumeration skinFolders = R.getFileSystem().getFolders(FileSystem.ROOT + skinDirPath);
-            if (skinFolders != null) {
-                while (skinFolders.hasMoreElements()) {
-                    String dir = (String) skinFolders.nextElement();
-//System.out.println("Dir: " + (FileSystem.ROOT + FileSystem.SKINS_FOLDER_NAVIGATION + dir));
-                    Vector xmlFiles = R.getFileSystem().listFiles(skinDirPath + dir, new String[] {"*.xml"});
-                    if (xmlFiles.size() > 0) {
-                        skins.addElement(skinDirPath + dir + xmlFiles.elementAt(0));
-                    }
-                }
+
+            if (defaultSystemSkin != null) {
+                skins.addElement(defaultSystemSkin);
+                firstSystemSkin = true;
+            } else {
+                firstSystemSkin = false;
             }
+
+//            Enumeration skinFolders = R.getFileSystem().getFolders(FileSystem.ROOT + skinDirPath);
+//            if (skinFolders != null) {
+//                while (skinFolders.hasMoreElements()) {
+//                    String dir = (String) skinFolders.nextElement();
+////System.out.println("Dir: " + (FileSystem.ROOT + FileSystem.SKINS_FOLDER_NAVIGATION + dir));
+//                    Vector xmlFiles = R.getFileSystem().listFiles(skinDirPath + dir, new String[] {"*.xml"});
+//                    if (xmlFiles.size() > 0) {
+//                        skins.addElement(skinDirPath + dir + xmlFiles.elementAt(0));
+//                    }
+//                }
+//            }
 
             if (skins.size() > 1) {
                 leftPanel = new FlowPanel(BorderLayout.WEST);
                 leftPanel.getContentPane().setLayout(new BoxLayout(BoxLayout.Y_AXIS));
-                super.getParent().addComponent(BorderLayout.WEST, leftPanel);
+
+                ((Container) super.getComponentAt(0).getParent()).addComponent(BorderLayout.WEST, leftPanel);
 
                 for (int i = 0; i < skins.size(); i++) {
                     final String path = (String) skins.elementAt(i);
@@ -292,12 +299,25 @@ System.out.println("05");
         Widget widget = null;
 
         try {
-            fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + skinPath);
-            if (!fileConnection.exists()) {
-                return;
+            if (!firstSystemSkin) {
+                fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + skinPath);
+                if (!fileConnection.exists()) {
+                    return;
+                }
+
+                is = fileConnection.openInputStream();
+            } else {
+//System.out.println("\nGetSkin: '" + skinPath + "'");
+                is = FormLocify.class.getResourceAsStream("/" + skinPath);
+//System.out.println("1: " + (is == null));
+//                StringBuffer data = new StringBuffer();
+//                int info;
+//                while((info = is.read()) != -1) {
+//                    data.append(info);
+//                }
+//System.out.println("Data: " + data.toString());
             }
 
-            is = fileConnection.openInputStream();
             parser = new KXmlParser();
             parser.setInput(is, "utf-8");
 

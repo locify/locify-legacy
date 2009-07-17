@@ -37,6 +37,7 @@ public class PlaceSaveScreen {
         R.getHtmlScreen().addTextField(Locale.get("Name"), "name", "");
         R.getHtmlScreen().addNewLine();
         R.getHtmlScreen().addTextField(Locale.get("Description"), "description", " ");
+        R.getHtmlScreen().addNewLine();
         R.getHtmlScreen().addButton(Locale.get("Save"), "save", "");
         R.getHtmlScreen().view();
     }

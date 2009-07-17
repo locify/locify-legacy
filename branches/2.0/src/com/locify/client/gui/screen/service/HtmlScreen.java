@@ -169,14 +169,23 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
      * Views current browser without reloading
      */
     public void view() {
+//System.out.println("X1");
         if (R.getContext().getSource() == LocationContext.GPS) {
+//System.out.println("X2");
             form.addCommand(cmdRefresh);
+//System.out.println("X3");
             R.getLocator().startWaitForLocation();
         } else {
+//System.out.println("X4");
             form.removeCommand(cmdRefresh);
+//System.out.println("X5");
         }
+//System.out.println("X6");
         updateItemsWithVariables();
+//System.out.println("X7");
         htmlBrowser.updateContextItem();
+//System.out.println("X8");
+        form.revalidate();
         form.show();
     }
 

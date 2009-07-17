@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lcf xmlns="http://www.locify.com" container="mainContainer">
+  <Layout type="BorderLayout" />
+  <Items>
+    <Widget type="Container" position="north">
+		<Layout type="GridLayout" rows="1" columns="2" />
+		<Widget type="StateLabel">
+			<title hAlign="center" vAlign="center" position="west">file:alarm.png</title>
+			<value hAlign="center" vAlign="center" fontSize="1"></value>
+			<bindTo>time</bindTo>
+		</Widget>
+		<Widget type="StateLabel">
+			<title hAlign="center" vAlign="center" position="east">file:calendar.png</title>
+			<value hAlign="center" vAlign="center" fontSize="1"></value>
+			<bindTo>date</bindTo>
+			<linkTo>locify://main</linkTo>
+		</Widget>	
+	</Widget>
+    <Widget type="Container" position="center">
+		<Layout type="BorderLayout" />
+		<Widget type="Compass" position="center">
+			<labels fontSize="4"></labels>
+			<bindTo>compass</bindTo>
+		</Widget>
+		<Widget type="StateLabel" position="south">
+			<title hAlign="left" vAlign="center" position="south" fontSize="1">Distance</title>
+			<value hAlign="center" vAlign="center" fontSize="5">0.0</value>
+			<bindTo>dist</bindTo>
+		</Widget>
+	</Widget>
+	<Widget type="StateLabel" position="south">
+		<title hAlign="left" vAlign="center" position="south" fontSize="1">Speed</title>
+		<value hAlign="center" vAlign="center" fontSize="5">0.0</value>
+		<bindTo>speedAct</bindTo>
+	</Widget>
+  </Items>
+</lcf>

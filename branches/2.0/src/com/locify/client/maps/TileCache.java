@@ -267,7 +267,7 @@ public class TileCache extends Thread {
                         refreshScreenAndDownloaders();
 
                         try {
-                            Thread.sleep(250);
+                            Thread.sleep(50);
                         } catch (InterruptedException e) {
                             R.getErrorScreen().view(e, "TileCache.run() - sleep(250)", null);
                         }

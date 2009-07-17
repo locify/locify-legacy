@@ -70,7 +70,7 @@ public class RouteScreen extends FormLocify implements ActionListener {
 
                 registerBackgroundListener();
 
-                initializeSkins(FileSystem.SKINS_FOLDER_ROUTE_RECORD);
+                initializeSkins("route_record.xml", FileSystem.SKINS_FOLDER_ROUTE_RECORD);
                 initializeButtons();
 
                 buttonStart.setEnabled(true);

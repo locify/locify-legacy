@@ -112,7 +112,9 @@ public class Midlet extends MIDlet {
 //                    R.getMainScreen().actionPerformed(evt);
 //                    R.getURL().call("http://services.locify.com/nearestCaches/cache.php?show=listing&guid=e8224264-ee31-4345-90d9-d2865158a2cc");
 //                    R.getURL().call("http://services.locify.com/nearestCaches/first.php");
-Utils.printMemoryState("Init - end");
+
+                    //R.getURL().call("locify://help?text=" + 1);
+//Utils.printMemoryState("Init - end");
                 } else {
                     R.getFirstRun().viewPermissionsWarning();
                 }

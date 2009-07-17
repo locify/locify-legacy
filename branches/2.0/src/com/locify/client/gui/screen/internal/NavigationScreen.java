@@ -67,7 +67,7 @@ public class NavigationScreen extends FormLocify implements
 
             R.getLocator().addLocationChangeListener(this);
 
-            initializeSkins(FileSystem.SKINS_FOLDER_NAVIGATION);
+            initializeSkins("navigation.xml", FileSystem.SKINS_FOLDER_NAVIGATION);
             registerBackgroundListener();
             
 //            labelTime.setTitle(IconData.getLocalImage("alarm"));
