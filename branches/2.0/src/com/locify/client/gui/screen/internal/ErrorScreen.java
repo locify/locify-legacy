@@ -69,7 +69,7 @@ public class ErrorScreen implements ActionListener {
 
     private void viewCalmDownScreen() {
         frmCalmDown = new FormLocify(Locale.get("Error_occured"));
-        frmCalmDown.addComponent(new Label(Locale.get("Error_occured_description")));
+        frmCalmDown.addComponent(new HtmlTextArea(Locale.get("Error_occured_description")));
         btnDetail =  new Button(Locale.get("Detail"));
         btnDetail.addActionListener(this);
         frmCalmDown.addComponent(btnDetail);

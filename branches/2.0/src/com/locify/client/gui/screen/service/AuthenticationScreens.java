@@ -61,26 +61,21 @@ public class AuthenticationScreens implements ActionListener {
             
             HtmlTextArea siLoginTo = new HtmlTextArea(Locale.get("Credentials_to") + "\n" + loginTo + ":");
 //            frmLogin.addComponent(siLoginTo);
-
             Label label01 = new Label(Locale.get("Login_field"));
             tfLogin = new HtmlTextArea(savedLogin, 1, 32, TextArea.ANY, true);
 //            frmLogin.addComponent(label01);
 //            frmLogin.addComponent(tfLogin);
-
             Label label02 = new Label(Locale.get("Password"));
             tfPassword = new HtmlTextArea(savedPassword, 1, 32, TextArea.ANY |
                     TextArea.PASSWORD | TextArea.NON_PREDICTIVE | TextArea.SENSITIVE, true);
 //            frmLogin.addComponent(label02);
 //            frmLogin.addComponent(tfPassword);
-
             cbSavePasswd = new CheckBox(Locale.get("Save_password"));
             cbSavePasswd.setSelected(!savedLogin.equals(""));
 //            frmLogin.addComponent(cbSavePasswd);
-
             cbAutologin = new CheckBox(Locale.get("Autologin"));
             cbAutologin.setSelected(R.getSettings().getAutoLogin() == SettingsData.ON);
 //            frmLogin.addComponent(cbAutologin);
-
             siLoginButton = new Button(Locale.get("Login"));
             siLoginButton.addActionListener(new ActionListener() {
 
@@ -89,22 +84,19 @@ public class AuthenticationScreens implements ActionListener {
                 }
             });
 //            frmLogin.addComponent(siLoginButton);
-
             frmLogin.addCommand(Commands.cmdBack);
             frmLogin.addCommand(Commands.cmdHome);
             frmLogin.setCommandListener(this);
-
             GroupLayout layout = new GroupLayout(frmLogin);
             frmLogin.setLayout(layout);
             layout.setAutocreateContainerGaps(false);
             layout.setAutocreateGaps(false);
-
             layout.setHorizontalGroup(layout.createParallelGroup().add(siLoginTo).add(label01).add(tfLogin).add(label02).add(tfPassword).add(cbSavePasswd).add(cbAutologin).add(siLoginButton));
             layout.setVerticalGroup(layout.createSequentialGroup().add(siLoginTo).add(label01).add(tfLogin).add(label02).add(tfPassword).add(cbSavePasswd).add(cbAutologin).add(siLoginButton));
-            
+            frmLogin.setFocused(tfLogin);
             frmLogin.show();
         } catch (Exception e) {
-            R.getErrorScreen().view(e, "AuthenticationScreens.viewLogin", loginTo);
+            R.getErrorScreen().view(e, "AuthenticationScreens.viewLogin", "loginTo: "+loginTo+", lgn/passwd: "+savedLogin+"/"+savedPassword);
         }
     }
 
