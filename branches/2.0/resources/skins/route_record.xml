@@ -5,12 +5,12 @@
     <Widget type="Container" position="north">
 		<Layout type="GridLayout" rows="1" columns="2" />
 		<Widget type="StateLabel">
-			<title hAlign="center" vAlign="center" position="west">file:alarm.png</title>
+			<title hAlign="center" vAlign="center" position="west">A</title>
 			<value hAlign="center" vAlign="center" fontSize="1"></value>
 			<bindTo>time</bindTo>
 		</Widget>
 		<Widget type="StateLabel">
-			<title hAlign="center" vAlign="center" position="east">file:calendar.png</title>
+			<title hAlign="center" vAlign="center" position="east">C</title>
 			<value hAlign="center" vAlign="center" fontSize="1"></value>
 			<bindTo>date</bindTo>
 			<linkTo>locify://main</linkTo>

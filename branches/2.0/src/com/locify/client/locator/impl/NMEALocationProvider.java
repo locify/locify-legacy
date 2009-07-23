@@ -231,8 +231,8 @@ public class NMEALocationProvider extends LocationProvider {
                 if (sfere.charAt(0) == 'S') {
                     lat = -lat;
                 }
+                parent.actualLocation.setLatitude(lat);
             }
-            parent.actualLocation.setLatitude(lat);
         }
 
         private void parseLongitude(String value, String sfere) {
@@ -246,16 +246,16 @@ public class NMEALocationProvider extends LocationProvider {
                 if (sfere.charAt(0) == 'W') {
                     lon = -lon;
                 }
+                parent.actualLocation.setLongitude(lon);
             }
-            parent.actualLocation.setLongitude(lon);
         }
 
         private void parseAltitude(String value, String sfere) {
             float alt = 0.0f;
             if (value.length() > 3 && sfere.length() == 1) {
                 alt = GpsUtils.parseFloat(value);
+                parent.actualLocation.setAltitude(alt);
             }
-            parent.actualLocation.setAltitude(alt);
         }
 
         private void parseHdop(String value) {
