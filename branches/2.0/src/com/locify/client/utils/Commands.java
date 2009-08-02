@@ -137,7 +137,7 @@ public class Commands {
         cmdMove = new Command(Locale.get("Move"), IconData.getLocalImage("move"), 14);
         cmdMoveTo = new Command(Locale.get("Move"), 1);
         cmdRename = new Command(Locale.get("Rename"), IconData.getLocalImage("renameService"), 13);
-        cmdService = new Command(Locale.get("Service"), 11);
+        cmdService = new Command(Locale.get("Service"),IconData.getLocalImage("manage"), 11);
         cmdServiceSettings = new Command(Locale.get("Settings"), IconData.getLocalImage("serviceSettings"), 11);
         cmdShortcut = new Command(Locale.get("Shortcut"), 11);
         cmdUpdateService = new Command(Locale.get("Update_service"), IconData.getLocalImage("updateService"), 12);

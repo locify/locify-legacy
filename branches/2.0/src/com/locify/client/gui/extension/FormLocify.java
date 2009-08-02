@@ -80,6 +80,7 @@ public class FormLocify extends Form implements BackgroundListener {
             getTitleComponent().getStyle().setBgTransparency(200);
             getTitleComponent().getStyle().setBgPainter(R.getTopBar());
             getTitleComponent().setAlignment(Component.LEFT);
+            getTitleComponent().setShiftText(20);
 
             // add subMenu support
             setMenuTransitions(null, null);

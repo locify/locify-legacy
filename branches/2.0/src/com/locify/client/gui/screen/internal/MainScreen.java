@@ -437,15 +437,15 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
                     //service specific commands
                     Service service = ServicesData.getService(focused.getId());
                     if ((service != null) && (!"".equals(service.getSettingsUrl()))) {
-                        this.addCommand(new ParentCommand(Locale.get("Service"), null, new Command[]{Commands.cmdMoreInfo,
+                        this.addCommand(new ParentCommand(Locale.get("Service"), IconData.getLocalImage("manage"), new Command[]{Commands.cmdMoreInfo,
                                     Commands.cmdServiceSettings, Commands.cmdUpdateService, Commands.cmdRename, Commands.cmdMove, Commands.cmdDelete}));
                     } else {
-                        this.addCommand(new ParentCommand(Locale.get("Service"), null, new Command[]{Commands.cmdMoreInfo,
+                        this.addCommand(new ParentCommand(Locale.get("Service"), IconData.getLocalImage("manage"), new Command[]{Commands.cmdMoreInfo,
                                     Commands.cmdUpdateService, Commands.cmdRename, Commands.cmdMove, Commands.cmdDelete}));
                     }
                 } else {
                     //shortcut specific commands
-                    this.addCommand(new ParentCommand(Locale.get("Shortcut"), null, new Command[]{
+                    this.addCommand(new ParentCommand(Locale.get("Shortcut"), IconData.getLocalImage("manage"), new Command[]{
                                 Commands.cmdRename, Commands.cmdMove, Commands.cmdDelete}));
                 }
             }

@@ -64,12 +64,12 @@ public class LocationScreens implements ActionListener {
 
         Label labelLat = new Label(Locale.get("Latitude"));
         form.addComponent(labelLat);
-        tfLatitude = new TextArea(GpsUtils.formatLatitude(R.getLocator().getLastLocation().getLatitude(), SettingsData.FORMAT_WGS84_MIN), 1, 100, TextArea.ANY);
+        tfLatitude = new TextArea(GpsUtils.formatLatitude(R.getLocator().getLastLocation().getLatitude(), R.getSettings().getCoordsFormat()), 1, 100, TextArea.ANY);
         form.addComponent(tfLatitude);
 
         Label labelLon = new Label(Locale.get("Longitude"));
         form.addComponent(labelLon);
-        tfLongitude = new TextArea(GpsUtils.formatLongitude(R.getLocator().getLastLocation().getLongitude(), SettingsData.FORMAT_WGS84_MIN), 1, 100, TextField.ANY);
+        tfLongitude = new TextArea(GpsUtils.formatLongitude(R.getLocator().getLastLocation().getLongitude(), R.getSettings().getCoordsFormat()), 1, 100, TextField.ANY);
         form.addComponent(tfLongitude);
 
         btnCoordinates = new Button(Locale.get("OK"));

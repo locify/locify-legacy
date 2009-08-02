@@ -42,9 +42,7 @@ public class IconData {
             }
             //filesystem icons
             byte[] imageData = null;
-            if (R.getFileSystem().exists(url))
-                imageData = R.getFileSystem().loadBytes(url);
-            else if (R.getFileSystem().exists(FileSystem.IMAGES_FOLDER + FileSystem.hashFileName(url) + ".png")) {
+            if (R.getFileSystem().exists(FileSystem.IMAGES_FOLDER + FileSystem.hashFileName(url) + ".png")) {
                 imageData = R.getFileSystem().loadBytes(FileSystem.IMAGES_FOLDER + FileSystem.hashFileName(url) + ".png");
             }
 
