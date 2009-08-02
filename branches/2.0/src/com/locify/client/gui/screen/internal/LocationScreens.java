@@ -27,6 +27,7 @@ import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Locale;
 import com.locify.client.utils.R;
 import com.sun.lwuit.Button;
+import com.sun.lwuit.Component;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
 import com.sun.lwuit.TextField;

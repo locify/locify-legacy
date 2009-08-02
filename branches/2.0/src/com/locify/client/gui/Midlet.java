@@ -12,6 +12,7 @@ import com.locify.client.utils.R;
 import com.locify.client.utils.ResourcesLocify;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Display;
+import com.sun.lwuit.plaf.Style;
 import com.sun.lwuit.plaf.UIManager;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
@@ -63,6 +64,7 @@ public class Midlet extends MIDlet {
             Display.init(this);
 
             UIManager.getInstance().getLookAndFeel().setReverseSoftButtons(true);
+            //Style.setStyleCompatibilityMode(false);
             //UIManager.getInstance().getLookAndFeel().setMenuRenderer(new DefaultListCellRenderer());
 //Utils.printMemoryState("02");
             new R(this);

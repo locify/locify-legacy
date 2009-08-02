@@ -108,7 +108,7 @@ public class Commands {
 
     public static void initializeCommands() {
         cmdAnotherLocation = new Command(Locale.get("Another_location"), 10);
-        cmdBack = new Command(Locale.get("Back"), 3);
+        cmdBack = new Command(Locale.get("Back"), IconData.getLocalImage("back"), 3);
         cmdBacklightOff = new Command(Locale.get("Backlight_off"), 20);
         cmdBacklightOn = new Command(Locale.get("Backlight_on"), 20);
         cmdCancel = new Command(Locale.get("Cancel"), 5);
