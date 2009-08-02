@@ -34,6 +34,7 @@ import com.sun.lwuit.TextField;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BoxLayout;
+import com.sun.lwuit.layouts.FlowLayout;
 import java.util.Vector;
 
 /**
@@ -54,7 +55,6 @@ public class LocationScreens implements ActionListener {
 
     public LocationScreens() {
         form = new FormLocify();
-        form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
     }
 
     /**
