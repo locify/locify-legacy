@@ -349,8 +349,6 @@ public class TileMapLayer implements MapLayer {
                         ir.y = tileBounds.y + mapPanY + viewportY;
                         ir.image = tileImage;
                         MapImages.drawTile(g, ir);
-//                        g.drawImage(tileImage, tileBounds.x + mapPanX + (tileSize - tileImage.getWidth()) / 2 + viewportX,
-//                                tileBounds.y + mapPanY + (tileSize - tileImage.getHeight()) / 2 + viewportY);
                     }
                 }
             }
@@ -419,7 +417,7 @@ public class TileMapLayer implements MapLayer {
 
         int actualZoom = getActualZoomLevel();
         Rectangle2D rect = generateBoundingRect(positions, actualZoom);
-System.out.println("Rect: " + rect);
+//System.out.println("Rect: " + rect);
         if (rect.getWidth() == 0 || rect.getHeight() == 0)
             return;
 

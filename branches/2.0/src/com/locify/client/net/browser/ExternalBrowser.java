@@ -72,7 +72,7 @@ public class ExternalBrowser implements ActionListener {
         frmExternalClose.addCommand(cmdAlways);
         frmExternalClose.addCommand(cmdNever);
         frmExternalClose.addCommand(Commands.cmdHome);
-        frmExternalClose.setCommandListener(this);
+        frmExternalClose.addCommandListener(this);
         frmExternalClose.show();
     }
 

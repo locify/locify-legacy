@@ -38,6 +38,7 @@ import com.sun.lwuit.layouts.GridLayout;
 import com.sun.lwuit.layouts.GroupLayout;
 import com.sun.lwuit.plaf.Border;
 import com.sun.lwuit.plaf.Style;
+import com.sun.lwuit.util.Log;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -81,7 +82,11 @@ public class XHtmlBrowser implements Runnable {
 
     public XHtmlBrowser(Container container) {
         this.container = container;
+
+        // TODO layout improvement
         container.setLayout(new FlowLayoutYScroll());
+        //container.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
+
         currentContainer = container;
 
         XHTMLTagHandler = new XHtmlTagHandler();
@@ -147,6 +152,7 @@ public class XHtmlBrowser implements Runnable {
 
     public void loadPage(String data) {
         Utils.printMemoryState("XHtmlBrowser - loadPage()");
+        Log.p("loadData: " + data);
         ByteArrayInputStream stream = null;
         XmlPullParser parser;
 //System.out.println("\nLoadPage: " + data);
@@ -192,13 +198,14 @@ public class XHtmlBrowser implements Runnable {
     }
 
     public void addComponent(Component component) {
-System.out.println("AddComponent: " + component + ", container: " + currentContainer);
-        if (component instanceof Label) {
-            ((Label) component).getStyle().setBorder(Border.createLineBorder(1, ColorsFonts.RED));
-        } else if (component instanceof Container) {
-            ((Container) component).getStyle().setBorder(Border.createLineBorder(1, ColorsFonts.MAGENTA));
-        }
-
+//        Log.p("AddComponent: " + component + ", container: " + currentContainer);
+//        component.getStyle().setBorder(Border.createLineBorder(1, ColorsFonts.CYAN));
+//        if (component instanceof Label) {
+//            ((Label) component).getStyle().setBorder(Border.createLineBorder(1, ColorsFonts.RED));
+//        } else if (component instanceof Container) {
+//            ((Container) component).getStyle().setBorder(Border.createLineBorder(1, ColorsFonts.MAGENTA));
+//        }
+//        currentContainer.invalidate();
         currentContainer.addComponent(component);
     }
 
@@ -285,8 +292,7 @@ System.out.println("AddComponent: " + component + ", container: " + currentConta
             Vector data = StringTokenizer.getVector(text, "\n");
 
             Font currentFont = currentContainer.getStyle().getFont();
-            for (int i = 0; i <
-                    data.size(); i++) {
+            for (int i = 0; i < data.size(); i++) {
 
                 String str = (String) data.elementAt(i);
                 Component component;

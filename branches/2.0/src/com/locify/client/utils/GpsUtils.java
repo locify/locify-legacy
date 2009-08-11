@@ -170,7 +170,7 @@ public class GpsUtils {
         return rad * LMath.RHO;
     }
 
-    public static String formatLatitude(double latitude, int format, int precisions) {
+    public static String formatLatitude(double latitude, int precisions) {
         StringBuffer out = new StringBuffer();
         String degree = Locale.get("Degree");
         if (latitude < 0) {
@@ -179,7 +179,7 @@ public class GpsUtils {
             out.append("N ");
         }
         latitude = Math.abs(latitude);
-        switch (format) {
+        switch (R.getSettings().getCoordsFormat()) {
             case FORMAT_WGS84:
                 out.append(formatDouble(latitude, precisions, 2));
                 break;
@@ -198,7 +198,7 @@ public class GpsUtils {
         return out.toString();
     }
 
-    public static String formatLongitude(double longitude, int format, int precisions) {
+    public static String formatLongitude(double longitude, int precisions) {
         StringBuffer out = new StringBuffer();
         String degree = Locale.get("Degree");
         if (longitude < 0) {
@@ -207,7 +207,7 @@ public class GpsUtils {
             out.append("E ");
         }
         longitude = Math.abs(longitude);
-        switch (format) {
+        switch (R.getSettings().getCoordsFormat()) {
             case FORMAT_WGS84:
                 out.append(formatDouble(longitude, precisions, 3));
                 break;
@@ -297,19 +297,19 @@ public class GpsUtils {
         }
     }
 
-    public static String formatLatitude(double d, int coordsFormat) {
-        if (coordsFormat == FORMAT_WGS84) {
-            return formatLatitude(d, coordsFormat, 5);
+    public static String formatLatitude(double d) {
+        if (R.getSettings().getCoordsFormat() == FORMAT_WGS84) {
+            return formatLatitude(d, 5);
         } else {
-            return formatLatitude(d, coordsFormat, 3);
+            return formatLatitude(d, 3);
         }
     }
 
-    public static String formatLongitude(double longitude, int coordsFormat) {
-        if (coordsFormat == FORMAT_WGS84) {
-            return formatLongitude(longitude, coordsFormat, 5);
+    public static String formatLongitude(double longitude) {
+        if (R.getSettings().getCoordsFormat() == FORMAT_WGS84) {
+            return formatLongitude(longitude, 5);
         } else {
-            return formatLongitude(longitude, coordsFormat, 3);
+            return formatLongitude(longitude, 3);
         }
     }
 
@@ -365,9 +365,9 @@ public class GpsUtils {
         long mins = (tripTime - (hours * 3600000)) / 60000;
         double sec = (tripTime - (hours * 3600000) - mins * 60000) / 1000.0;
         if ((hours * 60 + mins) < 10) {
-            return mins + "m : " + GpsUtils.formatDouble(sec, 2) + "s";
+            return mins + "m:" + GpsUtils.formatDouble(sec, 2) + "s";
         } else {
-            return hours + "h : " + mins + "m : " + GpsUtils.formatDouble(sec, 1) + "s";
+            return hours + "h:" + mins + "m:" + GpsUtils.formatDouble(sec, 1) + "s";
         }
     }
 

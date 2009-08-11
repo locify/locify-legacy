@@ -65,7 +65,7 @@ public class RouteSaveScreen implements ActionListener {
             tfRouteName = new TextArea("", 1, 100, TextField.ANY);
             frmSave.addComponent(tfRouteName);
             frmSave.addComponent(new Label(Locale.get("Route_description")));
-            tfRouteDescription = new TextArea("", 5, 1000, TextField.ANY);
+            tfRouteDescription = new TextArea("", 1, 1000, TextField.ANY);
             frmSave.addComponent(tfRouteDescription);
             btnOK = new Button(Locale.get("OK"));
             btnOK.addActionListener(this);

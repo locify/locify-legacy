@@ -12,7 +12,6 @@ import com.locify.client.utils.R;
 import com.locify.client.utils.ResourcesLocify;
 import com.locify.client.utils.Utils;
 import com.sun.lwuit.Display;
-import com.sun.lwuit.plaf.Style;
 import com.sun.lwuit.plaf.UIManager;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
@@ -46,7 +45,7 @@ public class Midlet extends MIDlet {
     }
 
     protected void startApp() throws MIDletStateChangeException {
-//Utils.printMemoryState("Init - start");
+Utils.printMemoryState("Init - start");
         try {
             if (!midletPaused) {
                 startMIDlet();
@@ -59,10 +58,10 @@ public class Midlet extends MIDlet {
 
     public void startMIDlet() {
         try {
-//Utils.printMemoryState("01");
+//Utils.printMemoryState("00");
             //init the LWUIT Display
             Display.init(this);
-
+//Utils.printMemoryState("01");
             UIManager.getInstance().getLookAndFeel().setReverseSoftButtons(true);
             //Style.setStyleCompatibilityMode(false);
             //UIManager.getInstance().getLookAndFeel().setMenuRenderer(new DefaultListCellRenderer());
@@ -116,7 +115,7 @@ public class Midlet extends MIDlet {
 //                    R.getURL().call("http://services.locify.com/nearestCaches/first.php");
 
                     //R.getURL().call("locify://help?text=" + 1);
-//Utils.printMemoryState("Init - end");
+Utils.printMemoryState("Init - end");
                 } else {
                     R.getFirstRun().viewPermissionsWarning();
                 }

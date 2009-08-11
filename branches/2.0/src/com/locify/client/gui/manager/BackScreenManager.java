@@ -26,8 +26,20 @@ public class BackScreenManager {
 
     private Vector screens;
     private boolean dontSave;
-    private static String[] noBack = {"locify://filesystem/waypoint", "locify://searchBTDevices", "locify://BTDevices", "locify://serviceSettings", "locify://back", "locify://updateService", "locify://refresh", "locify://gps", "locify://lastKnown", "locify://externalBrowserOptions", "locify://sms", "locify://mapNavigation"};
-    private boolean debug = false;
+    private static String[] noBack = {
+        "locify://filesystem/waypoint",
+        "locify://searchBTDevices",
+        "locify://BTDevices",
+        "locify://serviceSettings",
+        "locify://back",
+        "locify://updateService",
+        "locify://refresh",
+        "locify://gps",
+        "locify://lastKnown",
+        "locify://externalBrowserOptions",
+        "locify://sms",
+        "locify://mapNavigation"};
+    private boolean debug = true;
 
     public BackScreenManager() {
         reset();
@@ -50,11 +62,12 @@ public class BackScreenManager {
     public void goForward(String url, String postData) {
         try {
             if (debug) {
-                Logger.debug("BACK - go forward: " + url+debug());
+                Logger.debug("BACK - go forward: " + url + debug());
             }
             //is this a forbidden url?
             for (int i = 0; i < noBack.length; i++) {
                 if (url.startsWith(noBack[i])) {
+                    Logger.debug("BACK - don't save for: " + url);
                     dontSave();
                 }
             }
@@ -163,11 +176,9 @@ public class BackScreenManager {
         }
     }
 
-    private String debug()
-    {
+    private String debug(){
         String out =" [";
-        for (int i=0;i<screens.size();i++)
-        {
+        for (int i=0 ; i<screens.size() ; i++) {
             out += screens.elementAt(i)+", ";
         }
         return out +="]";

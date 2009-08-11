@@ -32,7 +32,7 @@ public class HtmlTextArea extends TextArea {
             getStyle().setBorder(Border.createEmpty(), false);
         }
         setGrowByContent(true);
-        setEditable(true);
+        //setEditable(true);
 
         setText(text);
         setFocusable(true);

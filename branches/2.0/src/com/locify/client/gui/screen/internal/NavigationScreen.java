@@ -61,24 +61,13 @@ public class NavigationScreen extends FormLocify implements
                 this.addCommand(Commands.cmdBacklightOn);
             }
 
-            // i know about added gps ... actualy i'm lazy :)
             this.addCommand(new ParentCommand(Locale.get("Another_location"), null, R.getContext().commands));
-            this.setCommandListener(this);
+            this.addCommandListener(this);
 
             R.getLocator().addLocationChangeListener(this);
 
             initializeSkins("navigation.xml", FileSystem.SKINS_FOLDER_NAVIGATION);
             registerBackgroundListener();
-            
-//            labelTime.setTitle(IconData.getLocalImage("alarm"));
-//            labelDate.setTitle(IconData.getLocalImage("calendar"));
-//            labelDist.setTitle(IconData.getLocalImage("forward"));
-//            labelSpeed.setTitle(Locale.get("Speed"));
-//            labelHDOP.setTitle(Locale.get("Hdop_route"));
-//            labelVDOP.setTitle(Locale.get("Vdop_route"));
-//            labelLatitude.setTitle(Locale.get("Latitude"));
-//            labelLongitude.setTitle(Locale.get("Longitude"));
-//            labelAltitude.setTitle(Locale.get("Altitude"));
         } catch (Exception ex) {
             R.getErrorScreen().view(ex, "NavigationScreen.constructor()", null);
         }
@@ -200,10 +189,10 @@ public class NavigationScreen extends FormLocify implements
                 slHdop.setValue(GpsUtils.formatDouble(R.getLocator().getAccuracyHorizontal(), 1));
             }
             if (slLat != null) {
-                slLat.setValue(GpsUtils.formatLatitude(location.getLatitude(), R.getSettings().getCoordsFormat()));
+                slLat.setValue(GpsUtils.formatLatitude(location.getLatitude()));
             }
             if (slLon != null) {
-                slLon.setValue(GpsUtils.formatLongitude(location.getLongitude(), R.getSettings().getCoordsFormat()));
+                slLon.setValue(GpsUtils.formatLongitude(location.getLongitude()));
             }
             if (slSpeedAct != null) {
                 slSpeedAct.setValue(GpsUtils.formatSpeed(R.getLocator().getSpeed()));

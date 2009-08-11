@@ -17,7 +17,7 @@ import java.util.Vector;
  */
 public class DataTransferMapItem extends MapItem {
 
-    private int width = 60;
+    private int width = 80;
     private int height = 35;
 
     private int stringHeight;

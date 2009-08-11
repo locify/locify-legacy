@@ -214,7 +214,7 @@ public class FileSystemScreen implements ActionListener {
                 }
             }
 
-            frmFiles.setCommandListener(this);
+            frmFiles.addCommandListener(this);
 
             frmFiles.show();
         } catch (Exception e) {

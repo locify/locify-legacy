@@ -98,8 +98,8 @@ public class DescriptionMapItem extends MapItem {
                 desc = desc.substring(0, 35) + "...";
             }
 
-            latLon = "  " + GpsUtils.formatLatitude(item.getLatitude(), R.getSettings().getCoordsFormat()) + "\n" +
-                    "  " + GpsUtils.formatLongitude(item.getLongitude(), R.getSettings().getCoordsFormat());
+            latLon = "  " + GpsUtils.formatLatitude(item.getLatitude()) + "\n" +
+                    "  " + GpsUtils.formatLongitude(item.getLongitude());
 
             buttons[0].setSizePos(actualItem.x + (waypointDescriptionBackground.getWidth() / 2) - 2,
                     actualItem.y - waypointDescriptionBackground.getHeight() + 2, 20, 20);

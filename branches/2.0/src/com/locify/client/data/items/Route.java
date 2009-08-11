@@ -16,8 +16,10 @@ package com.locify.client.data.items;
 
 import com.locify.client.locator.Location4D;
 import com.locify.client.route.RouteVariables;
+import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.StringTokenizer;
+import com.sun.lwuit.util.Log;
 import java.util.Vector;
 
 /**
@@ -34,7 +36,7 @@ public class Route extends GeoData {
     /* state or temp variables */
     protected boolean routeOnlyInfo;
 
-    protected String routeDist;
+    protected double routeDist;
     protected long routeTime;
     protected int pointCount;
 
@@ -44,7 +46,7 @@ public class Route extends GeoData {
         separating = new Vector();
         routeOnlyInfo = true;
 
-        routeDist = null;
+        routeDist = 0;
         routeTime = 0;
         pointCount = 0;
     }
@@ -104,7 +106,7 @@ public class Route extends GeoData {
         }
     }
 
-    public String getRouteDist() {
+    public double getRouteDist() {
         return routeDist;
     }
 
@@ -127,14 +129,15 @@ public class Route extends GeoData {
                 Vector token = StringTokenizer.getVector(description.trim(), "\n");
                 description = "";
                 for (int i = 0; i < token.size(); i++) {
-                    trash = (String) token.elementAt(i);
+                    trash = ((String) token.elementAt(i)).trim();
                     if (trash.startsWith(RouteVariables.DESC_LENGTH) && trash.length() > RouteVariables.DESC_LENGTH.length() + 3) {
-                        routeDist = trash.substring(RouteVariables.DESC_LENGTH.length(), trash.length());
+                        routeDist = GpsUtils.parseDouble(trash.substring(RouteVariables.DESC_LENGTH.length(), trash.length()));
                     } else if (trash.startsWith(RouteVariables.DESC_TRAVEL_TIME) && trash.length() > RouteVariables.DESC_TRAVEL_TIME.length() + 5) {
-                        routeTime = com.locify.client.utils.GpsUtils.parseLong(
+                        routeTime = GpsUtils.parseLong(
                                 trash.substring(RouteVariables.DESC_TRAVEL_TIME.length(), trash.length() - 3).trim());
+                        Log.p("RouteTime:" + trash.substring(RouteVariables.DESC_TRAVEL_TIME.length(), trash.length() - 3).trim());
                     } else if (trash.startsWith(RouteVariables.DESC_POINTS)) {
-                        pointCount = com.locify.client.utils.GpsUtils.parseInt(
+                        pointCount = GpsUtils.parseInt(
                                 trash.substring(RouteVariables.DESC_POINTS.length()).trim());
                     } else {
                         description += (trash + "\n");

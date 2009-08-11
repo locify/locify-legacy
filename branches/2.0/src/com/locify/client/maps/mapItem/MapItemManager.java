@@ -54,11 +54,11 @@ public class MapItemManager {
             scale.setEnabled(true);
             addItemFixed(Locale.get("Scale"), scale);
         }
-        if (!isFixed(Locale.get("DataTransfer"))) {
+        if (!isFixed(Locale.get("Data_transfer"))) {
             MapItem dataTransfer = new DataTransferMapItem();
             dataTransfer.priority = MapItem.PRIORITY_HIGH;
             dataTransfer.setEnabled(true);
-            addItemFixed(Locale.get("DataTransfer"), dataTransfer);
+            addItemFixed(Locale.get("Data_transfer"), dataTransfer);
         }
     }
 
@@ -371,7 +371,7 @@ public class MapItemManager {
         form.addCommand(Commands.cmdOK);
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
-        form.setCommandListener(new ActionListener() {
+        form.addCommandListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent evt) {
                 if (evt.getCommand() == Commands.cmdBack) {

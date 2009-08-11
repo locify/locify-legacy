@@ -24,6 +24,7 @@ import com.locify.client.gui.widgets.StateLabelWidget;
 import com.locify.client.gui.widgets.Widget;
 import com.locify.client.gui.widgets.WidgetContainer;
 import com.locify.client.utils.ColorsFonts;
+import com.locify.client.utils.Commands;
 import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Utils;
@@ -46,8 +47,10 @@ import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.layouts.GridLayout;
 import com.sun.lwuit.layouts.Layout;
 import com.sun.lwuit.list.DefaultListCellRenderer;
+import com.sun.lwuit.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
@@ -64,6 +67,10 @@ public class FormLocify extends Form implements BackgroundListener {
     private Dialog menuDialog;
     private ParentCommand selection;
 
+    private WidgetContainer mainContainer;
+
+    private List commandList;
+    
     private static boolean fullScreen = false;
     private static int heightTitle = 0;
     private static int heightMenuBar = 0;
@@ -76,6 +83,10 @@ public class FormLocify extends Form implements BackgroundListener {
         super(title);
 
         try {
+            mainContainer = new WidgetContainer();
+            super.setLayout(new BorderLayout());
+            super.addComponent(BorderLayout.CENTER, mainContainer);
+            
             // set tile bar
             getTitleComponent().getStyle().setBgTransparency(200);
             getTitleComponent().getStyle().setBgPainter(R.getTopBar());
@@ -121,17 +132,47 @@ public class FormLocify extends Form implements BackgroundListener {
         }
     }
 
+    // overwritten functions of form
+    public void setLayout(Layout layout) {
+        mainContainer.setLayout(layout);
+    }
+
+    public void addComponent(Component component) {
+        mainContainer.addComponent(component);
+    }
+
+    public void addComponent(Object constraints, Component component) {
+        mainContainer.addComponent(constraints, component);
+    }
+
+    public void addComponent(int index, Component component) {
+        mainContainer.addComponent(index, component);
+    }
+
+    public Container getContentPane() {
+        return mainContainer;
+    }
+
     public void setAsNew(String title) {
-        removeAll();
+        mainContainer.removeAll();
         removeAllCommands();
         setTitle(title);
     }
 
     protected List createCommandList(Vector commands) {
-        List commandList = super.createCommandList(commands);
+        Log.p("Size: " + commands.size());
+        Vector newCommands = new Vector();
+        for (int i = 0; i < commands.size() - 1; i++) {
+            Command oldCommand = (Command) commands.elementAt(i);
+            if (oldCommand.getId() != Commands.RIGHT_COMMAND_ID)
+                newCommands.addElement(oldCommand);
+        }
+
+        commandList = super.createCommandList(newCommands);
         SelectionMonitor s = new SelectionMonitor(commandList);
         commandList.addSelectionListener(s);
         commandList.addActionListener(s);
+
         return commandList;
     }
 
@@ -144,17 +185,12 @@ public class FormLocify extends Form implements BackgroundListener {
 
     public void show() {
 Utils.printMemoryState("FormLocify.show()");
+        revalidate();
         super.show();
-System.out.println("01 " + heightTitle);
         if (heightTitle == 0) {
-System.out.println("02");
             heightTitle = this.getTitleComponent().getHeight();
-System.out.println("03");
             heightMenuBar = getComponentAt(this.getComponentCount() - 1).getHeight();
-System.out.println("set: " + heightTitle + ", " + heightMenuBar);
-System.out.println("04");
         }
-System.out.println("05");
     }
 
     public void switchFullscreenMode(boolean fullScreen) {
@@ -229,27 +265,26 @@ System.out.println("05");
                 firstSystemSkin = false;
             }
 
-//            Enumeration skinFolders = R.getFileSystem().getFolders(FileSystem.ROOT + skinDirPath);
-//            if (skinFolders != null) {
-//                while (skinFolders.hasMoreElements()) {
-//                    String dir = (String) skinFolders.nextElement();
-////System.out.println("Dir: " + (FileSystem.ROOT + FileSystem.SKINS_FOLDER_NAVIGATION + dir));
-//                    Vector xmlFiles = R.getFileSystem().listFiles(skinDirPath + dir, new String[] {"*.xml"});
-//                    if (xmlFiles.size() > 0) {
-//                        skins.addElement(skinDirPath + dir + xmlFiles.elementAt(0));
-//                    }
-//                }
-//            }
-
+            Enumeration skinFolders = R.getFileSystem().getFolders(FileSystem.ROOT + skinDirPath);
+            if (skinFolders != null) {
+                while (skinFolders.hasMoreElements()) {
+                    String dir = (String) skinFolders.nextElement();
+//System.out.println("Dir: " + (FileSystem.ROOT + FileSystem.SKINS_FOLDER_NAVIGATION + dir));
+                    Vector xmlFiles = R.getFileSystem().listFiles(skinDirPath + dir, new String[] {"*.xml"});
+                    if (xmlFiles.size() > 0) {
+                        skins.addElement(skinDirPath + dir + xmlFiles.elementAt(0));
+                    }
+                }
+            }
             if (skins.size() > 1) {
                 leftPanel = new FlowPanel(BorderLayout.WEST);
                 leftPanel.getContentPane().setLayout(new BoxLayout(BoxLayout.Y_AXIS));
 
-                ((Container) super.getComponentAt(0).getParent()).addComponent(BorderLayout.WEST, leftPanel);
+                super.addComponent(BorderLayout.WEST, leftPanel);
 
                 for (int i = 0; i < skins.size(); i++) {
                     final String path = (String) skins.elementAt(i);
-    //System.out.println("Add: " + path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')));
+System.out.println("Add: " + path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')));
                     Button button = new Button(path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')));
                     button.addActionListener(new ActionListener() {
 
@@ -280,7 +315,7 @@ System.out.println("05");
     }
 
     private void setScreenSkin(String skinPath) {
-        removeAll();
+        mainContainer.removeAll();
         widgetList.removeAllElements();
 
         FileConnection fileConnection = null;
@@ -291,31 +326,21 @@ System.out.println("05");
 //System.out.println("\nSkin: " + skinDirPath);
         int actualState = STATE_NONE;
 
-        //Container parent = getContentPane();
-        Container parent = new WidgetContainer();
-        
+        Container parent = mainContainer;
         Widget widget = null;
 
         try {
-            if (!firstSystemSkin) {
+            if (!firstSystemSkin || !skinPath.equals(skins.elementAt(0))) {
                 fileConnection = (FileConnection) Connector.open("file:///" + FileSystem.ROOT + skinPath);
+                //Log.p("open: " + "file:///" + FileSystem.ROOT + skinPath);
                 if (!fileConnection.exists()) {
                     return;
                 }
 
                 is = fileConnection.openInputStream();
             } else {
-//System.out.println("\nGetSkin: '" + skinPath + "'");
                 is = FormLocify.class.getResourceAsStream("/" + skinPath);
-//System.out.println("1: " + (is == null));
-//                StringBuffer data = new StringBuffer();
-//                int info;
-//                while((info = is.read()) != -1) {
-//                    data.append(info);
-//                }
-//System.out.println("Data: " + data.toString());
             }
-
             parser = new KXmlParser();
             parser.setInput(is, "utf-8");
 
@@ -424,8 +449,8 @@ System.out.println("05");
                     break;
                 }
             }
-            getContentPane().setLayout(new BorderLayout());
-            getContentPane().addComponent(BorderLayout.CENTER, parent);
+            //getContentPane().setLayout(new BorderLayout());
+            //getContentPane().addComponent(BorderLayout.CENTER, parent);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "FormLocify.setScreenSkin", skinPath);
 //            Logger.error("NavigationScreen.createNavigationScreen() - file: " + skinPath + " ex: " + e.toString());

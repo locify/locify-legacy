@@ -66,7 +66,7 @@ public class MapOfflineChooseScreen implements ActionListener {
     private void viewNoMapsInfo() {
         FormLocify form = new FormLocify(Locale.get("Maps_in_area"));
         form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
-        form.setCommandListener(this);
+        form.addCommandListener(this);
 
         String path = FileSystem.ROOT + FileSystem.MAP_FOLDER;
         form.addComponent(new HtmlTextArea(Locale.get("No_file_maps_warning")));
@@ -87,6 +87,7 @@ public class MapOfflineChooseScreen implements ActionListener {
         form.setLayout(new BorderLayout());
 
         list = new ListLocify();
+        list.addActionListener(this);
         form.addComponent(BorderLayout.CENTER, list);
 
         for (int i = 0; i < findedData.size(); i++) {
@@ -101,7 +102,7 @@ public class MapOfflineChooseScreen implements ActionListener {
         form.addCommand(Commands.cmdOnlineMaps);
         form.addCommand(Commands.cmdHome);
         form.addCommand(Commands.cmdInitialize);
-        form.setCommandListener(this);
+        form.addCommandListener(this);
         form.show();
     }
 

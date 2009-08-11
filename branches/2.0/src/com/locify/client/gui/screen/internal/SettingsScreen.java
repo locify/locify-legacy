@@ -83,7 +83,7 @@ public class SettingsScreen implements ActionListener {
 
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
-        form.setCommandListener(this);
+        form.addCommandListener(this);
         form.show();
     }
 
@@ -122,7 +122,7 @@ public class SettingsScreen implements ActionListener {
 
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
-        form.setCommandListener(this);
+        form.addCommandListener(this);
         form.show();
     }
 
@@ -172,7 +172,7 @@ public class SettingsScreen implements ActionListener {
 
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
-        form.setCommandListener(this);
+        form.addCommandListener(this);
         form.show();
     }
 
@@ -208,7 +208,7 @@ public class SettingsScreen implements ActionListener {
 
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
-        form.setCommandListener(this);
+        form.addCommandListener(this);
         form.show();
     }
 
@@ -241,7 +241,7 @@ public class SettingsScreen implements ActionListener {
 
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
-        form.setCommandListener(this);
+        form.addCommandListener(this);
         form.show();
     }
 
@@ -266,7 +266,6 @@ public class SettingsScreen implements ActionListener {
         for (int i = 0; i < bgFilecache.getButtonCount(); i++) {
             form.addComponent(bgFilecache.getRadioButton(i));
         }
-
 
         form.addComponent(new Label(Locale.get("Cache_size")));
         taCacheSize = new TextArea(String.valueOf(R.getSettings().getFilecacheSize()), 1, 10, TextField.NUMERIC);
@@ -296,7 +295,7 @@ public class SettingsScreen implements ActionListener {
 
         form.addCommand(Commands.cmdBack);
         form.addCommand(Commands.cmdHome);
-        form.setCommandListener(this);
+        form.addCommandListener(this);
         form.show();
     }
 

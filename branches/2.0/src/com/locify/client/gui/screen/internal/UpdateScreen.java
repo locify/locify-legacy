@@ -53,7 +53,7 @@ public class UpdateScreen extends FormLocify implements ActionListener {
 
         addCommand(Commands.cmdBack);
         addCommand(Commands.cmdHome);
-        setCommandListener(this);
+        addCommandListener(this);
         show();
     }
     

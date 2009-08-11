@@ -33,7 +33,6 @@ import com.locify.client.maps.NetworkLinkDownloader;
 import com.locify.client.maps.geometry.Point2D;
 import com.locify.client.maps.mapItem.DescriptionMapItem;
 import com.locify.client.maps.mapItem.MapItem;
-import com.locify.client.maps.mapItem.MapItemInfoPanel;
 import com.locify.client.maps.mapItem.MapNavigationItem;
 import com.locify.client.maps.mapItem.PointMapItem;
 import com.locify.client.maps.mapItem.RouteMapItem;
@@ -186,7 +185,7 @@ public class MapScreen extends FormLocify implements Runnable, LocationEventList
         addComponent(BorderLayout.CENTER, mainContainer);
         R.getLocator().addLocationChangeListener(this);
 
-        addComponent(BorderLayout.NORTH, new MapItemInfoPanel());
+        //addComponent(BorderLayout.NORTH, new MapItemInfoPanel());
     }
 
     /**

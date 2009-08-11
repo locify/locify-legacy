@@ -105,6 +105,9 @@ public class ListScreen implements ActionListener {
      */
     public void view(String url) {
         try {
+            form.addCommand(Commands.cmdBack);
+            form.addCommand(Commands.cmdHome);
+
             if (!ServicesData.getCurrent().equals("Locify")) {
                 if (!"".equals(ServicesData.getService(ServicesData.getCurrent()).getSettingsUrl())) {
                     form.addCommand(new ParentCommand(Locale.get("Service"), null,
@@ -116,9 +119,7 @@ public class ListScreen implements ActionListener {
             }
             
             list.addActionListener(this);
-            form.addCommand(Commands.cmdBack);
-            form.addCommand(Commands.cmdHome);
-            form.setCommandListener(this);
+            form.addCommandListener(this);
             form.show();
         } catch (Exception e) {
             R.getErrorScreen().view(e, "ListScreen.view", url);

@@ -13,6 +13,7 @@
  */
 package com.locify.client.utils;
 
+import com.sun.lwuit.util.Log;
 import com.sun.lwuit.util.Resources;
 import java.io.IOException;
 import java.util.Hashtable;
@@ -45,7 +46,7 @@ public class Locale {
             if (string.length() > 2) {
                 string = string.substring(0, 2);
             }
-System.out.println("Load: " + string);
+            Log.p("Load: " + string);
             Resources res = ResourcesLocify.getResource("lang");
 
             if (res != null) {

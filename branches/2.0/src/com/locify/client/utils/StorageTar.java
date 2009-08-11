@@ -136,8 +136,7 @@ public class StorageTar {
         try {
 //Logger.debug("  StorageTar.skipBytes() " + numOfBytes + " " + R.getSettings().getMapLoading());
             int actualPos = 0;
-//            if (R.getSettings().getMapLoading() == SettingsData.S60_FIX) {
-            if (R.getSettings().getMapLoading() == SettingsData.REGULAR) {
+            if (R.getSettings().getMapLoading() == SettingsData.S60_FIX) {
                 while (true) {
                     if ((actualPos + bufferSize) < numOfBytes) {
                             is.read(buffer);

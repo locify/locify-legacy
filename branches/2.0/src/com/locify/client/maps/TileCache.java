@@ -184,7 +184,6 @@ public class TileCache extends Thread {
                     try {
                         actualRequest = (ImageRequest) tileRequest.elementAt(0);
                         if (actualRequest.fileName.startsWith("http://")) {
-                            TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
 //long tic = System.currentTimeMillis();
 //System.out.println((System.currentTimeMillis() - tic) + " start");
                         /* check if same ImageRequest is not already downloading */
@@ -421,6 +420,7 @@ public class TileCache extends Thread {
                 }
 
                 if (data == null) {
+                    TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
 //System.out.println("Load from web: " + path);
                     connection = (HttpConnection) Connector.open(path, Connector.READ);
                     connection.setRequestMethod(HttpConnection.GET);

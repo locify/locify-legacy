@@ -17,12 +17,12 @@ import com.sun.lwuit.layouts.FlowLayout;
 public class FlowLayoutYScroll extends FlowLayout {
 
     public Dimension getPreferredSize(Container parent) {
-Logger.debug("FlowLayoutYScroll.getPreferesSize()");
+//Logger.debug("FlowLayoutYScroll.getPreferesSize()");
         int maxWidth = 0, totalHeight = 0;
         int componentHeight = 0, componentWidth = 0, currentLineWidth = 0;
-        final int formWidth = parent.getLayoutWidth();
+        final int formWidth = parent.getWidth();
         final int numOfcomponents = parent.getComponentCount();
-Logger.debug("com: " + numOfcomponents);
+//Logger.debug("com: " + numOfcomponents);
         if (numOfcomponents > 0) {
             Component cmp = parent.getComponentAt(0);
             componentHeight = cmp.getPreferredH() + cmp.getStyle().getMargin(Component.TOP) + cmp.getStyle().getMargin(Component.BOTTOM);
@@ -45,12 +45,12 @@ Logger.debug("com: " + numOfcomponents);
                 }
             }
         }
-Logger.debug("dim: " + (maxWidth +
-                parent.getStyle().getPadding(Component.LEFT) +
-                parent.getStyle().getPadding(Component.RIGHT) + ", " +
-                (totalHeight +
-                parent.getStyle().getPadding(Component.TOP) +
-                parent.getStyle().getPadding(Component.BOTTOM))));
+//Logger.debug("dim: " + (maxWidth +
+//                parent.getStyle().getPadding(Component.LEFT) +
+//                parent.getStyle().getPadding(Component.RIGHT) + ", " +
+//                (totalHeight +
+//                parent.getStyle().getPadding(Component.TOP) +
+//                parent.getStyle().getPadding(Component.BOTTOM))));
         return new Dimension(
                 maxWidth +
                 parent.getStyle().getPadding(Component.LEFT) +

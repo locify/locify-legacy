@@ -13,7 +13,7 @@
  */
 package com.locify.client.gui.extension;
 
-import com.locify.client.utils.ColorsFonts;
+import com.locify.client.data.IconData;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Image;
@@ -21,6 +21,7 @@ import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
+import com.sun.lwuit.plaf.Border;
 import java.io.IOException;
 
 /**
@@ -41,18 +42,14 @@ public class FlowPanel extends Container {
         super(new BorderLayout());
 
         if (imgHor == null) {
-            try {
-                imgHor = Image.createImage("/3Dhor.png").scaledHeight(3);
-                imgVer = Image.createImage("/3Dver.png").scaledWidth(3);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            imgHor = IconData.getLocalImage("3Dhor.png").scaledHeight(3);
+            imgVer = IconData.getLocalImage("3Dver.png").scaledWidth(3);
         }
 
         visibleButton = new Button();
         visibleButton.setAlignment(Label.CENTER);
         visibleButton.setVerticalAlignment(Label.CENTER);
-//        visibleButton.getStyle().setBorder(null);
+        visibleButton.getStyle().setBorder(Border.createLineBorder(2));
 //        visibleButton.getStyle().setBgColor(ColorsFonts.CYAN);
         visibleButton.addActionListener(new ActionListener() {
 
@@ -74,7 +71,7 @@ public class FlowPanel extends Container {
             visibleButton.setIcon(imgVer);
             addComponent(BorderLayout.WEST, visibleButton);
         }
-        addComponent(BorderLayout.CENTER, itemContainer);
+        //addComponent(BorderLayout.CENTER, itemContainer);
 
         isShown = false;
     }

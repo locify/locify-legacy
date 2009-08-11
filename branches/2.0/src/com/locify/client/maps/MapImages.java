@@ -62,9 +62,14 @@ public class MapImages {
         if (label == null) {
             g.drawImage(ir.image, ir.x, ir.y);
         } else {
+            g.setColor(ColorsFonts.MAP_BG_COLOR);
+            g.fillRect(ir.x, ir.y, ir.tileSizeX, ir.tileSizeY);
             g.drawImage(getLoadingImage(),
                     ir.x + (ir.tileSizeX - getLoadingImage().getWidth()) / 2,
                     ir.y + (ir.tileSizeY - getLoadingImage().getHeight()) / 2);
+
+            g.setColor(ColorsFonts.BLACK);
+            g.drawRect(ir.x, ir.y, ir.tileSizeX, ir.tileSizeY);
 
             Vector labels = StringTokenizer.getVector(label, "\n");
             int startHeight = (ir.tileSizeY - labels.size() * g.getFont().getHeight() - (labels.size() - 1) * 5) / 2;
@@ -74,9 +79,6 @@ public class MapImages {
                 int textY = ir.y + startHeight + i * (g.getFont().getHeight() + 5);
                 g.drawString(text, textX, textY);
             }
-
-            g.setColor(ColorsFonts.BLACK);
-            g.drawRect(ir.x, ir.y, ir.tileSizeX, ir.tileSizeY);
         }
     }
 

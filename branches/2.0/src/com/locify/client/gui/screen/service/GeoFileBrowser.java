@@ -196,27 +196,25 @@ public class GeoFileBrowser implements ActionListener {
     private void viewDataRoute() {
         actualForm = FORM_ROUTE;
         form.setAsNew(route.getName());
-        if (route.getRouteDist() != null) {
-            form.addComponent(new Label(Locale.get("Route_length")));
-            form.addComponent(new Label(route.getRouteDist()));
+        if (route.getRouteDist() > 0) {
+            form.addComponent(new Label(Locale.get("Route_length") + ": " + GpsUtils.formatDistance(route.getRouteDist())));
         }
         if (route.getRouteTime() > 0) {
-            form.addComponent(new Label(Locale.get("Travel_time")));
-            form.addComponent(new Label(GpsUtils.formatTime(route.getRouteTime())));
+            form.addComponent(new Label(Locale.get("Travel_time") + ": " + GpsUtils.formatTime(route.getRouteTime())));
         }
-        form.addComponent(new Label(Locale.get("Waypoints_count")));
-        form.addComponent(new Label(route.getWaypointCount() + ""));
+        form.addComponent(new Label(Locale.get("Waypoints_count") + ": " + String.valueOf(route.getWaypointCount())));
 
         if (route.getFirstPoint() != null) {
-            form.addComponent(new Label("\n  " + Locale.get("First_waypoint")));
-            form.addComponent(new Label(Locale.get("Latitude")));
-            form.addComponent(new Label(GpsUtils.formatLatitude(route.getFirstPoint().getLatitude(), R.getSettings().getCoordsFormat())));
-            form.addComponent(new Label(Locale.get("Longitude")));
-            form.addComponent(new Label(GpsUtils.formatLongitude(route.getFirstPoint().getLongitude(), R.getSettings().getCoordsFormat())));
+            form.addComponent(new Label(Locale.get("First_waypoint")));
+            form.addComponent(new Label(" " + Locale.get("Latitude") + ": " +
+                    GpsUtils.formatLatitude(route.getFirstPoint().getLatitude())));
+            form.addComponent(new Label(" " + Locale.get("Longitude") + ": " +
+                    GpsUtils.formatLongitude(route.getFirstPoint().getLongitude())));
         }
 
         addDescription(form, route);
 
+        addCommands(form);
         if (route.getFirstPoint() != null) {
             if (route.getWaypointCount() < 2) {
                 form.addCommand(new ParentCommand(Locale.get("Navigate"), null,
@@ -233,7 +231,7 @@ public class GeoFileBrowser implements ActionListener {
             form.addCommand(new ParentCommand(Locale.get("To_landmarks"), null,
                     new Command[] {Commands.cmdExportFirst, Commands.cmdExportLast}));
         }
-        addCommands(form);
+
         form.show();
     }
 
@@ -243,17 +241,17 @@ public class GeoFileBrowser implements ActionListener {
 
         addDescription(form, waypoint);
 
-        form.addComponent(new Label(Locale.get("Latitude")));
-        form.addComponent(new Label(GpsUtils.formatLatitude(waypoint.getLatitude(), R.getSettings().getCoordsFormat())));
-        form.addComponent(new Label(Locale.get("Longitude")));
-        form.addComponent(new Label(GpsUtils.formatLongitude(waypoint.getLongitude(), R.getSettings().getCoordsFormat())));
+        form.addComponent(new Label(Locale.get("Latitude") + ": " +
+                GpsUtils.formatLatitude(waypoint.getLatitude())));
+        form.addComponent(new Label(Locale.get("Longitude") + ": " +
+                GpsUtils.formatLongitude(waypoint.getLongitude())));
 
+        addCommands(form);
         form.addCommand(Commands.cmdNavigate);
         if (Capabilities.hasJSR179() && Capabilities.hasLandmarks()) {
             form.addCommand(Commands.cmdExport);
         }
 
-        addCommands(form);
         if (!waypoint.getService().equals("")) {
             ServicesData.setCurrent(waypoint.getService());
         }
@@ -264,11 +262,7 @@ public class GeoFileBrowser implements ActionListener {
         actualForm = FORM_WAYPOINT_CLOUD;
         form.setAsNew(waypointCloud.getName());
 
-        form.addComponent(new Label(Locale.get("Waypoints_count")));
-        form.addComponent(new Label(waypointCloud.getWaypointsCount() + ""));
-//        form.addComponent(new Label("\n  " + Locale.get("Center_waypoint"), ""));
-//        form.addComponent(new Label(Locale.get("Latitude"), GpsUtils.formatLatitude(waypointCloud.getCenterLocation().getLatitude(), R.getSettings().getCoordsFormat())));
-//        form.addComponent(new Label(Locale.get("Longitude"), GpsUtils.formatLongitude(waypointCloud.getCenterLocation().getLongitude(), R.getSettings().getCoordsFormat())));
+        form.addComponent(new Label(Locale.get("Waypoints_count") + ": " + waypointCloud.getWaypointsCount()));
 
         containerWaypoint = new Container();
         containerWaypoint.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
@@ -284,6 +278,8 @@ public class GeoFileBrowser implements ActionListener {
 
     private void addDescription(Form form, GeoData data) {
         if (data.getDescription().length() > 0) {
+            form.addComponent(new Label(Locale.get("Description")));
+            
             Container container = new Container();
             htmlBrowser = new XHtmlBrowser(container);
             if (online) {
@@ -296,13 +292,13 @@ public class GeoFileBrowser implements ActionListener {
     }
 
     private void addCommands(Form screen) {
+        screen.addCommand(Commands.cmdBack);
         if (inService) {
             screen.addCommand(Commands.cmdSave);
         }
         screen.addCommand(Commands.cmdMap);
-        screen.addCommand(Commands.cmdBack);
         screen.addCommand(Commands.cmdHome);
-        screen.setCommandListener(this);
+        screen.addCommandListener(this);
     }
 
     public void actionPerformed(ActionEvent evt) {

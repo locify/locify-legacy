@@ -13,6 +13,7 @@
  */
 package com.locify.client.gui.extension;
 
+import com.locify.client.utils.ColorsFonts;
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Display;
 import com.sun.lwuit.Font;
@@ -30,8 +31,6 @@ import com.sun.lwuit.plaf.Style;
 public class Progress extends Component {
 
     private int percent;
-    private Image unfilled;
-    private Image filled;
     private Thread runThread;
 
     /**
@@ -39,22 +38,8 @@ public class Progress extends Component {
      */
     public Progress() {
         setFocusable(false);
-    }
-
-    /**
-     * Allows indicating the progress using a filled/unfilled images.
-     * The unfilled image is always drawn and the filled image is drawn on top with
-     * clipping to indicate the amount of progress made.
-     *
-     * @param unfilled an image containing the progress bar without any of its
-     * content being filled (with the progress color)
-     * @param filled an image identicall to unfilled in every way except that progress
-     * is completed in this bar.
-     */
-    public Progress(Image unfilled, Image filled) {
-        this();
-        this.unfilled = unfilled;
-        this.filled = filled;
+        getStyle().setPadding(Component.LEFT, 10);
+        getStyle().setPadding(Component.RIGHT, 10);
     }
 
     /**
@@ -110,14 +95,10 @@ public class Progress extends Component {
      * Return the size we would generally like for the component
      */
     protected Dimension calcPreferredSize() {
-        if (filled != null) {
-            return new Dimension(filled.getWidth(), filled.getHeight());
-        } else {
-            // we don't really need to be in the font height but this provides
-            // a generally good indication for size expectations
-            return new Dimension(Display.getInstance().getDisplayWidth(),
-                    Font.getDefaultFont().getHeight());
-        }
+        // we don't really need to be in the font height but this provides
+        // a generally good indication for size expectations
+        return new Dimension(Display.getInstance().getDisplayWidth(),
+                Font.getDefaultFont().getHeight());
     }
 
     /**
@@ -125,27 +106,15 @@ public class Progress extends Component {
      */
     public void paint(Graphics g) {
         int width = (int) ((((float) percent) / 100.0f) * getWidth());
-        if (filled != null) {
-            if (filled.getWidth() != getWidth()) {
-                filled = filled.scaled(getWidth(), getHeight());
-                unfilled = unfilled.scaled(getWidth(), getHeight());
-            }
 
-            // draw based on two user supplied images
-            g.drawImage(unfilled, getX(), getY());
-            g.clipRect(getX(), getY(), width, getHeight());
-            g.drawImage(filled, getX(), getY());
-        } else {
-            // draw based on simple graphics primitives
-            Style s = getStyle();
-            g.setColor(s.getBgColor());
-            int curve = getHeight() / 2 - 1;
-            g.fillRoundRect(getX(), getY(), getWidth() - 1, getHeight() - 1, curve, curve);
-            g.setColor(s.getFgColor());
-            g.drawRoundRect(getX(), getY(), getWidth() - 1, getHeight() - 1, curve, curve);
-            g.clipRect(getX(), getY(), width - 1, getHeight() - 1);
-            g.setColor(s.getBgColor());
-            g.fillRoundRect(getX(), getY(), getWidth() - 1, getHeight() - 1, curve, curve);
-        }
+        // TODO ... cech colors
+        Style s = getStyle();
+        g.setColor(s.getBgColor());
+        int curve = getHeight() / 2 - 1;
+        g.fillRoundRect(g.getClipX(), g.getClipY(), getWidth() - 1, getHeight() - 1, curve, curve);
+        g.setColor(ColorsFonts.BLACK);
+        g.drawRoundRect(g.getClipX(), g.getClipY(), getWidth() - 1, getHeight() - 1, curve, curve);
+        g.setColor(ColorsFonts.BLUE);
+        g.fillRoundRect(getX(), getY(), width - 1, getHeight() - 1, curve, curve);
     }
 }

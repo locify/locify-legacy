@@ -57,7 +57,7 @@ public class StoreManager {
             form.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
             
             form.addCommand(Commands.cmdCancel);
-            form.setCommandListener(new ActionListener() {
+            form.addCommandListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent evt) {
                     if (evt.getCommand() == Commands.cmdCancel) {

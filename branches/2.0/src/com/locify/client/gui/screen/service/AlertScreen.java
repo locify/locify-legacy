@@ -39,7 +39,7 @@ public class AlertScreen implements ActionListener {
     private boolean alertDismissed;
 
     public AlertScreen() {
-        super();
+        dialog = new Dialog("Warning");
     }
 
     /**
@@ -75,11 +75,10 @@ public class AlertScreen implements ActionListener {
      * Displays alert
      */
     public void view() {
-        dialog = new Dialog("" + alertType);
         dialog.setDialogType(alertType);
         dialog.addComponent(new HtmlTextArea(text, false));
         dialog.addCommand(Commands.cmdOK);
-        dialog.setCommandListener(this);
+        dialog.addCommandListener(this);
         dialog.show();
     }
 

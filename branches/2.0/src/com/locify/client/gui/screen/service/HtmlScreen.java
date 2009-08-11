@@ -28,7 +28,6 @@ import com.locify.client.net.browser.XHtmlTagHandler;
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
 import com.locify.client.utils.Locale;
-import com.locify.client.utils.Utils;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
@@ -47,7 +46,6 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
 
     public HtmlScreen() {
         form = new FormLocify("");
-//        form.setLayout(new BorderLayout());
 
         htmlBrowser = new XHtmlBrowser(form.getContentPane());
 //        form.addComponent(BorderLayout.CENTER, htmlBrowser.);
@@ -56,7 +54,7 @@ public class HtmlScreen implements ActionListener, LocationEventListener {
         //another location commands
         // i know about added gps ... actualy i'm lazy :)
         form.addCommand(new ParentCommand(Locale.get("Another_location"), null, R.getContext().commands));
-        form.setCommandListener(this);
+        form.addCommandListener(this);
         R.getLocator().addLocationChangeListener(this);
     }
 

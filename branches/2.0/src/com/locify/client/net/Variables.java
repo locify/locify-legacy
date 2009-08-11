@@ -108,8 +108,8 @@ public class Variables {
         } //has location context
         else  {
             if (friendlyFormat) {
-                text = Utils.replaceString(text, "$lat", String.valueOf(GpsUtils.formatLatitude(R.getLocator().getLastLocation().getLatitude(), R.getSettings().getCoordsFormat())));
-                text = Utils.replaceString(text, "$lon", String.valueOf(GpsUtils.formatLongitude(R.getLocator().getLastLocation().getLongitude(), R.getSettings().getCoordsFormat())));
+                text = Utils.replaceString(text, "$lat", String.valueOf(GpsUtils.formatLatitude(R.getLocator().getLastLocation().getLatitude())));
+                text = Utils.replaceString(text, "$lon", String.valueOf(GpsUtils.formatLongitude(R.getLocator().getLastLocation().getLongitude())));
             } else {
                 text = Utils.replaceString(text, "$lat", String.valueOf(R.getLocator().getLastLocation().getLatitude()));
                 text = Utils.replaceString(text, "$lon", String.valueOf(R.getLocator().getLastLocation().getLongitude()));

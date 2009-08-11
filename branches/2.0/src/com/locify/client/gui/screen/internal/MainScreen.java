@@ -74,6 +74,9 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
         tabbedPane.setTabbedPaneBorderWidth(0);
         addComponent(BorderLayout.CENTER, tabbedPane);
         this.items = new Vector();
+
+        //tabbedPane.getComponentAt(0).getStyle().setBgColor(ColorsFonts.RED);
+        //tabbedPane.getStyle().setBgColor(ColorsFonts.RED);
     }
 
     /**
@@ -149,7 +152,7 @@ public class MainScreen extends FormLocify implements ActionListener, SelectionL
             loadTab(4);
             loadTab(5);
 
-            this.setCommandListener(this);
+            this.addCommandListener(this);
             selectionChanged(-1, 0);
 
             //#if applet

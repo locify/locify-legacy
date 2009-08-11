@@ -25,29 +25,26 @@
         <copy file="resources/img/icon.png" tofile="build/compiled/icon.png"/>
         <copy file="resources/img/loading.png" tofile="build/compiled/loading.png"/>
 
-        <copy  todir="build/compiled/">
-            <fileset dir="resources/img/http-status/" />
+        <copy todir="build/compiled/">
+            <fileset dir="resources/img/filetypes/" />
         </copy>
         <copy todir="build/compiled/">
             <fileset dir="resources/img/gps-status/" />
         </copy>
-        <copy todir="build/compiled/">
-            <fileset dir="resources/img/menu/" />
-        </copy>
-        <copy todir="build/compiled/">
-            <fileset dir="resources/img/route-status/" />
+        <copy  todir="build/compiled/">
+            <fileset dir="resources/img/http-status/" />
         </copy>
         <copy todir="build/compiled/">
             <fileset dir="resources/img/maps/" />
         </copy>
         <copy todir="build/compiled/">
-            <fileset dir="resources/img/html/" />
+            <fileset dir="resources/img/menu/" />
         </copy>
         <copy todir="build/compiled/">
-            <fileset dir="resources/img/navigation/" />
+            <fileset dir="resources/img/others/" />
         </copy>
         <copy todir="build/compiled/">
-            <fileset dir="resources/img/filetypes/" />
+            <fileset dir="resources/img/route-status/" />
         </copy>
         <copy todir="build/compiled/">
             <fileset dir="resources/skins/" />

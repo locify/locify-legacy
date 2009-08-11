@@ -15,7 +15,6 @@ package com.locify.client.gui.screen.internal;
 
 import com.locify.client.data.FileSystem;
 import com.locify.client.gui.extension.FormLocify;
-import com.locify.client.gui.extension.ParentCommand;
 import com.locify.client.gui.extension.TopBarBackground;
 import com.locify.client.locator.LocationContext;
 import com.locify.client.route.*;
@@ -31,6 +30,7 @@ import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.GridLayout;
+import com.sun.lwuit.util.Log;
 import javax.microedition.lcdui.game.GameCanvas;
 
 
@@ -38,7 +38,7 @@ import javax.microedition.lcdui.game.GameCanvas;
  * Screen for showing running route progress
  * @author Menion
  */
-public class RouteScreen extends FormLocify implements ActionListener {
+public class RouteScreen extends FormLocify {
 
     private Button buttonStart;
     private Button buttonStop;
@@ -47,8 +47,6 @@ public class RouteScreen extends FormLocify implements ActionListener {
    
     private boolean alreadyInitialized = false;
     private boolean initializePaused = false;
-
-    private ParentCommand actionCommand;
 
     public RouteScreen() {
         super(Locale.get("Record_route"));
@@ -63,10 +61,9 @@ public class RouteScreen extends FormLocify implements ActionListener {
                 setLayout(new BorderLayout());
 
                 this.addCommand(Commands.cmdBack);
-                this.addCommand(new ParentCommand(Locale.get("Record_route"), null,
-                        new Command[] {Commands.cmdActionStart}));
-                actionCommand = new ParentCommand(Locale.get("Record_route"), null, new Command[1]);
-                this.setCommandListener(this);
+                this.addCommand(Commands.cmdHome);
+                this.addCommand(Commands.cmdActionStart);
+
 
                 registerBackgroundListener();
 
@@ -83,7 +80,10 @@ public class RouteScreen extends FormLocify implements ActionListener {
                     buttonStop.setEnabled(true);
 
                     // menu buttons
-                    actionCommand.setCommand(new Command[] {Commands.cmdActionResume, Commands.cmdActionStop, Commands.cmdActionReset});
+                    removeCommands();
+                    this.addCommand(Commands.cmdActionReset);
+                    this.addCommand(Commands.cmdActionStop);
+                    this.addCommand(Commands.cmdActionResume);
                 }
                 alreadyInitialized = true;
             }
@@ -118,7 +118,7 @@ public class RouteScreen extends FormLocify implements ActionListener {
         buttonContainer.addComponent(buttonStart);
         buttonContainer.addComponent(buttonStop);
 
-        addComponent(BorderLayout.SOUTH, buttonContainer);
+        getContentPane().getParent().addComponent(BorderLayout.SOUTH, buttonContainer);
         
 //        slAlt.setTitle(Locale.get("Altitude"));
 //        slHdop.setTitle(Locale.get("Hdop_route"));
@@ -147,9 +147,9 @@ public class RouteScreen extends FormLocify implements ActionListener {
         if (slHdop!= null)
             slHdop.setValue(GpsUtils.formatDouble(routeManager.getHdop(), 1));
         if (slLat != null)
-            slLat.setValue(GpsUtils.formatLatitude(routeManager.getLatitude(), R.getSettings().getCoordsFormat()));
+            slLat.setValue(GpsUtils.formatLatitude(routeManager.getLatitude()));
         if (slLon != null)
-            slLon.setValue(GpsUtils.formatLongitude(routeManager.getLongitude(), R.getSettings().getCoordsFormat()));
+            slLon.setValue(GpsUtils.formatLongitude(routeManager.getLongitude()));
         if (slRouteTime != null)
             slRouteTime.setValue(GpsUtils.formatTimeShort(routeManager.getRouteTime()));
         if (slSpeedAct != null)
@@ -214,7 +214,10 @@ public class RouteScreen extends FormLocify implements ActionListener {
         buttonStop.setEnabled(true);
 
         // menu buttons
-        actionCommand.setCommand(new Command[] {Commands.cmdActionPause, Commands.cmdActionStop, Commands.cmdActionReset});
+        removeCommands();
+        this.addCommand(Commands.cmdActionReset);
+        this.addCommand(Commands.cmdActionStop);
+        this.addCommand(Commands.cmdActionPause);
     }
 
     private void routePause(boolean save) {
@@ -224,7 +227,10 @@ public class RouteScreen extends FormLocify implements ActionListener {
         buttonStop.setEnabled(true);
 
         // menu buttons
-        actionCommand.setCommand(new Command[] {Commands.cmdActionResume, Commands.cmdActionStop, Commands.cmdActionReset});
+        removeCommands();
+        this.addCommand(Commands.cmdActionReset);
+        this.addCommand(Commands.cmdActionStop);
+        this.addCommand(Commands.cmdActionResume);
     }
 
     public void routeReset() {
@@ -236,7 +242,17 @@ public class RouteScreen extends FormLocify implements ActionListener {
         buttonStop.setEnabled(false);
 
         // menu buttons
-        actionCommand.setCommand(new Command[] {Commands.cmdActionStart, Commands.cmdActionReset});
+        removeCommands();
+        this.addCommand(Commands.cmdActionReset);
+        this.addCommand(Commands.cmdActionStart);
+    }
+
+    private void removeCommands() {
+        this.removeCommand(Commands.cmdActionStart);
+        this.removeCommand(Commands.cmdActionResume);
+        this.removeCommand(Commands.cmdActionPause);
+        this.removeCommand(Commands.cmdActionStop);
+        this.removeCommand(Commands.cmdActionReset);
     }
 
     public void loadUnfinishedRoute() {
@@ -266,18 +282,20 @@ public class RouteScreen extends FormLocify implements ActionListener {
         }
     }
 
-    public void actionPerformed(ActionEvent evt) {
-        if (evt.getCommand() == Commands.cmdBack) {
+    public void actionCommand(Command cmd) {
+        Log.p("clicked, evt:" + cmd);
+        if (cmd == Commands.cmdBack) {
             R.getBack().goBack();
-        } else if (evt.getCommand() == Commands.cmdActionStart) {
+        } else if (cmd == Commands.cmdActionStart) {
             routeStart();
-        } else if (evt.getCommand() == Commands.cmdActionStop) {
+        } else if (cmd == Commands.cmdActionStop) {
             routePause(true);
-        } else if (evt.getCommand() == Commands.cmdActionReset) {
+        } else if (cmd == Commands.cmdActionReset) {
+            Log.p("clicked Reset");
             routeReset();
-        } else if (evt.getCommand() == Commands.cmdActionPause) {
+        } else if (cmd == Commands.cmdActionPause) {
             routePause(false);
-        } else if (evt.getCommand() == Commands.cmdActionResume) {
+        } else if (cmd == Commands.cmdActionResume) {
             routeStart();
         }
     }
