@@ -62,8 +62,11 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
                         ex.printStackTrace();
                     }
                 } while ((delta < TIMEOUT) & (!stop));
-
-                if (stop) {
+                if (delta >= TIMEOUT)
+                {
+                    R.getCustomAlert().quickView(Locale.get("Location_timeout"), Locale.get("Info"), "locify://back");
+                }
+                else if (stop) {
                     return;
                 }
                 if (hasFix) {
@@ -202,6 +205,7 @@ public class LocatorModel extends Thread implements LocationEventListener, Locat
             if (oldProvider == null || !providerChangeRequest.equals(oldProvider)) {
                 providerStopped = false;
                 locationProvider = this.getLocationProviderInstance(providerChangeRequest);
+                startWaitForLocation();
             }
             if (!providerStopped) {
                 R.getContext().setLocation(null, LocationContext.GPS, null);
