@@ -27,7 +27,7 @@ public class BackScreenManager {
     private Vector screens;
     private boolean dontSave;
     private static String[] noBack = {"locify://filesystem/waypoint", "locify://searchBTDevices", "locify://BTDevices", "locify://serviceSettings", "locify://back", "locify://updateService", "locify://refresh", "locify://gps", "locify://lastKnown", "locify://externalBrowserOptions", "locify://sms", "locify://mapNavigation"};
-    private boolean debug = false;
+    private boolean debug = true;
 
     public BackScreenManager() {
         reset();
@@ -123,13 +123,14 @@ public class BackScreenManager {
             dontSave();
             String last = (String) screens.lastElement();
             String[] parts = StringTokenizer.getArray(last, " ");
+System.out.println("\nGoBack: " + last + " " + (parts == null));
             if (parts.length == 2) {
                 R.getPostData().setRaw(parts[1], true);
             }
-            R.getURL().call(parts[0]);
             if (debug) {
                 Logger.debug("BACK - to:" + parts[0] + " steps=" + steps+debug());
             }
+            R.getURL().call(parts[0]);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "BackScreenManager.goBack", null);
         }

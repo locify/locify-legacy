@@ -1292,7 +1292,7 @@ public class MapScreen extends Screen implements CommandListener, LocationEventL
 
                 if (imageIconZoomSideSize == 0) {
                     int size = Capabilities.getHeight() * imageIconZoomPlus.getHeight() / 1000;
-                    imageIconZoomSideSize = size < 35 ? 35 : size;
+                    imageIconZoomSideSize = size < 60 ? 60 : size;
                 }
 
                 imageIconZoomPlus = IconData.reScaleImage(imageIconZoomPlus,

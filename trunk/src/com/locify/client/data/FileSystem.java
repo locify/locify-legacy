@@ -97,7 +97,7 @@ public class FileSystem {
     }
 
     /**
-     * Return all root directories divided by \n
+     * Return all root directories
      * @return all root directories
      */
     public Enumeration getRoots() {

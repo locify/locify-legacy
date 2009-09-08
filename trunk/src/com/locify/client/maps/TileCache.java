@@ -186,7 +186,7 @@ public class TileCache extends Thread {
                                     tileRequest.removeElementAt(0);
                                 }
                             } else {
-                                if (runningHttpDownloaders.size() < 2) {
+                                if (runningHttpDownloaders.size() < 3) {
                                     HttpImageDownloader http = new HttpImageDownloader(actualRequest.fileName);
                                     http.setPriority(Thread.MIN_PRIORITY);
                                     http.start();
@@ -245,7 +245,7 @@ public class TileCache extends Thread {
                         refreshScreenAndDownloaders();
 
                         try {
-                            Thread.sleep(250);
+                            Thread.sleep(50);
                         } catch (InterruptedException e) {
                             R.getErrorScreen().view(e, "TileCache.run() - sleep(250)", null);
                         }

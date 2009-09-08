@@ -32,7 +32,9 @@ import com.locify.client.maps.tiles.TileFactory;
 import com.locify.client.maps.tiles.TileFactoryInfo;
 import com.locify.client.maps.tiles.impl.GoogleMapAerialTileFactory;
 import com.locify.client.maps.tiles.impl.GoogleMapTileFactory;
-import com.locify.client.maps.tiles.impl.OpenStreetMapMapnikTileFactory;
+import com.locify.client.maps.tiles.impl.OpenStreetMapCloudMadeTileFactory;
+import com.locify.client.maps.tiles.impl.OpenStreetMapCycloTileFactory;
+import com.locify.client.maps.tiles.impl.OpenStreetMapTileFactory;
 import com.locify.client.maps.tiles.impl.VirtualEarthAerialTileFactory;
 import com.locify.client.maps.tiles.impl.VirtualEarthHybridTileFactory;
 import com.locify.client.maps.tiles.impl.VirtualEarthRoadTileFactory;
@@ -272,7 +274,9 @@ public class TileMapLayer implements MapLayer {
                         new YahooSatelliteTileFactory(this)
                     },
                     new TileFactory[]{
-                        new OpenStreetMapMapnikTileFactory(this)
+                        new OpenStreetMapTileFactory(this),
+                        new OpenStreetMapCycloTileFactory(this),
+                        new OpenStreetMapCloudMadeTileFactory(this)
                     },
                     new TileFactory[]{
                         new VirtualEarthRoadTileFactory(this),
