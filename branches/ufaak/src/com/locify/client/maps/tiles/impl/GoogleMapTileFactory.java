@@ -44,7 +44,7 @@ public class GoogleMapTileFactory extends AbstractTileFactory {
                 256,
                 true,
                 true,
-                "http://mt0.google.com/mt/v=w2.95&hl=en",
+                "http://mt1.google.com/vt/v=w2.95&hl=en",
                 ""),
                 canvasToRepaintWhenLoaded
         );
