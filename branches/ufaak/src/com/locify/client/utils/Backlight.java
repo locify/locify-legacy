@@ -13,55 +13,12 @@
  */
 package com.locify.client.utils;
 
-import de.enough.polish.util.DeviceControl;
-
 
 /**
  * Manages automated downloading of KML inside NetworkLink
  * @author Destil
  */
 public class Backlight extends Thread {
-
-    private boolean stop = true;
-    private boolean started = false;
-    private int flashbackLightPause = 0;
-
-    public Backlight() {
-    }
-
-    public void off() {
-        stop = true;
-    }
-
-    public void on() {
-        stop = false;
-        if (!started)
-        {
-            this.start();
-        }
-    }
-
-    public boolean isOn()
-    {
-        return (!stop);
-    }
-
-    public void run() {
-        try {
-            started = true;
-            while (true) {
-                if (!stop)
-                {
-                    DeviceControl.lightOn();
-                }
-                Thread.sleep(1000);
-            }
-        } catch (Exception e) {
-            R.getErrorScreen().view(e, "Backlight.run", null);
-        }
-    }
-
-/*
 
     private boolean stop = true;
     private boolean started = false;
@@ -109,6 +66,4 @@ public class Backlight extends Thread {
             R.getErrorScreen().view(e, "Backlight.run", null);
         }
     }
-}
-*/
 }

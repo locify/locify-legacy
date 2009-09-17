@@ -21,9 +21,11 @@
  */
 package com.locify.client.maps.tiles.impl;
 
+
 import com.locify.client.maps.MapLayer;
 import com.locify.client.maps.tiles.AbstractTileFactory;
 import com.locify.client.maps.tiles.TileFactoryInfo;
+
 
 /**
  * @author ufaak
@@ -47,6 +49,7 @@ public class AbstractTuristickeMapyTileFactory extends AbstractTileFactory {
                 );
     }
 
+
     protected String getCoordinatePart(int x, int y, int zoom) {
         String cyklo=  new String() ;
         if (getParticularZoomFromReferenceZoom(zoom)>12) cyklo = "c";
@@ -56,9 +59,11 @@ public class AbstractTuristickeMapyTileFactory extends AbstractTileFactory {
                 "/" + y;
     }
 
+
     protected int getParticularZoomFromReferenceZoom(int referenceZoom) {
         return referenceZoom - 8;
     }
+
 
     protected int getReferenceZoomFromParticularZoom(int particularZoom) {
         return particularZoom + 8;

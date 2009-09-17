@@ -17,6 +17,7 @@ import com.locify.client.data.FileSystem;
 import com.locify.client.data.SettingsData;
 import com.locify.client.utils.Capabilities;
 import com.locify.client.utils.Commands;
+import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import de.enough.polish.util.Locale;
 import java.io.ByteArrayInputStream;
@@ -25,6 +26,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.util.Enumeration;
+import javax.microedition.io.file.FileSystemRegistry;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Command;
@@ -64,6 +66,14 @@ public class FirstRunManager implements CommandListener, ItemCommandListener {
     public void start() {
         try {
             if (chosenLanguage == null) {
+//                //list and write to log all roots
+//                Enumeration enu = FileSystemRegistry.listRoots();
+//                while (enu.hasMoreElements()) {
+//                    Logger.log("Root: " + (String) enu.nextElement());
+//                }
+//                R.getLoggerScreen().view();
+//                Thread.sleep(1000000);
+
                 viewLanguageSelection();
             } else {
                 //windows mobile has two permission checks

@@ -65,6 +65,7 @@ public abstract class GeoFiles {
 
     private static int sActual;
     private static int sBefore;
+    private static String filetype;
     private static final String GEO_FILES_RECORD_STORE = "GeoFilesDatabase";
     private static Vector geoTypeDatabase;
     public static boolean fileBrowserOpened = false;
@@ -1090,6 +1091,51 @@ public abstract class GeoFiles {
                 fileName += "_" + Utils.addZerosBefore(String.valueOf(suffixIndex), 3);
             }
             fileName += ".kml";
+            return fileName;
+        } catch (Exception e) {
+            R.getErrorScreen().view(e, "GeoFiles.fileName()", name);
+            return "";
+        }
+    }
+
+    public static String fileName(String name, boolean route) {
+        try {
+            if (name.equals("")) {
+                name = "Waypoint";
+            }
+            // set filename
+            filetype = ".kml";
+            if (route) {
+                if(R.getSettings().getRouteType() == 1) filetype = ".gpx";
+            }
+
+            //remove unwanted chars
+            StringBuffer buffer = new StringBuffer();
+            for (int i = 0; i < name.length(); i++) {
+                char ch = name.charAt(i);
+                if (Character.isDigit(ch) || Character.isLowerCase(ch) || Character.isUpperCase(ch)) {
+                    buffer.append(ch);
+                }
+            }
+            name = buffer.toString();
+            //create camelcase filename
+            String[] words = StringTokenizer.getArray(name.trim(), " ");
+            String fileName = "";
+            for (int i = 0; i < words.length; i++) {
+                fileName += words[i].substring(0, 1).toUpperCase() + words[i].substring(1);
+            }
+            //append suffix if file exists
+            if (R.getFileSystem().exists(FileSystem.FILES_FOLDER + fileName + filetype)) {
+                int suffixIndex = 0;
+                while (true) {
+                    suffixIndex++;
+                    if (!R.getFileSystem().exists(FileSystem.FILES_FOLDER + fileName + "_" + Utils.addZerosBefore(String.valueOf(suffixIndex), 3) + filetype)) {
+                        break;
+                    }
+                }
+                fileName += "_" + Utils.addZerosBefore(String.valueOf(suffixIndex), 3);
+            }
+            fileName += filetype;
             return fileName;
         } catch (Exception e) {
             R.getErrorScreen().view(e, "GeoFiles.fileName()", name);

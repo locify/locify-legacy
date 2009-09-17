@@ -377,7 +377,7 @@ public abstract class FileMapManager {
     public synchronized void appendRequests(Vector imageExist, Vector imageNotExist,
             FileMapViewPort targetPort, StorageTar tar, int mapPanX, int mapPanY) {
         try {
-boolean debug = false;
+boolean debug = true;
             Point2D mapPoint = fileMapConfig.getMapViewPort().convertGeoToMapPixel(targetPort.getCenter());
 
 if (debug) {

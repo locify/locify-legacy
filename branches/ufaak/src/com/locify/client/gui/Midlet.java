@@ -19,6 +19,8 @@ import com.locify.client.data.ServiceSettingsData;
 import com.locify.client.data.SettingsData;
 import com.locify.client.data.ServicesData;
 import com.locify.client.data.items.GeoFiles;
+import com.locify.client.gui.manager.InternalURLManager;
+import com.locify.client.utils.Logger;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
@@ -26,6 +28,7 @@ import javax.microedition.midlet.MIDlet;
 import com.locify.client.utils.R;
 import com.locify.client.locator.LocationProvider;
 import com.locify.client.utils.Capabilities;
+import java.util.Enumeration;
 
 /**
  * Controls main MIDlet lifecycle

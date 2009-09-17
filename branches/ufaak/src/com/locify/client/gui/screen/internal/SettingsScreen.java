@@ -66,6 +66,8 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
     // maps variables
     private Form frmMaps;
     private ChoiceGroup cgMapProvider;
+    // route type
+    private ChoiceGroup cgRouteType;
 
     public SettingsScreen() {
     }
@@ -256,6 +258,13 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
         cgMapLoading.setSelectedIndex(R.getSettings().getMapLoading(), true);
         frmAdvancedMaps.append(cgMapLoading);
 
+        cgRouteType = new ChoiceGroup(Locale.get("Route_type"), Choice.EXCLUSIVE);
+        cgRouteType.append("KML", null);
+        cgRouteType.append("GPX", null);
+        cgRouteType.setSelectedIndex(R.getSettings().getRouteType(), true);
+        frmAdvancedMaps.append(cgRouteType);
+
+
         btnSaveAdvancedMaps = new StringItem("", Locale.get("Save"), StringItem.BUTTON);
         btnSaveAdvancedMaps.setDefaultCommand(Commands.cmdSave);
         btnSaveAdvancedMaps.setItemCommandListener(this);
@@ -312,7 +321,7 @@ public class SettingsScreen implements CommandListener, ItemCommandListener {
             viewAdvancedMapSettings();
         } else if (item.equals(btnSaveAdvancedMaps))
         {
-            R.getSettings().saveAdvancedMaps(cgAutoload.getSelectedIndex(),cgFilecache.getSelectedIndex(),Integer.parseInt(tfCacheSize.getString()),cgPanning.getSelectedIndex(),cgMapLoading.getSelectedIndex());
+            R.getSettings().saveAdvancedMaps(cgAutoload.getSelectedIndex(),cgFilecache.getSelectedIndex(),Integer.parseInt(tfCacheSize.getString()),cgPanning.getSelectedIndex(),cgMapLoading.getSelectedIndex(),cgRouteType.getSelectedIndex());
         }
     }
 }

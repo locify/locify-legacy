@@ -21,7 +21,9 @@
  */
 package com.locify.client.maps.tiles.impl;
 
+
 import com.locify.client.maps.MapLayer;
+
 
 public class TuristickeMapyTileFactory extends AbstractTuristickeMapyTileFactory {
     public TuristickeMapyTileFactory(MapLayer canvasToRepaintWhenLoaded) {

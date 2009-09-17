@@ -70,6 +70,9 @@ public class SettingsData {
     public static final int NAVIGATION = 2;
     public static final int MAP_NAVIGATION = 3;
     public static final int WHOLE_APPLICATION = 4;
+    //route record
+    public static final int KML = 0;
+    public static final int GPX = 1;
 
     private static String language = "";
     public final String[] locales = {"en", "cs_CZ"};
@@ -85,6 +88,10 @@ public class SettingsData {
 
     public int getUnits() {
         return Integer.parseInt((String) settings.get("units"));
+    }
+
+    public int getRouteType() {
+        return Integer.parseInt((String) settings.get("routeType"));
     }
 
     public String getPassword() {
@@ -270,6 +277,7 @@ public class SettingsData {
             }
             settings.put("backlight", String.valueOf(NOWHERE));
             settings.put("backlightFrequency","4");
+            settings.put("routeType", String.valueOf(KML));
 
             if (!R.getFileSystem().exists(FileSystem.SETTINGS_FILE)) {
                 saveXML();
@@ -363,12 +371,13 @@ public class SettingsData {
         }
     }
 
-    public void saveAdvancedMaps(int autoload, int filecache, int cacheSize, int panning, int mapLoading) {
+    public void saveAdvancedMaps(int autoload, int filecache, int cacheSize, int panning, int mapLoading, int route) {
         settings.put("autoload", String.valueOf(autoload));
         settings.put("filecache", String.valueOf(filecache));
         settings.put("filecacheSize", String.valueOf(cacheSize));
         settings.put("panning", String.valueOf(panning));
         settings.put("mapLoading", String.valueOf(mapLoading));
+        settings.put("routeType", String.valueOf(route));
         saveXML();
         R.getCustomAlert().quickView(Locale.get("Restart_needed"), Locale.get("Info"), "locify://refresh");
     }

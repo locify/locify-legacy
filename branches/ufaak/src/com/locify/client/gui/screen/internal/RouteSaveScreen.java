@@ -100,7 +100,7 @@ public class RouteSaveScreen implements CommandListener, ItemCommandListener {
         if (item == btnOK) {
             if (tfRouteName.getString() != null && tfRouteName.getString().length() > 0) {
                 String routeName = tfRouteName.getString();
-                GeoFiles.saveRoute(GeoFiles.fileName(routeName), routeName, tfRouteDescription.getString(), routeVariables);
+                GeoFiles.saveRoute(GeoFiles.fileName(routeName, true), routeName, tfRouteDescription.getString(), routeVariables);
                 
                 R.getRouteScreen().routeReset();
 

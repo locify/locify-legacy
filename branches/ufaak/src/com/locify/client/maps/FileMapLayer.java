@@ -71,8 +71,8 @@ public static long TIME;
     }
 
     public static double[] convertGeoToMap(FileMapConfig fileMapConfig, Location4D loc) {
-//System.out.println("\nFileMapLayer.convertLocToMap()");
-//System.out.println("\n  defLat:" + loc.getLatitude() + " defLon:" + loc.getLongitude());
+System.out.println("\nFileMapLayer.convertLocToMap()");
+System.out.println("\n  defLat:" + loc.getLatitude() + " defLon:" + loc.getLongitude());
         double[] coo = new double[2];
         coo[0] = loc.getLatitude();
         coo[1] = loc.getLongitude();
@@ -84,12 +84,12 @@ public static long TIME;
             }
         } else if (fileMapConfig.getMapProjection() instanceof S42Projection) {
             coo = ReferenceEllipsoid.convertWGS84toS42(loc.getLatitude(), loc.getLongitude());
-//System.out.println("\n  Lat:" + coo[0] + " lon:" + coo[1]);
+System.out.println("\n  Lat:" + coo[0] + " lon:" + coo[1]);
             if (!fileMapConfig.isSphericCoordinate()) {
                 coo = fileMapConfig.getMapProjection().projectionToFlat(coo[0], coo[1]);
             }
         }
-//System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
+System.out.println("\n  Xmap:" + coo[0] + " Ymap:" + coo[1]);
         return coo;
     }
 

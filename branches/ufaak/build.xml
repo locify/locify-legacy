@@ -35,7 +35,7 @@
 				jarUrl="${polish.jarName}" 
 				name="Locify" 
 				vendorName="Locify Ltd." 
-				version="1.5.3"
+				version="1.5.7"
 		  />
 
                 
@@ -62,6 +62,7 @@
                 </variables>
                 <libraries>
                     <library file="resources/lib/kxml2-2.3.0.jar" />
+                    <library file="${polish.home}/import/nokia-ui.jar" />
                 </libraries>
                 <resources defaultexcludes="true">
                     <localization dynamic="true" defaultLocale="en">
@@ -96,8 +97,8 @@
                     <attribute name="MIDlet-Permissions-Opt" value="javax.microedition.location.LandmarkStore.category, javax.microedition.location.LandmarkStore.read, javax.microedition.location.LandmarkStore.write, javax.microedition.io.Connector.comm, javax.microedition.location.Location, javax.microedition.io.Connector.bluetooth.client, javax.microedition.pim.ContactList.read" if="polish.name == WM-big or polish.name == WM"/>
                     <attribute name="Shortcut-1" value="Geocaching|http://services.locify.com/nearestCaches/" />
                     <attribute name="Shortcut-2" value="Twitter|http://services.locify.com/twitter/welcome" />
-                    <attribute name="Shortcut-3" value="GeoSMS|http://services.locify.com/geosms/" />
-                    <attribute name="Shortcut-4" value="FireEagle|http://services.locify.com/fireeagle/welcome" unless="polish.Vendor == Nokia" />
+                    <attribute name="Shortcut-3" value="Route Navigation|http://services.locify.com/route_navigation/index.php" />
+                    <attribute name="Shortcut-4" value="GeoSMS|http://services.locify.com/geosms/" unless="polish.Vendor == Nokia" />
                     <attribute name="Shortcut-5" value="Wikipedia|http://services.locify.com/wikipedia/welcome" unless="polish.Vendor == Nokia" />
                     <attribute name="Shortcut-6" value="Panoramio|http://services.locify.com/panoramio/welcome" unless="polish.Vendor == Nokia" />
                     <attribute name="Device" value="${polish.name}" />

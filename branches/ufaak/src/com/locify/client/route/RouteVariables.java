@@ -19,8 +19,8 @@ import com.locify.client.utils.GpsUtils;
 import com.locify.client.utils.Logger;
 import com.locify.client.utils.R;
 import com.locify.client.utils.StringTokenizer;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.*;
+import javax.microedition.lcdui.*;
 
 /**
  * Class that stores all variables of running route.
@@ -175,61 +175,112 @@ public class RouteVariables {
     }
 
     protected void dataBegin() {
-        dataToSave.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + linSe +
-                "<kml xmlns=\"http://earth.google.com/kml/2.2\">" + linSe +
-                "  <Placemark>" + linSe);
-        bytesToSkipAtBegin = dataToSave.length();
-        dataToSave.append(
-                // important space for route name
-                "                                                                            " + linSe +
-                "    <MultiGeometry>" + linSe);
+        switch (R.getSettings().getRouteType()){
+            case 0:
+                dataToSave.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + linSe +
+                    "<kml xmlns=\"http://earth.google.com/kml/2.2\">" + linSe +
+                    "  <Placemark>" + linSe);
+                bytesToSkipAtBegin = dataToSave.length();
+                dataToSave.append(
+                    // important space for route name
+                    "                                                                            " + linSe +
+                    "    <MultiGeometry>" + linSe);
+                break;
+            case 1:
+                dataToSave.append("<?xml version='1.0' encoding='UTF-8' ?>" + linSe +
+                    "<gpx version=\"1.1\" creator=\"Locify\" xmlns=\"http://www.topografix.com/GPX/1/1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + linSe +
+                    "  <trk>" + linSe +
+                    "    <trkseg>" + linSe);
+                bytesToSkipAtBegin = dataToSave.length();
+                break;
+        }
     }
 
     private void dataAddPoint(Location4D point) {
-        if (!canSeparate)
-            dataToSave.append(
-                    "      <LineString>" + linSe +
-                    "        <coordinates>" + linSe);
-        dataToSave.append("          " +
-                GpsUtils.formatDouble(point.getLongitude(), 6) + "," +
-                GpsUtils.formatDouble(point.getLatitude(), 6) + "," +
-                GpsUtils.formatDouble(point.getAltitude(), 2) + linSe);
-        canSeparate = true;
+        switch (R.getSettings().getRouteType()){
+            case 0:
+                if (!canSeparate)
+                    dataToSave.append(
+                        "      <LineString>" + linSe +
+                        "        <coordinates>" + linSe);
+                    dataToSave.append("          " +
+                        GpsUtils.formatDouble(point.getLongitude(), 6) + "," +
+                        GpsUtils.formatDouble(point.getLatitude(), 6) + "," +
+                        GpsUtils.formatDouble(point.getAltitude(), 2) + linSe);
+                    canSeparate = true;
+                break;
+            case 1:
+                Calendar cal = Calendar.getInstance();
+                int rok = cal.get(Calendar.YEAR);
+                int mes = cal.get(Calendar.MONTH) + 1;
+                int den = cal.get(Calendar.DAY_OF_MONTH);
+                int hod = cal.get(Calendar.HOUR_OF_DAY);
+                int min = cal.get(Calendar.MINUTE);
+                int sec = cal.get(Calendar.SECOND);
+                dataToSave.append(
+                    "      <trkpt lat=\"" + GpsUtils.formatDouble(point.getLatitude(), 6) + "\" " + "lon=\"" + GpsUtils.formatDouble(point.getLongitude(), 6) + "\">" + linSe +
+                    "        <ele>" + GpsUtils.formatDouble(point.getAltitude(), 1) + "</ele>" + linSe +
+                    "        <time>" +rok+"-"+mes+"-"+den+"T"+hod+":"+min+":"+sec+"Z"+ "</time>" + linSe +
+                    "        <extensions>" + linSe +
+                    //"          <nmea:course>" + point.azimutTo(locationActual) + "</nmea:course>" + linSe +
+                    "          <nmea:speed>" + GpsUtils.formatDouble(speedActual*3.6, 1) + "</nmea:speed>" + linSe +
+                    "        </extensions>" + linSe +
+                    "      </trkpt>" + linSe);
+                canSeparate = true;
+                break;
+        }
     }
 
     private void dataAddSpace() {
-        if (canSeparate)
-            dataToSave.append(
+        switch (R.getSettings().getRouteType()){
+            case 0:
+                if (canSeparate)
+                dataToSave.append(
                     "        </coordinates>" + linSe +
                     "      </LineString>" + linSe);
-        canSeparate = false;
+                canSeparate = false;
+                break;
+            case 1:
+                canSeparate = false;
+                break;
+        }
     }
 
     public void dataEnd(String routeName, String description) {
-        if (description == null || description.length() == 0)
-            description = "";
-        else
-            description = "      " + description;
+        switch (R.getSettings().getRouteType()){
+            case 0:
+                if (description == null || description.length() == 0)
+                    description = "";
+                else
+                    description = "      " + description;
 
-        dataAddSpace();
-        dataToSave.append(
-                "    </MultiGeometry>" + linSe +
-                "    <description>" + linSe +
-                "      " + DESC_LENGTH + " " + GpsUtils.formatDistance(routeDist) + linSe +
-                //"      " + DESC_TRAVEL_TIME + " " + GpsUtils.formatDouble(routeTime / 1000.0, 0) + linSe +
-                "      " + DESC_TRAVEL_TIME + " " + routeTime + " ms" + linSe +
-                "      " + DESC_POINTS + " " + pointsCount + linSe);
-        if (!description.equals(""))
-            dataToSave.append(description + linSe);
+                dataAddSpace();
+                dataToSave.append(
+                    "    </MultiGeometry>" + linSe +
+                    "    <description>" + linSe +
+                    "      " + DESC_LENGTH + " " + GpsUtils.formatDistance(routeDist) + linSe +
+                    //"      " + DESC_TRAVEL_TIME + " " + GpsUtils.formatDouble(routeTime / 1000.0, 0) + linSe +
+                    "      " + DESC_TRAVEL_TIME + " " + routeTime + " ms" + linSe +
+                    "      " + DESC_POINTS + " " + pointsCount + linSe);
+                if (!description.equals(""))
+                    dataToSave.append(description + linSe);
 
-        dataToSave.append("    </description>" + linSe +
-                "  </Placemark>" + linSe +
-                "</kml>");
+                dataToSave.append("    </description>" + linSe +
+                    "  </Placemark>" + linSe +
+                    "</kml>");
 
-        dataFlush(false);
+                dataFlush(false);
 
-        dataToSave.append("    <name>" + routeName + "</name>");
-        dataFlush(true);
+                dataToSave.append("    <name>" + routeName + "</name>");
+                dataFlush(true);
+                break;
+            case 1:
+                dataToSave.append("    </trkseg>" + linSe +
+                    "  </trk>" + linSe +
+                    "</gpx>");
+                dataFlush(false);
+                break;
+        }
     }
 
     public void dataFlush(boolean name) {
