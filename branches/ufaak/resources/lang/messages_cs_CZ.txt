@@ -151,6 +151,7 @@ Connecting_to_last_device=Připojuji se k poslednímu zařízení
 HGE-100_not_connected=Příslušenství Sony-Ericsson HGE-100 není připojeno k Vašemu telefonu.
 Pda_porter_not_connected=PDA Porter neběží na pozadí nebo není správně spojen s Vaší GPS.
 Unknown_location=Neznámá poloha
+Location_timeout=Nedaří se získat pozici. Běžte pod volnou oblohu a zkuste to znova.
 
 #Service Management
 Really_add_service=Opravdu chcete přidat tuto službu?
@@ -212,6 +213,7 @@ Maps_and_navigation=Mapy a navigace
 Whole_application=Celá aplikace
 Backlight_blink_frequency=Frekvence blikání podsvícení (s)
 File_cache=Cache v souborech
+Route_type=Formát ukládání trasy
 
 #Check version
 Download_latest=Aktualizovat

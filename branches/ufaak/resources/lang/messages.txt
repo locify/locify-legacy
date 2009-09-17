@@ -151,6 +151,7 @@ Connecting_to_last_device=Connecting to last device
 HGE-100_not_connected=An accessories Sony-Ericsson HGE-100 is not connected to your phone.
 Pda_porter_not_connected=PDA Porter is not running on background or it is not connected with GPS.
 Unknown_location=Unknown location
+Location_timeout=You cannot obtain location here. Go to the clear sky and try again.
 
 #Service Management
 Really_add_service=Do you want to add this service?
@@ -212,6 +213,7 @@ Maps_and_navigation=Maps and navigation
 Whole_application=Whole application
 Backlight_blink_frequency=Backlight blink frequency (s)
 File_cache=File cache
+Route_type=Route saving format
 
 #Check version
 Download_latest=Download Latest
