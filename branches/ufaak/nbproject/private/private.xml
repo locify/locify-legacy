@@ -5,5 +5,9 @@
             <url>src/com/locify/client/net/XHTMLBrowser.java</url>
             <line>30</line>
         </file>
+        <file>
+            <url>src/com/locify/client/gui/screen/internal/MapScreen.java</url>
+            <line>207</line>
+        </file>
     </editor-bookmarks>
 </project-private>
