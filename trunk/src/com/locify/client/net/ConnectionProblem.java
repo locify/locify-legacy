@@ -32,9 +32,9 @@ public class ConnectionProblem extends Form implements CommandListener {
         super(Locale.get("Connection_problem"));
     }
 
-    public void view() {
+    public void view(String message) {
         this.deleteAll();
-        this.append(Locale.get("Connection_problem_description"));
+        this.append(message);
         this.addCommand(tryAgain);
         this.addCommand(Commands.cmdBack);
         //#style imgHome

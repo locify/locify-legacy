@@ -355,6 +355,7 @@ Access_denied_to_selected_directory=Do tohoto adresáře nelze zapisovat
 Not_valid_Locify_XHTML=Tato stánka není validní Locify XHTML
 Connection_problem=Chyba připojení
 Connection_problem_description=Nastal problém s vaším připojením k Internetu. Buď právě nemáte GPRS/3G/Wi-Fi signál, nebo je vaše připojení k internetu špatně nastaveno.
+Parsing_error=Tato stránka nemůže být zobrazena, protože obsahuje nevalidní HTML. Pravděpodobně se jedná o dočasný problém poskytovatele služby. Prvně zkuste aktualizovat službu v hlavním menu. Pokud problém bude trvat déle jak den, kontaktujte support@locify.com
 Image_too_big=Příliš velký obr.
 Try_again=Zkus znovu
 Invalid_address=Tato adresa je chybná. Zkuste adresu zadat jinak.

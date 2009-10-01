@@ -28,8 +28,10 @@ import com.locify.client.utils.Logger;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
+import de.enough.polish.util.Locale;
 import java.io.IOException;
 import java.util.Vector;
+import javax.microedition.io.ConnectionNotFoundException;
 
 /**
  * Manages almost all connections to the HTTP server - manages caching, headers, cookies etc.
@@ -132,7 +134,7 @@ public class Http implements Runnable {
                         Logger.log("URL: " + request.getUrl());
 
                         //open connection
-                        httpConnection = (HttpConnection) Connector.open(request.getUrl(),Connector.READ);
+                        httpConnection = (HttpConnection) Connector.open(request.getUrl());
 
                         if (request.getPostData() == null) { //no post data => get
                             httpConnection.setRequestMethod(HttpConnection.GET);
@@ -172,6 +174,12 @@ public class Http implements Runnable {
                         }
                         //read data
                         readData();
+                    } catch (ConnectionNotFoundException e)
+                    {
+                        R.getConnectionProblem().view(Locale.get("Connection_problem_description"));
+                    } catch (ArrayIndexOutOfBoundsException e)
+                    {
+                        R.getConnectionProblem().view(Locale.get("Parsing_error"));
                     } catch (Exception e) {
                         R.getErrorScreen().view(e, "Http.run.request", request.getUrl());
                     } finally {

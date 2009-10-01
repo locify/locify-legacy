@@ -354,6 +354,7 @@ Access_denied_to_selected_directory=Access denied to selected directory
 Not_valid_Locify_XHTML=This page is not valid Locify XHTML
 Connection_problem=Connection problem
 Connection_problem_description=There is a problem with your internet connection. There is no GPRS/3G/Wi-Fi signal at the moment or your internet connection is not configured properly.
+Parsing_error=This page cannot be viewed, because it contains invalid HTML. Probably the service server has some temporal problem. First try to update service in main menu. If this problem lasts more than one day, contact support@locify.com
 Image_too_big=Image too big
 Try_again=Try again
 Invalid_address=Your address appears to be invalid. Try different input.
