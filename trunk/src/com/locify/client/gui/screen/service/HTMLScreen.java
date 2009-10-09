@@ -90,10 +90,6 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
             Utils.removeSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, form);
             //#style imgInfo
             UiAccess.addSubCommand(R.getMainScreen().cmdMoreInfo, R.getMainScreen().cmdService, form);
-            if (!"".equals(ServicesData.getService(ServicesData.getCurrent()).getSettingsUrl())) {
-                //#style imgServiceSettings
-                UiAccess.addSubCommand(R.getMainScreen().cmdServiceSettings, R.getMainScreen().cmdService, form);
-            }
             //#style imgUpdateService
             UiAccess.addSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, form);
         }
