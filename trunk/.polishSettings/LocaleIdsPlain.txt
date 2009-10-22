@@ -272,6 +272,7 @@ Online_maps=361
 Other=265
 Own_position=115
 Panning_behaviour=478
+Parsing_error=530
 Password=116
 Passwords_dont_match=117
 Path=362

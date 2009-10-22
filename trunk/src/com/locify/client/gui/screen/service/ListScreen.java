@@ -96,10 +96,6 @@ public class ListScreen implements CommandListener {
                 list.addCommand(R.getMainScreen().cmdService);
                 //#style imgInfo
                 UiAccess.addSubCommand(R.getMainScreen().cmdMoreInfo, R.getMainScreen().cmdService, list);
-                if (!"".equals(ServicesData.getService(ServicesData.getCurrent()).getSettingsUrl())) {
-                    //#style imgServiceSettings
-                    UiAccess.addSubCommand(R.getMainScreen().cmdServiceSettings, R.getMainScreen().cmdService, list);
-                }
                 //#style imgUpdateService
                 UiAccess.addSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, list);
             }
