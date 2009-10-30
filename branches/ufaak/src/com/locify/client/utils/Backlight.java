@@ -14,6 +14,7 @@
 package com.locify.client.utils;
 
 
+
 /**
  * Manages automated downloading of KML inside NetworkLink
  * @author Destil

@@ -5,13 +5,14 @@
  * Locify is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version. 
+ * (at your option) any later version.
  * (read more at: http://www.gnu.org/licenses/gpl.html)
- * 
+ *
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
 package com.locify.client.net;
+
 
 import com.locify.client.utils.Commands;
 import com.locify.client.utils.R;
@@ -21,6 +22,7 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 
+
 /**
  * In case of connection problem, this class shows user warning
  * @author Destil
@@ -28,13 +30,15 @@ import javax.microedition.lcdui.Form;
 public class ConnectionProblem extends Form implements CommandListener {
     private Command tryAgain = new Command(Locale.get("Try_again"), Command.SCREEN, 1);
 
+
     public ConnectionProblem() {
         super(Locale.get("Connection_problem"));
     }
 
-    public void view() {
+
+    public void view(String message) {
         this.deleteAll();
-        this.append(Locale.get("Connection_problem_description"));
+        this.append(message);
         this.addCommand(tryAgain);
         this.addCommand(Commands.cmdBack);
         //#style imgHome
@@ -42,6 +46,7 @@ public class ConnectionProblem extends Form implements CommandListener {
         this.setCommandListener(this);
         R.getMidlet().switchDisplayable(null, this);
     }
+
 
     public void commandAction(Command c, Displayable d) {
         if (c == tryAgain) {

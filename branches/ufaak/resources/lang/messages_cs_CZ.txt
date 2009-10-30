@@ -1,5 +1,6 @@
 # Locify translation file for language: Czech
 
+
 #General words
 Locify=Locify
 Warning=Upozornění
@@ -21,6 +22,7 @@ Always=Vždy
 Never=Nikdy
 Ask_every_time=Vždy se ptát
 Degree=\u00B0
+
 
 #Tab panel
 Locify_home=Locify doma
@@ -49,6 +51,7 @@ Help=Nápověda
 Logger=Logovací konzole
 Really_exit=Opravdu chcete ukončit Locify?
 
+
 #Main screen context menu
 Service=Služba
 Shortcut=Zástupce
@@ -61,6 +64,7 @@ Add=Přidat
 Service_from_list=Službu ze seznamu
 Service_by_link=Službu z odkazu
 Exit=Konec
+
 
 #Commands
 Stop=Zastavit
@@ -84,6 +88,7 @@ Refresh=Obnovit
 Backlight_on=Zapnout podsvícení (7)
 Backlight_off=Vypnout podsvícení (7)
 
+
 #First run
 Set_root_directory=Nastavte adresář pro data
 This_folder_does_not_contain_more_folders=Tento adresář neobsahuje žádné další adresáře.
@@ -101,6 +106,7 @@ Installing=Instaluji
 Downloading_services=Stahuji služby...
 Downloading_icons=Stahuji ikonky...
 
+
 #First run permissions help
 For_Nokia_S60_3rd_phones=Pro telefony Nokia S60 3rd:
 Nokia_S60_3rd_text=Otevřete 'Menu->Nastavení->Správce dat->Spr.aplik.->Locify-Otevřít'. Nastavte 'Číst uživat. data' a 'Upravit uživat. data' to 'Vždy povoleno'.
@@ -114,6 +120,7 @@ General_phone_text=Najděte ve svém telefonu Správce aplikací. Vyberte Locify
 If_always_allowed_not_possible=Pokud chybí možnost 'Vždy povoleno':
 If_always_allowed_not_possible_text=Ujistěte se, že jste přenesli do telefonu oba soubory (JAR a JAD) a aplikaci instalovali z JAD souboru.\nPokud přesto práva nelze nastavit, nemáte v telefonu Thawte kořenový certifikát. Můžete si ho stáhnout na našem webu: http://www.locify.com/download
 
+
 #Loading
 Loading=Nahrává se
 Loading_filesystem=Nahrává se filesystem
@@ -125,12 +132,15 @@ Loading_services=Nahrávají se služby
 Loading_mainscreen=Nahrává se hlavní menu
 Loading_locator=Nahrává se locator
 
+
 #Location providers
 JSR179LocationProvider=Interní Gps
 SimulatorLocationProvider=Simulátor Gps
 NoGpsLocationProvider=Bez GPS
 BTNMEALocationProvider=Bluetooth Gps
 TCPNMEALocationProvider=PDA Porter
+
+
 
 
 #GPS Connection
@@ -153,6 +163,7 @@ Pda_porter_not_connected=PDA Porter neběží na pozadí nebo není správně sp
 Unknown_location=Neznámá poloha
 Location_timeout=Nedaří se získat pozici. Běžte pod volnou oblohu a zkuste to znova.
 
+
 #Service Management
 Really_add_service=Opravdu chcete přidat tuto službu?
 Service_added=Služba byla přidána
@@ -162,6 +173,7 @@ Confirmation=Potvrzení
 New_name=Nové jméno
 Add_service=Přidat službu
 
+
 #Login & Register
 Login_field=Login
 Save_password=Uložit heslo
@@ -169,6 +181,7 @@ Password=Heslo
 Email=Email
 Tel=Telefon. číslo
 Credentials_to=Zadejte přihlašovací údaje k
+
 
 #Settings
 Location=Poloha
@@ -213,16 +226,18 @@ Maps_and_navigation=Mapy a navigace
 Whole_application=Celá aplikace
 Backlight_blink_frequency=Frekvence blikání podsvícení (s)
 File_cache=Cache v souborech
-Route_type=Formát ukládání trasy
+
 
 #Check version
 Download_latest=Aktualizovat
 Current_version_info=Vaše verze
 Latest_version_info=Informace o nových verzích
 
+
 #Form options
 Refresh_gps=Obnovit GPS 
 Another_location=Jiná poloha
+
 
 #Location Context
 Set_location=Zvolte polohu
@@ -239,9 +254,11 @@ Change=Změnit
 Where=Kde
 Temporary_location=Dočasná poloha
 
+
 #External browser
 External_browser_launch=Otevírám externí prohlížeč
 External_closing_information=Na některých telefonech může být externí prohlížeč otevřen až poté, co je Locify zavřeno. Chcete zavřít Locify?
+
 
 #Filesystem
 Object_saved=Objekt byl uložen do souborů.
@@ -261,6 +278,7 @@ Waypoint=Bod
 Waypoint_cloud=Mračno bodů
 Points=bod(ů)
 
+
 #Save place
 Save_place=Uložit místo
 Select_place=Vyberte místo
@@ -268,10 +286,12 @@ Select_route=Vyberte cestu
 You_need_valid_gps_position=Na uložení místa potřebujete GPS signál
 Name_must_not_be_empty=Jméno místa nesmí být prázdné
 
+
 #Navigation
 Navi_more=Více (5)
 Navi_less=Méně (5)
 Date=Datum
+
 
 #Map screen
 Change_map_tile=Online mapy (*#)
@@ -304,6 +324,7 @@ Permanent_map_items=Permanentní mapový objekt
 Temporary_map_items=Dočasný mapový objekt
 Map_function=Akce
 
+
 #J2ME Polish texts
 polish.command.mark=Označit
 polish.command.unmark=Odznačit
@@ -315,6 +336,7 @@ polish.command.entersymbol=Přidat symbol
 polish.command.followlink=Dále
 polish.command.submit=Odeslat
 polish.command.select=Vybrat
+
 
 #Help texts
 About=O aplikaci
@@ -339,6 +361,7 @@ Strong_help=Validní poloha, vysoká přesnost (<15m)
 Manual_help=Manuální poloha jako adresa, poslední známá, ...
 Dont_show_next_time=Přístě nezobrazovat
 
+
 #Error screen
 Error_occured=Nastala chyba
 Error_occured_description=Omlouváme se, ale v programu nastala neočekávaná chyba. Prosím nahlašte tuto chybu na support@locify.com nebo http://groups.google.com/group/locify - budeme se snažit problém odstranit.
@@ -349,6 +372,7 @@ Error_detail=Detail chyby
 Error_saved=Zpráva o chybě byla uložena do Locify adresáře
 Log_saved=Celý log byl uložen do Locify adresáře
 
+
 #Errors
 Wrong_latitude=Nesprávný formát zeměpisné šířky
 Wrong_longitude=Nesprávný formát zeměpisné délky
@@ -356,10 +380,12 @@ Access_denied_to_selected_directory=Do tohoto adresáře nelze zapisovat
 Not_valid_Locify_XHTML=Tato stánka není validní Locify XHTML
 Connection_problem=Chyba připojení
 Connection_problem_description=Nastal problém s vaším připojením k Internetu. Buď právě nemáte GPRS/3G/Wi-Fi signál, nebo je vaše připojení k internetu špatně nastaveno.
+Parsing_error=Tato stránka nemůže být zobrazena, protože obsahuje nevalidní HTML. Pravděpodobně se jedná o dočasný problém poskytovatele služby. Prvně zkuste aktualizovat službu v hlavním menu. Pokud problém bude trvat déle jak den, kontaktujte support@locify.com
 Image_too_big=Příliš velký obr.
 Try_again=Zkus znovu
 Invalid_address=Tato adresa je chybná. Zkuste adresu zadat jinak.
 Wrong_file=Soubor je poškozen, opravte ho případně odešlete na support@locify.com k analýze.
+
 
 #Route screen
 Route_screen=Záznam tras
@@ -382,6 +408,7 @@ Reset_route=Vymazání záznamu
 Pause_action=Pauza
 Resume_action=Pokračovat
 
+
 Save_last_route=Ulož poslední trasu
 Route_name=Jméno trasy
 Route_length=Délka trasy
@@ -391,15 +418,19 @@ First_waypoint=První bod
 Route_description=Popis trasy
 Route_saved=Trasa uložena
 Route_cant_be_saved=Špatné jméno - trasa nemůže být uložena!
+Route_type=Formát ukládání trasy
+
 
 #Satellite screen
 Satellites=Satelity
+
 
 #Contacts screen
 Contacts_screen=Kontakty
 Contacts_error_1=Žádné kontakty nenalezeny
 Contacts_error_2=Žádné kontakty s e-mailem nenalezeny
 Contacts_error_3=Žádné kontakty s tel. číslem nenalezeny
+
 
 Object_count=Počet objektů
 Center_waypoint=Centrum

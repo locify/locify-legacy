@@ -1,5 +1,6 @@
 #Locify translation file for language: English 
 
+
 #General words
 Locify=Locify
 Warning=Warning
@@ -21,6 +22,7 @@ Always=Always
 Never=Never
 Ask_every_time=Ask every time
 Degree=\u00B0
+
 
 #Tab panel
 Locify_home=Locify Home
@@ -49,6 +51,7 @@ Help=Help
 Logger=Logger
 Really_exit=Do you really want to exit Locify?
 
+
 #Main screen context menu
 Service=Service
 Shortcut=Shortcut
@@ -61,6 +64,7 @@ Add=Add
 Service_from_list=Service From List
 Service_by_link=Service By Link
 Exit=Exit
+
 
 #Commands
 Stop=Stop
@@ -84,6 +88,7 @@ Refresh=Refresh
 Backlight_on=Backlight on (7)
 Backlight_off=Backlight off (7)
 
+
 #First run
 Set_root_directory=Set Root Directory
 This_folder_does_not_contain_more_folders=This folder does not contain more folders.
@@ -101,6 +106,7 @@ Installing=Installing
 Downloading_services=Downloading services
 Downloading_icons=Downloading icons
 
+
 #First run permissions help
 For_Nokia_S60_3rd_phones=For Nokia S60 3rd phones:
 Nokia_S60_3rd_text=Go to 'Menu->Settings->Data mgr.->App.Mgr.->Locify-Open'. Set 'Read user data' and 'Edit user data' to 'Always allowed'.
@@ -114,6 +120,7 @@ General_phone_text=Find some kind of Application manager in your phone. Select L
 If_always_allowed_not_possible=If there is no 'Always allowed' option:
 If_always_allowed_not_possible_text=It's possible that you transfered just JAR file to your phone or installed from JAR file. Please transfer both files (JAR and JAD) or install from JAD file.\nOtherwise your phone is missing Thawte root certificate. You can download the certificate from our web: Go to http://www.locify.com/download
 
+
 #Loading
 Loading=Loading
 Loading_filesystem=Loading Filesystem
@@ -125,6 +132,7 @@ Loading_services=Loading Services
 Loading_mainscreen=Loading Main Screen
 Loading_locator=Loading Locator
 
+
 #Location providers
 JSR179LocationProvider=Internal Gps
 SimulatorLocationProvider=Simulator Gps
@@ -132,6 +140,7 @@ NoGpsLocationProvider=No GPS
 BTNMEALocationProvider=Bluetooth Gps
 TCPNMEALocationProvider=PDA Porter
 COMNMEALocationProvider=SonyEricsson HGE-100
+
 
 #GPS Connection
 Connection_progress=Connection progress
@@ -153,6 +162,7 @@ Pda_porter_not_connected=PDA Porter is not running on background or it is not co
 Unknown_location=Unknown location
 Location_timeout=You cannot obtain location here. Go to the clear sky and try again.
 
+
 #Service Management
 Really_add_service=Do you want to add this service?
 Service_added=Service was added
@@ -162,6 +172,7 @@ Confirmation=Confirmation
 New_name=New name
 Add_service=Add Service
 
+
 #Login & Register
 Login_field=Login
 Save_password=Save password
@@ -169,6 +180,7 @@ Password=Password
 Email=Email
 Tel=Phone number
 Credentials_to=Credentials to
+
 
 #Settings
 Location=Location
@@ -213,16 +225,18 @@ Maps_and_navigation=Maps and navigation
 Whole_application=Whole application
 Backlight_blink_frequency=Backlight blink frequency (s)
 File_cache=File cache
-Route_type=Route saving format
+
 
 #Check version
 Download_latest=Download Latest
 Current_version_info=Current Version
 Latest_version_info=Latest version info
 
+
 #Form options
 Refresh_gps=GPS Refresh 
 Another_location=Another Location
+
 
 #Location Context
 Set_location=Set location
@@ -239,9 +253,11 @@ Change=Change
 Where=Where
 Temporary_location=Temporary location
 
+
 #External browser
 External_browser_launch=Opening external browser
 External_closing_information=On some phones external browser can be launched only after application exits. Do you want to close Locify?
+
 
 #Filesystem
 Object_saved=Object was saved on filesystem.
@@ -261,6 +277,7 @@ Waypoint=Waypoint
 Waypoint_cloud=Waypoint cloud
 Points=point(s)
 
+
 #Save place
 Save_place=Save place
 Select_place=Select place
@@ -268,10 +285,12 @@ Select_route=Select route
 You_need_valid_gps_position=You need a valid GPS position to save place
 Name_must_not_be_empty=Name must not be empty
 
+
 #Navigation
 Navi_more=More (5)
 Navi_less=Less (5)
 Date=Date
+
 
 #Map screen
 Change_map_tile=Online maps (*#)
@@ -303,6 +322,7 @@ Permanent_map_items=Permanent map items
 Temporary_map_items=Temporary map items
 Map_function=Actions
 
+
 #J2ME Polish texts
 polish.command.mark=Mark
 polish.command.unmark=Unmark
@@ -314,6 +334,7 @@ polish.command.entersymbol=Add Symbol
 polish.command.followlink=Go
 polish.command.submit=Submit
 polish.command.select=Select
+
 
 #Help texts
 About=About aplication
@@ -338,6 +359,7 @@ Strong_help=Valid location, great accuracy (<15m)
 Manual_help=Manual location like address, last known, ...
 Dont_show_next_time=Don't show next time
 
+
 #Error screen
 Error_occured=Error occured
 Error_occured_description=We are sorry, but an unexpected error occured. Please report this error to support@locify.com or http://groups.google.com/group/locify - we will try to fix the problem.
@@ -348,6 +370,7 @@ Error_detail=Error detail
 Error_saved=Error report has been saved into your Locify files
 Log_saved=Full log has been saved into your Locify files
 
+
 #Errors
 Wrong_latitude=Wrong latitude format
 Wrong_longitude=Wrong longitude format
@@ -355,11 +378,13 @@ Access_denied_to_selected_directory=Access denied to selected directory
 Not_valid_Locify_XHTML=This page is not valid Locify XHTML
 Connection_problem=Connection problem
 Connection_problem_description=There is a problem with your internet connection. There is no GPRS/3G/Wi-Fi signal at the moment or your internet connection is not configured properly.
+Parsing_error=This page cannot be viewed, because it contains invalid HTML. Probably the service server has some temporal problem. First try to update service in main menu. If this problem lasts more than one day, contact support@locify.com
 Image_too_big=Image too big
 Try_again=Try again
 Invalid_address=Your address appears to be invalid. Try different input.
 Wrong_file=File is damaged, repair it or send to support@locify.com to analyse.
 No_satellites=No satellites in actual view or wrong data.
+
 
 #Route screen
 Route_screen=Record route
@@ -382,6 +407,7 @@ Reset_route=Reset Route
 Pause_action=Pause Route
 Resume_action=Resume Route
 
+
 Save_last_route=Save last route
 Route_name=Route name
 Route_length=Route length
@@ -391,15 +417,18 @@ First_waypoint=First waypoint
 Route_description=Route description
 Route_saved=Route saved
 Route_cant_be_saved=Wrong name - Route can't be saved!
+Route_type=Route format
 
 #Satellite screen
 Satellites=Satellites
+
 
 #Contacts screen
 Contacts_screen=Contacts
 Contacts_error_1=No contacts founded
 Contacts_error_2=No contacts with EMAIL founded
 Contacts_error_3=No contacts with PHONE NUMBER founded
+
 
 Object_count=Object count
 Center_waypoint=Center waypoint

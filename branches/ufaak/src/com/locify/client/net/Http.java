@@ -13,6 +13,7 @@
  */
 package com.locify.client.net;
 
+
 import com.locify.client.data.CacheData;
 import com.locify.client.data.CookieData;
 import java.io.ByteArrayOutputStream;
@@ -28,14 +29,18 @@ import com.locify.client.utils.Logger;
 import com.locify.client.utils.StringTokenizer;
 import com.locify.client.utils.UTF8;
 import com.locify.client.utils.Utils;
+import de.enough.polish.util.Locale;
 import java.io.IOException;
 import java.util.Vector;
+import javax.microedition.io.ConnectionNotFoundException;
+
 
 /**
  * Manages almost all connections to the HTTP server - manages caching, headers, cookies etc.
  * @author Destil
  */
 public class Http implements Runnable {
+
 
     public static String DEFAULT_URL;
     //sources - where request is originated
@@ -60,14 +65,16 @@ public class Http implements Runnable {
     private long lastRequestTime = 0;
     private String lastUrl = "";
 
+
     public Http() {
         //#if release
 //#         DEFAULT_URL = "http://client.locify.com/";
         //#else
-        DEFAULT_URL = "http://client.stage.locify.com/";
+        DEFAULT_URL = "http://client.locify.com/";
         //#endif
         requestQueue = new Vector();
     }
+
 
     /***
      * Opens new request in new thread
@@ -76,6 +83,7 @@ public class Http implements Runnable {
     public void start(String url, int source) {
         start(new HttpRequest(url, R.getPostData().getUrlEncoded(), R.getPostData().isUrlEncoded(), CookieData.getHeaderData(url), source));
     }
+
 
     /***
      * Opens new request in new thread
@@ -102,6 +110,7 @@ public class Http implements Runnable {
         }
     }
 
+
     /**
      * Repeats last request with additional http basic header
      * @param basic http basic string
@@ -111,6 +120,7 @@ public class Http implements Runnable {
         newRequest.setHttpBasicResponse(basic);
         start(newRequest);
     }
+
 
     /**
      * This thread performs all downloading using request queue
@@ -131,8 +141,10 @@ public class Http implements Runnable {
                         Logger.log("---------- REQUEST -----------");
                         Logger.log("URL: " + request.getUrl());
 
+
                         //open connection
-                        httpConnection = (HttpConnection) Connector.open(request.getUrl(),Connector.READ);
+                        httpConnection = (HttpConnection) Connector.open(request.getUrl());
+
 
                         if (request.getPostData() == null) { //no post data => get
                             httpConnection.setRequestMethod(HttpConnection.GET);
@@ -140,12 +152,13 @@ public class Http implements Runnable {
                         {
                             httpConnection.setRequestMethod(HttpConnection.POST);
                         }
-                        
+
                         //set request headers
                         setRequestHeaders();
                         //set cookies
                         httpConnection.setRequestProperty("Cookie", CookieData.getHeaderData(request.getUrl()));
                         Logger.log("COOKIES: " + CookieData.getHeaderData(request.getUrl()));
+
 
                         //send data
                         if (request.getPostData() != null)
@@ -153,11 +166,13 @@ public class Http implements Runnable {
                             sendPostData();
                         }
 
+
                         //receiving data
                         is = httpConnection.openInputStream();
                         TopBarBackground.setHttpStatus(TopBarBackground.RECEIVING);
                         Logger.log("---------- ANSWER -----------");
                         //handle incoming headers
+
 
                         if (handleHeaders()) //action based on headers, no need for downloading
                         {
@@ -172,6 +187,12 @@ public class Http implements Runnable {
                         }
                         //read data
                         readData();
+                    } catch (ConnectionNotFoundException e)
+                    {
+                        R.getConnectionProblem().view(Locale.get("Connection_problem_description"));
+                    } catch (ArrayIndexOutOfBoundsException e)
+                    {
+                        R.getConnectionProblem().view(Locale.get("Parsing_error"));
                     } catch (Exception e) {
                         R.getErrorScreen().view(e, "Http.run.request", request.getUrl());
                     } finally {
@@ -196,9 +217,11 @@ public class Http implements Runnable {
         }
     }
 
+
     public String getLastUrl() {
         return lastUrl;
     }
+
 
     private void setRequestHeaders() {
         try {
@@ -216,6 +239,7 @@ public class Http implements Runnable {
         }
     }
 
+
     private void sendPostData() throws IOException {
         if (request.isPostDataUrlEncoded()) {
             httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -227,6 +251,7 @@ public class Http implements Runnable {
         outputStream.close();
         Logger.log("POST: " + request.getPostData());
     }
+
 
     /**
      * Handles incoming headers
@@ -281,6 +306,7 @@ public class Http implements Runnable {
         return false;
     }
 
+
     /**
      * Handles incoming response code
      * @return true if response code stops current download
@@ -315,6 +341,7 @@ public class Http implements Runnable {
         }
     }
 
+
     private void readData() throws IOException {
         //reading data byte by byte
         baos = new ByteArrayOutputStream();
@@ -325,6 +352,7 @@ public class Http implements Runnable {
         }
         response.setData(baos.toByteArray());
     }
+
 
     private void stop() {
         try {
@@ -348,10 +376,12 @@ public class Http implements Runnable {
                 thread = null;
             }
 
+
             TopBarBackground.setHttpStatus(TopBarBackground.UNDEFINED);
         } catch (Exception e) {
         }
     }
+
 
     public String makeAbsoluteURL(String url) {
         if (url.startsWith("http://") || url.startsWith("locify://")) {
@@ -369,7 +399,9 @@ public class Http implements Runnable {
     }
 }
 
+
 class HttpRequest {
+
 
     private String url;
     private String postData;
@@ -377,6 +409,7 @@ class HttpRequest {
     private String cookies;
     private String httpBasicResponse;
     private int source;
+
 
     public HttpRequest(String url, String postData, boolean postDataUrlEncoded, String cookies, int source) {
         this.url = url;
@@ -386,46 +419,53 @@ class HttpRequest {
         this.source = source;
     }
 
+
     public String getPostData() {
         return postData;
     }
+
 
     public String getHttpBasicResponse() {
         return httpBasicResponse;
     }
 
+
     public String getUrl() {
         return url;
     }
+
 
     public String getCookies() {
         return cookies;
     }
 
+
     public boolean isPostDataUrlEncoded() {
         return postDataUrlEncoded;
     }
+
 
     public void setHttpBasicResponse(String httpBasicResponse) {
         this.httpBasicResponse = httpBasicResponse;
     }
 
+
     public void setUrl(String url) {
         this.url = url;
     }
+
 
     public String toString() {
         return url+postData+postDataUrlEncoded+cookies+httpBasicResponse+source;
     }
 
+
     public HttpRequest clone() {
         return new HttpRequest(url, postData, postDataUrlEncoded, cookies, source);
     }
+
 
     public int getSource() {
         return source;
     }
 }
-
-
-

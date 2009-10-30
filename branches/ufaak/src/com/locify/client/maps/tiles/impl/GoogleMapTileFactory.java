@@ -22,15 +22,19 @@
 package com.locify.client.maps.tiles.impl;
 
 
+
+
 import com.locify.client.maps.MapLayer;
 import com.locify.client.maps.tiles.AbstractTileFactory;
 import com.locify.client.maps.tiles.TileFactoryInfo;
+
 
 /**
  * @author sarbogast
  * @version 14 juin 2008, 15:51:46
  */
 public class GoogleMapTileFactory extends AbstractTileFactory {
+
 
     /**
      * Creates a new instance of TileFactory
@@ -50,15 +54,18 @@ public class GoogleMapTileFactory extends AbstractTileFactory {
         );
     }
 
+
     protected String getCoordinatePart(int x, int y, int referenceZoom) {
         return "&x=" + x +
                 "&y=" + y +
                 "&z=" + getParticularZoomFromReferenceZoom(referenceZoom);
     }
 
+
     protected int getParticularZoomFromReferenceZoom(int referenceZoom) {
         return referenceZoom - 8;
     }
+
 
     protected int getReferenceZoomFromParticularZoom(int particularZoom) {
         return particularZoom - 8;

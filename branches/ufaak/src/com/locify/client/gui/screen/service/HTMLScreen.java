@@ -5,13 +5,14 @@
  * Locify is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version. 
+ * (at your option) any later version.
  * (read more at: http://www.gnu.org/licenses/gpl.html)
- * 
+ *
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
 package com.locify.client.gui.screen.service;
+
 
 import com.locify.client.data.ServicesData;
 import com.locify.client.locator.Location4D;
@@ -34,20 +35,25 @@ import de.enough.polish.util.Locale;
 import de.enough.polish.ui.StringItem;
 import com.locify.client.net.XHTMLTagHandler;
 
+
 /**
  * This class uses Polish HTML Browser and extends its functionality
  * @author David Vavra
  */
 public class HTMLScreen implements CommandListener, LocationEventListener {
 
+
     private Form form;
     private XHTMLBrowser htmlBrowser;
     private Command cmdRefresh = new Command(Locale.get("Refresh_gps"), Command.SCREEN, 2);
     private HtmlForm currentForm;
 
+
     public HTMLScreen() {
 
+
         form = new Form("");
+
 
         this.htmlBrowser = new XHTMLBrowser();
         form.append(this.htmlBrowser);
@@ -65,6 +71,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         form.setCommandListener(this);
         R.getLocator().addLocationChangeListener(this);
     }
+
 
     /**
      * Renders HTML page
@@ -90,10 +97,6 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
             Utils.removeSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, form);
             //#style imgInfo
             UiAccess.addSubCommand(R.getMainScreen().cmdMoreInfo, R.getMainScreen().cmdService, form);
-            if (!"".equals(ServicesData.getService(ServicesData.getCurrent()).getSettingsUrl())) {
-                //#style imgServiceSettings
-                UiAccess.addSubCommand(R.getMainScreen().cmdServiceSettings, R.getMainScreen().cmdService, form);
-            }
             //#style imgUpdateService
             UiAccess.addSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, form);
         }
@@ -105,9 +108,11 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         }
     }
 
+
     public void reset() {
         htmlBrowser.clear();
     }
+
 
     /**
      * Sets screen title
@@ -117,6 +122,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         form.setTitle(title);
     }
 
+
     /**
      * Adds form to the screen
      * @param action URL of  form's action
@@ -124,6 +130,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
     public void addForm(String action) {
         currentForm = new HtmlForm("", action, "POST");
     }
+
 
     /**
      * Adds textfield to the form
@@ -140,6 +147,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         textField.setAttribute("name", name);
         textField.setAttribute("value", value);
     }
+
 
     /**
      * Adds button to the form
@@ -161,6 +169,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         buttonItem.setAttribute("value", value);
     }
 
+
     /**
      * Adds new line to the page
      */
@@ -170,6 +179,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         htmlBrowser.add(stringItem);
     }
 
+
     /**
      * Adds hidden element into current form
      * @param name
@@ -178,6 +188,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
     public void addHidden(String name, String value) {
         this.currentForm.addHiddenElement(name, value);
     }
+
 
     /**
      * Views current browser without reloading
@@ -195,6 +206,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         R.getMidlet().switchDisplayable(null, form);
     }
 
+
     /**
      * Performs additional task when moving to different screen
      */
@@ -205,6 +217,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
             R.getContext().removeTemporaryLocation();
         }
     }
+
 
     public void commandAction(Command c, Displayable d) {
         quit();
@@ -230,6 +243,7 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
             }
         }
     }
+
 
     /**
      * Goes through the page and replaces values in form items with variables for coordinates and other Locify stuff
@@ -259,33 +273,41 @@ public class HTMLScreen implements CommandListener, LocationEventListener {
         }
     }
 
+
     public void updateFileInfo(String fileName) {
         htmlBrowser.updateFileItem(fileName);
         R.getURL().call("locify://htmlBrowser");
     }
+
 
     public void updateContactTelInfo(String tel) {
         htmlBrowser.updateContactTelItem(tel);
         R.getURL().call("locify://htmlBrowser");
     }
 
+
     public void updateContactEmailInfo(String email) {
         htmlBrowser.updateContactEmailItem(email);
         R.getURL().call("locify://htmlBrowser");
     }
 
+
     public XHTMLBrowser getHtmlBrowser() {
         return htmlBrowser;
     }
 
+
     public void locationChanged(LocationEventGenerator sender, Location4D location) {
     }
+
 
     public void stateChanged(LocationEventGenerator sender, int state) {
     }
 
+
     public void errorMessage(LocationEventGenerator sender, String message) {
     }
+
 
     public void message(LocationEventGenerator sender, String message) {
         if ("Has_fix".equals(message)) {

@@ -5,13 +5,14 @@
  * Locify is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version. 
+ * (at your option) any later version.
  * (read more at: http://www.gnu.org/licenses/gpl.html)
- * 
+ *
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
 package com.locify.client.gui.screen.service;
+
 
 import com.locify.client.data.ServicesData;
 import com.locify.client.data.IconData;
@@ -26,19 +27,23 @@ import de.enough.polish.ui.List;
 import com.locify.client.utils.R;
 import de.enough.polish.ui.UiAccess;
 
+
 /**
  * Shows list according to HTML page
  * @author David Vavra
  */
 public class ListScreen implements CommandListener {
 
+
     private List list;
     private String title;
     private Vector menuItems;
 
+
     public ListScreen() {
         menuItems = new Vector();
     }
+
 
     /**
      * Sets title
@@ -50,6 +55,7 @@ public class ListScreen implements CommandListener {
         //tvorba listu
         list = new List(title, Choice.IMPLICIT);
     }
+
 
     /**
      * Adds menuItem to Vector
@@ -66,6 +72,7 @@ public class ListScreen implements CommandListener {
         }
         menuItems.addElement(new MenuItem(title.trim(), url, icon));
     }
+
 
     /**
      * Refreshes icon after icon is downloaded
@@ -85,9 +92,10 @@ public class ListScreen implements CommandListener {
         }
     }
 
+
     /**
      * Creates and views the screen
-     * @param url 
+     * @param url
      */
     public void view(String url) {
         try {
@@ -96,10 +104,6 @@ public class ListScreen implements CommandListener {
                 list.addCommand(R.getMainScreen().cmdService);
                 //#style imgInfo
                 UiAccess.addSubCommand(R.getMainScreen().cmdMoreInfo, R.getMainScreen().cmdService, list);
-                if (!"".equals(ServicesData.getService(ServicesData.getCurrent()).getSettingsUrl())) {
-                    //#style imgServiceSettings
-                    UiAccess.addSubCommand(R.getMainScreen().cmdServiceSettings, R.getMainScreen().cmdService, list);
-                }
                 //#style imgUpdateService
                 UiAccess.addSubCommand(R.getMainScreen().cmdUpdateService, R.getMainScreen().cmdService, list);
             }
@@ -112,6 +116,7 @@ public class ListScreen implements CommandListener {
             R.getErrorScreen().view(e, "ListScreen.view", url);
         }
     }
+
 
     /**
      * Handles reaction to command events
@@ -138,15 +143,18 @@ public class ListScreen implements CommandListener {
     }
 }
 
+
 /**
  * Object for storing menuItems
  * @author David Vavra
  */
 class MenuItem {
 
+
     public String title;
     public String url;
     public String icon;
+
 
     public MenuItem(String t, String u, String i) {
         title = t;

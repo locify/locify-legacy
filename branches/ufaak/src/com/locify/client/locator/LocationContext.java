@@ -5,23 +5,26 @@
  * Locify is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version. 
+ * (at your option) any later version.
  * (read more at: http://www.gnu.org/licenses/gpl.html)
- * 
+ *
  * Commercial licenses are also available, please
  * refer http://code.google.com/p/locify/ for details.
  */
 package com.locify.client.locator;
 
+
 import com.locify.client.utils.R;
 import de.enough.polish.util.Locale;
 import javax.microedition.lcdui.Command;
+
 
 /**
  * This class provides methods for acquiring location context other than gps
  * @author Destil
  */
 public class LocationContext implements LocationEventGenerator {
+
 
     private int source = 4;
     private Location4D location = null;
@@ -36,6 +39,7 @@ public class LocationContext implements LocationEventGenerator {
     public static final int LAST_KNOWN = 4;
     public Command[] commands;
     public String[] actions;
+
 
     public LocationContext() {
         commands = new Command[5];
@@ -52,6 +56,7 @@ public class LocationContext implements LocationEventGenerator {
         actions[LAST_KNOWN] = "locify://lastKnown";
     }
 
+
     /**
      * Set up new location context
      * @param location  new location
@@ -61,12 +66,6 @@ public class LocationContext implements LocationEventGenerator {
     public void setLocation(Location4D location, int source, String sourceData) {
         if (location != null) {
             R.getLocator().setProviderSelected(true);
-        }
-        if (source != GPS) {
-            LocationProvider lp = R.getLocator().getLocationProvider();
-            if (lp != null) {
-                lp.stopProvider();
-            }
         }
         if (temporary) {
             R.getLocator().setLastLocation(location);
@@ -87,6 +86,7 @@ public class LocationContext implements LocationEventGenerator {
         }
     }
 
+
     /**
      * Removes temporary location - has to be called when form is leaved
      */
@@ -97,27 +97,33 @@ public class LocationContext implements LocationEventGenerator {
         }
     }
 
+
     public int getSource() {
         return source;
     }
 
+
     public boolean isTemporary() {
         return temporary;
     }
+
 
     public void setTemporaryScreen(String temporaryScreen) {
         temporary = true;
         this.backScreen = temporaryScreen;
     }
 
+
     public void setBackScreen(String backScreen) {
         back = true;
         this.backScreen = backScreen;
     }
 
+
     public String getSourceData() {
         return sourceData;
     }
+
 
     /**
      * Called at start or in the middle
@@ -129,6 +135,7 @@ public class LocationContext implements LocationEventGenerator {
             setLocation(R.getSettings().getLastLocation(), R.getSettings().getLocationSource(), R.getSettings().getLocationInfo());
         }
     }
+
 
     /**
      * Called at application exit
@@ -145,11 +152,14 @@ public class LocationContext implements LocationEventGenerator {
         }
     }
 
+
     public void addLocationChangeListener(LocationEventListener listener) {
     }
 
+
     public void removeLocationChangeListener(LocationEventListener listener) {
     }
+
 
     public void notifyChangeStateToListeners() {
         if (source != GPS) {
@@ -157,14 +167,17 @@ public class LocationContext implements LocationEventGenerator {
         }
     }
 
+
     public void notifyNewLocationToListeners() {
         if (location != null) {
             R.getLocator().locationChanged(this, location);
         }
     }
 
+
     public void notifyMessageToListener(String message) {
     }
+
 
     public void notifyErrorMessageToListeners(String message) {
     }
