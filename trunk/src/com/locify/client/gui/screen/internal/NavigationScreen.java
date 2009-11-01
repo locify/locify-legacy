@@ -606,7 +606,7 @@ public class NavigationScreen extends Form implements CommandListener, LocationE
             double angleN = R.getLocator().getHeading();
             double angleD = 0;
             if (navigator != null) {
-                setTitle(navigator.getToName());
+                setTitle(Utils.urlUTF8decode(navigator.getToName()));
                 angleD = navigator.getAzimuthToTaget(location) - angleN;
                 actualizeItem(ITEM_DISTANCE, GpsUtils.formatDistance(navigator.getDistanceToTarget(location)));
             }
