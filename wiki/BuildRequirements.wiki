@@ -23,7 +23,7 @@
 = Emulator troubleshooting =
 
   Note:
-    * _$WTK_HOME_ means $NetBeans_HOME/mobility8/WTK_version_ for embedded Sun Wireless Toolkit (WTK), or your full installation, e.g. "/opt/WTK2.5.2/".
+    * _$WTK_HOME_ means `$NetBeans_HOME/mobility8/WTK2.5.2` for embedded Sun Wireless Toolkit (WTK), or your full installation, e.g. `/opt/WTK2.5.2/`.
 
 == Run on 64-bit ==
 
@@ -55,7 +55,7 @@
 
 ==== Solution for (Open)Solaris users ====
 
-  # In build.xml, put into <emulator>, tag <parameter name="-d32" value="" />
+  # In build.xml, put into `<emulator>`, tag `<parameter name="-d32" value="" />`
     * Short example:
   {{{
     <project name="Locify" default="j2mepolish">
@@ -73,11 +73,11 @@
 
 ==== Solution for other Un*x users ====
 
-  # Edit $WTK_HOME/bin/emulator, *javapathtowtk* fill in the variable (the full path to 32-bit JVM)
+  # Edit `$WTK_HOME/bin/emulator`, *javapathtowtk* fill in the variable (the full path to 32-bit JVM)
 
 ==== Solution for Windows users ====
 
-  # Edit $WTK_HOME/bin/emulator.vm, fill the full path to 32-bit JVM
+  # Edit `$WTK_HOME/bin/emulator.vm`, fill the full path to 32-bit JVM
 
 == java.lang.NoClassDefFoundError: javax/microedition/pim/PIMItem ==
 
@@ -103,8 +103,8 @@
 
 === Solution ===
 
-  # Check $J2ME-Polish_HOME/global.properties, you must correct fill *wtk.home* variable, e.g. _wtk.home=/opt/netbeans-6.7.1/mobility8/WTK2.5.2_
-  # Update Locify project from SVN and copy a file "custom-devices.xml" and "custom-css-attributes.xml" from ".polishSettings" to the $J2ME-Polish_HOME (rewrite it)
+  # Check `$J2ME-Polish_HOME/global.properties`, you must correct fill *wtk.home* variable, e.g. _wtk.home=/opt/netbeans-6.7.1/mobility8/WTK2.5.2_
+  # Update Locify project from SVN and copy a file "custom-devices.xml" and "custom-css-attributes.xml" from ".polishSettings" to the `$J2ME-Polish_HOME` (rewrite it)
 
 == Error run, return code 134 ==
 
