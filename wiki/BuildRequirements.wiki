@@ -3,13 +3,13 @@
 
 = Software you need =
 
-  * Latest Sun Java JDK
+  * Latest [http://java.sun.com/javase/downloads/index.jsp Sun Java JDK]
   * Latest [http://www.j2mepolish.org J2ME Polish] - Locify uses this framework for building GUI etc.
-  * Latest Netbeans IDE - this is not required, but everything is prepared for Netbeans and you will avoid many problems. However, it's possible to build Locify just with command line.
-  * Sun Wireless Toolkit - provides emulator for testing midlets, it is a part of Netbeans IDE
+  * Latest [http://www.netbeans.org Netbeans IDE] - this is not required, but everything is prepared for Netbeans and you will avoid many problems. However, it's possible to build Locify just with command line.
+  * [http://java.sun.com/javame/downloads/index.jsp Sun Wireless Toolkit] - provides emulator for testing midlets, it is a part of Netbeans IDE (as *Java ME* plugins). Use version 2.5.x.
 
 
-= Firt build howto =
+= First build howto =
 
   # Download and install required software
   # Checkout latest trunk/ source code
@@ -18,3 +18,111 @@
   # Change path to the J2ME Polish installation
   # Copy a file "custom-devices.xml" and "custom-css-attributes.xml" from ".polishSettings" to the J2ME Polish installation directory
   # Click on Build in Netbeans
+
+
+= Emulator troubleshooting =
+
+  Note:
+    * _$WTK_HOME_ means $NetBeans_HOME/mobility8/WTK_version_ for embedded Sun Wireless Toolkit (WTK), or your full installation, e.g. "/opt/WTK2.5.2/".
+
+== Run on 64-bit ==
+
+  You can catch:
+
+  {{{
+    Starting emulator $WTK_HOME/bin/emulator
+    Waiting for emulators...
+    Generic/Generic: java.lang.UnsatisfiedLinkError: $WTK_HOME/bin/sublime.so: $WTK_HOME/bin/sublime.so: wrong ELF class: ELFCLASS32 (Possible cause: architecture word width mismatch)
+    Generic/Generic:         at java.lang.ClassLoader$NativeLibrary.load(Native Method)
+    Generic/Generic:         at java.lang.ClassLoader.loadLibrary0(ClassLoader.java:1778)
+    Generic/Generic:         at java.lang.ClassLoader.loadLibrary(ClassLoader.java:1674)
+    Generic/Generic:         at java.lang.Runtime.load0(Runtime.java:770)
+    Generic/Generic:         at java.lang.System.load(System.java:1003)
+    Generic/Generic:         at com.sun.kvem.Sublime.<init>(Unknown Source)
+    Generic/Generic:         ... 17 more
+  }}}
+
+=== Reason ===
+
+  [http://java.sun.com/products/sjwtoolkit Sun Wireless Toolkit] can not run over 64bit JVM.
+
+=== Solution ===
+
+  # Try if you have installed 32bit JVM, run: _java -version -d32_
+  # If you get _Running a 32-bit JVM is not supported on this platform._
+    * You must install [http://java.sun.com/javase/downloads/index.jsp 32-bit JVM], repeate test.
+    * Note for non-(Open)Solaris users: Remember, now you have a system of two separate directories with JVM! You must run 32-bit version!
+
+==== Solution for (Open)Solaris users ====
+
+  # In build.xml, put into <emulator>, tag <parameter name="-d32" value="" />
+    * Short example:
+  {{{
+    <project name="Locify" default="j2mepolish">
+        <target name="j2mepolish" depends="j2mepolish-init"	description="This is the controller for the J2ME build process.">
+            <j2mepolish>
+                <emulator wait="true" securityDomain="trusted" enableProfiler="true" enableMemoryMonitor="true"	enableNetworkMonitor="false" if="debug">
+                    <!-- Attach the emulator to the NetBeans debugger:	-->
+                    <debugger name="antcall" target="connect-debugger" port="6001" />
+                    <parameter name="-d32" value="" />
+                </emulator>
+            </j2mepolish>
+        </target>
+    </project>
+  }}}
+
+==== Solution for other Un*x users ====
+
+  # Edit $WTK_HOME/bin/emulator, *javapathtowtk* fill in the variable (the full path to 32-bit JVM)
+
+==== Solution for Windows users ====
+
+  # Edit $WTK_HOME/bin/emulator.vm, fill the full path to 32-bit JVM
+
+== java.lang.NoClassDefFoundError: javax/microedition/pim/PIMItem ==
+
+ You can catch:
+
+  {{{
+    Generic/Generic: Exception in thread "event-thread" java.lang.NoClassDefFoundError: javax/microedition/pim/PIMItem
+    Generic/Generic:         at by.a(Unknown Source)
+    Generic/Generic:         at com.locify.client.gui.Midlet.startMIDlet(Unknown Source)
+    Generic/Generic:         ... 15 more
+    Generic/Generic: Caused by: org.microemu.app.classloader.MIDletClassLoader$LoadClassByParentException: javax.microedition.pim.PIMItem
+    Generic/Generic:         at org.microemu.app.classloader.MIDletClassLoader.findClass(MIDletClassLoader.java:346)
+    Generic/Generic:         at java.lang.ClassLoader.loadClass(ClassLoader.java:307)
+    Generic/Generic:         at org.microemu.app.classloader.MIDletClassLoader.loadClass(MIDletClassLoader.java:215)
+    Generic/Generic:         at java.lang.ClassLoader.loadClass(ClassLoader.java:252)
+    Generic/Generic:         at java.lang.ClassLoader.loadClassInternal(ClassLoader.java:320)
+    Generic/Generic:         ... 17 more
+  }}}
+
+=== Reason ===
+
+  Run Locify on default MicroEmulator.
+
+=== Solution ===
+
+  # Check $J2ME-Polish_HOME/global.properties, you must correct fill *wtk.home* variable, e.g. _wtk.home=/opt/netbeans-6.7.1/mobility8/WTK2.5.2_
+  # Update Locify project from SVN and copy a file "custom-devices.xml" and "custom-css-attributes.xml" from ".polishSettings" to the $J2ME-Polish_HOME (rewrite it)
+
+== Error run, return code 134 ==
+
+  You can catch:
+
+  {{{
+    Waiting for emulators...
+    Generic/Generic: Running with storage root $WTK_HOME/appdb/temp.DefaultColorPhone11
+    Emulator returned [134], arguments were:
+    $WTK_HOME/bin/emulator
+    -Xdevice:DefaultColorPhone
+    -Xdescriptor:$NetBeansProjects_HOME/Locify/dist/Generic/Locify.jad
+    -Xprefs:$NetBeansProjects_HOME/Locify/build/Generic/Generic/en/emulator.properties
+    -Xdomain:maximum
+    run:
+    BUILD SUCCESSFUL (total time: 13 seconds)
+  }}}
+
+=== Reason and solution ===
+
+  Actually without the possibility of recurrence. It seems that the problem is in version WTK. Use the latest version 2.5.x. After update you must change WTK emulator path in J2ME Polish ($J2ME-Polish_HOME/global.properties).
