@@ -64,6 +64,7 @@ public class TopBarBackground extends GradientVerticalBackground implements Loca
     private static Image imgHttpAnimation;
     private static Image imgHttpSending;
     private static Image imgHttpReceiving;
+    private static Image imgRouteOffset;
     // route images
     private static Image imgRouteRunning;
     private static Image imgRoutePaused;
@@ -99,6 +100,7 @@ public class TopBarBackground extends GradientVerticalBackground implements Loca
             imgRouteRunning = Image.createImage("/state_recording_21x21.png");
             imgRoutePaused = Image.createImage("/state_pause_21x21.png");
             imgRouteUnfinished = Image.createImage("/state_pause_21x21.png");
+            imgRouteOffset = Image.createImage(21, 21);
         } catch (Exception e) {
             R.getErrorScreen().view(e, "TopBarBackground.createImages", null);
         }
@@ -114,14 +116,20 @@ public class TopBarBackground extends GradientVerticalBackground implements Loca
                 g.drawString(message, x + width - 45, y + 2, Graphics.TOP | Graphics.RIGHT);
             }
 
+            // Posunutí ikon statusu GPS, HTTP a RouteRecording do leva o "o" bodů
+            int o = 0;
+            if ( System.getProperty("microedition.platform").indexOf( "SonyEricsson" ) > -1 ) {
+              o = 22;
+            }
+
             if (httpStatus != UNDEFINED && httpImage != null) {
-                g.drawImage(httpImage, x + width - 44, y + 1, Graphics.TOP | Graphics.LEFT);
+                g.drawImage(httpImage, x + width - 44 - o, y + 1, Graphics.TOP | Graphics.LEFT);
             }
             if (gpsStatus != UNDEFINED && gpsImage != null) {
-                g.drawImage(gpsImage, x + width - 22, y + 1, Graphics.TOP | Graphics.LEFT);
+                g.drawImage(gpsImage, x + width - 22 - o, y + 1, Graphics.TOP | Graphics.LEFT);
             }
             if (routeStatus != RouteManager.ROUTE_STATE_NO_ACTION && routeImage != null) {
-                g.drawImage(routeImage, x + width - 66, y + 1, Graphics.TOP | Graphics.LEFT);
+                g.drawImage(routeImage, x + width - 66 - o, y + 1, Graphics.TOP | Graphics.LEFT);
             }
         } catch (Exception e) {
             R.getErrorScreen().view(e, "TopBarBackground.paint", null);
