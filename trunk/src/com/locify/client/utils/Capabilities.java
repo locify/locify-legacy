@@ -155,11 +155,7 @@ public class Capabilities {
     }
 
     public static int getHeight() {
-        //#if polish.Vendor == BlackBerry
         return R.getMainScreen().getScreenFullHeight();
-        //#else
-//#         return height;
-        //#endif
     }
 
     public static void setHeight(int height) {
