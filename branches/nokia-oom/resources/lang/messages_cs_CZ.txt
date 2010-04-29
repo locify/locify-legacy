@@ -1,0 +1,413 @@
+# Locify translation file for language: Czech
+
+#General words
+Locify=Locify
+Warning=Upozornění
+Info=Info
+Error=Chyba
+Home=Domů
+Name=Jméno
+Latitude=Zeměp.šířka
+Longitude=Zeměp.délka
+Distance=Vzdálenost
+Title=Titulek
+Description=Popis
+Desc=Popis
+Speed=Rychlost
+Heading=Směr
+Altitude=Nadm.výška
+Accuracy=Přesnost
+Always=Vždy
+Never=Nikdy
+Ask_every_time=Vždy se ptát
+Degree=\u00B0
+
+#Tab panel
+Locify_home=Locify doma
+Set_location=Nastavit polohu
+Gps=GPS
+Saved_location=Uložené místo
+Address=Adresa
+Coordinates=Souřadnice
+Last_known=Posl. známá
+Saved=Uložené
+Save_place=Uložit místo
+Record_route=Nahrát trasu
+Browse=Procházet
+Maps=Mapy
+View_location=Zobrazit polohu
+View_place=Zobrazit místo
+View_route=Zobrazit trasu
+Navigation=Navigace
+Compass=Kompas
+To_place=Na místo
+Along_route=Podél trasy
+Dock_more=Další
+Settings=Nastavení
+Check_version=Kontrola verze
+Help=Nápověda
+Logger=Logovací konzole
+Really_exit=Opravdu chcete ukončit Locify?
+
+#Main screen context menu
+Service=Služba
+Shortcut=Zástupce
+More_info=Více info
+Update_service=Aktualizovat
+Rename=Přejmenovat
+Move=Přesunout
+Delete=Smazat
+Add=Přidat
+Service_from_list=Službu ze seznamu
+Service_by_link=Službu z odkazu
+Exit=Konec
+
+#Commands
+Stop=Zastavit
+Back=Zpět
+Select=Vybrat
+Edit=Upravit
+Delete_all=Smazat vše
+Register=Registrovat
+Save=Uložit
+Yes=Ano
+No=Ne
+Send=Odeslat
+Navigate=Navigovat
+Navigate_along=Navigovat podél
+View=Zobrazit
+Cancel=Zrušit
+OK=OK
+Show_on_map=Ukázat na mapě
+Show_on_map_all=Ukázat vše na mapě
+Refresh=Obnovit
+Backlight_on=Zapnout podsvícení (7)
+Backlight_off=Vypnout podsvícení (7)
+Clear=Vymazat
+
+#First run
+Set_root_directory=Nastavte adresář pro data
+This_folder_does_not_contain_more_folders=Tento adresář neobsahuje žádné další adresáře.
+Continue=Pokračovat
+Set=Nastavit
+You_need_to_setup_permissions=Pro běh aplikace je nutno nastavit práva pro přístup k souborům!
+Howto=Jak na to?
+Choose_language=Vyberte jazyk
+English=English
+Czech=Čeština
+Slovenian=Slovenština
+Polish=Polski
+Autoinstall_confirmation=Přejete si nainstalovat doporučené služby? (Spotřebuje přibližně 20 kB dat)
+Installing=Instaluji
+Downloading_services=Stahuji služby...
+Downloading_icons=Stahuji ikonky...
+
+#First run permissions help
+For_Nokia_S60_3rd_phones=Pro telefony Nokia S60 3rd:
+Nokia_S60_3rd_text=Otevřete 'Menu->Nastavení->Správce dat->Spr.aplik.->Locify-Otevřít'. Nastavte 'Číst uživat. data' a 'Upravit uživat. data' to 'Vždy povoleno'.
+For_Nokia_S40_phones=Pro telefony Nokia S40:
+Nokia_S40_text=Otevřete Aplikace/Sbírka a vyberte Locify. Vyberte 'Volby->Přístup k aplikaci->Telefonní přístup'. Nastavte 'Načíst data uživat.' a 'Přid. a uprav. data' na 'Vždy povolit'.
+For_SonyEricsson_phones=Pro telefony SonyEricsson:
+SonyEricsson_text=Otevřete 'Menu->Správce souborů->Aplikace->Locify->Další->Oprávnění'. Nastavte 'Čtení dat uživatele' a 'Zápis dat uživatele' na 'Nedotazovat'.
+For_UIQ_phones=Pro telefony UIQ:
+UIQ_text=Na těchto telefonech se dotaz na práva zobrazí po spuštění aplikace. Vyberte 'Vždy povolit' u čtení a zápisu uživatelských dat. Mějte na paměti, že na UIQ je možné takto nastavit jenom dvě práva.
+General_phone_text=Najděte ve svém telefonu Správce aplikací. Vyberte Locify aplikaci a najděte nastavení oprávnění. Nastavte oprávnění pro čtení a zápis uživatelských dat na Vždy povoleno nebo podobné.
+If_always_allowed_not_possible=Pokud chybí možnost 'Vždy povoleno':
+If_always_allowed_not_possible_text=Ujistěte se, že jste přenesli do telefonu oba soubory (JAR a JAD) a aplikaci instalovali z JAD souboru.\nPokud přesto práva nelze nastavit, nemáte v telefonu Thawte kořenový certifikát. Můžete si ho stáhnout na našem webu: http://www.locify.com/download
+
+#Loading
+Loading=Nahrává se
+Loading_filesystem=Nahrává se filesystem
+Loading_cookies=Nahrávají se cookies
+Loading_settings=Nahrává se nastavení
+Loading_service_settings=Nahrává se nastavení služeb
+Loading_deleted=Nahrávají se smazaná data
+Loading_services=Nahrávají se služby
+Loading_mainscreen=Nahrává se hlavní menu
+Loading_locator=Nahrává se locator
+
+#Location providers
+JSR179LocationProvider=Interní Gps
+SimulatorLocationProvider=Simulátor Gps
+NoGpsLocationProvider=Bez GPS
+BTNMEALocationProvider=Bluetooth Gps
+TCPNMEALocationProvider=PDA Porter
+
+
+#GPS Connection
+Connection_progress=Průběh připojení
+Select_GPS_device=Vyberte GPS zařízení
+Bluetooth_off=Máte vypnutý Bluetooth!
+Unable_to_search_service=Nebylo možné najít služby daného BT zařízení
+Already_connected=Váš telefon už je připojen k jinému BT zařízení nebo BT zařízení je připojeno k jinému telefonu
+Connected=Připojeno
+No_bt_in_range=Žádná Bluetooth zařízení v dosahu
+Unknown_bt_device=Neznáme Bluetooth zařízení
+Connecting_to_device=Připojuji se k zařízení
+Bluetooth_searching=Vyhledávám nejbližší Bluetooth zařízení...
+Connection_failed_or_off=Připojení selhalo. Zařízení možná není spárováno.
+Connection_failed=Připojení selhalo
+Connecting=Připojuji
+Connecting_to_last_device=Připojuji se k poslednímu zařízení
+HGE-100_not_connected=Příslušenství Sony-Ericsson HGE-100 není připojeno k Vašemu telefonu.
+Pda_porter_not_connected=PDA Porter neběží na pozadí nebo není správně spojen s Vaší GPS.
+Unknown_location=Neznámá poloha
+Location_timeout=Nedaří se získat pozici. Běžte pod volnou oblohu a zkuste to znova.
+
+#Service Management
+Really_add_service=Opravdu chcete přidat tuto službu?
+Service_added=Služba byla přidána
+Service_description=Popis služby
+Service_url=URL služby
+Confirmation=Potvrzení
+New_name=Nové jméno
+Add_service=Přidat službu
+
+#Login & Register
+Login_field=Login
+Save_password=Uložit heslo
+Password=Heslo
+Email=Email
+Tel=Telefon. číslo
+Credentials_to=Zadejte přihlašovací údaje k
+
+#Settings
+Location=Poloha
+Interface=Rozhraní
+Other=Ostatní
+Preffered_gps=Preferovaná GPS
+Autodetect=Automaticky
+At_start=Po startu aplikace
+Set_last_location=Nastavit poslední polohu
+Connect_gps=Připojit GPS
+Ask_for_location_when_needed=Ptát se na polohu když je potřeba
+Close_app_on_external_browser=Zavření aplikace při spuštění ext.prohlížeče
+Coordinates_format=Formát souřadnic
+Decimal_degrees=Pouze stupně
+Degrees_and_minutes=Stupně a minuty
+Degrees_minutes_seconds=Stupně,minuty,vteřiny
+Autologin=Automatické přihlášení
+On=Zapnuto
+Off=Vypnuto
+Language=Jazyk
+Restart_needed=Změny se projeví až po restartu aplikace
+Settings_saved=Nastavení bylo uloženo
+Default_map_provider=Výchozí poskytovatel map
+Map_items=Mapové přídavky
+Scale=Měřítko
+Touch=Dotyková podpora
+Advanced_settings=Pokročilé nastavení
+Cache_size=Velikost cache (kB)
+Panning_behaviour=Chování při posouvání
+Repaint_during=Překreslovat pořád
+Wait_until_end_of_panning=Počkat na konec posouvání
+Autoload=Automaticky načítat offline mapy
+Units=Jednotky
+Metric=Metrické
+Imperial=Imperiální
+Offline_map_loading=Načítání offline map
+Regular=Běžné
+S60_fix=Fix pro S60
+Turn_on_backlight=Zapínat podsvícení
+Nowhere=Nikde
+Maps_and_navigation=Mapy a navigace
+Whole_application=Celá aplikace
+Backlight_blink_frequency=Frekvence blikání podsvícení (s)
+File_cache=Cache v souborech
+
+#Check version
+Download_latest=Aktualizovat
+Current_version_info=Vaše verze
+Latest_version_info=Informace o nových verzích
+
+#Form options
+Refresh_gps=Obnovit GPS 
+Another_location=Jiná poloha
+
+#Location Context
+Set_location=Zvolte polohu
+Enter_own_coordinates=Vložte souřadnice
+Enter_address=Vložte adresu
+Select_saved_location=Vyberte uloženou polohu
+Your_address_has_been_located_here=Vaše adresa byla nalezena zde
+Is_it_OK=Je to v pořádku
+Select_correct_address=Vyberte správnou adresu
+Gps_connectRequest=Záznam tras požaduje GPS data. Připojit GPS?
+Valid_gps_position=Platná GPS poloha
+Waiting_for_gps=Čekám na GPS...
+Change=Změnit
+Where=Kde
+Temporary_location=Dočasná poloha
+
+#External browser
+External_browser_launch=Otevírám externí prohlížeč
+External_closing_information=Na některých telefonech může být externí prohlížeč otevřen až poté, co je Locify zavřeno. Chcete zavřít Locify?
+
+#Filesystem
+Object_saved=Objekt byl uložen do souborů.
+Waypoint_saved=Místo bylo uloženo lokálně.
+Filesystem=Soubory
+Sort_by_distance=Řadit dle vzdál.
+Sort_by_name=Řadit dle jména
+To_landmarks=Do Nokia Map
+Waypoint_added_to_landmarks=Byl přidán nový Bod zájmu. Můžete ho používat v aplikacích jako Nokia Mapy.
+GeoFile_error=Vybraný KML soubor má nepodporovaný formát. Prosím zkontrolujte.
+No_file_selected=Soubor nezvolen
+Select_file=Vyberte soubor
+Uploading=Nahrávám...
+Upload_complete=Nahrávání dokončeno. Čekám na odpověď...
+Route=Trasa
+Waypoint=Bod
+Waypoint_cloud=Mračno bodů
+Points=bod(ů)
+
+#Save place
+Save_place=Uložit místo
+Select_place=Vyberte místo
+Select_route=Vyberte cestu
+You_need_valid_gps_position=Na uložení místa potřebujete GPS signál
+Name_must_not_be_empty=Jméno místa nesmí být prázdné
+
+#Navigation
+Navi_more=Více (5)
+Navi_less=Méně (5)
+Date=Datum
+
+#Map screen
+Change_map_tile=Online mapy (*#)
+Change_map_file=Offline mapy (9)
+Online_maps=Online mapy
+Offline_maps=Offline mapy
+Zoom_in=Přiblížit (3)
+Zoom_out=Oddálit (1)
+My_location=Moje poloha (0)
+SelectItem=Vyber (7)
+File_map=Invex/Digitex
+File_map_tile_loading=Načítá se...
+File_map_tile_not_exist=Neexistuje
+File_map_cannot_initialize=Nelze inicializovat
+No_file_maps_warning=Nemáte žádné offline mapy inicializované nebo žádná není v současné viditelné oblasti. Je potřeba nakopírovat soubory map do složky {0} a poté spustit inicializaci. Více o formátech map na http://www.locify.com/help/maps.
+Creating_warning=Vybraná mapa nebyla úspěšně nastavena. Zvol prosím znovu Inicializaci.
+Searching=Vyhledává...
+Initializing=Inicializuje...
+Find_maps=Najdi mapy
+Initialize_maps=Inicializovat mapy
+Select_and_center=Vyber a vycentruj
+Map_ready=Mapa připravena
+Unsupported=Nepodporovaná
+Process_stopped=Proces zastaven
+Completed=Dokončeno...
+No_files=Soubory s mapou nenalezeny
+Maps_in_area=Mapy na tomto místě:
+Item_manager=Objekty na mapě (5)
+Permanent_map_items=Permanentní mapový objekt
+Temporary_map_items=Dočasný mapový objekt
+Map_function=Akce
+
+#J2ME Polish texts
+polish.command.mark=Označit
+polish.command.unmark=Odznačit
+polish.command.options=Možnosti
+polish.command.clear=Odmazat
+polish.command.hide=Skrýt
+polish.title.input=Vložit text
+polish.command.entersymbol=Přidat symbol
+polish.command.followlink=Dále
+polish.command.submit=Odeslat
+polish.command.select=Vybrat
+
+#Help texts
+About=O aplikaci
+About_text= 
+What_is_locify_for=K čemu Locify slouží?
+What_is_locify_for_text=Locify je mobilní aplikace obsahující mnoho lokačních služeb, přístupných zdarma a na většině telefonů. Obsahuje také zajímavé vlastnosti jako podporu GPS, mapy, navigaci a nahrávání míst a tras.
+How_to_add_service=Jak přidat službu?
+How_to_add_service_text=Službu si můžete přidat z našeho seznamu služeb: 'Doma->Možnosti->Přidat->Službu ze seznamu'\n\nSlužbu jde přidat manuálně, pokud znáte její URL: 'Doma->Možnosti->Přidat->Službu z odkazu'.
+How_to_connect_gps=Jak připojit GPS?
+How_to_connect_gps_text=Pokud zvolíte 'Nastavit polohu->GPS', Locify se pokusí připojit k nejvhodnějšímu GPS zařízení. Pokud chcete připojit jiné zařízení, jděte na 'Více->Nastavení->Poloha'. Pro Windows Mobile musí běžet na pozadí ještě program jménem Locify Porter - více na http://www.locify.com/help/windows-mobile. Locify lze používat i bez GPS - polohu můžete získat zadáním adresy, z uloženého bodu atd. 
+What_coloured_satellites_mean=Co znamenají barvy satelitků?
+How_to_manage_services=Jak spravovat položky na hlavní obrazovce?
+How_to_manage_services_text=Máte mnoho možností, jak si přizpůsobit hlavní obrazovku. Můžete přidávat služby, zástupce, mazat je nebo přesunovat. Vše naleznete pod 'Doma->Možnosti->Služba/Zástupce'
+Credits=Credits
+Credits_text=Copyright (c) 2007-2009, Locify Ltd. Všechna práva vyhrazena\n\nVíce na: http://www.locify.com\n\nTato aplikace je open-source (GNU-GPL).\n\nLocify neposkytuje mapová data, mapová data pocházejí od třetích stran. Přečtěte si podmínky použití těchto služeb:\n\nGoogle Maps: http://code.google.com/apis/maps/terms.html\nYahoo Maps: http://info.yahoo.com/legal/us/yahoo/maps/mapsapi/mapsapi-2141.html\nMicrosoft VirtualEarth: http://msdn.microsoft.com/en-us/cc300389.aspx\nOpenStreetMaps: http://wiki.openstreetmap.org/index.php/OpenStreetMap_License\n\nMějte na paměti, že Locify je aplikace zdarma stejně jako tyto mapové podklady (v desktopovém prohlížeči).
+Icons_help=Ikonky GPS:
+Connecting_help=Připojování k GPS
+Nosignal_help=Připojeno, čeká se na polohu
+Weak_help=Validní poloha, nízká přesnost (>50 m)
+Normal_help=Validní poloha, běžná přenost (15-50m)
+Strong_help=Validní poloha, vysoká přesnost (<15m)
+Manual_help=Manuální poloha jako adresa, poslední známá, ...
+Dont_show_next_time=Přístě nezobrazovat
+
+#Error screen
+Error_occured=Nastala chyba
+Error_occured_description=Omlouváme se, ale v programu nastala neočekávaná chyba. Prosím nahlašte tuto chybu na support@locify.com nebo http://groups.google.com/group/locify - budeme se snažit problém odstranit.
+Place=Místo 
+Data=Data
+Detail=Detail
+Error_detail=Detail chyby
+Error_saved=Zpráva o chybě byla uložena do Locify adresáře
+Log_saved=Celý log byl uložen do Locify adresáře
+
+#Errors
+Wrong_latitude=Nesprávný formát zeměpisné šířky
+Wrong_longitude=Nesprávný formát zeměpisné délky
+Access_denied_to_selected_directory=Do tohoto adresáře nelze zapisovat
+Not_valid_Locify_XHTML=Tato stánka není validní Locify XHTML
+Connection_problem=Chyba připojení
+Connection_problem_description=Nastal problém s vaším připojením k Internetu. Buď právě nemáte GPRS/3G/Wi-Fi signál, nebo je vaše připojení k internetu špatně nastaveno.
+Parsing_error=Tato stránka nemůže být zobrazena, protože obsahuje nevalidní HTML. Pravděpodobně se jedná o dočasný problém poskytovatele služby. Prvně zkuste aktualizovat službu v hlavním menu. Pokud problém bude trvat déle jak den, kontaktujte support@locify.com
+Image_too_big=Příliš velký obr.
+Try_again=Zkus znovu
+Invalid_address=Tato adresa je chybná. Zkuste adresu zadat jinak.
+Wrong_file=Soubor je poškozen, opravte ho případně odešlete na support@locify.com k analýze.
+
+#Route screen
+Route_screen=Záznam tras
+Start_route=START
+Stop_route=STOP
+Pause_route=PAUZA
+Resume_route=POKRAČ.
+Hdop_route=HDOP
+Vdop_route=VDOP
+Time=Čas
+Max_speed=Max. rychlost
+Average_speed=Prům. rychlost
+Style=Styl zobrazení
+Simple_style=Jednoduchý styl
+Extended_style=Rozšířený styl
+Graphs_style=Grafy
+Start_action=Začni záznam
+Stop_action=Zastav záznam
+Reset_route=Vymazání záznamu
+Pause_action=Pauza
+Resume_action=Pokračovat
+
+Save_last_route=Ulož poslední trasu
+Route_name=Jméno trasy
+Route_length=Délka trasy
+Travel_time=Transportní čas
+Waypoints_count=Počet bodů
+First_waypoint=První bod
+Route_description=Popis trasy
+Route_saved=Trasa uložena
+Route_cant_be_saved=Špatné jméno - trasa nemůže být uložena!
+
+#Satellite screen
+Satellites=Satelity
+
+#Contacts screen
+Contacts_screen=Kontakty
+Contacts_error_1=Žádné kontakty nenalezeny
+Contacts_error_2=Žádné kontakty s e-mailem nenalezeny
+Contacts_error_3=Žádné kontakty s tel. číslem nenalezeny
+
+Object_count=Počet objektů
+Center_waypoint=Centrum
+Navigate_to_first_point=Naviguj na první bod
+Navigate_to_last_point=Naviguj na poslední bod
+Navigate_to_nearest=Naviguj na nejbližší bod
+First_point=První bod
+Last_point=Poslední bod
+Unexpected_problem=Neočekávaný problém
+Sms_sent=SMS was sent

@@ -1,0 +1,2 @@
+Generic/Generic	null	Locify.jar	Locify.jad	-	nullxnull
+
